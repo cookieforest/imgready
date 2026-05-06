@@ -1,0 +1,18 @@
+{
+  "name": "imgready",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Free in-browser image compressor, converter and resizer.",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:watch": "node build.mjs --watch",
+    "check": "node --check app.js && node --check imgready-worker.js && node --check sw.js",
+    "verify": "npm run check && npm run build && node --check dist/app.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
