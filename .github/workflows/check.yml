@@ -1,10 +1,6 @@
-# Validation gate. Runs node --check on every JS file in the repo and
-# verifies the production build succeeds. Goal: nothing broken ever
-# reaches Cloudflare's deploy queue.
-#
-# This catches the kind of silent truncation we hit during P5 — a
-# partial file fails node --check and the workflow fails before the
-# deploy can serve it.
+# Validation gate. Goal: nothing broken ever reaches Cloudflare's
+# deploy queue. This is the layer that would have caught the silent
+# truncation we hit during P5.
 name: check
 
 on:
@@ -27,40 +23,49 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Syntax check (raw source files)
-        # Each script must parse cleanly on its own. This is the layer
-        # that would have caught the earlier app.js truncation.
+      - name: Source size sanity (catches truncation)
+        # Each ordered source chunk should be reasonable. If something
+        # truncates them later, the next CI run flags the missing bytes.
         run: |
           set -e
-          if [ -f src/app.js ]; then node --check src/app.js; fi
-          if [ -f src/index.js ]; then node --check src/index.js; fi
-          # Phase 2 also keeps a verbatim root copy until Phase 3 deletes it.
-          if [ -f app.js ]; then node --check app.js; fi
-          node --check imgready-worker.js
-          node --check sw.js
-          for f in vendor/*.js; do node --check "$f"; done
-          # All ES modules under src/, if any (Phase 4+).
           for f in src/*.js; do
             [ -f "$f" ] || continue
-            node --check "$f" || { echo "syntax fail: $f"; exit 1; }
+            size=$(wc -c < "$f")
+            echo "$f: $size bytes"
+            [ "$size" -gt 100 ] || { echo "::error::$f looks suspiciously small ($size bytes)"; exit 1; }
           done
 
       - name: Build
+        # Concatenates src/0N-*.js → root/app.js, then bundles → dist/app.js.
+        # The build itself fails loudly if any chunk's content can't be
+        # joined into a syntactically valid IIFE.
         run: npm run build
 
-      - name: Syntax check (built bundle)
+      - name: Syntax check (concatenated + built outputs)
         run: |
+          set -e
+          # Concatenated source (what CF currently serves)
+          node --check app.js
+          # Bundled minified output (what Phase 3 will serve)
           node --check dist/app.js
+          # Worker + service worker stay standalone scripts
+          node --check imgready-worker.js
+          node --check sw.js
+          # Vendor bundles
+          for f in vendor/*.js; do node --check "$f"; done
+          # Sanity: built artifacts non-empty
           test -s dist/app.js || { echo "dist/app.js empty"; exit 1; }
           test -s dist/app.css || { echo "dist/app.css empty"; exit 1; }
 
-      - name: Verify root copy is in sync with src (Phase 2 only)
+      - name: Verify root copy is in sync with build (Phase 2/4)
         # If someone edited root/app.js without rebuilding, fail.
         # When Phase 3 deletes the root copy, this step becomes a no-op.
         run: |
-          if [ -f app.js ] && [ -f src/app.js ]; then
-            diff -q src/app.js app.js || {
-              echo "::error::root/app.js is out of sync with src/app.js — run 'npm run build' and commit the result"
+          if [ -f app.js ] && [ -f src/01-state-helpers.js ]; then
+            # Re-concatenate and compare against the committed root/app.js
+            cat src/0[0-9]-*.js > /tmp/expected_app.js
+            diff -q /tmp/expected_app.js app.js || {
+              echo "::error::root/app.js is out of sync with src/0N-*.js — run 'npm run build' and commit the regenerated root/app.js"
               exit 1
             }
           fi

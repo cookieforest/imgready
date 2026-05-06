@@ -1,36 +1,73 @@
 /**
  * imgready build pipeline.
  *
- * Phase 2 layout:
- *   src/app.js   → canonical JS source (will become src/index.js + modules in Phase 3)
- *   src/app.css  → stylesheet
+ * Phase 4 layout:
+ *   src/01-state-helpers.js        ┐
+ *   src/02-decoders.js             │
+ *   src/03-drop-addfiles.js        │  ordered chunks of one big IIFE.
+ *   src/04-actionbar-render.js     │  Concatenated in alphabetical order
+ *   src/05-process-modal.js        │  to reproduce the canonical app.js
+ *   src/06-fullscreen-init.js      ┘  byte-for-byte.
+ *   src/app.css                       stylesheet
  *
- * Outputs (Phase 2):
- *   1. dist/        — full servable site (Phase 3 will switch Cloudflare to serve this)
+ * Why six numbered files instead of N ES modules: this is what unblocks
+ * stability NOW. The closure-scoped IIFE the existing code uses can't
+ * become real ES modules without semantic refactoring (closure-shared
+ * `var images = []`, `var selectedFormat`, etc. all need export plumbing).
+ * That refactor is real work — Phase 5+. Meanwhile, splitting the source
+ * into ordered chunks under the file-system truncation threshold solves
+ * the recurring "app.js comes back smaller" issue without changing one
+ * byte of behaviour.
+ *
+ * Each chunk is well under any plausible threshold (largest ≈49 KB; the
+ * thing that's been truncating us hits at ~188 KB).
+ *
+ * Outputs:
+ *   1. dist/        — full servable site (what Phase 3 will switch CF to)
  *      dist/app.js     minified bundle (single classic IIFE)
  *      dist/app.css    verbatim
  *      dist/app.js.map source map
  *      dist/<all static files mirrored from root>
- *   2. app.js, app.css at root — direct (unminified) copies of src/* so the
- *      existing Cloudflare static-asset pipeline (which still serves "./")
- *      keeps working without any deploy config change. Phase 3 deletes
- *      these once CF is pointed at ./dist.
+ *   2. app.js, app.css at root — concatenated (unminified) source, what
+ *      the current CF deploy serves. Phase 3 deletes these once CF is
+ *      pointed at ./dist.
  *
  * Workflow:
- *   - Edit src/app.js
- *   - npm run build   (regenerates root copies + dist/ in <100ms)
- *   - git commit src/app.js + the regenerated root files
- *   - CI validates the build round-trips
+ *   - Edit src/0N-*.js (each <50 KB, safe)
+ *   - npm run build    (concatenates → root/app.js, bundles → dist/app.js)
+ *   - git commit src/* + the regenerated root/app.js
+ *   - CI re-runs the build and verifies round-trip
  */
 import * as esbuild from 'esbuild';
-import { existsSync, mkdirSync, copyFileSync, readdirSync, statSync, rmSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync, mkdirSync, copyFileSync, readdirSync, statSync,
+  rmSync, readFileSync, writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 
 const watch = process.argv.includes('--watch');
 
-const JS_ENTRY = existsSync('src/index.js') ? 'src/index.js'
-              : existsSync('src/app.js')   ? 'src/app.js'
-              : 'app.js';                /* legacy fallback only */
+/* Discover ordered source chunks. Sort alphabetically — naming convention
+   01-, 02-, … guarantees correct load order without a manifest. */
+function findChunks() {
+  const chunks = readdirSync('src')
+    .filter(f => /^\d{2}-.+\.js$/.test(f))
+    .sort();
+  if (chunks.length === 0) {
+    /* Phase 2 fallback: legacy single-file source. */
+    if (existsSync('src/index.js')) return ['index.js'];
+    if (existsSync('src/app.js')) return ['app.js'];
+    throw new Error('No source files found in src/');
+  }
+  return chunks;
+}
+
+function concatenateChunks(chunks) {
+  return chunks
+    .map(name => readFileSync(join('src', name), 'utf8'))
+    .join('');
+}
+
 const CSS_ENTRY = existsSync('src/app.css') ? 'src/app.css' : 'app.css';
 
 const COPY_EXCLUDE = new Set([
@@ -60,40 +97,56 @@ function mirrorDir(src, dst) {
   }
 }
 
-const jsBundleOptions = {
-  entryPoints: [JS_ENTRY],
-  bundle: true,
-  format: 'iife',
-  target: 'es2018',
-  minify: true,
-  sourcemap: true,
-  outfile: 'dist/app.js',
-  legalComments: 'none',
-  keepNames: true,
-};
-
 async function buildOnce() {
   const start = Date.now();
-  /* Clean dist/ on full builds so deleted files don't linger. */
+
+  const chunks = findChunks();
+  const concatenated = concatenateChunks(chunks);
+
+  /* 1. Write the concatenated source to root/app.js — current CF deploy
+        serves this. Identical bytes to the historical hand-edited file
+        when chunks 01..06 are concatenated in order. */
+  writeFileSync('app.js', concatenated);
+  copyFileSync(CSS_ENTRY, 'app.css');
+
+  /* 2. Wipe dist/ and rebuild it. Used by Phase 3 once CF is repointed. */
   if (existsSync('dist')) rmSync('dist', { recursive: true, force: true });
   mkdirSync('dist');
-  await esbuild.build(jsBundleOptions);
+
+  /* esbuild bundles + minifies the concatenated source for dist/. We feed
+     it root/app.js (just written above) so we don't need a temp file. */
+  await esbuild.build({
+    entryPoints: ['app.js'],
+    bundle: true,
+    format: 'iife',
+    target: 'es2018',
+    minify: true,
+    sourcemap: true,
+    outfile: 'dist/app.js',
+    legalComments: 'none',
+    keepNames: true,
+  });
   copyFileSync(CSS_ENTRY, 'dist/app.css');
   mirrorDir('.', 'dist');
-  /* Phase 2 compatibility: also write src/* directly to root so the
-     existing Cloudflare deploy (still serving "./") keeps working. */
-  const srcJs = readFileSync(JS_ENTRY, 'utf8');
-  writeFileSync('app.js', srcJs);
-  copyFileSync(CSS_ENTRY, 'app.css');
-  console.log(`[imgready build] ${JS_ENTRY} → dist/app.js (${(jsBundleOptions.minify ? 'minified' : 'verbose')}) + root/app.js (verbatim) + ${readdirSync('dist').length} static entries in ${Date.now() - start}ms`);
+
+  console.log(
+    `[imgready build] ${chunks.length} chunks → root/app.js (${concatenated.length}B) + dist/app.js (${statSync('dist/app.js').size}B minified) in ${Date.now() - start}ms`
+  );
 }
 
 if (watch) {
-  copyFileSync(CSS_ENTRY, 'dist/app.css');
-  mirrorDir('.', 'dist');
-  const ctx = await esbuild.context(jsBundleOptions);
-  await ctx.watch();
-  console.log(`[imgready build] watching ${JS_ENTRY}…`);
+  /* Watch mode: rebuild on any src change. Re-run buildOnce — fast enough. */
+  const fs = await import('node:fs');
+  console.log('[imgready build] watching src/…');
+  await buildOnce();
+  fs.watch('src', { recursive: true }, async (event, filename) => {
+    if (!filename) return;
+    try {
+      await buildOnce();
+    } catch (e) {
+      console.error('[imgready build] error:', e.message);
+    }
+  });
 } else {
   await buildOnce();
 }
