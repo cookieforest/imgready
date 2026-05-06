@@ -1,0 +1,72 @@
+# Validation gate. Runs node --check on every JS file in the repo and
+# verifies the production build succeeds. Goal: nothing broken ever
+# reaches Cloudflare's deploy queue.
+#
+# This catches the kind of silent truncation we hit during P5 — a
+# partial file fails node --check and the workflow fails before the
+# deploy can serve it.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Syntax check (raw source files)
+        # Each script must parse cleanly on its own. This is the layer
+        # that would have caught the earlier app.js truncation.
+        run: |
+          set -e
+          if [ -f src/app.js ]; then node --check src/app.js; fi
+          if [ -f src/index.js ]; then node --check src/index.js; fi
+          # Phase 2 also keeps a verbatim root copy until Phase 3 deletes it.
+          if [ -f app.js ]; then node --check app.js; fi
+          node --check imgready-worker.js
+          node --check sw.js
+          for f in vendor/*.js; do node --check "$f"; done
+          # All ES modules under src/, if any (Phase 4+).
+          for f in src/*.js; do
+            [ -f "$f" ] || continue
+            node --check "$f" || { echo "syntax fail: $f"; exit 1; }
+          done
+
+      - name: Build
+        run: npm run build
+
+      - name: Syntax check (built bundle)
+        run: |
+          node --check dist/app.js
+          test -s dist/app.js || { echo "dist/app.js empty"; exit 1; }
+          test -s dist/app.css || { echo "dist/app.css empty"; exit 1; }
+
+      - name: Verify root copy is in sync with src (Phase 2 only)
+        # If someone edited root/app.js without rebuilding, fail.
+        # When Phase 3 deletes the root copy, this step becomes a no-op.
+        run: |
+          if [ -f app.js ] && [ -f src/app.js ]; then
+            diff -q src/app.js app.js || {
+              echo "::error::root/app.js is out of sync with src/app.js — run 'npm run build' and commit the result"
+              exit 1
+            }
+          fi
+          if [ -f app.css ] && [ -f src/app.css ]; then
+            diff -q src/app.css app.css || {
+              echo "::error::root/app.css is out of sync with src/app.css"
+              exit 1
+            }
+          fi
