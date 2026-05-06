@@ -1741,12 +1741,17 @@ function buildCardStampHTML(item){
   var sv=item.file.size-rr.blob.size;
   var pc=item.file.size?Math.round(sv/item.file.size*100):0;
   /* Skip the stamp entirely if percentage rounds to 0 — a chip that
-     says "0% saved" reads as failure, not nuance. */
+     reads "0% smaller" reads as failure, not nuance. */
   if(pc===0)return '';
   var cls=sv>=0?'':' bad';
-  var label=sv>=0?'saved':'larger';
-  var pct=(sv>=0?'':'+')+Math.abs(pc)+'%';
-  return '<div class="thumb-stamp'+cls+'" aria-label="'+(sv>=0?'Saved ':'Got bigger by ')+Math.abs(pc)+' percent">'+
+  /* Unified savings copy across the app: "smaller" everywhere instead of
+     a mix of "saved" (thumb stamp) and "smaller" (modal label). The
+     percent already disambiguates direction; the word is just there to
+     tell first-time visitors what the number means. "Smaller" is more
+     direct for a layperson reading a card thumbnail at a glance. */
+  var label=sv>=0?'smaller':'larger';
+  var pct=Math.abs(pc)+'%';
+  return '<div class="thumb-stamp'+cls+'" aria-label="'+(sv>=0?'Output is ':'Output is ')+Math.abs(pc)+' percent '+label+' than the original">'+
     '<span class="stamp-pct">'+escHtml(pct)+'</span>'+
     '<span class="stamp-label">'+label+'</span>'+
   '</div>';
@@ -3922,17 +3927,4 @@ renderAll();
   if(bar.parentNode){bar.parentNode.insertBefore(sentinel,bar);}
   var io=new IntersectionObserver(function(entries){
     entries.forEach(function(e){bar.classList.toggle('is-stuck',!e.isIntersecting);});
-  },{rootMargin:'-9px 0px 0px 0px',threshold:[0,1]});
-  io.observe(sentinel);
-})();
-var _resizeEl=G('resizeMax');
-if(_resizeEl)_resizeEl.addEventListener('input',resetPresetToCustom);
-var _origSetCrop=window.setCropRatio;
-window.setCropRatio=function(r){
-  _origSetCrop(r);
-  var s=G('presetSelect');if(!s)return;
-  var ap=PRESETS[s.value];
-  if(ap&&ap.crop!==r)s.value='custom';
-};
-
-})();
+  },{rootMargin:'
