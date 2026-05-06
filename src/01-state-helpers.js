@@ -26,17 +26,29 @@ var QUALITY_HINTS_PNG=[
   {max:99,text:'PNG-8 with 256 colors — near-original quality, still significantly smaller.'},
   {max:100,text:'Lossless PNG — every pixel preserved exactly, largest file size.'}
 ];
-function getQualityHint(v,jpgOnly,pngOnly){
-  var hints=jpgOnly?QUALITY_HINTS_JPG:pngOnly?QUALITY_HINTS_PNG:QUALITY_HINTS;
+/* AVIF behaves quite differently from JPG — quality 50 in AVIF looks
+   roughly comparable to quality 80 in JPG, so the same slider position
+   means very different things. Calibrated copy lets users skip the
+   "wait, why is q=82 already huge" surprise. */
+var QUALITY_HINTS_AVIF=[
+  {max:35,text:'Heavy AVIF compression — visible blur, very small files.'},
+  {max:55,text:'AVIF sweet spot — typically half the size of JPG at the same visible quality.'},
+  {max:75,text:'High-quality AVIF — savings narrow as quality rises.'},
+  {max:99,text:'Near-lossless AVIF — minimal savings over the source.'},
+  {max:100,text:'Lossless AVIF — files often larger than the lossy versions; AVIF is designed for lossy.'}
+];
+function getQualityHint(v,jpgOnly,pngOnly,avifOnly){
+  var hints=avifOnly?QUALITY_HINTS_AVIF:(jpgOnly?QUALITY_HINTS_JPG:(pngOnly?QUALITY_HINTS_PNG:QUALITY_HINTS));
   for(var i=0;i<hints.length;i++){if(v<=hints[i].max)return hints[i].text;}
   return hints[hints.length-1].text;
 }
 function isJpgOnly(){var af=getActiveFormats();return af.length===1&&af[0]==='jpg';}
 function isPngOnly(){var af=getActiveFormats();return af.length===1&&af[0]==='png';}
+function isAvifOnly(){var af=getActiveFormats();return af.length===1&&af[0]==='avif';}
 window.onQualityInput=function(v){
   G('qVal').textContent=v;
   var h=G('qualityHint');
-  if(h)h.textContent=getQualityHint(parseInt(v),isJpgOnly(),isPngOnly());
+  if(h)h.textContent=getQualityHint(parseInt(v),isJpgOnly(),isPngOnly(),isAvifOnly());
   /* Trigger the action-bar recompute so Reprocess can appear when the
      user drags the slider after a batch has already finished. The recompute
      compares live settings to the post-batch snapshot (_lastAppliedSettings)
@@ -445,7 +457,7 @@ function updateFormatUI(){
   if(qg)qg.classList.toggle('disabled-group',onlyGif);
   if(qh){
     if(onlyGif){qh.textContent='GIF uses a fixed 256-color palette — quality slider has no effect.';}
-    else{qh.textContent=getQualityHint(parseInt((G('qualitySlider')||{value:82}).value),isJpgOnly(),isPngOnly());}
+    else{qh.textContent=getQualityHint(parseInt((G('qualitySlider')||{value:82}).value),isJpgOnly(),isPngOnly(),isAvifOnly());}
   }
   updateChargePreview();
 }
@@ -633,28 +645,3 @@ async function preserveExifIntoBlob(originalFile,outBlob){
     var origBuf=new Uint8Array(await originalFile.arrayBuffer());
     if(origBuf[0]!==0xFF||origBuf[1]!==0xD8)return outBlob;
     /* Find the EXIF (APP1) segment in the original */
-    var p=2,exif=null;
-    while(p<origBuf.length-1){
-      if(origBuf[p]!==0xFF)break;
-      var marker=origBuf[p+1];
-      if(marker===0xE1){
-        var len=(origBuf[p+2]<<8)|origBuf[p+3];
-        exif=origBuf.subarray(p,p+2+len);break;
-      }
-      if(marker===0xDA||marker===0xD9)break;
-      var seglen=(origBuf[p+2]<<8)|origBuf[p+3];
-      p+=2+seglen;
-    }
-    if(!exif)return outBlob;
-    var outBuf=new Uint8Array(await outBlob.arrayBuffer());
-    if(outBuf[0]!==0xFF||outBuf[1]!==0xD8)return outBlob;
-    /* Insert EXIF right after SOI in the new file */
-    var combined=new Uint8Array(outBuf.length+exif.length);
-    combined.set(outBuf.subarray(0,2),0);
-    combined.set(exif,2);
-    combined.set(outBuf.subarray(2),2+exif.length);
-    return new Blob([combined],{type:'image/jpeg'});
-  }catch(e){return outBlob;}
-}
-
-/* ========================================

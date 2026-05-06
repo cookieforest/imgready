@@ -419,12 +419,65 @@ document.addEventListener('paste',function(e){
 /* ========================================
    DROP / ADD FILES
    ======================================== */
+/* Full-window drop overlay. The previous behaviour only highlighted the
+   dropzone itself, which is invisible if the user is scrolled mid-page.
+   Squoosh and TinyPNG both show a translucent overlay across the whole
+   viewport during drag — much better orientation for first-time visitors
+   who don't know where the dropzone is. We lazily create the overlay
+   element on first drag so pages that never see a drag pay nothing.
+   Tracking a depth counter (dragenter +1, dragleave -1) handles the
+   case where the cursor moves between child elements firing dragleave
+   on the parent — a counter-based approach is the spec-correct way. */
+var _windowDragOverlay=null;
+var _windowDragDepth=0;
+function _ensureWindowDragOverlay(){
+  if(_windowDragOverlay)return _windowDragOverlay;
+  _windowDragOverlay=document.createElement('div');
+  _windowDragOverlay.className='window-drop-overlay';
+  _windowDragOverlay.setAttribute('aria-hidden','true');
+  _windowDragOverlay.innerHTML='<div class="wd-card">'+
+    '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'+
+    '<div class="wd-title">Drop anywhere</div>'+
+    '<div class="wd-sub">Stays on your device — never uploaded</div>'+
+  '</div>';
+  document.body.appendChild(_windowDragOverlay);
+  return _windowDragOverlay;
+}
+function _hideWindowDragOverlay(){
+  _windowDragDepth=0;
+  if(_windowDragOverlay)_windowDragOverlay.classList.remove('show');
+  document.body.classList.remove('window-dragging');
+}
+/* dragenter only counts for file drags from outside the page. Some
+   browsers fire it for in-page drags too (e.g. text selection drags),
+   so we filter on dataTransfer.types to keep the overlay file-only. */
+document.addEventListener('dragenter',function(e){
+  var types=e.dataTransfer&&e.dataTransfer.types;
+  if(!types||(typeof types.indexOf==='function'?types.indexOf('Files')===-1:!types.contains('Files')))return;
+  if(G('fsModal')&&G('fsModal').classList.contains('show'))return; /* don't double up with modal-drop UX */
+  _windowDragDepth++;
+  if(_windowDragDepth===1){
+    document.body.classList.add('window-dragging');
+    _ensureWindowDragOverlay().classList.add('show');
+  }
+});
 document.addEventListener('dragover',function(e){
   e.preventDefault();
   var dzel=G('dropzone');
   if(dzel&&!G('fsModal').classList.contains('show'))dzel.classList.add('drag');
 });
 document.addEventListener('dragleave',function(e){
+  /* Decrement counter; only hide the overlay when we've truly left the
+     window (depth back to 0). Browsers fire dragleave when crossing
+     child element boundaries, so the simple "fired = hide" pattern
+     flickers badly. */
+  if(_windowDragDepth>0){
+    _windowDragDepth--;
+    if(_windowDragDepth===0)_hideWindowDragOverlay();
+  }
+  /* Legacy dropzone .drag toggle: keep the existing edge-detection
+     heuristic so the dropzone-local highlight still clears when the
+     cursor exits the viewport. */
   if(e.clientX===0&&e.clientY===0||(e.clientX<=0||e.clientY<=0||e.clientX>=window.innerWidth||e.clientY>=window.innerHeight)){
     var dzel=G('dropzone');if(dzel)dzel.classList.remove('drag');
   }
@@ -454,6 +507,9 @@ async function walkEntry(entry,bag){
 }
 document.addEventListener('drop',async function(e){
   e.preventDefault();
+  /* Always hide both overlays on drop — drag is over regardless of where
+     the file landed (dropzone, modal, or elsewhere). */
+  _hideWindowDragOverlay();
   var dzel=G('dropzone');if(dzel)dzel.classList.remove('drag');
   /* Drop into the fullscreen modal: don't close — switch the modal's
      subject to the new file (Squoosh-style). The modal flips back into
@@ -493,7 +549,59 @@ var fi=G('fileInput');
 if(fi){fi.addEventListener('change',function(){addFiles(fi.files);fi.value='';});}
 
 var BATCH_SOFT_LIMIT=200;
-function addFiles(list){
+/* Styled in-page confirm dialog. Replaces native confirm() — that
+   looked like a browser security warning, not part of imgready's
+   design language. Returns a Promise<boolean>; resolves true when
+   the user clicks Continue, false on Cancel / Esc / backdrop click.
+   The dialog is created lazily on each call and removed after the
+   user picks, so we never carry hidden DOM around. Default focus
+   lands on Cancel — the safer choice for a "you're about to do
+   something potentially heavy" prompt. */
+function imgrConfirm(message,opts){
+  opts=opts||{};
+  return new Promise(function(resolve){
+    var bg=document.createElement('div');
+    bg.className='imgr-confirm-bg';
+    bg.setAttribute('role','dialog');
+    bg.setAttribute('aria-modal','true');
+    bg.innerHTML='<div class="imgr-confirm">'+
+      (opts.title?'<div class="imgr-confirm-title">'+escHtml(opts.title)+'</div>':'')+
+      '<div class="imgr-confirm-msg">'+escHtml(message)+'</div>'+
+      '<div class="imgr-confirm-actions">'+
+        '<button class="imgr-confirm-cancel">'+escHtml(opts.cancelText||'Cancel')+'</button>'+
+        '<button class="imgr-confirm-ok">'+escHtml(opts.okText||'Continue')+'</button>'+
+      '</div>'+
+    '</div>';
+    document.body.appendChild(bg);
+    var prevFocus=document.activeElement;
+    function close(result){
+      bg.removeEventListener('click',onBg);
+      document.removeEventListener('keydown',onKey);
+      bg.classList.remove('show');
+      /* Allow the close transition to play before removal. */
+      setTimeout(function(){if(bg.parentNode)bg.parentNode.removeChild(bg);},150);
+      try{if(prevFocus&&prevFocus.focus)prevFocus.focus();}catch(_){}
+      resolve(result);
+    }
+    function onBg(e){if(e.target===bg)close(false);}
+    function onKey(e){
+      if(e.key==='Escape'){e.preventDefault();close(false);}
+      else if(e.key==='Enter'){e.preventDefault();close(true);}
+    }
+    bg.addEventListener('click',onBg);
+    document.addEventListener('keydown',onKey);
+    bg.querySelector('.imgr-confirm-ok').addEventListener('click',function(){close(true);});
+    bg.querySelector('.imgr-confirm-cancel').addEventListener('click',function(){close(false);});
+    requestAnimationFrame(function(){bg.classList.add('show');});
+    /* Focus Cancel by default — it's the safer choice for a "are you
+       sure?" prompt. Users who want to confirm hit Enter (handled above). */
+    setTimeout(function(){
+      var c=bg.querySelector('.imgr-confirm-cancel');
+      if(c&&c.focus)c.focus();
+    },20);
+  });
+}
+async function addFiles(list){
   /* Solo auto-flow trigger: any single-file drop pops the fullscreen
      modal for that file, even when the queue already has work in it.
      Real users frequently drop one, work, drop another — they shouldn't
@@ -509,110 +617,4 @@ function addFiles(list){
   var acceptedDrops=0;
   for(var ai=0;ai<list.length;ai++){if(isAccepted(list[ai]))acceptedDrops++;}
   /* Acknowledgement pulse: the dropzone briefly flashes the moment we
-     accept a file. Skipped when the modal is already open (the modal-drop
-     case has its own visual takeover) and when nothing was accepted. */
-  if(acceptedDrops>0&&!G('fsModal').classList.contains('show')){
-    var _dz=G('dropzone');
-    if(_dz){_dz.classList.remove('just-dropped');void _dz.offsetWidth;_dz.classList.add('just-dropped');setTimeout(function(){if(_dz)_dz.classList.remove('just-dropped');},450);}
-  }
-  var droppedInModal=!!window._dropInModal;
-  if(droppedInModal){try{delete window._dropInModal;}catch(_){window._dropInModal=undefined;}}
-  var triggerSolo=(acceptedDrops===1)||(droppedInModal&&acceptedDrops>=1);
-  var added=0;
-  /* Soft cap to protect users from OOMing the tab on enormous drops */
-  if(images.length+list.length>BATCH_SOFT_LIMIT){
-    var ok=confirm('You\'re about to add '+list.length+' files (current: '+images.length+'). Browsers can struggle with more than '+BATCH_SOFT_LIMIT+' large images at once. Continue anyway?');
-    if(!ok)return;
-  }
-  for(var i=0;i<list.length;i++){
-    var f=list[i];if(!isAccepted(f))continue;
-    var id=Date.now()+'_'+Math.random().toString(36).slice(2)+'_'+(added++);
-    var item={id:id,file:f,origUrl:null,decoded:null,needsConvert:isExotic(f),errorMsg:'',results:[],natW:0,natH:0,livePhoto:null};
-    images.unshift(item);
-    /* Live Photo detection happens once per item, async, off the
-       main path. Sets item.livePhoto = {offset, length} if the HEIC
-       contains an embedded MOV. Used at processing time to decide
-       whether to extract the video, and at render time to show the
-       Live Photo chip on the card. */
-    (function(itm){
-      if(!isHeic(itm.file))return;
-      detectLivePhotoVideo(itm.file).then(function(lp){
-        if(lp){
-          itm.livePhoto=lp;
-          /* Re-render so the Live Photo chip appears on the card thumbnail. */
-          if(typeof renderAll==='function')renderAll();
-        }
-      }).catch(function(){});
-    })(item);
-    if(!item.needsConvert){
-      item.origUrl=URL.createObjectURL(f);
-      (function(itm){
-        var ti=new Image();
-        ti.onload=function(){itm.natW=ti.naturalWidth;itm.natH=ti.naturalHeight;
-          /* Only re-render if processing hasn't completed yet.
-             If ti.onload fires late (after encoding finishes) a full renderAll()
-             would trigger solo-done and unexpectedly grow the card layout. */
-          if(!itm.results.length||!itm.results[0].blob)renderAll();};
-        /* Detect "this file claims to be an image but isn't decodable" early */
-        ti.onerror=function(){itm.errorMsg='This file isn\'t a valid image. Try a different file.';renderAll();updateChargePreview();};
-        ti.src=itm.origUrl;
-      })(item);
-    }
-  }
-  renderAll();
-  for(var j=0;j<images.length;j++){(function(item){
-    if(!item.needsConvert||item.decoded||item.origUrl)return;
-    showLibToast('Decoding '+getFileExt(item.file.name).toUpperCase()+'...');
-    preDecodeFile(item.file).then(function(dec){
-      item.decoded=dec;item.origUrl=URL.createObjectURL(dec);
-      var ti=new Image();ti.onload=function(){item.natW=ti.naturalWidth;item.natH=ti.naturalHeight;hideLibToast();if(!item.results.length||!item.results[0].blob)renderAll();};ti.src=item.origUrl;
-    }).catch(function(e){hideLibToast();item.errorMsg=e.message||'Decode failed';renderAll();});
-  })(images[j]);}
-  /* Solo magic flow: empty queue + one accepted drop = the modal opens
-     IMMEDIATELY in preview-only mode showing the original. The encode runs
-     in the background; once the blob lands we transition the modal from
-     preview to full result without any further click. The wait happens in
-     the modal, not before it — which is what makes the flow feel snappy
-     instead of "drop, wait, modal pops." HEIC/TIFF need their async decode
-     before origUrl is ready, so we lazily wait for it. */
-  /* `images[0]` is always the most recently added (addFiles unshifts).
-     For both empty-queue solo and modal-drop, the new file is at index 0. */
-  if(triggerSolo){
-    var soloItem=images[0];
-    /* Open the modal immediately, regardless of whether origUrl is ready.
-       For instantly-decodable formats (JPG/PNG/WebP/AVIF/GIF) the
-       <img>-tag-based decode in addFiles' simple branch already set
-       origUrl, so fsBefore lands at once. For HEIC/TIFF/BMP origUrl
-       arrives ~1–3 s later via preDecodeFile; openPreview's internal
-       poller fills fsBefore as soon as it does. The user goes straight
-       into the focused experience instead of staring at a card. */
-    if(typeof window.openPreview==='function'&&!soloItem.errorMsg){
-      window.openPreview(soloItem.id);
-    }
-    setTimeout(function(){
-      var afterProcess=function(){
-        var doneIdx=null;
-        for(var di=0;di<soloItem.results.length;di++){
-          if(soloItem.results[di].blob){doneIdx=di;break;}
-        }
-        if(doneIdx===null)return;
-        if(G('fsModal')&&G('fsModal').classList.contains('show')&&typeof window.transitionPreviewToResult==='function'){
-          window.transitionPreviewToResult(soloItem,doneIdx);
-        } else if(typeof window.openFS==='function'){
-          window.openFS(soloItem.id,doneIdx);
-        }
-      };
-      var p=window.processAll();
-      if(p&&typeof p.then==='function'){p.then(afterProcess);}
-      else{
-        var waited=0,tick=200;
-        var poll=setInterval(function(){
-          waited+=tick;
-          var ready=soloItem.results.some(function(r){return r.blob;});
-          if(ready){clearInterval(poll);afterProcess();}
-          else if(waited>=30000){clearInterval(poll);}
-        },tick);
-      }
-    },50);
-  }
-}
+     accept a file. Skippe
