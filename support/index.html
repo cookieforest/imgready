@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://imgready.app/support/">
 <!-- AdSense: uncomment when slot ID is approved
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction or after a 3s idle window. See index.html for the
+     interaction OR after window.onload + 1.5s idle. See index.html for the
      long form of this comment. -->
 <script>
 (function(){
@@ -34,10 +34,19 @@
     loadAdsense();
   }
   triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  if('requestIdleCallback' in window){
-    requestIdleCallback(loadAdsense,{timeout:3000});
+  function scheduleAfterIdle(){
+    setTimeout(function(){
+      if('requestIdleCallback' in window){
+        requestIdleCallback(loadAdsense,{timeout:3000});
+      } else {
+        setTimeout(loadAdsense,1500);
+      }
+    },1500);
+  }
+  if(document.readyState==='complete'){
+    scheduleAfterIdle();
   } else {
-    setTimeout(loadAdsense,3000);
+    window.addEventListener('load',scheduleAfterIdle,{once:true});
   }
 })();
 </script>
