@@ -645,3 +645,28 @@ async function preserveExifIntoBlob(originalFile,outBlob){
     var origBuf=new Uint8Array(await originalFile.arrayBuffer());
     if(origBuf[0]!==0xFF||origBuf[1]!==0xD8)return outBlob;
     /* Find the EXIF (APP1) segment in the original */
+    var p=2,exif=null;
+    while(p<origBuf.length-1){
+      if(origBuf[p]!==0xFF)break;
+      var marker=origBuf[p+1];
+      if(marker===0xE1){
+        var len=(origBuf[p+2]<<8)|origBuf[p+3];
+        exif=origBuf.subarray(p,p+2+len);break;
+      }
+      if(marker===0xDA||marker===0xD9)break;
+      var seglen=(origBuf[p+2]<<8)|origBuf[p+3];
+      p+=2+seglen;
+    }
+    if(!exif)return outBlob;
+    var outBuf=new Uint8Array(await outBlob.arrayBuffer());
+    if(outBuf[0]!==0xFF||outBuf[1]!==0xD8)return outBlob;
+    /* Insert EXIF right after SOI in the new file */
+    var combined=new Uint8Array(outBuf.length+exif.length);
+    combined.set(outBuf.subarray(0,2),0);
+    combined.set(exif,2);
+    combined.set(outBuf.subarray(2),2+exif.length);
+    return new Blob([combined],{type:'image/jpeg'});
+  }catch(e){return outBlob;}
+}
+
+/* ========================================
