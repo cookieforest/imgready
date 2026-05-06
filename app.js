@@ -3911,4 +3911,28 @@ updateFormatUI();
 renderAll();
 /* Sticky action-bar elevation. The bar uses position:sticky;top:8px so it
    pins as the user scrolls. We can't tell from CSS alone whether it's
-   currently pinned vs flowing in normal layout — IntersectionObs
+   currently pinned vs flowing in normal layout — IntersectionObserver with a
+   sentinel above the bar fires when the bar leaves natural position, and we
+   add `.is-stuck` for the box-shadow + border colour-mix. */
+(function watchActionBarStuck(){
+  if(!('IntersectionObserver' in window))return;
+  var bar=G('actionBar');if(!bar)return;
+  var sentinel=document.createElement('div');
+  sentinel.style.cssText='position:absolute;top:0;height:1px;width:1px;pointer-events:none;';
+  if(bar.parentNode){bar.parentNode.insertBefore(sentinel,bar);}
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){bar.classList.toggle('is-stuck',!e.isIntersecting);});
+  },{rootMargin:'-9px 0px 0px 0px',threshold:[0,1]});
+  io.observe(sentinel);
+})();
+var _resizeEl=G('resizeMax');
+if(_resizeEl)_resizeEl.addEventListener('input',resetPresetToCustom);
+var _origSetCrop=window.setCropRatio;
+window.setCropRatio=function(r){
+  _origSetCrop(r);
+  var s=G('presetSelect');if(!s)return;
+  var ap=PRESETS[s.value];
+  if(ap&&ap.crop!==r)s.value='custom';
+};
+
+})();
