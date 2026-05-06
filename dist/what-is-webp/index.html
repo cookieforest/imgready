@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5a7a5a">
+<title>What Is WebP? Google's Image Format Explained | imgready</title>
+<meta name="description" content="WebP is Google's image format — 25–35% smaller than JPEG with equal quality. Learn what WebP is, why websites use it, and how to convert WebP files free.">
+<meta property="og:title" content="What Is WebP? Google's Image Format Explained | imgready">
+<meta property="og:description" content="WebP is Google's image format — 25–35% smaller than JPEG with equal quality. Learn what WebP is, why websites use it, and how to convert WebP files free.">
+<meta property="og:image" content="https://imgready.app/demo.webp">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://imgready.app/what-is-webp/">
+<meta property="og:site_name" content="imgready">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What Is WebP? Google's Image Format Explained | imgready">
+<meta name="twitter:description" content="WebP is Google's image format for faster web. Learn what WebP is, why websites use it, and convert to WebP free.">
+<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<link rel="canonical" href="https://imgready.app/what-is-webp/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<!-- Google AdSense loader (deferred for FCP). Loads on first user
+     interaction OR after window.onload + 1.5s idle. See index.html for the
+     long form of this comment. -->
+<script>
+(function(){
+  if(window._adsenseLoading)return;
+  function loadAdsense(){
+    if(window._adsenseLoading)return;
+    window._adsenseLoading=true;
+    var s=document.createElement('script');
+    s.async=true;
+    s.crossOrigin='anonymous';
+    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
+    document.head.appendChild(s);
+  }
+  var triggers=['pointerdown','keydown','touchstart','scroll'];
+  function onInteract(){
+    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
+    loadAdsense();
+  }
+  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
+  function scheduleAfterIdle(){
+    setTimeout(function(){
+      if('requestIdleCallback' in window){
+        requestIdleCallback(loadAdsense,{timeout:3000});
+      } else {
+        setTimeout(loadAdsense,1500);
+      }
+    },1500);
+  }
+  if(document.readyState==='complete'){
+    scheduleAfterIdle();
+  } else {
+    window.addEventListener('load',scheduleAfterIdle,{once:true});
+  }
+})();
+</script>
+<style>*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+.wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
+.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.nav-brand{font-size:22px;font-weight:700;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand span{color:#5a7a5a;}
+.nav-sep{color:#d6cebb;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link:hover{text-decoration:underline;}
+.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
+@media(max-width:600px){.topnav .hide-mobile{display:none;}}
+.crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
+.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a:hover{text-decoration:underline;}
+.hero{padding:24px 0 32px;}
+.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1 em{font-style:normal;color:#5a7a5a;}
+.hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
+.callout{background:#e8f0e8;border-left:3px solid #5a7a5a;padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:#5a5448;line-height:1.75;}
+table{border-collapse:collapse;width:100%;margin:14px 0 22px;font-size:.86rem;}
+th,td{text-align:left;padding:9px 12px;border:1px solid #d6cebb;color:#5a5448;vertical-align:top;}
+th{background:#ede7d9;color:#2e2a22;font-weight:700;}
+tr:nth-child(even) td{background:#faf7f2;}
+.winner{color:#5a7a5a;font-weight:700;}
+h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
+p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
+ul,ol{padding-left:22px;margin-bottom:16px;}
+li{font-size:.92rem;line-height:1.75;color:#5a5448;margin-bottom:8px;}
+.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 30px;}
+.verdict-box{border:2px solid #d6cebb;border-radius:10px;padding:16px;}
+.verdict-box.avif{border-color:#7a9e7a;}
+.verdict-box h3{font-size:1rem;font-weight:700;color:#2e2a22;margin-bottom:10px;}
+.verdict-box ul{padding-left:16px;}
+.verdict-box li{font-size:.84rem;color:#5a5448;margin-bottom:5px;}
+@media(max-width:540px){.verdict-grid{grid-template-columns:1fr;}}
+.faq-item{margin-bottom:18px;border-bottom:1px solid #ede7d9;}
+.faq-item summary{font-size:.97rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:12px 0;list-style:none;}
+.faq-item summary::after{content:'+';float:right;color:#5a7a5a;font-weight:700;}
+.faq-item[open] summary::after{content:'\2212';}
+.faq-item p{font-size:.9rem;color:#5a5448;line-height:1.75;padding:0 0 14px;}
+.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
+.related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+.related a:hover{border-color:#5a7a5a;}
+.related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
+.hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
+.hero-cta:hover{background:#7a9e7a;transform:translateY(-2px);}
+.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid #d6cebb;}
+.bottom-cta p{color:#8a8070;margin-bottom:14px;}
+.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
+.site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
+.site-footer a:hover{text-decoration:underline;}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
+
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"What is WebP","item":"https://imgready.app/what-is-webp/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"What Is WebP? Google's Image Format Explained","description":"WebP is Google's modern image format, 25–35% smaller than JPEG with equal quality. Learn what WebP is, why it's used on websites, and how to convert and open WebP files.","url":"https://imgready.app/what-is-webp/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-06","dateModified":"2026-05-06"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a WebP file?","acceptedAnswer":{"@type":"Answer","text":"WebP is a modern image format created by Google in 2010 as a replacement for JPEG and PNG on the web. It produces files 25–35% smaller than JPEG at equivalent quality, supports both lossy and lossless compression, and includes transparency and animation. WebP is now supported by 97% of browsers globally and is the default format recommended by Google for web images."}},{"@type":"Question","name":"Can I open WebP in Windows?","acceptedAnswer":{"@type":"Answer","text":"Yes. Windows 10 (build 1903+) and Windows 11 have built-in WebP support via the Microsoft Store codec. Simply install the free 'WebP Image Extensions' from the Store, and you can open WebP files in the built-in Photos app and most image viewers. Alternatively, use a free online tool to convert WebP to JPG or PNG."}},{"@type":"Question","name":"Why do websites use WebP?","acceptedAnswer":{"@type":"Answer","text":"Websites use WebP because it dramatically reduces file sizes, which speeds up page load times and reduces bandwidth costs. A 200 KB JPEG might be only 140 KB as WebP — that's meaningful savings across thousands of images. Faster pages improve user experience and search rankings. With 97% browser support, WebP is now the pragmatic choice for modern web optimization."}},{"@type":"Question","name":"Is WebP better than JPG?","acceptedAnswer":{"@type":"Answer","text":"WebP is superior to JPEG in nearly every way: better compression, support for transparency, better quality at low file sizes, and lossless mode. However, JPEG is older and more universally supported in legacy systems. For modern websites and devices, WebP wins. For maximum compatibility without complexity, JPEG remains acceptable, but WebP should be the default choice."}},{"@type":"Question","name":"How do I convert WebP to JPG?","acceptedAnswer":{"@type":"Answer","text":"Use a free online converter like imgready — upload WebP, download JPG. No uploads needed. For batch conversion, use command-line tools like ImageMagick or FFmpeg. On Windows 10+, you can also open WebP files in Photos and 'Save As' to convert. All methods preserve image quality during conversion."}},{"@type":"Question","name":"Does WebP support animation?","acceptedAnswer":{"@type":"Answer","text":"Yes. WebP supports animation just like GIF, but with vastly better compression. An animated WebP is typically 25–35% smaller than an animated GIF with the same frame count and visual quality. Many modern websites use WebP animation as a superior replacement for GIF loops, especially for short video clips and loading animations."}}]}</script>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav" aria-label="Primary">
+    <a class="nav-brand" href="/">img<span>ready</span></a>
+    <span class="nav-sep" aria-hidden="true">|</span>
+    <a class="nav-link" href="/">Home</a>
+    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
+    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
+    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
+    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
+    <span class="nav-grow">
+      <a class="nav-link" href="/about/">About</a>
+      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+    </span>
+  </nav>
+
+  <p class="crumbs"><a href="/">Home</a> › What is WebP</p>
+
+  <div class="hero">
+    <h1>What is WebP? <em>Google's</em> image format explained</h1>
+    <p class="lede">WebP is a modern image format created by Google in 2010 specifically to replace JPEG and PNG on the web. WebP files are typically 25–35% smaller than JPEG at the same quality, support transparency and animation, and work in 97% of browsers today. Here's what WebP is, why websites use it, how to open WebP files on your computer, and when it's the right choice for your images.</p>
+  </div>
+
+  <h2>Quick answer</h2>
+  <p>WebP is a modern image format developed by Google to make websites faster. It produces files 25–35% smaller than JPEG with equal or better visual quality. WebP supports both lossy and lossless compression, transparency, and animation. As of 2026, 97% of browsers support WebP, making it the safest modern format to use without fallbacks.</p>
+
+  <div class="callout">
+    <strong>The core benefit:</strong> Smaller files mean faster page loads, lower bandwidth costs, and better user experience. A website with 100 product photos saves roughly 5–10 MB by converting to WebP. On slow mobile connections, that's the difference between usable and frustratingly slow.
+  </div>
+
+  <h2>History: Why Google created WebP</h2>
+
+  <p>JPEG was invented in 1992. For over a decade, it dominated the web despite its age and inefficiencies. In 2010, Google decided that websites needed a better option and created WebP based on the VP8 video codec. The goal was simple: achieve better compression than JPEG while remaining patent-free and royalty-free. Google bet on WebP and began using it on Gmail, YouTube, and other properties. By 2026, it's the default format for web images.</p>
+
+  <h3 class="sub">Open standard, not proprietary</h3>
+  <p>Unlike some formats, WebP is royalty-free and open-source. Anyone can implement it without licensing fees. This openness helped drive browser adoption and made WebP the practical standard for modern web development.</p>
+
+  <h2>How WebP achieves smaller file sizes</h2>
+
+  <p>WebP uses more sophisticated compression algorithms than JPEG's 1992-era DCT approach. It analyzes image content more intelligently, uses better prediction models, and applies more efficient entropy coding. The result: a photograph that's 200 KB as JPEG might be just 140 KB as WebP with identical visual quality.</p>
+
+  <p>In real-world website optimization, this matters enormously. A single hero image saves 20–30 KB. A product catalog with 500 images saves 5–10 MB of bandwidth per visitor. That translates directly to faster page loads and better search rankings.</p>
+
+  <h3 class="sub">Lossy vs lossless modes</h3>
+  <p>WebP supports both lossy compression (smaller files, slight quality reduction) and lossless compression (larger files, zero quality loss). For photographs, lossy WebP is the practical choice. For graphics, logos, and illustrations requiring pixel-perfect clarity, lossless PNG remains better.</p>
+
+  <h2>Browser support: 97% global coverage</h2>
+
+  <p>WebP is supported by Chrome, Firefox, Edge, Opera, and Safari (since version 14 in 2020). It's also supported on Android and iOS. In total, approximately 97% of global browser traffic supports WebP as of 2026. The remaining 3% is mostly older devices, legacy browsers, and some enterprise systems locked to older versions.</p>
+
+  <p>Unlike AVIF (93% support), you don't strictly need fallbacks for WebP anymore. However, it's still good practice to serve WebP with JPEG fallback for absolute maximum compatibility.</p>
+
+  <h3 class="sub">When fallbacks make sense</h3>
+  <p>Use the HTML picture element if your audience includes legacy browsers or if you want absolute insurance:</p>
+  <pre style="background:#ede7d9;border-radius:8px;padding:14px;font-size:.82rem;overflow-x:auto;margin-bottom:14px;line-height:1.7;">&lt;picture&gt;
+  &lt;source srcset="image.webp" type="image/webp"&gt;
+  &lt;img src="image.jpg" alt="Your image"&gt;
+&lt;/picture&gt;</pre>
+
+  <h2>WebP features</h2>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>WebP</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Lossy compression</td><td class="winner">Yes</td></tr>
+      <tr><td>Lossless compression</td><td class="winner">Yes</td></tr>
+      <tr><td>Transparency (alpha)</td><td class="winner">Yes</td></tr>
+      <tr><td>Animation support</td><td class="winner">Yes (like GIF)</td></tr>
+      <tr><td>Progressive loading</td><td class="winner">Yes</td></tr>
+      <tr><td>Metadata support</td><td class="winner">Yes (EXIF, XMP)</td></tr>
+      <tr><td>Typical file size vs JPEG</td><td class="winner">25–35% smaller</td></tr>
+      <tr><td>Typical file size vs PNG</td><td class="winner">15–25% smaller</td></tr>
+      <tr><td>Browser support (2026)</td><td class="winner">~97%</td></tr>
+      <tr><td>Encoding speed</td><td class="winner">Fast</td></tr>
+    </tbody>
+  </table>
+
+  <h2>WebP vs GIF for animation</h2>
+
+  <p>GIF is antiquated for animation. An animated GIF that's 500 KB as GIF might be just 150 KB as WebP with better quality and smoother playback. Many modern websites now use animated WebP instead of GIF for loading animations, short video clips, and looping content. This is especially common in product galleries and e-commerce sites.</p>
+
+  <h3 class="sub">Why GIF persists</h3>
+  <p>GIF remains in use mainly for historical reasons and because it's simpler to generate in legacy systems. For new projects, WebP animation is strictly better.</p>
+
+  <h2>Opening WebP files on Windows</h2>
+
+  <p>On Windows 10 (build 1903+) and Windows 11, install the free WebP Image Extensions from the Microsoft Store. After installation, you can open WebP files in the Photos app and most image viewers. Alternatively, use a free online converter to convert WebP to JPG or PNG.</p>
+
+  <p>On Mac, most image viewers support WebP natively. On Linux, GIMP and other standard image tools handle WebP without extra steps.</p>
+
+  <h2>When to use WebP</h2>
+
+  <ul>
+    <li>Modern websites targeting 2026 audiences with current browsers</li>
+    <li>Product catalogs and e-commerce galleries (bandwidth savings matter)</li>
+    <li>Animated content (replacing GIF)</li>
+    <li>Mobile-first sites where page speed is critical</li>
+    <li>When you can assume users have relatively recent browsers</li>
+  </ul>
+
+  <h2>When to stick with JPEG or PNG</h2>
+
+  <ul>
+    <li>Your audience includes significant legacy browser traffic</li>
+    <li>You need absolute maximum compatibility without fallbacks</li>
+    <li>Working with older systems that don't support WebP</li>
+    <li>Archival or print workflows that expect JPEG</li>
+  </ul>
+
+  <h2>Creating WebP files</h2>
+
+  <p>For individual images, use a free online converter like imgready. Upload any JPG or PNG and download WebP. For automation or batch processing, use command-line tools like ImageMagick, FFmpeg, or the <code>cwebp</code> utility from Google. Most modern web frameworks (Next.js, Gatsby, Hugo) have built-in WebP support via plugins.</p>
+
+  <div class="callout">
+    <strong>For web developers:</strong> Sharp (Node.js) converts images to WebP in milliseconds. Python's Pillow handles WebP conversion natively. Most image CDNs automatically serve WebP to browsers that support it.
+  </div>
+
+  <h2>Convert your images now</h2>
+  <div class="related">
+    <a href="/webp-converter/"><strong>WebP Converter</strong><small>Batch convert to WebP</small></a>
+    <a href="/jpg-to-webp/"><strong>JPG to WebP</strong><small>Convert photos to WebP</small></a>
+    <a href="/png-to-webp/"><strong>PNG to WebP</strong><small>PNG to WebP with transparency</small></a>
+    <a href="/avif-vs-webp/"><strong>AVIF vs WebP</strong><small>Format comparison guide</small></a>
+  </div>
+
+  <h2>Frequently asked questions</h2>
+  <section>
+  <details class="faq-item">
+    <summary>What is a WebP file?</summary>
+    <p>WebP is a modern image format created by Google in 2010 as a replacement for JPEG and PNG on the web. It produces files 25–35% smaller than JPEG at equivalent quality, supports both lossy and lossless compression, and includes transparency and animation. WebP is now supported by 97% of browsers globally and is the default format recommended by Google for web images.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Can I open WebP in Windows?</summary>
+    <p>Yes. Windows 10 (build 1903+) and Windows 11 have built-in WebP support via the Microsoft Store codec. Simply install the free 'WebP Image Extensions' from the Store, and you can open WebP files in the built-in Photos app and most image viewers. Alternatively, use a free online tool to convert WebP to JPG or PNG.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Why do websites use WebP?</summary>
+    <p>Websites use WebP because it dramatically reduces file sizes, which speeds up page load times and reduces bandwidth costs. A 200 KB JPEG might be only 140 KB as WebP — that's meaningful savings across thousands of images. Faster pages improve user experience and search rankings. With 97% browser support, WebP is now the pragmatic choice for modern web optimization.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Is WebP better than JPG?</summary>
+    <p>WebP is superior to JPEG in nearly every way: better compression, support for transparency, better quality at low file sizes, and lossless mode. However, JPEG is older and more universally supported in legacy systems. For modern websites and devices, WebP wins. For maximum compatibility without complexity, JPEG remains acceptable, but WebP should be the default choice.</p>
+  </details>
+  <details class="faq-item">
+    <summary>How do I convert WebP to JPG?</summary>
+    <p>Use a free online converter like imgready — upload WebP, download JPG. No uploads needed. For batch conversion, use command-line tools like ImageMagick or FFmpeg. On Windows 10+, you can also open WebP files in Photos and 'Save As' to convert. All methods preserve image quality during conversion.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Does WebP support animation?</summary>
+    <p>Yes. WebP supports animation just like GIF, but with vastly better compression. An animated WebP is typically 25–35% smaller than an animated GIF with the same frame count and visual quality. Many modern websites use WebP animation as a superior replacement for GIF loops, especially for short video clips and loading animations.</p>
+  </details>
+  </section>
+
+  <h2>Further reading</h2>
+  <div class="related">
+    <a href="/webp-to-jpg/"><strong>WebP to JPG Converter</strong><small>Free browser-based conversion</small></a>
+    <a href="/compress/"><strong>Compress Images</strong><small>Reduce any format for free</small></a>
+    <a href="/resize/"><strong>Resize Images</strong><small>Set exact pixel dimensions</small></a>
+  </div>
+
+  <div class="bottom-cta">
+    <p>Ready to convert your images to WebP? imgready is free, instant, and nothing ever uploads.</p>
+    <a href="/webp-converter/" class="hero-cta">Convert to WebP now →</a>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <a href="/">imgready</a>
+  <a href="/why/">Why imgready</a>
+  <a href="/about/">About</a>
+  <a href="/privacy/">Privacy</a>
+  <a href="/terms/">Terms</a>
+  <a href="/support/">Support</a>
+  <a href="/developers/">Developers</a>
+  <br>© 2026 imgready. Free in-browser image tools.
+</footer>
+</div>
+</body>
+</html>

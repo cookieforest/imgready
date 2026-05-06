@@ -1,5 +1,12 @@
 name = "imgready"
 compatibility_date = "2026-05-01"
 
+# CF Workers Static Assets honours the [build] command on deploy.
+# `npm ci` reads package-lock.json verbatim (faster + reproducible than
+# `npm install`); `npm run build` produces ./dist/ which is what
+# [assets].directory points at.
+[build]
+command = "npm ci --no-audit --no-fund && npm run build"
+
 [assets]
-directory = "./"
+directory = "./dist"

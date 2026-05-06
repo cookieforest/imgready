@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>imgready · key minter (private)</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:32px 18px;}
+  .wrap{max-width:560px;margin:0 auto;}
+  h1{font-size:26px;margin-bottom:4px;letter-spacing:-.5px;}
+  h1 span{color:#5a7a5a;}
+  .sub{color:#8a8070;font-size:.86rem;margin-bottom:20px;}
+  .card{background:#faf7f2;border:1px solid #d6cebb;border-radius:12px;padding:20px 22px;margin-bottom:18px;}
+  .card h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:#8a8070;margin-bottom:14px;font-weight:700;}
+  label{display:block;font-size:.84rem;font-weight:600;color:#5a5448;margin:14px 0 6px;}
+  label:first-child{margin-top:0;}
+  input,select{width:100%;padding:10px 12px;border:1px solid #d6cebb;border-radius:8px;background:#fff;color:#2e2a22;font-size:.92rem;font-family:inherit;}
+  input:focus,select:focus{outline:none;border-color:#5a7a5a;}
+  .hint{font-size:.74rem;color:#8a8070;margin-top:5px;}
+  button{width:100%;padding:13px 20px;background:#5a7a5a;color:#fff;border:none;border-radius:9px;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .15s;font-family:inherit;}
+  button:hover:not(:disabled){background:#7a9e7a;}
+  button:disabled{opacity:.55;cursor:not-allowed;}
+  .secondary{background:transparent;color:#5a7a5a;border:1px solid #d6cebb;}
+  .secondary:hover:not(:disabled){background:#ede7d9;}
+  .status{font-size:.82rem;padding:10px 14px;border-radius:8px;margin-top:14px;display:none;line-height:1.5;}
+  .status.ok{background:#e8f0e8;color:#3a5e3a;border:1px solid #b8d4b8;display:block;}
+  .status.err{background:#f5e0db;color:#7a3a2a;border:1px solid #e0b0a0;display:block;}
+  .key-out{background:#2e2a22;color:#e8e4d8;padding:14px 16px;border-radius:8px;font-family:'Cascadia Code','Consolas',monospace;font-size:.92rem;word-break:break-all;margin-top:12px;display:none;}
+  .key-out.show{display:block;}
+  .key-actions{display:flex;gap:8px;margin-top:10px;}
+  .key-actions button{flex:1;padding:9px;font-size:.82rem;}
+  .copy-btn{background:#7a9e7a;}
+  .meta{font-size:.78rem;color:#8a8070;margin-top:12px;line-height:1.6;}
+  .meta strong{color:#2e2a22;}
+  .danger-zone{margin-top:24px;padding-top:18px;border-top:1px dashed #d6cebb;font-size:.76rem;color:#8a8070;}
+  .danger-zone a{color:#b05a4a;cursor:pointer;text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>img<span>ready</span> · key minter</h1>
+  <p class="sub">Local-only tool. Save this file on your computer; do not upload it anywhere. The token is stored in your browser's localStorage and never leaves your machine except when calling your own worker.</p>
+
+  <div class="card">
+    <h2>One-time setup</h2>
+    <label for="endpoint">Worker endpoint</label>
+    <input id="endpoint" type="url" value="https://imgready.app/api/issue-key" />
+    <div class="hint">Default works. Change only if you mounted the worker on a different domain.</div>
+
+    <label for="token">Issue token</label>
+    <input id="token" type="password" placeholder="Paste IMGREADY_ISSUE_TOKEN here" autocomplete="off" />
+    <div class="hint">Saved locally in this browser. Click "Forget token" below to clear.</div>
+    <button class="secondary" id="saveTokenBtn" type="button" style="margin-top:12px;">Save token</button>
+  </div>
+
+  <div class="card">
+    <h2>Mint a new key</h2>
+    <label for="tier">Tier</label>
+    <select id="tier">
+      <option value="personal">Personal ($9 — non-commercial)</option>
+      <option value="developer" selected>Developer ($29 — commercial / client)</option>
+      <option value="commercial">Commercial ($99 — agency / SaaS)</option>
+    </select>
+
+    <label for="email">Customer email</label>
+    <input id="email" type="email" placeholder="customer@example.com" />
+    <div class="hint">Stored alongside the key for your records. Optional, but recommended.</div>
+
+    <label for="domain">Lock to domain (optional)</label>
+    <input id="domain" type="text" placeholder="example.com (leave blank for unrestricted)" />
+    <div class="hint">If set, the key only works when called from that domain. Substring match.</div>
+
+    <button id="mintBtn" type="button" style="margin-top:18px;">Mint key</button>
+    <div class="status" id="status"></div>
+    <div class="key-out" id="keyOut"></div>
+    <div class="key-actions" id="keyActions" style="display:none;">
+      <button class="copy-btn" id="copyBtn" type="button">Copy key</button>
+      <button class="copy-btn" id="copyEmailBtn" type="button">Copy email template</button>
+    </div>
+  </div>
+
+  <div class="meta">
+    <strong>What happens when you click "Mint key":</strong> the tool POSTs to <code>/api/issue-key</code>, the worker generates a fresh key with an HMAC signature, stores it in your KV namespace alongside the email and domain you entered, and returns the key. You can then verify it works by pasting it into <code>imgready.init({licenseKey: '...'})</code> on a page using the SDK.
+  </div>
+
+  <div class="danger-zone">
+    <a id="forgetBtn">Forget token (clear from this browser)</a>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const TOKEN_KEY = 'imgready_mint_token';
+const ENDPOINT_KEY = 'imgready_mint_endpoint';
+
+// Restore saved values
+window.addEventListener('DOMContentLoaded', () => {
+  const t = localStorage.getItem(TOKEN_KEY);
+  const e = localStorage.getItem(ENDPOINT_KEY);
+  if (t) $('token').value = t;
+  if (e) $('endpoint').value = e;
+});
+
+$('saveTokenBtn').addEventListener('click', () => {
+  const t = $('token').value.trim();
+  const e = $('endpoint').value.trim();
+  if (!t) { showStatus('Paste your IMGREADY_ISSUE_TOKEN first.', 'err'); return; }
+  localStorage.setItem(TOKEN_KEY, t);
+  localStorage.setItem(ENDPOINT_KEY, e);
+  showStatus('Saved. You can now mint keys without re-entering the token.', 'ok');
+});
+
+$('forgetBtn').addEventListener('click', () => {
+  if (!confirm('Clear the saved token from this browser?')) return;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(ENDPOINT_KEY);
+  $('token').value = '';
+  showStatus('Token cleared.', 'ok');
+});
+
+let lastKey = '', lastEmail = '', lastTier = '';
+
+$('mintBtn').addEventListener('click', async () => {
+  const endpoint = $('endpoint').value.trim();
+  const token = $('token').value.trim();
+  const tier = $('tier').value;
+  const email = $('email').value.trim();
+  const domain = $('domain').value.trim();
+
+  if (!token) { showStatus('Paste your IMGREADY_ISSUE_TOKEN at the top first.', 'err'); return; }
+  if (!endpoint) { showStatus('Endpoint is required.', 'err'); return; }
+
+  const body = { tier };
+  if (email) body.email = email;
+  if (domain) body.domain = domain;
+
+  $('mintBtn').disabled = true;
+  $('mintBtn').textContent = 'Minting...';
+  $('keyOut').classList.remove('show');
+  $('keyActions').style.display = 'none';
+
+  try {
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(body),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      showStatus('Worker returned ' + r.status + ': ' + (j.error || 'unknown error'), 'err');
+      return;
+    }
+    if (!j.key) {
+      showStatus('Worker did not return a key. Response: ' + JSON.stringify(j), 'err');
+      return;
+    }
+    lastKey = j.key; lastEmail = email; lastTier = tier;
+    $('keyOut').textContent = j.key;
+    $('keyOut').classList.add('show');
+    $('keyActions').style.display = 'flex';
+    showStatus('Key minted and stored in KV. Tier: ' + j.tier + (j.email ? ' · email: ' + j.email : '') + (j.domain ? ' · domain: ' + j.domain : ''), 'ok');
+  } catch (err) {
+    showStatus('Network error: ' + err.message, 'err');
+  } finally {
+    $('mintBtn').disabled = false;
+    $('mintBtn').textContent = 'Mint key';
+  }
+});
+
+$('copyBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(lastKey).then(() => {
+    $('copyBtn').textContent = 'Copied ✓';
+    setTimeout(() => { $('copyBtn').textContent = 'Copy key'; }, 1200);
+  });
+});
+
+$('copyEmailBtn').addEventListener('click', () => {
+  const tierName = { personal: 'Personal', developer: 'Developer', commercial: 'Commercial' }[lastTier] || lastTier;
+  const tmpl = `Hi,
+
+Thanks for supporting imgready! Here's your ${tierName} license key:
+
+  ${lastKey}
+
+How to use it — call this once at the top of your app:
+
+  imgready.init({ licenseKey: '${lastKey}' });
+
+The "Images optimized by imgready" badge will be removed from any page that loads the SDK.
+
+Keep this key safe — it cannot be regenerated. If you lose it or have any questions, just reply to this email.
+
+— Jeffrey
+hello@imgready.app
+`;
+  navigator.clipboard.writeText(tmpl).then(() => {
+    $('copyEmailBtn').textContent = 'Copied ✓';
+    setTimeout(() => { $('copyEmailBtn').textContent = 'Copy email template'; }, 1200);
+  });
+});
+
+function showStatus(msg, kind) {
+  const el = $('status');
+  el.textContent = msg;
+  el.className = 'status ' + (kind === 'err' ? 'err' : 'ok');
+}
+</script>
+</body>
+</html>

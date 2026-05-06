@@ -7,7 +7,8 @@
     "build": "node build.mjs",
     "build:watch": "node build.mjs --watch",
     "check": "node --check app.js && node --check imgready-worker.js && node --check sw.js",
-    "verify": "npm run check && npm run build && node --check dist/app.js"
+    "verify": "npm run check && npm run build && node --check dist/app.js",
+    "dev": "node build.mjs --watch"
   },
   "devDependencies": {
     "esbuild": "^0.24.0"

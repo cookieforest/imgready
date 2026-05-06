@@ -5,9 +5,8 @@ node_modules/
 .env
 .env.local
 
-# Build output. Phase 1: not served; CI builds to validate. dist/
-# stays uncommitted so the diff is clean. When Phase 2 wires
-# Cloudflare to serve from dist/, the deploy will need CF Pages'
-# build command set so dist/ exists on the edge — until then,
-# ignoring it locally is correct.
-dist/
+# Build output: the *.map files only. dist/ is committed as a fallback
+# for Cloudflare's deploy until we confirm wrangler [build].command runs
+# on every push. Once verified, dist/ moves back into .gitignore and
+# Cloudflare regenerates it per push.
+dist/*.map
