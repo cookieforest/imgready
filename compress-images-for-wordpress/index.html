@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5a7a5a">
+<title>Compress Images for WordPress — Speed Up Your Site | imgready</title>
+<meta name="description" content="How to compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.">
+<meta property="og:title" content="Compress Images for WordPress — Speed Up Your Site | imgready">
+<meta property="og:description" content="How to compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.">
+<meta property="og:image" content="https://imgready.app/demo.webp">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://imgready.app/compress-images-for-wordpress/">
+<meta property="og:site_name" content="imgready">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Compress Images for WordPress — Speed Up Your Site | imgready">
+<meta name="twitter:description" content="How to compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.">
+<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<link rel="canonical" href="https://imgready.app/compress-images-for-wordpress/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795" crossorigin="anonymous"></script>
+<style>*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+.wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
+.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.nav-brand{font-size:22px;font-weight:700;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand span{color:#5a7a5a;}
+.nav-sep{color:#d6cebb;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link:hover{text-decoration:underline;}
+.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
+@media(max-width:600px){.topnav .hide-mobile{display:none;}}
+.crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
+.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a:hover{text-decoration:underline;}
+.hero{padding:24px 0 32px;}
+.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1 em{font-style:normal;color:#5a7a5a;}
+.hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
+.hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
+.hero-cta:hover{background:#7a9e7a;transform:translateY(-2px);}
+.hero-sub{font-size:.82rem;color:#8a8070;margin-top:10px;}
+.callout{background:#e8f0e8;border-left:3px solid #5a7a5a;padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:#5a5448;line-height:1.75;}
+.callout.warn{background:#f0ece0;border-left-color:#b08030;}
+table{border-collapse:collapse;width:100%;margin:14px 0 22px;font-size:.86rem;}
+th,td{text-align:left;padding:9px 12px;border:1px solid #d6cebb;color:#5a5448;vertical-align:top;}
+th{background:#ede7d9;color:#2e2a22;font-weight:700;}
+tr:nth-child(even) td{background:#faf7f2;}
+.ok{color:#5a7a5a;font-weight:700;}
+.warn-text{color:#b08030;font-weight:700;}
+.bad{color:#a04040;font-weight:700;}
+h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
+p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
+ul,ol{padding-left:22px;margin-bottom:16px;}
+li{font-size:.92rem;line-height:1.75;color:#5a5448;margin-bottom:8px;}
+.steps{counter-reset:steps;list-style:none;padding:0;}
+.steps li{counter-increment:steps;display:flex;gap:14px;margin-bottom:18px;align-items:flex-start;}
+.steps li::before{content:counter(steps);min-width:28px;height:28px;background:#5a7a5a;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.86rem;flex-shrink:0;margin-top:2px;}
+.faq-item{margin-bottom:18px;border-bottom:1px solid #ede7d9;}
+.faq-item summary{font-size:.97rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:12px 0;list-style:none;}
+.faq-item summary::after{content:'+';float:right;color:#5a7a5a;font-weight:700;}
+.faq-item[open] summary::after{content:'\2212';}
+.faq-item p{font-size:.9rem;color:#5a5448;line-height:1.75;padding:0 0 14px;}
+.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
+.related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+.related a:hover{border-color:#5a7a5a;}
+.related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
+.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid #d6cebb;}
+.bottom-cta p{color:#8a8070;margin-bottom:14px;}
+.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
+.site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
+.site-footer a:hover{text-decoration:underline;}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
+@media(prefers-color-scheme:dark){
+body{background:#1c1916;color:#e8e4dc;}
+.nav-brand{color:#e8e4dc;}
+.nav-sep{color:#3a3530;}
+.topnav a.nav-link{color:#7aae7a;}
+.hero h1{color:#e8e4dc;}
+.hero p.lede{color:#b4b0a8;}
+.hero-sub{color:#6a6660;}
+h2{color:#e8e4dc;}
+h3.sub{color:#7aae7a;}
+p,li{color:#b4b0a8;}
+strong{color:#d0ccc4;}
+.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
+.callout.warn{background:#2a2616;border-left-color:#b08030;color:#b4b0a8;}
+th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
+td{border-color:#3a3530;color:#b4b0a8;}
+tr:nth-child(even) td{background:#252220;}
+.faq-item{border-bottom-color:#3a3530;}
+.faq-item summary{color:#e8e4dc;}
+.faq-item p{color:#b4b0a8;}
+.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
+.related a small{color:#6a6660;}
+.related a:hover{border-color:#7aae7a;}
+.bottom-cta{border-top-color:#3a3530;}
+.bottom-cta p{color:#6a6660;}
+.crumbs{color:#6a6660;}
+.crumbs a{color:#7aae7a;}
+.site-footer{border-top-color:#3a3530;color:#6a6660;}
+.site-footer a{color:#7aae7a;}
+}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"Compress Images for WordPress","item":"https://imgready.app/compress-images-for-wordpress/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to Compress Images for WordPress — The Complete Guide","description":"Compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.","url":"https://imgready.app/compress-images-for-wordpress/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-05","dateModified":"2026-05-05"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What image format is best for WordPress?","acceptedAnswer":{"@type":"Answer","text":"WebP is the best modern format for WordPress — it's 25–35% smaller than JPEG with better quality, and has near-universal browser support. Always serve a JPEG fallback for older browsers. AVIF offers even better compression but has limited support. PNG is fine for logos and graphics, but avoid it for photographs."}},{"@type":"Question","name":"What size should images be for WordPress?","acceptedAnswer":{"@type":"Answer","text":"Hero/featured images should be around 1200px wide (landscape). Thumbnail images and featured image smaller displays work well at 600px wide. For post content, 800–1000px is ideal. Keep all images under 200 KB — most should be 50–150 KB after compression."}},{"@type":"Question","name":"Does image size affect WordPress SEO?","acceptedAnswer":{"@type":"Answer","text":"Yes, absolutely. Large uncompressed images slow down page load, which increases bounce rate and hurts SEO rankings. Google's Core Web Vitals metric includes Largest Contentful Paint (LCP), which is directly affected by image file size and dimensions. Optimized images improve both user experience and search rankings."}},{"@type":"Question","name":"How do I convert images to WebP in WordPress?","acceptedAnswer":{"@type":"Answer","text":"You can convert images to WebP using imgready's free WebP converter before uploading. Alternatively, WordPress plugins like Imagify or ShortPixel can automatically convert on upload. For maximum control and smallest file sizes, convert with imgready first, then upload the WebP file and keep a JPEG backup."}},{"@type":"Question","name":"What is Core Web Vitals and why do images matter?","acceptedAnswer":{"@type":"Answer","text":"Core Web Vitals are three metrics Google uses to measure page experience: Largest Contentful Paint (LCP), First Input Delay (FID), and Cumulative Layout Shift (CLS). Images are the leading cause of slow LCP — large uncompressed images delay rendering and slow perceived load time. Compress images to improve LCP and overall rankings."}},{"@type":"Question","name":"Can I use AVIF in WordPress?","acceptedAnswer":{"@type":"Answer","text":"AVIF is an excellent format for WordPress — it compresses to 50–60% of JPEG size — but support is still limited (not available in Safari, iOS, or older Firefox). If you use AVIF, always provide a WebP fallback and a JPEG final fallback using <picture> tags. Most WordPress image plugins don't support AVIF yet, so serve it manually or use Cloudinary."}}]}</script>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav" aria-label="Primary">
+    <a class="nav-brand" href="/">img<span>ready</span></a>
+    <span class="nav-sep" aria-hidden="true">|</span>
+    <a class="nav-link" href="/">Home</a>
+    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
+    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
+    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
+    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
+    <span class="nav-grow">
+      <a class="nav-link" href="/about/">About</a>
+      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+    </span>
+  </nav>
+
+  <p class="crumbs"><a href="/">Home</a> › Compress Images for WordPress</p>
+
+  <div class="hero">
+    <h1>How to compress images for WordPress — <em>the complete guide</em></h1>
+    <p class="lede">Slow WordPress sites often fail on Google&#39;s Core Web Vitals, especially Largest Contentful Paint (LCP). Uncompressed images are the leading culprit. Here&#39;s everything you need to know about image formats, dimensions, file size targets, and how to batch-convert all your images to WebP with zero WordPress plugins or server configuration.</p>
+    <a href="/?fmt=webp#dropzone" class="hero-cta">Compress for WordPress — FREE →</a>
+    <p class="hero-sub">No upload. No account. Works in your browser.</p>
+  </div>
+
+  <h2>Quick reference: image sizes and formats for WordPress</h2>
+
+  <table>
+    <thead>
+      <tr><th>Image type</th><th>Recommended size</th><th>Max dimension</th><th>Format</th><th>Target KB</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Hero / featured image</td>
+        <td class="ok">40–80 KB</td>
+        <td>1200px wide</td>
+        <td>WebP (JPEG fallback)</td>
+        <td>&lt; 100 KB</td>
+      </tr>
+      <tr>
+        <td>Blog post thumbnail</td>
+        <td class="ok">20–40 KB</td>
+        <td>600px wide</td>
+        <td>WebP (JPEG fallback)</td>
+        <td>&lt; 50 KB</td>
+      </tr>
+      <tr>
+        <td>Post body image</td>
+        <td class="ok">50–120 KB</td>
+        <td>800px wide</td>
+        <td>WebP (JPEG fallback)</td>
+        <td>&lt; 150 KB</td>
+      </tr>
+      <tr>
+        <td>Logo / product graphic</td>
+        <td class="ok">5–20 KB</td>
+        <td>400px wide</td>
+        <td>PNG or SVG</td>
+        <td>&lt; 25 KB</td>
+      </tr>
+      <tr>
+        <td>Screenshot / diagram</td>
+        <td class="ok">40–80 KB</td>
+        <td>800px wide</td>
+        <td>PNG or WebP</td>
+        <td>&lt; 100 KB</td>
+      </tr>
+      <tr>
+        <td>Uncompressed smartphone photo</td>
+        <td class="bad">5–15 MB ✗</td>
+        <td>4000+ px</td>
+        <td>JPEG</td>
+        <td>WAY too large</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Why WordPress sites fail Core Web Vitals:</strong> Google measures Largest Contentful Paint (LCP) — the time it takes to display the largest visible image or text block. Uncompressed images delay LCP, causing slow page load perceived by users and search engines. A 3 MB hero image might delay LCP by 2–4 seconds. Compress to 80 KB and you&#39;re back on track.
+  </div>
+
+  <h2>Step-by-step: compress WordPress images in batch</h2>
+  <ol class="steps">
+    <li><span><strong>Download your WordPress images</strong> — export images from your Media Library or download them from your server via SFTP. Select all photos you want to optimize.</span></li>
+    <li><span><strong>Open imgready</strong> — go to <a href="/?fmt=webp#dropzone" style="color:#5a7a5a">imgready.app/?fmt=webp</a> and select WebP as the output format.</span></li>
+    <li><span><strong>Drop all images at once</strong> — drag and drop your entire folder onto the dropzone. imgready will batch-convert all images to WebP and compress them.</span></li>
+    <li><span><strong>Download the batch</strong> — click &quot;Download all&quot; and imgready zips all compressed WebP files for you.</span></li>
+    <li><span><strong>Upload and set up fallbacks</strong> — upload the WebP files to WordPress Media Library. For older browsers, use a WordPress image optimization plugin (Imagify, ShortPixel) or manually add JPEG fallbacks via <code>&lt;picture&gt;</code> tags.</span></li>
+  </ol>
+
+  <h2>Why WebP is essential for WordPress performance</h2>
+
+  <p>WebP is 25–35% smaller than JPEG at equivalent quality, and is supported by 97% of modern browsers. A typical WordPress featured image that&#39;s 250 KB as JPEG becomes 150–180 KB as WebP — no visible difference, but instant LCP improvement.</p>
+
+  <p>The only downside? Older browsers (Safari on iOS, some old Firefox versions) don&#39;t support WebP. The solution is a <code>&lt;picture&gt;</code> tag that serves WebP to modern browsers and JPEG to everything else:</p>
+
+  <div class="callout">
+    <code>&lt;picture&gt;&lt;source srcset=&quot;image.webp&quot; type=&quot;image/webp&quot;&gt;&lt;source srcset=&quot;image.jpg&quot; type=&quot;image/jpeg&quot;&gt;&lt;img src=&quot;image.jpg&quot; alt=&quot;...&quot;&gt;&lt;/picture&gt;</code>
+  </div>
+
+  <h3 class="sub">AVIF: the next frontier</h3>
+  <p>AVIF is even smaller than WebP (50–60% of JPEG size), but browser support is still limited (no Safari, no iOS, Firefox only on desktop). If you want maximum compression, serve AVIF as a first option with WebP and JPEG fallbacks. Most WordPress plugins don&#39;t support AVIF yet, but services like Cloudinary can generate AVIF automatically.</p>
+
+  <h2>Recommended image dimensions for WordPress</h2>
+
+  <p><strong>Hero / featured images:</strong> Aim for 1200px wide at 2x pixel density (2400px actual). After resizing and compressing, target 60–100 KB. This is large enough to display full-width on desktop and tablets, but small enough to load quickly.</p>
+
+  <p><strong>Blog post thumbnails:</strong> 600px wide is ideal for grid layouts and archive pages. After compression, keep under 50 KB.</p>
+
+  <p><strong>Body content images:</strong> 800–1000px wide is standard. Users can click to enlarge, but the embedded version should load instantly — target 100–150 KB.</p>
+
+  <p><strong>Logos and graphics:</strong> These compress poorly as JPEG. Use PNG or SVG. If you use PNG, compress it with imgready&#39;s PNG optimizer to eliminate metadata and reduce file size by 30–40%.</p>
+
+  <h2>Compression targets by format</h2>
+
+  <table>
+    <thead>
+      <tr><th>Format</th><th>Best for</th><th>Compression quality</th><th>File size vs JPEG</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>JPEG</td><td>Photographs</td><td class="warn-text">Lossy (quality 75–85)</td><td class="ok">100% (baseline)</td></tr>
+      <tr><td>WebP</td><td>Photographs (modern)</td><td class="warn-text">Lossy (quality 75–85)</td><td class="ok">70% (25–35% smaller)</td></tr>
+      <tr><td>AVIF</td><td>Photographs (advanced)</td><td class="warn-text">Lossy (quality 60–70)</td><td class="ok">40–50% (50–60% smaller)</td></tr>
+      <tr><td>PNG</td><td>Graphics, logos, text</td><td class="ok">Lossless</td><td class="bad">120–200% (larger)</td></tr>
+      <tr><td>SVG</td><td>Icons, logos, diagrams</td><td class="ok">Lossless (vector)</td><td class="ok">10–50% (smallest)</td></tr>
+    </tbody>
+  </table>
+
+  <p>For WordPress sites, stick to WebP + JPEG fallback for photos. PNG for graphics with transparency. SVG for logos and icons. Never use AVIF unless you have a CDN or image service that handles fallbacks automatically.</p>
+
+  <h2>Lazy loading: bonus performance win</h2>
+
+  <p>After compressing images, enable lazy loading to defer off-screen images. Add <code>loading=&quot;lazy&quot;</code> to every <code>&lt;img&gt;</code> tag:</p>
+
+  <div class="callout">
+    <code>&lt;img src=&quot;image.webp&quot; alt=&quot;...&quot; loading=&quot;lazy&quot; width=&quot;800&quot; height=&quot;600&quot;&gt;</code>
+  </div>
+
+  <p>This tells browsers to load only visible images, deferring below-the-fold images until the user scrolls. Combined with image compression, lazy loading can cut initial LCP in half.</p>
+
+  <h2>Frequently asked questions</h2>
+  <section>
+  <details class="faq-item">
+    <summary>What image format is best for WordPress?</summary>
+    <p>WebP is the best modern format for WordPress — it&#39;s 25–35% smaller than JPEG with better quality, and has near-universal browser support (97% of users). Always serve a JPEG fallback for older browsers. AVIF offers even better compression but limited support. Use PNG only for logos and graphics with transparency.</p>
+  </details>
+  <details class="faq-item">
+    <summary>What size should images be for WordPress?</summary>
+    <p>Hero images should be 1200px wide, blog thumbnails 600px, and post body images 800px wide. After compression, target 100 KB for heroes, 50 KB for thumbnails, and 150 KB for body images. Smaller files load faster and improve Core Web Vitals — Google&#39;s ranking factor.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Does image size affect WordPress SEO?</summary>
+    <p>Yes, critically. Google measures Largest Contentful Paint (LCP), which is delayed by large uncompressed images. A slow LCP hurts rankings and increases bounce rate. Compress images to improve LCP, user experience, and SEO performance simultaneously.</p>
+  </details>
+  <details class="faq-item">
+    <summary>How do I convert images to WebP in WordPress?</summary>
+    <p>Use imgready&#39;s free WebP converter to convert before upload. Alternatively, WordPress plugins like Imagify or ShortPixel auto-convert on upload. For maximum control and smallest file sizes, convert with imgready first, then upload WebP with JPEG fallbacks using <code>&lt;picture&gt;</code> tags or plugin support.</p>
+  </details>
+  <details class="faq-item">
+    <summary>What is Core Web Vitals and why do images matter?</summary>
+    <p>Core Web Vitals are three Google metrics: Largest Contentful Paint (LCP), First Input Delay (FID), and Cumulative Layout Shift (CLS). Images are the #1 cause of slow LCP. Large uncompressed images delay rendering and harm rankings. Compress images to meet all three Core Web Vitals thresholds.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Can I use AVIF in WordPress?</summary>
+    <p>AVIF compresses to 50–60% of JPEG size, making it excellent for WordPress, but support is limited (no Safari, no iOS). If you use AVIF, provide WebP and JPEG fallbacks via <code>&lt;picture&gt;</code> tags. Most WordPress plugins don&#39;t support AVIF yet — use Cloudinary or manually manage fallbacks.</p>
+  </details>
+  </section>
+
+  <h2>Related tools</h2>
+  <div class="related">
+    <a href="/webp-converter/"><strong>WebP Converter</strong><small>Convert to WebP instantly</small></a>
+    <a href="/compress/"><strong>Compress Images</strong><small>Reduce any format free</small></a>
+    <a href="/resize/"><strong>Resize Images</strong><small>Set exact pixel dimensions</small></a>
+    <a href="/jpg-to-webp/"><strong>JPG to WebP</strong><small>Convert JPEG photos</small></a>
+    <a href="/png-to-webp/"><strong>PNG to WebP</strong><small>Convert PNG images</small></a>
+    <a href="/compress-jpg/"><strong>Compress JPG</strong><small>Reduce JPEG file size</small></a>
+  </div>
+
+  <div class="bottom-cta">
+    <p>Compress your images for WordPress now — free, instant, nothing uploaded.</p>
+    <a href="/?fmt=webp#dropzone" class="hero-cta">Compress for WordPress — FREE →</a>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <a href="/">imgready</a>
+  <a href="/why/">Why imgready</a>
+  <a href="/about/">About</a>
+  <a href="/privacy/">Privacy</a>
+  <a href="/terms/">Terms</a>
+  <a href="/support/">Support</a>
+  <a href="/developers/">Developers</a>
+  <br>© 2026 imgready. Free in-browser image tools.
+</footer>
+</div>
+</body>
+</html>

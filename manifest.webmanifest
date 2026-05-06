@@ -1,0 +1,18 @@
+{
+  "name": "imgready — image tool that never uploads",
+  "short_name": "imgready",
+  "description": "Compress, convert and resize images entirely in your browser. HEIC, TIFF, WebP, AVIF, PNG, JPG. Your photo stays on your screen.",
+  "start_url": "/?utm_source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#f5f0e8",
+  "theme_color": "#5a7a5a",
+  "orientation": "any",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "maskable" }
+  ],
+  "categories": ["productivity", "photo", "utilities"],
+  "lang": "en-US"
+}

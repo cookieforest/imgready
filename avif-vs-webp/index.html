@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5a7a5a">
+<title>AVIF vs WebP: Which Format Wins in 2026? | imgready</title>
+<meta name="description" content="AVIF vs WebP 2026: full comparison of compression, browser support, encoding speed, and when to use each. Includes format recommendations and code examples.">
+<meta property="og:title" content="AVIF vs WebP: Which Format Wins in 2026? | imgready">
+<meta property="og:description" content="AVIF vs WebP 2026: full comparison of compression, browser support, encoding speed, and when to use each. Includes format recommendations and code examples.">
+<meta property="og:image" content="https://imgready.app/demo.webp">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://imgready.app/avif-vs-webp/">
+<meta property="og:site_name" content="imgready">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AVIF vs WebP: Which Format Wins in 2026? | imgready">
+<meta name="twitter:description" content="AVIF vs WebP compared: compression, browser support, encoding speed, and when to use each. Full 2026 guide.">
+<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<link rel="canonical" href="https://imgready.app/avif-vs-webp/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795" crossorigin="anonymous"></script>
+<style>*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+.wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
+.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.nav-brand{font-size:22px;font-weight:700;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand span{color:#5a7a5a;}
+.nav-sep{color:#d6cebb;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link:hover{text-decoration:underline;}
+.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
+@media(max-width:600px){.topnav .hide-mobile{display:none;}}
+.crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
+.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a:hover{text-decoration:underline;}
+.hero{padding:24px 0 32px;}
+.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1 em{font-style:normal;color:#5a7a5a;}
+.hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
+.callout{background:#e8f0e8;border-left:3px solid #5a7a5a;padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:#5a5448;line-height:1.75;}
+table{border-collapse:collapse;width:100%;margin:14px 0 22px;font-size:.86rem;}
+th,td{text-align:left;padding:9px 12px;border:1px solid #d6cebb;color:#5a5448;vertical-align:top;}
+th{background:#ede7d9;color:#2e2a22;font-weight:700;}
+tr:nth-child(even) td{background:#faf7f2;}
+.winner{color:#5a7a5a;font-weight:700;}
+h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
+p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
+ul,ol{padding-left:22px;margin-bottom:16px;}
+li{font-size:.92rem;line-height:1.75;color:#5a5448;margin-bottom:8px;}
+.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 30px;}
+.verdict-box{border:2px solid #d6cebb;border-radius:10px;padding:16px;}
+.verdict-box.avif{border-color:#7a9e7a;}
+.verdict-box h3{font-size:1rem;font-weight:700;color:#2e2a22;margin-bottom:10px;}
+.verdict-box ul{padding-left:16px;}
+.verdict-box li{font-size:.84rem;color:#5a5448;margin-bottom:5px;}
+@media(max-width:540px){.verdict-grid{grid-template-columns:1fr;}}
+.faq-item{margin-bottom:18px;border-bottom:1px solid #ede7d9;}
+.faq-item summary{font-size:.97rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:12px 0;list-style:none;}
+.faq-item summary::after{content:'+';float:right;color:#5a7a5a;font-weight:700;}
+.faq-item[open] summary::after{content:'\2212';}
+.faq-item p{font-size:.9rem;color:#5a5448;line-height:1.75;padding:0 0 14px;}
+.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
+.related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+.related a:hover{border-color:#5a7a5a;}
+.related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
+.hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
+.hero-cta:hover{background:#7a9e7a;transform:translateY(-2px);}
+.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid #d6cebb;}
+.bottom-cta p{color:#8a8070;margin-bottom:14px;}
+.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
+.site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
+.site-footer a:hover{text-decoration:underline;}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
+@media(prefers-color-scheme:dark){
+body{background:#1c1916;color:#e8e4dc;}
+.nav-brand{color:#e8e4dc;}
+.nav-sep{color:#3a3530;}
+.topnav a.nav-link{color:#7aae7a;}
+.hero h1{color:#e8e4dc;}
+.hero p.lede,.lede{color:#b4b0a8;}
+h2{color:#e8e4dc;}
+h3.sub{color:#7aae7a;}
+p,li{color:#b4b0a8;}
+strong{color:#d0ccc4;}
+.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
+th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
+td{border-color:#3a3530;color:#b4b0a8;}
+tr:nth-child(even) td{background:#252220;}
+.verdict-box{border-color:#3a3530;background:#252220;}
+.verdict-box h3{color:#e8e4dc;}
+.verdict-box li{color:#b4b0a8;}
+.faq-item{border-bottom-color:#3a3530;}
+.faq-item summary{color:#e8e4dc;}
+.faq-item p{color:#b4b0a8;}
+.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
+.related a small{color:#6a6660;}
+.related a:hover{border-color:#7aae7a;}
+.bottom-cta{border-top-color:#3a3530;}
+.bottom-cta p{color:#6a6660;}
+.crumbs{color:#6a6660;}
+.crumbs a{color:#7aae7a;}
+.site-footer{border-top-color:#3a3530;color:#6a6660;}
+.site-footer a{color:#7aae7a;}
+}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"AVIF vs WebP","item":"https://imgready.app/avif-vs-webp/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"AVIF vs WebP: Which Image Format Wins in 2026?","description":"A comprehensive comparison of AVIF and WebP covering compression efficiency, browser support, encoding speed, quality, and when to use each format in 2026.","url":"https://imgready.app/avif-vs-webp/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-01","dateModified":"2026-05-01"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is AVIF better than WebP?","acceptedAnswer":{"@type":"Answer","text":"AVIF achieves better compression than WebP — typically 20–30% smaller files at equivalent quality. However, WebP has broader browser support (97% vs 93%) and encodes much faster. For most websites in 2026, the best practice is to serve AVIF as the primary format with WebP as a fallback."}},{"@type":"Question","name":"Should I use AVIF or WebP for my website?","acceptedAnswer":{"@type":"Answer","text":"Use both with the HTML picture element: serve AVIF to browsers that support it, and fall back to WebP for the rest. This gives you maximum compression without compatibility gaps. If you can only pick one, WebP is the safer choice with its 97% browser coverage."}},{"@type":"Question","name":"Does Safari support AVIF?","acceptedAnswer":{"@type":"Answer","text":"Yes. Safari added full AVIF support in Safari 16 (released with iOS 16 and macOS Ventura in 2022). As of 2026, all modern Safari versions support AVIF."}},{"@type":"Question","name":"How much smaller is AVIF compared to JPEG?","acceptedAnswer":{"@type":"Answer","text":"AVIF files are typically 50% smaller than equivalent-quality JPEG files. WebP is approximately 30% smaller than JPEG. So AVIF offers roughly 20–30% additional savings over WebP for the same image."}},{"@type":"Question","name":"Can I convert my existing JPG images to AVIF?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use imgready's free JPG to AVIF converter — it processes everything in your browser so your images never leave your device. You can also convert PNG to AVIF or use the AVIF converter for batch processing."}},{"@type":"Question","name":"What is the downside of AVIF?","acceptedAnswer":{"@type":"Answer","text":"AVIF's main downsides are slower encoding speed (5–20x slower than WebP) and slightly lower browser coverage (93% vs WebP's 97%). For static images on a pre-built site this is rarely a problem, but for dynamic image generation at scale, the encoding overhead can be significant."}}]}</script>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav" aria-label="Primary">
+    <a class="nav-brand" href="/">img<span>ready</span></a>
+    <span class="nav-sep" aria-hidden="true">|</span>
+    <a class="nav-link" href="/">Home</a>
+    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
+    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
+    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
+    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
+    <span class="nav-grow">
+      <a class="nav-link" href="/about/">About</a>
+      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+    </span>
+  </nav>
+
+  <p class="crumbs"><a href="/">Home</a> › AVIF vs WebP</p>
+
+  <div class="hero">
+    <h1>AVIF vs WebP: Which image format <em>actually wins</em> in 2026?</h1>
+    <p class="lede">Both AVIF and WebP beat JPEG on compression. But which one should you actually use for your website, app, or workflow? Here's the full comparison — file size, browser support, encoding speed, quality, and practical recommendations — so you can make an informed decision without the marketing fluff.</p>
+  </div>
+
+  <h2>Quick answer</h2>
+  <p>If you can only choose one: <strong>WebP</strong> is the safer, faster, more compatible choice for most websites. If you want the best possible compression and can handle a fallback stack: use <strong>AVIF as primary, WebP as fallback</strong>. JPEG should be reserved for environments that don't support either.</p>
+
+  <div class="callout">
+    <strong>2026 browser support at a glance:</strong> WebP — ~97% global coverage (all major browsers). AVIF — ~93% global coverage (Chrome, Firefox, Edge, Safari 16+). The 4% gap is mostly older Safari and some legacy Android browsers.
+  </div>
+
+  <h2>Head-to-head comparison</h2>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>AVIF</th><th>WebP</th><th>JPEG (baseline)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Compression vs JPEG</td>
+        <td class="winner">~50% smaller</td>
+        <td>~30% smaller</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Compression vs WebP</td>
+        <td class="winner">~20–30% smaller</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Browser support (2026)</td>
+        <td>~93%</td>
+        <td class="winner">~97%</td>
+        <td class="winner">~100%</td>
+      </tr>
+      <tr>
+        <td>Encoding speed</td>
+        <td>Slow (5–20× slower than WebP)</td>
+        <td class="winner">Fast</td>
+        <td class="winner">Very fast</td>
+      </tr>
+      <tr>
+        <td>Lossless mode</td>
+        <td class="winner">Yes</td>
+        <td class="winner">Yes</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>Alpha / transparency</td>
+        <td class="winner">Yes</td>
+        <td class="winner">Yes</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>Animation support</td>
+        <td class="winner">Yes</td>
+        <td class="winner">Yes</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>HDR / wide color gamut</td>
+        <td class="winner">Yes (10-bit, HDR)</td>
+        <td>Limited</td>
+        <td>Limited</td>
+      </tr>
+      <tr>
+        <td>Codec basis</td>
+        <td>AV1 video codec</td>
+        <td>VP8 / VP9 video codec</td>
+        <td>DCT (1992)</td>
+      </tr>
+      <tr>
+        <td>Open / royalty-free</td>
+        <td class="winner">Yes</td>
+        <td class="winner">Yes</td>
+        <td class="winner">Yes</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Compression: AVIF wins — but not by magic</h2>
+
+  <p>AVIF is built on the AV1 video codec, which uses significantly more sophisticated compression algorithms than WebP's VP8/VP9 foundation. For photographic content, AVIF typically produces files 20–30% smaller than WebP at equivalent visual quality — and roughly 50% smaller than JPEG.</p>
+
+  <p>In practice, a hero image that would be 200 KB as a JPEG might be 140 KB as WebP and 100 KB as AVIF. For a page with 10 images, that's potentially 1 MB saved compared to WebP, and 2 MB compared to JPEG.</p>
+
+  <h3 class="sub">Where AVIF's compression advantage is most visible</h3>
+  <p>The gap is largest for high-detail photographs and images with subtle gradients. For flat graphics, logos, and illustrations with large solid color areas, the difference between AVIF and WebP narrows considerably — and lossless PNG may still be the right choice for pixel-crisp clarity.</p>
+
+  <h2>Browser support: WebP leads, but AVIF is closing the gap</h2>
+
+  <p>WebP launched in 2010 and achieved near-universal browser support by 2021. AVIF launched in 2020 and hit 93% coverage by 2025. The remaining ~7% gap consists mostly of older iOS Safari versions (pre-iOS 16), legacy Android WebViews, and some enterprise browsers locked to older versions.</p>
+
+  <p>For consumer-facing websites where users are on modern devices, AVIF's 93% coverage is more than acceptable. For enterprise or government apps where you can't control browser versions, WebP's 97% is safer.</p>
+
+  <h3 class="sub">The right fallback strategy</h3>
+  <p>Use the HTML <code>&lt;picture&gt;</code> element to serve the best format each browser supports:</p>
+  <pre style="background:#ede7d9;border-radius:8px;padding:14px;font-size:.82rem;overflow-x:auto;margin-bottom:14px;line-height:1.7;">&lt;picture&gt;
+  &lt;source srcset="image.avif" type="image/avif"&gt;
+  &lt;source srcset="image.webp" type="image/webp"&gt;
+  &lt;img src="image.jpg" alt="Your image"&gt;
+&lt;/picture&gt;</pre>
+
+  <p>This stack serves AVIF to Chrome, Firefox, Edge, and modern Safari; falls back to WebP for older Safari; and falls back to JPEG for everything else. Zero compatibility breakage, maximum compression savings.</p>
+
+  <h2>Encoding speed: WebP is much faster</h2>
+
+  <p>AVIF encoding is computationally expensive — 5 to 20 times slower than WebP at equivalent quality settings. For pre-processing a library of 10,000 images, this matters significantly. An AVIF conversion that takes 20 minutes would take 1–4 minutes for WebP.</p>
+
+  <p>For static websites where images are processed once at build time, this one-time cost is acceptable. For on-the-fly image transformation at scale (e.g., a CDN resizing user-uploaded photos in real time), the encoding overhead of AVIF can add latency or require more compute resources.</p>
+
+  <div class="callout">
+    <strong>In-browser tools like imgready:</strong> Because imgready converts images directly in your browser using JavaScript, both AVIF and WebP conversion work without uploading anything. For individual files and small batches, this is plenty fast enough regardless of format.
+  </div>
+
+  <h2>Quality at low bit rates</h2>
+
+  <p>AVIF's biggest advantage over WebP shows up at very low file sizes. When you aggressively compress an image to, say, 50 KB, AVIF preserves much more detail than WebP. WebP tends to produce blocky artifacts at low quality settings; AVIF maintains smoother gradients and more natural-looking compression.</p>
+
+  <p>For images where you need the absolute minimum file size without visible quality loss — mobile hero images, thumbnails, catalog photos — AVIF is the stronger choice.</p>
+
+  <h2>When to use AVIF</h2>
+  <ul>
+    <li>High-quality photographs where maximum compression matters</li>
+    <li>Hero images, product photos, and editorial imagery on modern websites</li>
+    <li>When you can implement a WebP/JPEG fallback via <code>&lt;picture&gt;</code></li>
+    <li>HDR photography or content with wide color gamut requirements</li>
+    <li>Pre-built static sites where encoding happens once at build time</li>
+  </ul>
+
+  <h2>When to use WebP</h2>
+  <ul>
+    <li>When you need maximum browser compatibility without managing fallbacks</li>
+    <li>Real-time image processing pipelines where encoding speed matters</li>
+    <li>Animated images (WebP animates well and is universally supported)</li>
+    <li>Flat graphics, logos, and UI assets where AVIF's advantage is minimal</li>
+    <li>CMS uploads where you want simplicity over absolute compression</li>
+  </ul>
+
+  <h2>The practical 2026 recommendation</h2>
+
+  <div class="verdict-grid">
+    <div class="verdict-box avif">
+      <h3>Use AVIF when&#8230;</h3>
+      <ul>
+        <li>Your site targets modern users</li>
+        <li>You can add a WebP fallback</li>
+        <li>Images are pre-processed, not dynamic</li>
+        <li>Bandwidth savings are critical</li>
+        <li>You have photographic content</li>
+      </ul>
+    </div>
+    <div class="verdict-box">
+      <h3>Use WebP when&#8230;</h3>
+      <ul>
+        <li>You need maximum compatibility</li>
+        <li>Images are generated on the fly</li>
+        <li>You&#8217;re optimizing animated GIFs</li>
+        <li>Simplicity matters more than file size</li>
+        <li>You&#8217;re migrating from JPEG today</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>Bottom line: AVIF is the technically superior format in 2026. WebP is the pragmatically safer choice. For most websites, the answer is to use both — AVIF primary, WebP fallback — and let the browser decide. imgready can convert your images to either format for free, right in your browser.</p>
+
+  <h2>Convert your images now</h2>
+  <div class="related">
+    <a href="/jpg-to-avif/"><strong>JPG to AVIF</strong><small>Convert photos to AVIF</small></a>
+    <a href="/png-to-avif/"><strong>PNG to AVIF</strong><small>Lossless PNG → compressed AVIF</small></a>
+    <a href="/avif-converter/"><strong>AVIF Converter</strong><small>Batch AVIF conversion</small></a>
+    <a href="/jpg-to-webp/"><strong>JPG to WebP</strong><small>Convert photos to WebP</small></a>
+    <a href="/png-to-webp/"><strong>PNG to WebP</strong><small>PNG → WebP with transparency</small></a>
+    <a href="/webp-converter/"><strong>WebP Converter</strong><small>Batch WebP conversion</small></a>
+  </div>
+
+  <h2>Frequently asked questions</h2>
+  <section>
+  <details class="faq-item">
+    <summary>Is AVIF better than WebP?</summary>
+    <p>AVIF achieves better compression than WebP — typically 20–30% smaller files at equivalent quality. However, WebP has broader browser support (97% vs 93%) and encodes much faster. For most websites in 2026, the best practice is to serve AVIF as the primary format with WebP as a fallback.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Should I use AVIF or WebP for my website?</summary>
+    <p>Use both with the HTML <code>&lt;picture&gt;</code> element: serve AVIF to browsers that support it, and fall back to WebP for the rest. This gives you maximum compression without compatibility gaps. If you can only pick one, WebP is the safer choice with its 97% browser coverage.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Does Safari support AVIF?</summary>
+    <p>Yes. Safari added full AVIF support in Safari 16 (released with iOS 16 and macOS Ventura in 2022). As of 2026, all modern Safari versions support AVIF. Older devices running iOS 15 or earlier will not display AVIF — one more reason to implement a WebP fallback.</p>
+  </details>
+  <details class="faq-item">
+    <summary>How much smaller is AVIF compared to JPEG?</summary>
+    <p>AVIF files are typically 50% smaller than equivalent-quality JPEG files. WebP is approximately 30% smaller than JPEG. So AVIF offers roughly 20–30% additional savings over WebP for the same image. At very low quality settings (aggressive compression), AVIF's advantage grows even larger.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Can I convert my existing JPG images to AVIF?</summary>
+    <p>Yes. Use imgready&#39;s free <a href="/jpg-to-avif/" style="color:#5a7a5a">JPG to AVIF converter</a> — it processes everything in your browser so your images never leave your device. You can also <a href="/png-to-avif/" style="color:#5a7a5a">convert PNG to AVIF</a> or use the <a href="/avif-converter/" style="color:#5a7a5a">AVIF converter</a> for batch processing.</p>
+  </details>
+  <details class="faq-item">
+    <summary>What is the downside of AVIF?</summary>
+    <p>AVIF's main downsides are slower encoding speed (5–20× slower than WebP) and slightly lower browser coverage (93% vs WebP&#39;s 97%). For static images on a pre-built site this is rarely a problem, but for dynamic image generation at scale, the encoding overhead can be significant. Also worth noting: AVIF doesn&#39;t support progressive loading like JPEG does.</p>
+  </details>
+  </section>
+
+  <h2>Further reading</h2>
+  <div class="related">
+    <a href="/webp-vs-png-vs-jpg/"><strong>WebP vs PNG vs JPG</strong><small>Full three-way format guide</small></a>
+    <a href="/compress/"><strong>Compress Images</strong><small>Reduce any format for free</small></a>
+    <a href="/resize/"><strong>Resize Images</strong><small>Set exact pixel dimensions</small></a>
+  </div>
+
+  <div class="bottom-cta">
+    <p>Ready to convert to AVIF or WebP? imgready is free, instant, and nothing ever uploads.</p>
+    <a href="/" class="hero-cta">Try imgready free →</a>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <a href="/">imgready</a>
+  <a href="/why/">Why imgready</a>
+  <a href="/about/">About</a>
+  <a href="/privacy/">Privacy</a>
+  <a href="/terms/">Terms</a>
+  <a href="/support/">Support</a>
+  <a href="/developers/">Developers</a>
+  <br>© 2026 imgready. Free in-browser image tools.
+</footer>
+</div>
+</body>
+</html>
