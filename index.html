@@ -3857,4 +3857,1518 @@ function processImg(file, s, fmt){
 }
 
 /* ICO output path — main-thread only. Loads the source, draws to a
-   canvas, packs t
+   canvas, packs the multi-resolution ICO via encodeICO. The result
+   blob is the ICO file; encodeICO also returns includedSizes and
+   skippedSizes for the card-level "skipped" hint. */
+function processIco(file, s){
+  return new Promise(function(resolve, reject){
+    var img=new Image();
+    var url=URL.createObjectURL(file);
+    img.onload=async function(){
+      URL.revokeObjectURL(url);
+      var w=img.naturalWidth, h=img.naturalHeight;
+      /* Source canvas at full resolution — encodeICO handles squaring
+         and per-size downsampling. We don't pre-resize via s.maxDim
+         here because the resize input is for "longest side of the
+         output image", which doesn't apply to ICO (the output IS the
+         multi-resolution set defined by getIcoSizes). */
+      var c=document.createElement('canvas');
+      c.width=w; c.height=h;
+      var ctx=c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      try{
+        var sizes=getIcoSizes();
+        var result=await encodeICO(c, sizes);
+        /* Stash the skippedSizes on the blob so downstream code can
+           surface a card-level note. The blob itself is the ICO file. */
+        if(result.skippedSizes && result.skippedSizes.length){
+          result.blob._skippedIcoSizes = result.skippedSizes;
+        }
+        resolve(result.blob);
+      } catch(err){
+        reject(err);
+      }
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);reject(new Error('Could not load source for ICO encoding'));};
+    img.src=url;
+  });
+}
+
+/* Legacy main-thread path — kept as fallback. Identical to the original
+   processImg() before the worker refactor. */
+function processImg_main(file,s,fmt){return new Promise(function(resolve,reject){
+  var img=new Image();var url=URL.createObjectURL(file);
+  img.onload=async function(){
+    URL.revokeObjectURL(url);
+    var w=img.naturalWidth,h=img.naturalHeight,sx=0,sy=0,sw=w,sh=h;
+    var cropRatio=CROP_RATIOS[currentCropRatio];
+    if(cropRatio){if(w/h>cropRatio){sw=Math.round(h*cropRatio);sx=Math.round((w-sw)/2);}else{sh=Math.round(w/cropRatio);sy=Math.round((h-sh)/2);}w=sw;h=sh;}
+    if(s.maxDim){var longest=Math.max(w,h);if(longest>s.maxDim){var scale=s.maxDim/longest;w=Math.round(w*scale);h=Math.round(h*scale);}}
+    var c=document.createElement('canvas');c.width=w;c.height=h;
+    var ctx=c.getContext('2d');
+    /* WHITE BACKGROUND FIX:
+       JPG has no transparency support. Without this, transparent
+       pixels from PNG/WebP inputs render as black in the output.
+       We paint the canvas white before drawing the image. */
+    if(fmt==='jpg'){
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(0,0,w,h);
+    }
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);
+    try{
+      var blob;
+      if(fmt==='avif'||(fmt==='webp'&&isIOS)){
+        blob=await encodeWithJsquash(c,fmt,s.quality);
+      } else if(fmt==='png'&&s.quality!==undefined&&s.quality<1.0&&typeof UPNG!=='undefined'){
+        blob=encodeWithUPNG(c,s.quality);
+      } else {
+        blob=await new Promise(function(res,rej){
+          c.toBlob(function(b){b?res(b):rej(new Error('Encode failed'));},s.mime,s.quality);
+        });
+      }
+      resolve(blob);
+    }catch(err){reject(err);}
+  };
+  img.onerror=function(){URL.revokeObjectURL(url);reject(new Error('Load failed'));};
+  img.src=url;
+});}
+
+/* ========================================
+   FULLSCREEN COMPARE
+   ======================================== */
+var fsZoom=1,fsPanX=0,fsPanY=0,fsPinchDist=0,fsHideTimer=null;
+var fsCurrentItem=null,fsCurrentIdx=0,fsScrollY=0;
+/* Tracked ObjectURLs for the fullscreen modal — revoked when replaced or closed.
+   The "before" canvas (cropped preview) and the "after" live re-encode each
+   create new URLs every time settings change, so without these we leaked one
+   URL per slider tick. */
+var _fsBeforeUrl=null,_fsAfterUrl=null;
+/* Where focus was when fullscreen opened — restored on close so keyboard users
+   don't get dropped at the top of the page. */
+var _fsTriggerEl=null;
+function updateFsZoom(){
+  var t='translate('+fsPanX+'px,'+fsPanY+'px) scale('+fsZoom+')';
+  var w=G('fsZoom');if(w)w.style.transform=t;
+  var wa=G('fsZoomAfter');if(wa)wa.style.transform=t;
+}
+function showZoomLevel(){
+  var zl=G('fsZoomLevel');if(!zl)return;
+  zl.textContent=Math.round(fsZoom*100)+'%';zl.style.display='block';
+  if(fsHideTimer)clearTimeout(fsHideTimer);
+  fsHideTimer=setTimeout(function(){zl.style.display='none';},1200);
+}
+function setFsP(pct){
+  pct=Math.max(0,Math.min(100,pct));
+  var d=G('fsDiv');if(d)d.style.left=pct+'%';
+  var h=G('fsHdl');if(h)h.style.left=pct+'%';
+  var cl=G('fsClip');if(cl)cl.style.clipPath='inset(0 0 0 '+pct+'%)';
+}
+function mvFs(e){
+  var r=G('fsInner');if(!r)return;
+  /* Deadzones — when the touch/click originates inside one of the
+     overlay UI elements (bottom toolbar, close button, encoding pulse,
+     zoom-level chip, format/quality controls), don't shift the compare
+     bar. Without this, dragging the quality slider in the toolbar would
+     also drag the compare divider since both listen to touchmove on
+     fsInner. The check uses .closest() so any nested target inside a
+     deadzone is caught regardless of nesting depth. */
+  var t=e.target;
+  if(t && t.closest){
+    if(t.closest('.fs-editor') ||
+       t.closest('.fs-close') ||
+       t.closest('.fs-encoding-pulse') ||
+       t.closest('.fs-zoom-level') ||
+       t.closest('.fs-lbl')){
+      return;
+    }
+  }
+  var rect=r.getBoundingClientRect();
+  var cx=e.touches?e.touches[0].clientX:e.clientX;
+  setFsP((cx-rect.left)/rect.width*100);
+}
+window.thumbClick=function(imgId){
+  var item=null;for(var i=0;i<images.length;i++){if(images[i].id===imgId){item=images[i];break;}}
+  if(!item)return;
+  var doneResults=item.results.filter(function(r){return r.blob;});
+  if(doneResults.length>0){window.openFS(imgId,item.results.indexOf(doneResults[0]));}
+  else if(item.origUrl){window.openPreview(imgId);}
+};
+window.openPreview=function(imgId){
+  var item=null;for(var i=0;i<images.length;i++){if(images[i].id===imgId){item=images[i];break;}}
+  if(!item)return;
+  var modalWasOpen=G('fsModal').classList.contains('show');
+  /* For HEIC / TIFF / BMP inputs, origUrl isn't ready immediately —
+     decoding takes 1–3 s. Open the modal anyway with an empty fsBefore
+     and a "Decoding…" pulse; once preDecodeFile lands the origUrl,
+     poll-and-populate fsBefore without flashing the modal. The
+     `_fsPreviewItemId` guard means a drop-switch in the meantime
+     cancels this pending update. */
+  if(!item.origUrl){
+    /* Mark the modal as decoding so the centred "Decoding HEIC…" treatment
+       kicks in (CSS hides the image, recentres the pulse pill). Cleared
+       once origUrl arrives or the user moves on. */
+    G('fsInner').classList.add('fs-decoding');
+    var startedAt=performance.now();
+    var pollOrig=function(){
+      if(_fsPreviewItemId!==item.id){G('fsInner').classList.remove('fs-decoding');return;}
+      if(item.errorMsg){G('fsInner').classList.remove('fs-decoding');return;}
+      if(item.origUrl){
+        var bef=G('fsBefore');if(bef)bef.src=item.origUrl;
+        G('fsInner').classList.remove('fs-decoding');
+        return;
+      }
+      /* Hard cap: if still no origUrl after ~30 s, decode probably failed
+         silently — stop polling rather than spin forever. */
+      if(performance.now()-startedAt>30000){G('fsInner').classList.remove('fs-decoding');return;}
+      setTimeout(pollOrig,100);
+    };
+    setTimeout(pollOrig,100);
+  } else {
+    G('fsInner').classList.remove('fs-decoding');
+  }
+  /* If the modal was already showing a different subject (modal-drop case),
+     clean up its tracked URLs and live-editor state before flipping subject.
+     Without this we'd leak ObjectURLs and re-encode against the previous
+     bitmap on the first slider tick. */
+  if(modalWasOpen){
+    if(_fsBeforeUrl){URL.revokeObjectURL(_fsBeforeUrl);_fsBeforeUrl=null;}
+    if(_fsAfterUrl){URL.revokeObjectURL(_fsAfterUrl);_fsAfterUrl=null;}
+    fsCurrentItem=null;feLiveBlob=null;feLiveFmt='';feOrigBitmap=null;feBitmapPromise=null;
+    feApplied=false;
+  } else {
+    /* Capture the focused element on open (only on the *first* open) so we
+       can restore on close. Drops-while-open shouldn't re-capture. */
+    _fsTriggerEl=document.activeElement;
+  }
+  G('fsBefore').src=item.origUrl||'';G('fsAfter').src='';
+  /* Reset only the dynamic rows (info + savings). The .fs-lbl-title
+     spans hold the static "Before"/"After" headings and stay intact —
+     wiping textContent on the parent would destroy them and break the
+     stacked layout on next open. */
+  (function(){
+    var bb=G('fsLblBefore'),aa=G('fsLblAfter');
+    if(bb){var bi=bb.querySelector('.fs-lbl-info');if(bi)bi.textContent='';}
+    if(aa){
+      var ai=aa.querySelector('.fs-lbl-info');if(ai)ai.textContent='';
+      var as=aa.querySelector('.fs-lbl-savings');if(as){as.textContent='';as.classList.remove('bad');}
+    }
+  })();
+  G('fsInner').classList.add('fs-preview-only');
+  /* Mark this item as the preview subject. transitionPreviewToResult uses
+     this to ignore late callbacks from a previous subject the user has
+     since dropped past. */
+  _fsPreviewItemId=imgId;
+  /* Kick off the encode progress bar for big files. Resolves the output
+     format the same way processAll will (so 'auto' becomes the right
+     concrete format for the estimate). */
+  try{
+    var af=getActiveFormats();
+    var fmtForEst=resolveFormatForFile(af[0]||'auto',item.file);
+    startEncodeProgress(item.file,fmtForEst);
+  }catch(_){}
+  fsZoom=1;fsPanX=0;fsPanY=0;updateFsZoom();
+  if(!modalWasOpen){
+    G('fsModal').classList.add('show');
+    fsScrollY=window.scrollY;document.body.classList.add('fs-open');document.body.style.top=(-fsScrollY)+'px';
+    /* Move focus into the modal — close button is a sensible target. */
+    var closeBtn=document.querySelector('.fs-close');if(closeBtn)closeBtn.focus();
+  }
+};
+/* Tracks which item the modal is currently in *preview* mode for. A
+   drop-into-modal can swap the subject mid-encode; when the previous item's
+   encoder eventually returns, transitionPreviewToResult must NOT hijack the
+   modal away from the user's new subject. */
+var _fsPreviewItemId=null;
+
+/* Time-based progress bar for the encoding pulse.
+   For inputs above ~5 MB the dot-only pulse felt stalled — AVIF on a 10 MB
+   photo can take 15 seconds. We estimate total encode time from input size
+   + target format and fill a bar over that estimate, capped at 95% until
+   the real result lands. Estimates are deliberately generous: it's better
+   for the bar to finish "early" (snap to 100%) than to claim 100% before
+   the file is ready. */
+var _encodeProgressTimer=null;
+var _encodeTextRotateTimer=null;
+var _encodeTextStrings=['Compressing…','Squeezing pixels…','Almost there…','Optimizing…'];
+var ENCODE_BAR_THRESHOLD_BYTES=5*1024*1024; /* show bar above 5 MB */
+function _rotatePulseText(){
+  var el=G('fsPulseText');
+  if(!el)return;
+  /* Cross-fade by toggling .swap-out for 280 ms, swapping the text mid-fade. */
+  el.classList.add('swap-out');
+  setTimeout(function(){
+    var idx=(_encodeTextStrings.indexOf(el.textContent)+1)%_encodeTextStrings.length;
+    if(idx<0)idx=0;
+    el.textContent=_encodeTextStrings[idx];
+    el.classList.remove('swap-out');
+  },280);
+}
+function _estimateEncodeSeconds(file,outputFmt){
+  var mb=Math.max(0.5,(file?file.size:0)/1048576);
+  /* Rough seconds-per-MB by output format on a typical mid-range desktop.
+     AVIF is the slow one; everything else lands quickly. Add a small fixed
+     overhead for HEIC/TIFF inputs that need a separate decode pass. */
+  var perMb={avif:1.5,webp:0.3,jpg:0.4,png:0.5,gif:0.2}[outputFmt]||0.5;
+  var decodeOverhead=(file&&(/\.(heic|heif|tif|tiff|bmp)$/i).test(file.name))?1.0+mb*0.4:0;
+  return Math.max(0.4,decodeOverhead+mb*perMb);
+}
+function startEncodeProgress(file,outputFmt){
+  stopEncodeProgress();
+  var textEl=G('fsPulseText');
+  if(textEl){
+    /* Exotic inputs (HEIC/TIFF/BMP) need a separate decode pass before
+       the encoder runs — calling that out by name in the pulse tells the
+       user "we're working on the file, not stuck." Subsequent rotations
+       cycle to the standard "Compressing…" / "Squeezing pixels…" set. */
+    var ext=file&&file.name?(file.name.split('.').pop()||'').toLowerCase():'';
+    var isExoticInput=ext==='heic'||ext==='heif'||ext==='tif'||ext==='tiff'||ext==='bmp';
+    textEl.textContent=isExoticInput?('Decoding '+ext.toUpperCase()+'…'):'Compressing…';
+    textEl.classList.remove('swap-out');
+  }
+  var bar=G('fsPulseBar'),fill=G('fsPulseBarFill');
+  if(!bar||!fill)return;
+  var isBig=file&&file.size>=ENCODE_BAR_THRESHOLD_BYTES;
+  if(!isBig){
+    bar.classList.remove('show');
+    return;
+  }
+  bar.classList.add('show');
+  fill.style.width='0%';
+  var est=_estimateEncodeSeconds(file,outputFmt)*1000;
+  var start=performance.now();
+  _encodeProgressTimer=setInterval(function(){
+    var elapsed=performance.now()-start;
+    /* Asymptotic curve: fill quickly toward the estimate, then ease off as
+       we approach 95%. Never reach 100% from the timer alone — that's
+       reserved for the real result landing. */
+    var pct=Math.min(95,(elapsed/(est+elapsed))*100);
+    fill.style.width=pct.toFixed(1)+'%';
+  },120);
+  /* Rotate the loading text only when the wait will actually be long
+     enough to read multiple strings — sub-threshold encodes finish before
+     the second word would land. */
+  _encodeTextRotateTimer=setInterval(_rotatePulseText,2200);
+}
+function stopEncodeProgress(){
+  if(_encodeProgressTimer){clearInterval(_encodeProgressTimer);_encodeProgressTimer=null;}
+  if(_encodeTextRotateTimer){clearInterval(_encodeTextRotateTimer);_encodeTextRotateTimer=null;}
+  var bar=G('fsPulseBar'),fill=G('fsPulseBarFill');
+  var textEl=G('fsPulseText');
+  if(fill)fill.style.width='100%';
+  if(textEl){textEl.classList.remove('swap-out');textEl.textContent='Done.';}
+  /* Hide the bar after a tiny delay so the 100% snap is briefly visible. */
+  setTimeout(function(){
+    if(bar)bar.classList.remove('show');
+    if(fill)fill.style.width='0%';
+    if(textEl)textEl.textContent='Compressing…';
+  },280);
+}
+
+/* Promote an already-open preview-mode modal to full result mode without
+   re-opening it. Used by the solo-magic flow: the modal pops on drop in
+   preview-only mode, encoding finishes, and this swaps in the result side
+   + brings up the live editor. No flash, no second click. */
+window.transitionPreviewToResult=function(item,resultIdx){
+  if(!item||!item.results||!item.results[resultIdx]||!item.results[resultIdx].blob)return;
+  if(!G('fsModal').classList.contains('show')){
+    /* Modal isn't actually open — caller should fall back to openFS. */
+    return window.openFS&&window.openFS(item.id,resultIdx);
+  }
+  /* Guard: if the modal has been re-pointed at a different subject (drop-
+     in-modal swapped it), the late-completing encoder for the *old* subject
+     should silently land in the grid behind the modal — not yank the user
+     away from what they're now looking at. */
+  if(_fsPreviewItemId&&_fsPreviewItemId!==item.id)return;
+  fsCurrentItem=item;fsCurrentIdx=resultIdx;
+  /* Encoding done — snap the progress bar to 100% then hide. */
+  stopEncodeProgress();
+  G('fsInner').classList.remove('fs-preview-only');
+  G('fsInner').classList.remove('fs-decoding');
+  showFsResult(resultIdx);
+  setFsP(50);
+  feInit(item,resultIdx);
+  _fsPreviewItemId=null; /* preview phase ended for this item */
+};
+
+window.openFS=function(imgId,resultIdx){
+  var item=null;for(var i=0;i<images.length;i++){if(images[i].id===imgId){item=images[i];break;}}
+  if(!item||!item.results[resultIdx]||!item.origUrl)return;
+  /* Capture the focused element BEFORE we open so we can restore on close. */
+  _fsTriggerEl=document.activeElement;
+  fsCurrentItem=item;fsCurrentIdx=resultIdx;
+  G('fsInner').classList.remove('fs-preview-only');
+
+  var cropRatio=CROP_RATIOS[currentCropRatio];
+  if(cropRatio&&item.natW&&item.natH){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.naturalWidth,h=img.naturalHeight,sx=0,sy=0,sw=w,sh=h;
+      if(w/h>cropRatio){sw=Math.round(h*cropRatio);sx=Math.round((w-sw)/2);}
+      else{sh=Math.round(w/cropRatio);sy=Math.round((h-sh)/2);}
+      var c=document.createElement('canvas');c.width=sw;c.height=sh;
+      c.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,sw,sh);
+      c.toBlob(function(b){
+        if(!b)return;
+        if(_fsBeforeUrl)URL.revokeObjectURL(_fsBeforeUrl);
+        _fsBeforeUrl=URL.createObjectURL(b);
+        G('fsBefore').src=_fsBeforeUrl;
+      });
+    };
+    img.src=item.origUrl;
+  } else {
+    G('fsBefore').src=item.origUrl;
+  }
+
+  showFsResult(resultIdx);
+  fsZoom=1;fsPanX=0;fsPanY=0;updateFsZoom();
+  setFsP(50);G('fsModal').classList.add('show');
+  fsScrollY=window.scrollY;document.body.classList.add('fs-open');document.body.style.top=(-fsScrollY)+'px';
+  feInit(item,resultIdx);
+  /* Move focus into the modal so screen readers + keyboard users know it
+     opened. Close button is the safest target — always present, always
+     correctly labeled. */
+  var closeBtn=document.querySelector('.fs-close');if(closeBtn)closeBtn.focus();
+};
+function showFsResult(idx){
+  if(!fsCurrentItem||!fsCurrentItem.results[idx])return;
+  fsCurrentIdx=idx;
+  var r=fsCurrentItem.results[idx];
+  if(!r.url)return;
+  G('fsAfter').src=r.url;
+  /* Stacked "Before" / "After" labels — three-row structure:
+       Row 1: title (large)
+       Row 2: size · format
+       Row 3 (after only): savings %
+     The After savings row uses .bad class when the result was larger
+     than the input (rare, e.g. small JPG → AVIF re-encode), which
+     swaps the color from success-green to warn-orange. */
+  var inputFmt=(getFileExt(fsCurrentItem.file.name)||'').toUpperCase();
+  var beforeLbl=G('fsLblBefore');
+  if(beforeLbl){
+    var bInfo=beforeLbl.querySelector('.fs-lbl-info');
+    if(bInfo) bInfo.textContent=fmtSize(fsCurrentItem.file.size)+(inputFmt?' · '+inputFmt:'');
+  }
+  var sv=fsCurrentItem.file.size-r.blob.size,pc=Math.round(sv/fsCurrentItem.file.size*100);
+  var afterLbl=G('fsLblAfter');
+  if(afterLbl){
+    var aInfo=afterLbl.querySelector('.fs-lbl-info');
+    var aSav=afterLbl.querySelector('.fs-lbl-savings');
+    if(aInfo) aInfo.textContent=fmtSize(r.blob.size)+' · '+r.format.toUpperCase();
+    if(aSav){
+      aSav.textContent=sv>=0?'-'+pc+'% saved':'+'+Math.abs(pc)+'% larger';
+      aSav.classList.toggle('bad',sv<0);
+    }
+  }
+}
+window.closeFullscreen=function(){
+  /* Live slider movements auto-commit; closing the modal is purely visual.
+     The card behind has already been updated with the latest blob/format. */
+  G('fsModal').classList.remove('show');
+  document.body.classList.remove('fs-open');document.body.style.top='';window.scrollTo(0,fsScrollY);
+  G('fsInner').classList.remove('fs-preview-only');
+  G('fsInner').classList.remove('fs-decoding');
+  fsZoom=1;fsPanX=0;fsPanY=0;fsCurrentItem=null;feApplied=false;
+  feLiveBlob=null;feLiveFmt='';feOrigBitmap=null;feBitmapPromise=null;
+  _fsPreviewItemId=null;
+  /* Stop the progress bar + text rotation if user closed mid-encode. */
+  if(_encodeProgressTimer){clearInterval(_encodeProgressTimer);_encodeProgressTimer=null;}
+  if(_encodeTextRotateTimer){clearInterval(_encodeTextRotateTimer);_encodeTextRotateTimer=null;}
+  var pulseBar=G('fsPulseBar');if(pulseBar)pulseBar.classList.remove('show');
+  var pulseFill=G('fsPulseBarFill');if(pulseFill)pulseFill.style.width='0%';
+  var pulseTxt=G('fsPulseText');if(pulseTxt){pulseTxt.classList.remove('swap-out');pulseTxt.textContent='Compressing…';}
+  /* Free the modal's tracked ObjectURLs. */
+  if(_fsBeforeUrl){URL.revokeObjectURL(_fsBeforeUrl);_fsBeforeUrl=null;}
+  if(_fsAfterUrl){URL.revokeObjectURL(_fsAfterUrl);_fsAfterUrl=null;}
+  /* Restore focus to whatever opened the modal (if it's still in the DOM
+     and focusable). Fall back to body if the trigger element is gone. */
+  if(_fsTriggerEl&&document.body.contains(_fsTriggerEl)&&typeof _fsTriggerEl.focus==='function'){
+    try{_fsTriggerEl.focus();}catch(_){}
+  }
+  _fsTriggerEl=null;
+};
+/* applyFsEdit removed — the live editor's slider/format-swap auto-commit
+   to the result slot inside feReEncode now. The Apply button is gone from
+   the modal UI. Closing the modal preserves whatever the user is looking
+   at; re-opening restores the slider position from the recorded quality. */
+/* Hover preview: when the user hovers a result row, swap the card thumbnail to
+   that format's blob URL so they can eyeball each format without opening the
+   modal. resultIdx === -1 restores the first-result thumbnail (the default).
+   This was previously called from result-row onmouseenter/onmouseleave but the
+   function definition was missing — every hover threw a ReferenceError. */
+window.previewFmt=function(itemId,resultIdx){
+  var item=null;
+  for(var i=0;i<images.length;i++){if(images[i].id===itemId){item=images[i];break;}}
+  if(!item)return;
+  var card=document.querySelector('.card[data-id="'+item.id+'"]');
+  if(!card)return;
+  var thumbImg=card.querySelector('.card-thumb .plain-img');
+  if(!thumbImg)return;
+  var src=null;
+  if(resultIdx>=0&&item.results[resultIdx]&&item.results[resultIdx].url){
+    src=item.results[resultIdx].url;
+  }else{
+    /* Restore: first completed result, else the original */
+    for(var k=0;k<item.results.length;k++){
+      if(item.results[k].blob&&item.results[k].url){src=item.results[k].url;break;}
+    }
+    if(!src)src=item.origUrl||null;
+  }
+  if(src&&thumbImg.src!==src)thumbImg.src=src;
+};
+var feApplied=false;
+
+/* ========================================
+   LIVE EDITOR
+   feReEncode also gets the white background
+   fix so the live editor is consistent.
+   ======================================== */
+var feLiveBlob=null,feLiveFmt='',feDebounceTimer=null,feOrigBitmap=null;
+/* Pending decode promise — feReEncode awaits this so a quality-slider tick that
+   fires while the bitmap is still decoding doesn't silently no-op. */
+var feBitmapPromise=null;
+var FE_FMTS=['webp','avif','jpg','png'];
+function feInit(item,resultIdx){
+  var fmtEl=G('feFmt');
+  var startFmt=item.results[resultIdx]?item.results[resultIdx].format:'webp';
+  feLiveFmt=startFmt;
+  var html='';
+  for(var i=0;i<FE_FMTS.length;i++){
+    var f=FE_FMTS[i];
+    var act=f===startFmt?' class="active"':'';
+    html+='<button'+act+' onclick="feSwitchFmt(\''+f+'\')">'+f.toUpperCase()+'</button>';
+  }
+  fmtEl.innerHTML=html;
+  /* Reveal the Share button only on browsers where Web Share API
+     supports files. Same feature flag the per-card Share button uses. */
+  var feShareBtn=G('feShareBtn');
+  if(feShareBtn){
+    feShareBtn.style.display=window._shareSupportedFiles===true?'':'none';
+  }
+  /* Slider position priority:
+     1. The quality the encoder actually used for THIS result (post-smart-adjust).
+     2. Fall back to the global Settings slider if no recorded quality exists.
+     This keeps the modal's slider truthful: it shows what the visible blob
+     was encoded at, never a stale default. */
+  var storedQ=item.results[resultIdx]&&typeof item.results[resultIdx].quality==='number'
+    ? item.results[resultIdx].quality
+    : null;
+  var startQ=Math.round((storedQ!==null?storedQ:(getSettings(startFmt).quality||0.82))*100);
+  var sl=G('feQSlider');sl.value=startQ;
+  G('feQVal').textContent=startQ;
+  feUpdateQDisabled();
+  if(item.results[resultIdx]&&item.results[resultIdx].blob){
+    feLiveBlob=item.results[resultIdx].blob;
+    G('feSize').textContent=fmtSize(feLiveBlob.size);
+  }
+  feOrigBitmap=null;
+  var origSrc=item.decoded||item.file;
+  /* Capture the decode promise so feReEncode can await it. The previous code
+     fired-and-forgot the promise, so any slider movement before the bitmap
+     resolved hit the `if(!feOrigBitmap)return` guard and did nothing. */
+  feBitmapPromise=createImageBitmap(origSrc).then(function(bmp){feOrigBitmap=bmp;return bmp;}).catch(function(){
+    /* Fallback: round-trip the origUrl through an <img> first, then bitmap. */
+    return new Promise(function(resolve){
+      if(!item.origUrl){resolve(null);return;}
+      var img=new Image();
+      img.onload=function(){createImageBitmap(img).then(function(bmp){feOrigBitmap=bmp;resolve(bmp);}).catch(function(){resolve(null);});};
+      img.onerror=function(){resolve(null);};
+      img.src=item.origUrl;
+    });
+  });
+}
+function feUpdateQDisabled(){
+  var sl=G('feQSlider');
+  var isGif=(feLiveFmt==='gif');
+  sl.disabled=isGif;sl.style.opacity=isGif?'.3':'1';
+}
+window.feSwitchFmt=function(f){
+  feLiveFmt=f;
+  var btns=G('feFmt').getElementsByTagName('button');
+  for(var i=0;i<btns.length;i++)btns[i].classList.toggle('active',btns[i].textContent.toLowerCase()===f);
+  feUpdateQDisabled();
+  feReEncode();
+};
+(function(){
+  var sl=G('feQSlider');if(!sl)return;
+  sl.addEventListener('input',function(){
+    G('feQVal').textContent=sl.value;
+    if(feDebounceTimer)clearTimeout(feDebounceTimer);
+    feDebounceTimer=setTimeout(feReEncode,300);
+  });
+})();
+async function feReEncode(){
+  if(!fsCurrentItem)return;
+  var spinner=G('feSpinner');if(spinner)spinner.style.display='block';
+  /* Bitmap decode happens asynchronously in feInit. If a slider tick fires
+     before it lands, wait for it instead of silently bailing. */
+  if(!feOrigBitmap&&feBitmapPromise){
+    try{await feBitmapPromise;}catch(_){}
+  }
+  if(!feOrigBitmap){if(spinner)spinner.style.display='none';return;}
+  var q=parseInt(G('feQSlider').value)/100;
+  var isLossless=(feLiveFmt==='png'&&q>=1.0);
+  var bmp=feOrigBitmap;
+  var w=bmp.width,h=bmp.height,sx=0,sy=0,sw=w,sh=h;
+  var cropRatio=CROP_RATIOS[currentCropRatio];
+  if(cropRatio){if(w/h>cropRatio){sw=Math.round(h*cropRatio);sx=Math.round((w-sw)/2);}else{sh=Math.round(w/cropRatio);sy=Math.round((h-sh)/2);}w=sw;h=sh;}
+  var maxDim=parseInt((G('resizeMax')||{}).value)||0;
+  if(maxDim){var longest=Math.max(w,h);if(longest>maxDim){var scale=maxDim/longest;w=Math.round(w*scale);h=Math.round(h*scale);}}
+  var c=document.createElement('canvas');c.width=w;c.height=h;
+  var ctx=c.getContext('2d');
+  /* WHITE BACKGROUND FIX for live editor */
+  if(feLiveFmt==='jpg'){
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(0,0,w,h);
+  }
+  ctx.drawImage(bmp,sx,sy,sw,sh,0,0,w,h);
+  try{
+    var blob;
+    if(feLiveFmt==='avif'||(feLiveFmt==='webp'&&isIOS)){
+      blob=await encodeWithJsquash(c,feLiveFmt,isLossless?undefined:q);
+    } else if(feLiveFmt==='png'&&!isLossless&&typeof UPNG!=='undefined'){
+      blob=encodeWithUPNG(c,q);
+    } else {
+      var mimeMap={webp:'image/webp',jpg:'image/jpeg',png:'image/png'};
+      var mime=mimeMap[feLiveFmt]||'image/jpeg';
+      blob=await new Promise(function(res,rej){
+        c.toBlob(function(b){b?res(b):rej(new Error('Encode failed'));},mime,isLossless?undefined:q);
+      });
+    }
+    if(spinner)spinner.style.display='none';
+    feLiveBlob=blob;
+    G('feSize').textContent=fmtSize(blob.size);
+    /* Each slider tick re-encodes — track + revoke so we don't leak per tick. */
+    if(_fsAfterUrl)URL.revokeObjectURL(_fsAfterUrl);
+    _fsAfterUrl=URL.createObjectURL(blob);
+    var afterImg=G('fsAfter');if(afterImg)afterImg.src=_fsAfterUrl;
+    if(fsCurrentItem){
+      /* Same stacked shape as showFsResult — populates the same three
+         spans inside each label. Lives in two places (this re-encode
+         path + the initial render in showFsResult) and they MUST stay
+         in sync; if either drifts, the labels jitter as the slider
+         drags. The .fs-lbl-title spans are static ("Before"/"After")
+         so we don't touch them — only info + savings update. */
+      var inputFmtL=(getFileExt(fsCurrentItem.file.name)||'').toUpperCase();
+      var bLbl=G('fsLblBefore');
+      if(bLbl){
+        var bInfoEl=bLbl.querySelector('.fs-lbl-info');
+        if(bInfoEl) bInfoEl.textContent=fmtSize(fsCurrentItem.file.size)+(inputFmtL?' · '+inputFmtL:'');
+      }
+      var sv=fsCurrentItem.file.size-blob.size,pc=Math.round(sv/fsCurrentItem.file.size*100);
+      var aLbl=G('fsLblAfter');
+      if(aLbl){
+        var aInfoEl=aLbl.querySelector('.fs-lbl-info');
+        var aSavEl=aLbl.querySelector('.fs-lbl-savings');
+        if(aInfoEl) aInfoEl.textContent=fmtSize(blob.size)+' · '+feLiveFmt.toUpperCase();
+        if(aSavEl){
+          aSavEl.textContent=sv>=0?'-'+pc+'% saved':'+'+Math.abs(pc)+'% larger';
+          aSavEl.classList.toggle('bad',sv<0);
+        }
+      }
+      /* Auto-commit: the live re-encode IS the saved result. The Apply
+         button is gone — the slider position is the saved quality, the
+         visible blob is the saved blob. Closing the modal preserves
+         exactly what the user is looking at. */
+      var slot=fsCurrentItem.results[fsCurrentIdx];
+      if(slot){
+        var oldUrl=slot.url;
+        var oldNamedId=slot.namedId;
+        slot.blob=blob;
+        /* Re-mint a named URL for the live re-encoded blob so right-click
+           on the card thumbnail (post-modal) still suggests the proper
+           branded filename. _releaseNamedResultURL on the old slot would
+           also release the SW registration, but we've replaced the slot
+           in place; release the OLD entries explicitly below. */
+        var _named2 = _createNamedResultURL(blob, fsCurrentItem.file.name, feLiveFmt);
+        slot.url=_named2.url;
+        slot.namedId=_named2.id;
+        slot.format=feLiveFmt;
+        slot.quality=q;
+        /* Release old artifacts. Skip _fsAfterUrl which is owned by the
+           live editor and revoked separately when the modal closes. */
+        if(oldNamedId){
+          var ctrl3=navigator.serviceWorker&&navigator.serviceWorker.controller;
+          if(ctrl3){try{ctrl3.postMessage({type:'release-blob',id:oldNamedId});}catch(_){}}
+        } else if(oldUrl&&oldUrl!==_fsAfterUrl&&typeof oldUrl==='string'&&oldUrl.indexOf('blob:')===0){
+          URL.revokeObjectURL(oldUrl);
+        }
+        feApplied=true;
+        try{updateCardResults(fsCurrentItem);updateChargePreview();}catch(_){}
+      }
+    }
+  }catch(err){
+    if(spinner)spinner.style.display='none';
+    console.error('Live re-encode failed:',err);
+  }
+}
+/* Helper used by all three fullscreen action buttons — gives the live
+   blob a sensible filename derived from the original image's name. */
+function _feCurrentFilename(){
+  if(!feLiveBlob||!fsCurrentItem)return null;
+  var ext={'image/webp':'webp','image/avif':'avif','image/png':'png','image/jpeg':'jpg'}[feLiveBlob.type]||feLiveFmt;
+  return fsCurrentItem.file.name.replace(/\.[^.]+$/,'')+'.'+ext;
+}
+
+window.feLiveDl=function(){
+  var name=_feCurrentFilename();
+  if(!name)return;
+  /* Pure download — fullscreen editor's Download button is for "save a
+     file." Share has its own button now. */
+  triggerDownload(feLiveBlob,name);
+};
+
+window.feLiveShare=async function(){
+  if(!window._shareSupportedFiles)return;
+  var name=_feCurrentFilename();
+  if(!name)return;
+  try{
+    var file=new File([feLiveBlob],name,{type:feLiveBlob.type||'application/octet-stream'});
+    var data={files:[file]};
+    if(!navigator.canShare(data)){
+      /* Runtime payload rejected for this specific blob — fall through
+         to a download so the user isn't stranded. */
+      return triggerDownload(feLiveBlob,name);
+    }
+    var btn=G('feShareBtn');if(btn)btn.disabled=true;
+    try{
+      await navigator.share(data);
+      window._userDownloadedAtLeastOnce=true;
+    } finally {
+      if(btn)btn.disabled=false;
+    }
+  } catch(err){
+    if(err && err.name==='AbortError')return; /* user cancelled */
+    console.warn('[imgready] feLiveShare failed:',err);
+  }
+};
+
+window.feLiveCopy=async function(btn){
+  /* Mirror of copyResult, but for the live blob in the fullscreen
+     editor instead of a per-card result. PNG is the only universally-
+     accepted clipboard image type, so we transcode if needed. */
+  if(!feLiveBlob||!fsCurrentItem)return;
+  if(typeof navigator.clipboard==='undefined' || typeof window.ClipboardItem==='undefined'){
+    /* No clipboard image API — fall back to download so the click
+       still produces something useful. */
+    return window.feLiveDl();
+  }
+  var origHTML=btn?btn.innerHTML:'';
+  var svgCheck='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  if(btn){btn.innerHTML='<span class="spin-sm"></span>';btn.disabled=true;}
+  try{
+    var pngBlob;
+    if(feLiveBlob.type==='image/png'){
+      pngBlob=feLiveBlob;
+    } else {
+      pngBlob=await new Promise(function(resolve,reject){
+        var url=URL.createObjectURL(feLiveBlob);
+        var img=new Image();
+        img.onload=function(){
+          var c=document.createElement('canvas');
+          c.width=img.naturalWidth;c.height=img.naturalHeight;
+          c.getContext('2d').drawImage(img,0,0);
+          c.toBlob(function(b){URL.revokeObjectURL(url);b?resolve(b):reject(new Error('PNG conversion failed'));},'image/png');
+        };
+        img.onerror=function(){URL.revokeObjectURL(url);reject(new Error('Image load failed'));};
+        img.src=url;
+      });
+    }
+    await navigator.clipboard.write([new ClipboardItem({'image/png':pngBlob})]);
+    if(btn){
+      btn.innerHTML=svgCheck;
+      btn.disabled=false;
+      setTimeout(function(){btn.innerHTML=origHTML;},1500);
+    }
+  } catch(err){
+    console.warn('[imgready] feLiveCopy failed:',err);
+    if(btn){btn.innerHTML=origHTML;btn.disabled=false;}
+    if(!err || err.name!=='NotAllowedError')window.feLiveDl();
+  }
+};
+
+/* ========================================
+   SHARE — Web Share API integration
+
+   Goal: on devices that support file-sharing through the OS share sheet
+   (iOS Safari, Android Chrome, Edge, Safari desktop), let the user send
+   their results straight to Messages/Mail/WhatsApp/AirDrop without ever
+   touching the local filesystem. On phones this is the killer flow —
+   the Files-app round trip is the worst part of mobile image work.
+
+   Feature detect runs once at script load. We try a tiny synthetic
+   payload: a 1-byte text File. If `canShare` returns true for that, the
+   browser supports share-with-files and we light up both the action-bar
+   button and any per-card share buttons. If not, the buttons stay hidden.
+   We never attempt to share + recover, because failed share attempts on
+   unsupported browsers throw permission errors that are confusing.
+
+   Important: imgready's privacy story is unaffected. The blob is handed
+   to the OS, which hands it to whatever app the user picks. No bytes
+   pass through imgready, ever. The destination app's privacy is its
+   own — that's outside our brand surface.
+   ======================================== */
+window._shareSupportedFiles = (function(){
+  try {
+    if (typeof navigator === 'undefined' || !navigator.canShare || !navigator.share) return false;
+    var probeFile = new File([new Uint8Array([0])], 'probe.txt', {type:'text/plain'});
+    return !!navigator.canShare({files:[probeFile]});
+  } catch(e){
+    return false;
+  }
+})();
+
+/* Per-result share — same pattern as shareAll but for a single blob.
+   Uses the existing downloadOrShare helper as a fallback path so users
+   on the rare device where canShare() lies still get something. */
+window.shareResult = async function(imgId, rIdx){
+  if (!window._shareSupportedFiles) return;
+  var item = null;
+  for (var i = 0; i < images.length; i++){
+    if (images[i].id === imgId){ item = images[i]; break; }
+  }
+  if (!item || !item.results[rIdx] || !item.results[rIdx].blob) return;
+  var r = item.results[rIdx];
+  var ext = (typeof getExt === 'function') ? getExt(r.blob) : (r.format || 'bin');
+  var name = item.file.name.replace(/\.[^.]+$/, '') + '.' + ext;
+  try {
+    var file = new File([r.blob], name, {type: r.blob.type || 'application/octet-stream'});
+    var data = {files:[file]};
+    if (!navigator.canShare(data)){
+      /* Runtime payload rejected — fall back to download. */
+      return downloadOrShare(r.blob, name);
+    }
+    await navigator.share(data);
+    window._userDownloadedAtLeastOnce = true;
+  } catch(err){
+    if (err && err.name === 'AbortError') return;
+    console.warn('[imgready] shareResult failed:', err);
+  }
+};
+
+window.shareAll = async function(){
+  if (!window._shareSupportedFiles) return;
+  var items = _collectResults();
+  if (!items.length) return;
+  /* Build File[] from the result list. _collectResults already handled
+     name de-duplication; we just need to convert {name,blob} → File. */
+  var files = [];
+  for (var i = 0; i < items.length; i++){
+    try {
+      files.push(new File([items[i].blob], items[i].name, {type: items[i].blob.type || 'application/octet-stream'}));
+    } catch(e){
+      console.warn('[imgready] shareAll: skipping unshareable item', items[i].name, e);
+    }
+  }
+  if (!files.length) return;
+  /* Some browsers cap how many files can be shared at once. Web Share API
+     doesn't expose the limit, so we feature-check the assembled payload. */
+  var payload = {files: files};
+  if (!navigator.canShare(payload)){
+    /* The runtime payload exceeded what canShare accepts. Fall back to
+       a smaller payload — just the first file — rather than failing
+       silently. The user can repeat for the rest. */
+    if (files.length > 1 && navigator.canShare({files:[files[0]]})){
+      payload = {files:[files[0]]};
+    } else {
+      /* Genuinely unsupported. Surface the existing download flow so the
+         user isn't stranded. */
+      if (typeof window.downloadAll === 'function') return window.downloadAll();
+      return;
+    }
+  }
+  var shareBtn = G('shareAllBtn');
+  if (shareBtn) shareBtn.disabled = true;
+  try {
+    await navigator.share(payload);
+    /* Success: count it as a save so the beforeunload nag stays quiet. */
+    window._userDownloadedAtLeastOnce = true;
+  } catch(err){
+    /* User cancelled — completely normal on share sheet dismiss. */
+    if (err && err.name === 'AbortError') return;
+    console.warn('[imgready] share failed:', err);
+  } finally {
+    if (shareBtn) shareBtn.disabled = false;
+  }
+};
+
+/* (window.copyAll was removed — see the action bar comment above.
+   Per-card copyResult covers the only honest copy use case.) */
+
+var fsInner=G('fsInner');
+if(fsInner){
+  fsInner.addEventListener('mousemove',function(e){if(!G('fsModal').classList.contains('show'))return;mvFs(e);});
+  fsInner.addEventListener('touchstart',function(e){if(e.touches.length===1)mvFs(e);},{passive:true});
+  fsInner.addEventListener('touchmove',function(e){
+    if(e.touches.length===1){mvFs(e);}
+    else if(e.touches.length===2){
+      e.preventDefault();
+      var dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,dist=Math.sqrt(dx*dx+dy*dy);
+      if(fsPinchDist>0){var sc=dist/fsPinchDist;fsZoom=Math.max(1,Math.min(5,fsZoom*sc));if(fsZoom<=1){fsPanX=0;fsPanY=0;}updateFsZoom();showZoomLevel();}
+      fsPinchDist=dist;
+    }
+  },{passive:false});
+  fsInner.addEventListener('touchend',function(e){if(e.touches.length<2)fsPinchDist=0;});
+  fsInner.addEventListener('wheel',function(e){
+    if(!G('fsModal').classList.contains('show'))return;e.preventDefault();
+    var delta=e.deltaY>0?-0.15:0.15;
+    var nz=Math.max(1,Math.min(5,fsZoom+delta));
+    if(nz!==fsZoom){
+      var rect=fsInner.getBoundingClientRect(),mx=e.clientX-rect.left-rect.width/2,my=e.clientY-rect.top-rect.height/2,factor=nz/fsZoom;
+      fsPanX=mx-(mx-fsPanX)*factor;fsPanY=my-(my-fsPanY)*factor;
+      fsZoom=nz;if(fsZoom<=1){fsPanX=0;fsPanY=0;}
+      updateFsZoom();showZoomLevel();
+    }
+  },{passive:false});
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(G('supModalOverlay').classList.contains('show')){closeSupModal();return;}
+    if(G('fsModal').classList.contains('show')){closeFullscreen();return;}
+    /* Keyboard help popover — was previously only dismissible by clicking
+       outside, which was inconsistent with the other dialogs above. */
+    var kbd=G('kbdPopover');
+    if(kbd&&kbd.classList.contains('show')){kbd.classList.remove('show');return;}
+    return;
+  }
+  /* Don't intercept typing in form fields */
+  var t=e.target,tag=t&&t.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;
+
+  /* Inside the fullscreen modal: arrow keys cycle through this card's results */
+  if(G('fsModal').classList.contains('show')&&fsCurrentItem){
+    var doneIdx=[];
+    for(var i=0;i<fsCurrentItem.results.length;i++){if(fsCurrentItem.results[i].blob)doneIdx.push(i);}
+    if(doneIdx.length>1&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){
+      var pos=doneIdx.indexOf(fsCurrentIdx);
+      var nextPos=e.key==='ArrowRight'?(pos+1)%doneIdx.length:(pos-1+doneIdx.length)%doneIdx.length;
+      e.preventDefault();
+      showFsResult(doneIdx[nextPos]);
+      feInit(fsCurrentItem,doneIdx[nextPos]);
+    }
+    return;
+  }
+
+  /* Outside the modal: P = process, D = download all, / = focus dropzone */
+  if(e.key==='p'||e.key==='P'){
+    var pb=G('processBtn');if(pb&&!pb.disabled){e.preventDefault();pb.click();}
+  } else if(e.key==='d'||e.key==='D'){
+    var dl=G('dlAllBtn');if(dl&&dl.style.display!=='none'&&!dl.disabled){e.preventDefault();dl.click();}
+  } else if(e.key==='/'){
+    var dz=G('dropzone');if(dz){e.preventDefault();dz.focus();dz.click();}
+  }
+});
+
+/* ========================================
+   ACTIONS
+   ======================================== */
+function downloadOrShare(blob,filename){
+  if(navigator.canShare){
+    var file=new File([blob],filename,{type:blob.type});
+    var data={files:[file]};
+    if(navigator.canShare(data)){
+      navigator.share(data).then(function(){
+        /* Shared successfully — counts as "saved"; suppress beforeunload nag */
+        _userDownloadedAtLeastOnce=true;
+      }).catch(function(err){
+        if(err.name!=='AbortError'){triggerDownload(blob,filename);}
+      });
+      return;
+    }
+  }
+  triggerDownload(blob,filename);
+}
+function triggerDownload(blob,filename){
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=filename;a.click();
+  /* Revoke after a short delay — immediate revoke can abort the download on some browsers */
+  setTimeout(function(){URL.revokeObjectURL(url);},10000);
+  /* Suppress the beforeunload nag once a download has fired this session */
+  _userDownloadedAtLeastOnce=true;
+}
+
+/* ========================================
+   UNDO REMOVAL — 5-second safety net
+   ======================================== */
+var _undoPending=null; /* { item, index, timerId } */
+
+function _finalizeRemoval(entry){
+  /* Revoke ObjectURLs only when the undo window has expired */
+  if(!entry)return;
+  if(entry.item.origUrl)URL.revokeObjectURL(entry.item.origUrl);
+  for(var j=0;j<entry.item.results.length;j++){
+    if(entry.item.results[j].url)URL.revokeObjectURL(entry.item.results[j].url);
+  }
+}
+
+function _showUndoToast(name){
+  var toast=G('undoToast'),msg=G('undoToastMsg');
+  if(!toast)return;
+  if(msg)msg.textContent='Removed “'+name+'”';
+  toast.classList.add('show');
+}
+
+window.dismissUndoToast=function(){
+  var toast=G('undoToast');
+  if(toast)toast.classList.remove('show');
+  /* Don't finalize here — the timer is still responsible for cleanup */
+};
+
+window.undoRemove=function(){
+  if(!_undoPending)return;
+  clearTimeout(_undoPending.timerId);
+  /* Restore item at original position (clamped to current array length) */
+  var idx=Math.min(_undoPending.index,images.length);
+  images.splice(idx,0,_undoPending.item);
+  _undoPending=null;
+  var toast=G('undoToast');if(toast)toast.classList.remove('show');
+  renderAll();
+};
+
+window.removeImage=function(id){
+  for(var i=0;i<images.length;i++){
+    if(images[i].id!==id)continue;
+    var item=images[i];
+
+    /* If there's already a pending removal, finalize it now before accepting
+       a new one — we only support a single undo slot at a time. */
+    if(_undoPending){
+      clearTimeout(_undoPending.timerId);
+      _finalizeRemoval(_undoPending);
+      _undoPending=null;
+    }
+
+    images.splice(i,1);
+    renderAll();
+
+    /* Hold the item for 5s — ObjectURLs stay alive so Undo can restore it.
+       entry is created first so the same reference is shared by the timer
+       callback and _undoPending (identity check in the callback is reliable). */
+    var displayName=item.file.name.replace(/\.[^.]+$/,'');
+    var entry={item:item,index:i,timerId:null};
+    entry.timerId=setTimeout(function(e){
+      _finalizeRemoval(e);
+      if(_undoPending===e)_undoPending=null;
+      var toast=G('undoToast');if(toast)toast.classList.remove('show');
+    },5000,entry);
+    _undoPending=entry;
+    _showUndoToast(displayName);
+    return;
+  }
+};
+
+/* Inline compare slider: drag horizontally on a done card thumb to compare
+   original vs result without entering the fullscreen modal. Single click on
+   the handle area still opens fullscreen for power users (zoom, format swap). */
+(function inlineCompareSlider(){
+  var dragging=null;
+  function move(e,thumb){
+    var rect=thumb.getBoundingClientRect();
+    var cx=e.touches?e.touches[0].clientX:e.clientX;
+    var pct=Math.max(0,Math.min(100,(cx-rect.left)/rect.width*100));
+    var divider=thumb.querySelector('.compare-divider');
+    var handle=thumb.querySelector('.compare-handle');
+    var clip=thumb.querySelector('.compare-after');
+    if(divider)divider.style.left=pct+'%';
+    if(handle)handle.style.left=pct+'%';
+    if(clip)clip.style.clipPath='inset(0 0 0 '+pct+'%)';
+  }
+  document.addEventListener('mousedown',function(e){
+    var t=e.target.closest('.compare-thumb');
+    if(!t)return;
+    dragging=t;
+    move(e,t);
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove',function(e){if(dragging)move(e,dragging);});
+  document.addEventListener('mouseup',function(){dragging=null;});
+  document.addEventListener('touchstart',function(e){
+    var t=e.target.closest('.compare-thumb');
+    if(!t)return;
+    dragging=t;
+    move(e,t);
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){if(dragging)move(e,dragging);},{passive:true});
+  document.addEventListener('touchend',function(){dragging=null;});
+  /* Double-click opens fullscreen for users who want zoom + format-swap */
+  document.addEventListener('dblclick',function(e){
+    var t=e.target.closest('.compare-thumb');
+    if(!t)return;
+    var id=t.getAttribute('data-id');
+    if(id&&typeof window.thumbClick==='function')window.thumbClick(id);
+  });
+})();
+
+/* previewFmt was previously redefined here for the now-removed inline compare
+   slider; the duplicate definition shadowed the working one above (`var X =`
+   declarations let the later one win). Removed — the canonical previewFmt
+   sits next to applyFsEdit and targets the current single-thumbnail DOM. */
+
+window.retryResult=async function(imgId,rIdx){
+  var item=null;for(var i=0;i<images.length;i++){if(images[i].id===imgId){item=images[i];break;}}
+  if(!item||!item.results[rIdx])return;
+  var rr=item.results[rIdx];rr.error=null;
+  updateCardResults(item);
+  try{
+    var src=item.decoded||item.file;
+    if(item.needsConvert&&!item.decoded){src=await preDecodeFile(item.file);item.decoded=src;}
+    var settings=getSettings(rr.format);
+    var blob=await processImg(src,settings,rr.format);
+    if(settings.stripExif===false&&rr.format==='jpg')blob=await preserveExifIntoBlob(item.file,blob);
+    /* Defensive: if a previous (failed) URL exists for this slot, revoke it
+       before overwriting. retryResult shouldn't have a URL on a failed slot,
+       but guarding cheaply prevents leaks if invariant ever breaks. */
+    if(rr.url)URL.revokeObjectURL(rr.url);
+    rr.blob=blob;rr.url=URL.createObjectURL(blob);
+    rr.error=null;
+  }catch(err){rr.error=String(err&&err.message||err||'Encode failed');}
+  updateCardResults(item);updateChargePreview();
+};
+window.dlResult=function(imgId,rIdx){
+  var item=null;for(var i=0;i<images.length;i++){if(images[i].id===imgId){item=images[i];break;}}
+  if(!item||!item.results[rIdx]||!item.results[rIdx].blob)return;
+  var r=item.results[rIdx];
+  var filename=item.file.name.replace(/\.[^.]+$/,'')+'.'+getExt(r.blob);
+  /* Pure download: Share is now a separate button on each result row. */
+  triggerDownload(r.blob,filename);
+};
+
+/* dlCard — downloads ALL done results for a card. Used by the per-card
+   Download button so Live Photo cards (which carry both a still and a
+   video MP4) trigger both downloads with one click. Sequential trigger
+   with 60ms stagger because browsers throttle simultaneous downloads
+   from the same origin (Firefox/Safari especially); 60ms is enough to
+   let each click event flush separately. For a card with one result,
+   this is identical to dlResult. */
+window.dlCard=function(imgId){
+  var item=null;for(var i=0;i<images.length;i++){if(images[i].id===imgId){item=images[i];break;}}
+  if(!item)return;
+  var idx=0;
+  for(var j=0;j<item.results.length;j++){
+    var r=item.results[j];
+    if(!r.blob) continue;
+    /* MP4 results from Live Photo extraction get .mp4 extension; image
+       results use the blob's MIME-derived extension. */
+    var ext = (r.format==='mp4') ? 'mp4' : getExt(r.blob);
+    var filename = _brandedFilename(item.file.name, ext);
+    (function(blob, name, delay){
+      setTimeout(function(){triggerDownload(blob, name);}, delay);
+    })(r.blob, filename, idx*60);
+    idx++;
+  }
+};
+
+/* shareCard — shares ALL done results via Web Share API as a multi-file
+   payload. Live Photo cards share both still + video in one share
+   sheet invocation. Receiving apps choose how to handle (Messages
+   takes both, AirDrop takes both, single-file-only apps may take just
+   the first). Falls back gracefully when the runtime payload is
+   rejected — tries the first file alone, then triggers downloads. */
+window.shareCard=async function(imgId){
+  if(!window._shareSupportedFiles)return;
+  var item=null;for(var i=0;i<images.length;i++){if(images[i].id===imgId){item=images[i];break;}}
+  if(!item)return;
+  var files=[];
+  for(var j=0;j<item.results.length;j++){
+    var r=item.results[j];
+    if(!r.blob) continue;
+    var ext = (r.format==='mp4') ? 'mp4' : getExt(r.blob);
+    var filename = _brandedFilename(item.file.name, ext);
+    try {
+      files.push(new File([r.blob], filename, {type: r.blob.type || 'application/octet-stream'}));
+    } catch(_){}
+  }
+  if(!files.length)return;
+  try {
+    var data = {files: files};
+    if(!navigator.canShare(data)){
+      /* Some browsers cap multi-file payloads — retry with first file only. */
+      if(files.length>1 && navigator.canShare({files:[files[0]]})){
+        data = {files: [files[0]]};
+      } else {
+        /* Genuinely unsupported — fall back to download-all. */
+        return window.dlCard(imgId);
+      }
+    }
+    await navigator.share(data);
+    window._userDownloadedAtLeastOnce = true;
+  } catch(err){
+    if(err && err.name==='AbortError')return;
+    console.warn('[imgready] shareCard failed:', err);
+  }
+};
+
+/* Copy the processed result to the system clipboard as image/png.
+   Clipboard.write only accepts image/png universally, so non-PNG blobs are
+   round-tripped through a canvas. On unsupported browsers the button
+   falls back to triggering a download so the user always gets their file. */
+window.copyResult=async function(btn,imgId,rIdx){
+  var item=null;for(var i=0;i<images.length;i++){if(images[i].id===imgId){item=images[i];break;}}
+  if(!item||!item.results[rIdx]||!item.results[rIdx].blob)return;
+  var r=item.results[rIdx];
+  var origHTML=btn.innerHTML;
+  var svgCheck='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  /* Feature-detect — ClipboardItem is still behind a flag in some older builds */
+  if(typeof navigator.clipboard==='undefined'||typeof window.ClipboardItem==='undefined'){
+    window.dlResult(imgId,rIdx);
+    return;
+  }
+  btn.innerHTML='<span class="spin-sm"></span>';
+  btn.disabled=true;
+  try{
+    /* Clipboard only accepts image/png universally. Convert if needed. */
+    var pngBlob;
+    if(r.blob.type==='image/png'){
+      pngBlob=r.blob;
+    }else{
+      pngBlob=await new Promise(function(resolve,reject){
+        var img=new Image();
+        img.onload=function(){
+          var c=document.createElement('canvas');
+          c.width=img.naturalWidth;c.height=img.naturalHeight;
+          c.getContext('2d').drawImage(img,0,0);
+          c.toBlob(function(b){b?resolve(b):reject(new Error('PNG conversion failed'));}, 'image/png');
+        };
+        img.onerror=function(){reject(new Error('Image load failed'));};
+        img.src=r.url;
+      });
+    }
+    await navigator.clipboard.write([new ClipboardItem({'image/png':pngBlob})]);
+    btn.innerHTML=svgCheck;
+    btn.disabled=false;
+    setTimeout(function(){btn.innerHTML=origHTML;},1500);
+  }catch(err){
+    console.warn('[imgready] clipboard copy failed:',err);
+    btn.innerHTML=origHTML;
+    btn.disabled=false;
+    /* Permission denied: revert silently. Any other failure: fall back to download. */
+    if(!err||err.name!=='NotAllowedError'){window.dlResult(imgId,rIdx);}
+  }
+};
+
+/* ========================================
+   THEME
+   ======================================== */
+window.toggleTheme=function(){
+  var h=document.documentElement,d=h.getAttribute('data-theme')==='dark';
+  var next=d?'light':'dark';
+  h.setAttribute('data-theme',next);
+  var b=G('themeBtn');if(b)b.textContent=d?'Night mode':'Day mode';
+  try{localStorage.setItem('imgready_theme',next);}catch(e){}
+};
+/* Restore persisted theme. Default is light; only switch to dark if the user
+   has explicitly chosen it via toggleTheme(). We do NOT follow OS dark mode
+   automatically — that surprised early users whose OS was set to dark. */
+(function restoreTheme(){
+  try{
+    var saved=localStorage.getItem('imgready_theme');
+    if(saved==='dark'){
+      document.documentElement.setAttribute('data-theme','dark');
+      var b=G('themeBtn');if(b)b.textContent='Day mode';
+    }
+  }catch(e){}
+})();
+/* Persist quality + last format too */
+(function restoreLastSettings(){
+  try{
+    /* Quality slider persistence: read from `imgready_q_v2`. The old
+       `imgready_q` key could stash extreme values (some users had 100,
+       which silently kept the tool in "near-lossless" mode forever after
+       the first visit — wrong default for an optimise-first product).
+       Bumping the key resets returning visitors to the HTML default of 82
+       once; we then validate to a 30–95 sane range so a future bug or
+       hand-edit can't poison the slider. */
+    var q=localStorage.getItem('imgready_q_v2');
+    var qNum=q!=null?parseInt(q,10):NaN;
+    if(qNum>=30&&qNum<=95){
+      var qs=G('qualitySlider');if(qs)qs.value=qNum;
+      var qv=G('qVal');if(qv)qv.textContent=qNum;
+    }
+    try{localStorage.removeItem('imgready_q');}catch(_){}
+    /* Format-pick persistence: read from `imgready_fmt_v2` on purpose.
+       The old `imgready_fmt` key stored a specific format (defaulting to
+       webp/jpg) from before Auto existed. Restoring that would override
+       the new "Auto" default for every returning visitor — exactly the
+       opposite of what we want. Bumping the key resets everyone to Auto
+       once; subsequent explicit picks save under the v2 key. */
+    var f=localStorage.getItem('imgready_fmt_v2');
+    if(f&&['auto','webp','avif','png','jpg','gif'].indexOf(f)!==-1){selectedFormat=f;selectedFormats=[f];}
+    /* Best-effort cleanup of the old key so it doesn't linger forever. */
+    try{localStorage.removeItem('imgready_fmt');}catch(_){}
+  }catch(e){}
+})();
+/* Intent priming: if visitor came from a format-specific landing page or has ?fmt=
+   in the URL, pre-select that format. URL takes priority; referrer is a fallback.
+   Runs AFTER restoreLastSettings, so explicit intent wins over a stale localStorage value. */
+(function primeFormatFromIntent(){
+  var fmt=null;
+  try{
+    /* 1. URL param ?fmt=jpg / ?fmt=webp / etc. */
+    var p=new URLSearchParams(location.search);
+    var q=(p.get('fmt')||'').toLowerCase();
+    if(['webp','avif','png','jpg','jpeg','gif'].indexOf(q)!==-1)fmt=q==='jpeg'?'jpg':q;
+    /* 2. Referrer pattern matching — convert /heic-to-jpg/ → jpg, etc. */
+    if(!fmt&&document.referrer){
+      var ref=document.referrer;
+      var slugMap={
+        'heic-to-jpg':'jpg','heic-to-png':'png','heic-to-webp':'webp',
+        'jpg-to-png':'png','jpg-to-webp':'webp',
+        'png-to-jpg':'jpg','png-to-webp':'webp',
+        'tiff-to-jpg':'jpg','tiff-to-webp':'webp',
+        'compress-jpg':'jpg','compress-png':'png',
+        'webp-converter':'webp','avif-converter':'avif'
+      };
+      for(var slug in slugMap){
+        if(ref.indexOf('/'+slug+'/')!==-1||ref.indexOf('/'+slug)!==-1){fmt=slugMap[slug];break;}
+      }
+    }
+  }catch(e){}
+  if(fmt&&['webp','avif','png','jpg','gif'].indexOf(fmt)!==-1){
+    selectedFormat=fmt;
+    selectedFormats=[fmt];
+  }
+})();
+var _qs=G('qualitySlider');if(_qs)_qs.addEventListener('change',function(){try{localStorage.setItem('imgready_q_v2',_qs.value);}catch(e){}});
+var _origSelectFormat=window.selectFormat;
+window.selectFormat=function(f){_origSelectFormat(f);try{if(!multiOutputMode)localStorage.setItem('imgready_fmt_v2',f);}catch(e){}};
+/* Warn before leaving if there are processed results not yet downloaded.
+   We can't tell whether the user already downloaded each result, so we warn
+   whenever there are completed blobs in the grid. Modern browsers ignore the
+   custom message and show their own generic prompt — that's fine, the goal is
+   just to interrupt the accidental Cmd+W. */
+var _userDownloadedAtLeastOnce=false;
+window.addEventListener('beforeunload',function(e){
+  if(!images||!images.length)return;
+  if(_userDownloadedAtLeastOnce)return;
+  var hasUnsaved=false;
+  for(var i=0;i<images.length;i++){
+    for(var j=0;j<images[i].results.length;j++){
+      if(images[i].results[j].blob){hasUnsaved=true;break;}
+    }
+    if(hasUnsaved)break;
+  }
+  if(hasUnsaved){
+    e.preventDefault();
+    e.returnValue='You have processed images that haven\'t been downloaded yet. They will be lost if you close this tab.';
+    return e.returnValue;
+  }
+});
+/* Mark "downloaded at least once" so subsequent close attempts don't nag */
+var _origTriggerDownload=window.triggerDownload;
+/* triggerDownload is defined later as a local fn — wrap via a flag in dlResult/downloadAll */
+
+/* Keyboard help popover */
+window.toggleKbdHelp=function(){
+  var p=G('kbdPopover');if(!p)return;
+  p.classList.toggle('show');
+};
+/* Click outside to close */
+document.addEventListener('click',function(e){
+  var p=G('kbdPopover'),btn=G('kbdHelpBtn');
+  if(!p||!p.classList.contains('show'))return;
+  if(p.contains(e.target)||(btn&&btn.contains(e.target)))return;
+  p.classList.remove('show');
+});
+
+/* CMP open settings stub — replaced at runtime by Funding Choices when loaded */
+window.openCmpSettings=function(){
+  if(window.googlefc&&window.googlefc.showRevocationMessage){window.googlefc.showRevocationMessage();return;}
+  alert('Cookie & ad consent settings will appear here when the CMP is active. For now, see /privacy/ to manage your choices.');
+};
+
+/* ========================================
+   DEMO SLIDER
+   ======================================== */
+(function initDemo(){
+  var slider=G('demoSlider'),stats=G('demoStats'),loading=G('demoLoading');
+  if(!slider)return;
+  var MAX_ZOOM=2.5;
+  var demoZoom=1,demoPanX=0,demoPanY=0,demoPinchDist=0,demoHideTimer=null;
+  var demoZoomWrap=null,demoZoomAfterEl=null,demoClipEl=null;
+  var img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=async function(){
+    var c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
+    c.getContext('2d').drawImage(img,0,0);
+    var pngBlob=await canvasToBlob(c,'image/png');
+    if(!pngBlob){if(loading)loading.innerHTML='Demo unavailable';return;}
+    var pngSize=pngBlob.size,pngUrl=URL.createObjectURL(pngBlob);
+    try{
+      var webpBlob;
+      try{
+        webpBlob=await encodeWithJsquash(c,'webp',0.82);
+      }catch(e){
+        webpBlob=await new Promise(function(res,rej){c.toBlob(function(b){b?res(b):rej(new Error('fail'));},'image/webp',0.82);});
+      }
+      var webpSize=webpBlob.size,webpUrl=URL.createObjectURL(webpBlob);
+      var saving=Math.round((1-webpSize/pngSize)*100);
+      if(stats)stats.innerHTML='<span class="demo-stat"><span class="label">Original PNG:</span><span class="value">'+fmtSize(pngSize)+'</span></span><span class="demo-stat"><span class="label">WebP:</span><span class="value">'+fmtSize(webpSize)+'</span></span><span class="demo-stat"><span class="saving">'+saving+'% smaller</span></span>';
+      if(loading)loading.remove();
+      slider.innerHTML='<div class="demo-zoom-wrap" id="demoZoomWrap"><img src="'+pngUrl+'" alt="Original PNG"></div><div class="demo-clip" id="demoClip"><div class="demo-zoom-wrap" id="demoZoomAfter"><img src="'+webpUrl+'" alt="Compressed WebP"></div></div><div class="demo-divider" id="demoDivider"></div><div class="demo-handle" id="demoHandle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div><span class="demo-lbl l">PNG '+fmtSize(pngSize)+'</span><span class="demo-lbl r">WebP '+fmtSize(webpSize)+'</span><div class="demo-zoom-hint" id="demoZoomHint">Scroll to zoom and inspect</div><div class="demo-zoom-level" id="demoZoomLevel">100%</div>';
+      demoZoomWrap=G('demoZoomWrap');demoZoomAfterEl=G('demoZoomAfter');demoClipEl=G('demoClip');
+      var hint=G('demoZoomHint');if(hint){hint.classList.add('show');setTimeout(function(){hint.classList.remove('show');},3000);}
+      function setPos(pct){pct=Math.max(0,Math.min(100,pct));var dv=G('demoDivider');if(dv)dv.style.left=pct+'%';var hd=G('demoHandle');if(hd)hd.style.left=pct+'%';if(demoClipEl)demoClipEl.style.clipPath='inset(0 0 0 '+pct+'%)';}
+      function onMove(e){var rect=slider.getBoundingClientRect();var cx=e.touches?e.touches[0].clientX:e.clientX;setPos((cx-rect.left)/rect.width*100);}
+      function updZoom(){var t='translate('+demoPanX+'px,'+demoPanY+'px) scale('+demoZoom+')';if(demoZoomWrap)demoZoomWrap.style.transform=t;if(demoZoomAfterEl)demoZoomAfterEl.style.transform=t;}
+      function showDZL(){var zl=G('demoZoomLevel');if(!zl)return;zl.textContent=Math.round(demoZoom*100)+'%';zl.style.display='block';if(demoHideTimer)clearTimeout(demoHideTimer);demoHideTimer=setTimeout(function(){zl.style.display='none';},1200);}
+      slider.addEventListener('mousemove',function(e){onMove(e);});
+      slider.addEventListener('touchstart',function(e){if(e.touches.length===1)onMove(e);},{passive:true});
+      slider.addEventListener('touchmove',function(e){
+        if(e.touches.length===1){onMove(e);}
+        else if(e.touches.length===2){e.preventDefault();var dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,dist=Math.sqrt(dx*dx+dy*dy);if(demoPinchDist>0){var sc=dist/demoPinchDist;demoZoom=Math.max(1,Math.min(MAX_ZOOM,demoZoom*sc));if(demoZoom<=1){demoPanX=0;demoPanY=0;}updZoom();showDZL();}demoPinchDist=dist;}
+      },{passive:false});
+      slider.addEventListener('touchend',function(e){if(e.touches.length<2)demoPinchDist=0;});
+      slider.addEventListener('wheel',function(e){
+        e.preventDefault();var delta=e.deltaY>0?-0.12:0.12;var nz=Math.max(1,Math.min(MAX_ZOOM,demoZoom+delta));
+        if(nz!==demoZoom){var rect=slider.getBoundingClientRect(),mx=e.clientX-rect.left-rect.width/2,my=e.clientY-rect.top-rect.height/2,factor=nz/demoZoom;demoPanX=mx-(mx-demoPanX)*factor;demoPanY=my-(my-demoPanY)*factor;demoZoom=nz;if(demoZoom<=1){demoPanX=0;demoPanY=0;}updZoom();showDZL();}
+      },{passive:false});
+      setPos(50);
+    }catch(e){if(loading)loading.innerHTML='<span style="color:var(--muted)">Demo unavailable</span>';}
+  };
+  img.onerror=function(){if(loading)loading.innerHTML='<span style="color:var(--muted)">Demo image not found</span>';};
+  /* Lazy: only fetch demo.png if/when the demo slider is in view, to keep the homepage light. */
+  if('IntersectionObserver' in window){
+    var demoEl=G('demoWrap');
+    if(demoEl){
+      var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){io.disconnect();img.src='/demo.png';}
+        });
+      },{rootMargin:'200px'});
+      io.observe(demoEl);
+    } else {img.src='/demo.png';}
+  } else {img.src='/demo.png';}
+})();
+
+/* ========================================
+   INIT
+   ======================================== */
+updateFormatUI();
+renderAll();
+/* Sticky action-bar elevation. The bar uses position:sticky;top:8px so it
+   pins as the user scrolls. We can't tell from CSS alone whether it's
+   currently pinned vs flowing in normal layout — IntersectionObserver with a
+   sentinel above the bar fires when the bar leaves natural position, and we
+   add `.is-stuck` for the box-shadow + border colour-mix. */
+(function watchActionBarStuck(){
+  if(!('IntersectionObserver' in window))return;
+  var bar=G('actionBar');if(!bar)return;
+  var sentinel=document.createElement('div');
+  sentinel.style.cssText='position:absolute;top:0;height:1px;width:1px;pointer-events:none;';
+  if(bar.parentNode){bar.parentNode.insertBefore(sentinel,bar);}
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){bar.classList.toggle('is-stuck',!e.isIntersecting);});
+  },{rootMargin:'-9px 0px 0px 0px',threshold:[0,1]});
+  io.observe(sentinel);
+})();
+var _resizeEl=G('resizeMax');
+if(_resizeEl)_resizeEl.addEventListener('input',resetPresetToCustom);
+var _origSetCrop=window.setCropRatio;
+window.setCropRatio=function(r){
+  _origSetCrop(r);
+  var s=G('presetSelect');if(!s)return;
+  var ap=PRESETS[s.value];
+  if(ap&&ap.crop!==r)s.value='custom';
+};
+
+})();
+</script>
+
+<!-- ============================================================
+     SERVICE WORKER + INSTALL PROMPT
+     Registered after the main app boots so it never delays first paint.
+     We deliberately don't auto-prompt — the install pill only appears
+     after the user has finished their first batch (they've earned the
+     understanding that "install" means "this same thing, but offline").
+     ============================================================ -->
+<script>
+(function(){
+  'use strict';
+
+  /* ---- 1. Register Service Worker (silent, non-blocking) ---- */
+  if ('serviceWorker' in navigator) {
+    /* Wait for the page to settle so SW install doesn't fight first paint */
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function(err){ console.warn('[imgready] SW register failed:', err); });
+    });
+  }
+
+  /* ---- 2. Capture beforeinstallprompt for our custom UX ---- */
+  var deferredInstall = null;
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    /* Stop Chrome's default mini-infobar; we'll surface our own moment. */
+    e.preventDefault();
+    deferredInstall = e;
+  });
+
+  window.addEventListener('appinstalled', function(){
+    deferredInstall = null;
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_installed', '1'); } catch(_){}
+  });
+
+  /* ---- 3. Banner helpers ---- */
+  function isStandalone(){
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.navigator.standalone === true) return true;  /* iOS Safari */
+    return false;
+  }
+
+  function dismissedRecently(){
+    try {
+      var v = localStorage.getItem('imgready_install_dismissed');
+      if (!v) return false;
+      var ts = parseInt(v, 10);
+      if (!ts) return false;
+      /* Re-show after 30 days — long enough to not nag, short enough to catch users who changed their mind */
+      return (Date.now() - ts) < 30 * 24 * 60 * 60 * 1000;
+    } catch(_) { return false; }
+  }
+
+  /* Public hook called by maybeShowNudge after a successful batch.
+     We piggyback on that signal rather than counting things ourselves —
+     the nudge already encodes "user completed something meaningful". */
+  window.maybeShowInstallPrompt = function(){
+    if (!deferredInstall) return;          /* no event captured (already installed, unsupported, etc.) */
+    if (isStandalone()) return;             /* already running as installed PWA */
+    try { if (localStorage.getItem('imgready_installed') === '1') return; } catch(_){}
+    if (dismissedRecently()) return;
+    /* Avoid stacking with the support nudge — give it the floor first */
+    var nudge = document.getElementById('nudgeBanner');
+    if (nudge && nudge.classList.contains('show')) {
+      setTimeout(window.maybeShowInstallPrompt, 4000);
+      return;
+    }
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.add('show');
+  };
+
+  window.acceptInstall = async function(){
+    var b = document.getElementById('installBanner');
+    if (!deferredInstall) { if (b) b.classList.remove('show'); return; }
+    try {
+      deferredInstall.prompt();
+      var choice = await deferredInstall.userChoice;
+      /* Either way the event is one-shot */
+      deferredInstall = null;
+      if (b) b.classList.remove('show');
+      if (choice && choice.outcome === 'dismissed') {
+        try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
+      }
+    } catch(err) {
+      console.warn('[imgready] install prompt error:', err);
+      if (b) b.classList.remove('show');
+    }
+  };
+
+  window.dismissInstall = function(){
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
+  };
+})();
+</script>
+</body>
+</html>
