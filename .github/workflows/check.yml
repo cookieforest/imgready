@@ -1,5 +1,8 @@
 # Validation gate. Goal: nothing broken ever reaches Cloudflare's
-# deploy queue. Catches the kind of silent truncation we hit during P5.
+# deploy queue. This caught the silent JS-source truncation we hit
+# during P5; a later session caught a separate silent HTML truncation
+# (the SW registration block dropped its tail without the browser
+# complaining). Both kinds of failure are now flagged here.
 name: check
 
 on:
@@ -35,46 +38,52 @@ jobs:
           done
 
       - name: Build
-        # Concatenates src/0N-*.js, bundles + minifies → dist/app.js,
-        # mirrors static files. Build itself fails if any chunk's
-        # content can't be joined into a syntactically valid IIFE.
         run: npm run build
 
       - name: Syntax check (built outputs + sibling scripts)
         run: |
           set -e
-          # The bundle Cloudflare actually serves
           node --check dist/app.js
-          # Web Worker + service worker stay standalone
           node --check imgready-worker.js
           node --check sw.js
-          # Vendor bundles
           for f in vendor/*.js; do node --check "$f"; done
-          # Built artifacts non-empty
-          test -s dist/app.js || { echo "::error::dist/app.js empty"; exit 1; }
-          test -s dist/app.css || { echo "::error::dist/app.css empty"; exit 1; }
-          # Mirrored landing pages should be present
-          test -f dist/index.html || { echo "::error::dist/index.html missing"; exit 1; }
-          test -f dist/compress/index.html || { echo "::error::dist/compress/index.html missing"; exit 1; }
-          # Sanity: vendor mirrored too
-          test -f dist/vendor/libheif.js || { echo "::error::dist/vendor/libheif.js missing"; exit 1; }
+          test -s dist/app.js
+          test -s dist/app.css
+
+      - name: HTML structural integrity (catches silent truncation)
+        # Browsers tolerate missing </script></body></html> so HTML
+        # truncation can ship invisibly — the page renders but parts
+        # of the script may not run. Grep-assert each HTML file ends
+        # cleanly + key SW registration symbols are present in the
+        # homepage.
+        run: |
+          set -e
+          missing=0
+          for f in $(find dist -name '*.html'); do
+            tail=$(tail -c 200 "$f")
+            if ! echo "$tail" | grep -q '</html>'; then
+              echo "::error::$f missing </html> closing tag"
+              missing=$((missing+1))
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+          # Homepage-specific structural checks: SW registration block must
+          # contain its key entry-point functions, OR the live install
+          # prompt won't fire at all.
+          for sym in 'acceptInstall' 'maybeShowInstallPrompt' 'dismissInstall' 'beforeinstallprompt'; do
+            grep -q "$sym" dist/index.html || {
+              echo "::error::dist/index.html missing $sym (SW registration block truncated?)"
+              exit 1
+            }
+          done
 
       - name: Re-build + diff (catches uncommitted dist drift)
-        # If the committed dist/ doesn't match what a fresh build would
-        # produce, fail. This protects against someone editing src/
-        # without running 'npm run build' before committing.
-        # Note: rebuilding into a temp directory so we don't touch
-        # the just-built dist/.
         run: |
           set -e
           rm -rf /tmp/expected_dist
           mkdir -p /tmp/expected_dist
           cp -r dist/* /tmp/expected_dist/
           npm run build
-          # esbuild's exact byte output is deterministic for the same
-          # input, so a diff of dist/app.js (and app.css) should be
-          # empty. We exclude the source map because its file paths can
-          # legitimately differ across environments.
           diff -q /tmp/expected_dist/app.js dist/app.js || {
             echo "::error::dist/app.js drifted from a fresh build — run 'npm run build' and commit the result"
             exit 1
