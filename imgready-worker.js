@@ -416,4 +416,3 @@ self.onmessage = async (e) => {
     self.postMessage({ id, type: 'error', message: String(err && err.message || err) });
   }
 };
-                                                                                              
