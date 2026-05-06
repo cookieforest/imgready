@@ -1,6 +1,5 @@
 # Validation gate. Goal: nothing broken ever reaches Cloudflare's
-# deploy queue. This is the layer that would have caught the silent
-# truncation we hit during P5.
+# deploy queue. Catches the kind of silent truncation we hit during P5.
 name: check
 
 on:
@@ -36,42 +35,51 @@ jobs:
           done
 
       - name: Build
-        # Concatenates src/0N-*.js → root/app.js, then bundles → dist/app.js.
-        # The build itself fails loudly if any chunk's content can't be
-        # joined into a syntactically valid IIFE.
+        # Concatenates src/0N-*.js, bundles + minifies → dist/app.js,
+        # mirrors static files. Build itself fails if any chunk's
+        # content can't be joined into a syntactically valid IIFE.
         run: npm run build
 
-      - name: Syntax check (concatenated + built outputs)
+      - name: Syntax check (built outputs + sibling scripts)
         run: |
           set -e
-          # Concatenated source (what CF currently serves)
-          node --check app.js
-          # Bundled minified output (what Phase 3 will serve)
+          # The bundle Cloudflare actually serves
           node --check dist/app.js
-          # Worker + service worker stay standalone scripts
+          # Web Worker + service worker stay standalone
           node --check imgready-worker.js
           node --check sw.js
           # Vendor bundles
           for f in vendor/*.js; do node --check "$f"; done
-          # Sanity: built artifacts non-empty
-          test -s dist/app.js || { echo "dist/app.js empty"; exit 1; }
-          test -s dist/app.css || { echo "dist/app.css empty"; exit 1; }
+          # Built artifacts non-empty
+          test -s dist/app.js || { echo "::error::dist/app.js empty"; exit 1; }
+          test -s dist/app.css || { echo "::error::dist/app.css empty"; exit 1; }
+          # Mirrored landing pages should be present
+          test -f dist/index.html || { echo "::error::dist/index.html missing"; exit 1; }
+          test -f dist/compress/index.html || { echo "::error::dist/compress/index.html missing"; exit 1; }
+          # Sanity: vendor mirrored too
+          test -f dist/vendor/libheif.js || { echo "::error::dist/vendor/libheif.js missing"; exit 1; }
 
-      - name: Verify root copy is in sync with build (Phase 2/4)
-        # If someone edited root/app.js without rebuilding, fail.
-        # When Phase 3 deletes the root copy, this step becomes a no-op.
+      - name: Re-build + diff (catches uncommitted dist drift)
+        # If the committed dist/ doesn't match what a fresh build would
+        # produce, fail. This protects against someone editing src/
+        # without running 'npm run build' before committing.
+        # Note: rebuilding into a temp directory so we don't touch
+        # the just-built dist/.
         run: |
-          if [ -f app.js ] && [ -f src/01-state-helpers.js ]; then
-            # Re-concatenate and compare against the committed root/app.js
-            cat src/0[0-9]-*.js > /tmp/expected_app.js
-            diff -q /tmp/expected_app.js app.js || {
-              echo "::error::root/app.js is out of sync with src/0N-*.js — run 'npm run build' and commit the regenerated root/app.js"
-              exit 1
-            }
-          fi
-          if [ -f app.css ] && [ -f src/app.css ]; then
-            diff -q src/app.css app.css || {
-              echo "::error::root/app.css is out of sync with src/app.css"
-              exit 1
-            }
-          fi
+          set -e
+          rm -rf /tmp/expected_dist
+          mkdir -p /tmp/expected_dist
+          cp -r dist/* /tmp/expected_dist/
+          npm run build
+          # esbuild's exact byte output is deterministic for the same
+          # input, so a diff of dist/app.js (and app.css) should be
+          # empty. We exclude the source map because its file paths can
+          # legitimately differ across environments.
+          diff -q /tmp/expected_dist/app.js dist/app.js || {
+            echo "::error::dist/app.js drifted from a fresh build — run 'npm run build' and commit the result"
+            exit 1
+          }
+          diff -q /tmp/expected_dist/app.css dist/app.css || {
+            echo "::error::dist/app.css drifted from a fresh build"
+            exit 1
+          }
