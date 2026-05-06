@@ -24,17 +24,17 @@
 const LIBHEIF_URL = '/vendor/libheif.js';
 const UPNG_URL    = '/vendor/UPNG.min.js';
 const PAKO_URL    = '/vendor/pako.min.js';
-// jsquash WebP/AVIF/JPEG/OxiPNG remain on esm.sh for now. Vendoring them
-// requires bundling each package's WASM sidecar locally, which means a real
-// build step we don't currently have. Tracked as future work.
-const WEBP_ESM    = 'https://esm.sh/@jsquash/webp@1.4.0';
-const AVIF_ESM    = 'https://esm.sh/@jsquash/avif@2.1.1';
-const JPEG_ESM    = 'https://esm.sh/@jsquash/jpeg@1.6.0';   // MozJPEG — better than canvas.toBlob('image/jpeg')
-// OxiPNG: pinned to 2.3.0 because 2.4.0 isn't published on esm.sh yet.
-// `?single-thread` is required — the default build uses SharedArrayBuffer,
-// which would need COOP/COEP isolation headers that AdSense conflicts with.
-// `?bundle` inlines internal deps so we don't fan out to extra esm.sh URLs.
-const OXIPNG_ESM  = 'https://esm.sh/@jsquash/oxipng@2.3.0?bundle&single-thread';
+// jsquash WebP/AVIF/JPEG/OxiPNG self-hosted from /vendor/jsquash/. Same
+// underlying npm packages, bundled by esbuild during build (see build.mjs).
+// Each .mjs has its WASM sidecar(s) alongside in the same directory and
+// loads them via `new URL('xyz.wasm', import.meta.url)` at runtime.
+// OxiPNG runtime-detects single-thread vs multi-thread; in our setup
+// (no SharedArrayBuffer because no COOP/COEP — AdSense conflicts with
+// those) it lazily uses the single-thread codec.
+const WEBP_ESM    = '/vendor/jsquash/webp.mjs';
+const AVIF_ESM    = '/vendor/jsquash/avif.mjs';
+const JPEG_ESM    = '/vendor/jsquash/jpeg.mjs';   // MozJPEG — better than canvas.toBlob('image/jpeg')
+const OXIPNG_ESM  = '/vendor/jsquash/oxipng.mjs';
 
 let libheifModule = null;
 let upngLoaded = false;
@@ -416,3 +416,4 @@ self.onmessage = async (e) => {
     self.postMessage({ id, type: 'error', message: String(err && err.message || err) });
   }
 };
+                                                                                              
