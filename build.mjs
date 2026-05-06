@@ -82,7 +82,15 @@ async function bundleJsquash() {
     },
     bundle: true,
     format: 'esm',
-    target: 'es2018',
+    /* target=es2020 because jsquash relies on `new URL("xyz.wasm",
+       import.meta.url)` to locate its WASM sidecars at runtime.
+       import.meta is ES2020+; targets older than that cause esbuild
+       to stub it as {} for compatibility, which makes the URL
+       constructor throw 'Invalid URL'. Every browser that supports
+       AVIF (Chrome 85+, Safari 16+, Firefox 113+) has been ES2020
+       since long before AVIF support, so this raises no
+       compatibility floor in practice. */
+    target: 'es2020',
     minify: true,
     outdir: 'dist/vendor/jsquash',
     outExtension: { '.js': '.mjs' },
