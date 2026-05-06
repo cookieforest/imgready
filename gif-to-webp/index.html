@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"GIF to WebP","item":"https://imgready.app/gif-to-webp/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does imgready convert animated GIFs to animated WebP?", "acceptedAnswer": {"@type": "Answer", "text": "imgready converts the first frame of the GIF to a static WebP image. Full frame-by-frame animated WebP conversion requires a more complex pipeline than the browser canvas provides natively. For animated output, consider ffmpeg on the command line."}}, {"@type": "Question", "name": "Why does my WebP look different in colour from the GIF?", "acceptedAnswer": {"@type": "Answer", "text": "GIF is limited to 256 colours, which causes dithering (a dotted noise pattern) in photos and gradients. WebP has no such limit, so the static WebP frame will typically look cleaner and more accurate to the original artwork than the GIF."}}, {"@type": "Question", "name": "What's the best replacement for GIF in 2026?", "acceptedAnswer": {"@type": "Answer", "text": "For short loops on the web, animated WebP or a silent looping MP4 video are both better. MP4 (H.264) has the widest support and smallest file sizes for long animations. Animated WebP is better for short, simple content where you want a single file with no video overhead."}}, {"@type": "Question", "name": "Can I use WebP animations in email?", "acceptedAnswer": {"@type": "Answer", "text": "Email clients have poor support for both animated GIF (most show only the first frame on mobile) and animated WebP (most don't render at all). For email, GIF remains the only safe option for animation — but for static images, WebP is fine in Gmail and Apple Mail."}}, {"@type": "Question", "name": "Does WebP support transparency like GIF?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — WebP has a full alpha channel, which GIF also supports (binary transparency only). WebP's alpha handling is actually better because it supports partial transparency rather than just on/off."}}, {"@type": "Question", "name": "Does converting GIF to WebP preserve the animation?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — WebP supports animated images just like GIF. imgready converts animated GIFs to animated WebP, preserving every frame and timing. The result is typically 25–40% smaller than the original GIF with the same smooth animation."}}]}</script>

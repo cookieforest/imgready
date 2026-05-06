@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Batch image converter", "item": "https://imgready.app/batch-image-converter/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many files can I batch process?", "acceptedAnswer": {"@type": "Answer", "text": "Soft cap is 200 files; drop more and you'll see a confirmation prompt. Practical limit depends on your device's memory — most laptops handle 200 phone photos comfortably, mobile devices may need smaller batches."}}, {"@type": "Question", "name": "Can I mix formats in one batch?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. JPGs, PNGs, HEICs, TIFFs, WebPs, AVIFs, GIFs, BMPs, and SVGs can all be in the same batch. Each file is decoded with its appropriate decoder."}}, {"@type": "Question", "name": "Can I generate multiple output formats at once?", "acceptedAnswer": {"@type": "Answer", "text": "Pick one format per batch. If you need multiple output formats (e.g. WebP + JPG fallbacks for a picture element), run the batch separately for each format."}}, {"@type": "Question", "name": "How does batch handle errors?", "acceptedAnswer": {"@type": "Answer", "text": "If one file fails to decode or encode, imgready marks it with an inline error message and continues with the rest. The other files are not affected."}}, {"@type": "Question", "name": "Do batch operations run in parallel?", "acceptedAnswer": {"@type": "Answer", "text": "imgready processes files sequentially. This trades raw throughput for stable memory use — running everything in parallel is faster but easily OOMs the browser tab."}}, {"@type": "Question", "name": "Will batch work on a phone?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, but with smaller batches. iOS Safari is conservative with memory; we recommend 30–50 files per batch on phones rather than the desktop default of 200."}}]}</script>

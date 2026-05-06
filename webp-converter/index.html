@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "WebP converter", "item": "https://imgready.app/webp-converter/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is WebP supported by all browsers?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — every major browser (Chrome, Edge, Firefox, Safari, Samsung Internet, Opera) has supported WebP since 2020. The only browsers that don't are Internet Explorer and very old Android stock browsers."}}, {"@type": "Question", "name": "How much smaller are WebP files compared to JPG?", "acceptedAnswer": {"@type": "Answer", "text": "Typically 25–35% smaller at the same visible quality. The exact savings depend on the image content — high-detail photographs save less, flat illustrations and screenshots save more."}}, {"@type": "Question", "name": "Can WebP have transparency like PNG?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. WebP has a full alpha channel. WebP-lossless is typically 26% smaller than the equivalent PNG with identical pixel-perfect transparency."}}, {"@type": "Question", "name": "What's the difference between lossy and lossless WebP?", "acceptedAnswer": {"@type": "Answer", "text": "Lossy WebP is what you want for photographs — smaller files at the cost of imperceptible quality loss. Lossless WebP is what you want for screenshots and graphics — smaller PNG-equivalent files. imgready picks based on the quality slider: 100 = lossless, 1–99 = lossy."}}, {"@type": "Question", "name": "Should I serve WebP to old browsers with a JPG fallback?", "acceptedAnswer": {"@type": "Answer", "text": "If you support browsers older than 2020 (Internet Explorer, very old mobile), use the <picture> element with a WebP source and JPG fallback. For newer audiences, just serving WebP directly is fine."}}, {"@type": "Question", "name": "Does imgready convert HEIC iPhone photos to WebP?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. imgready decodes HEIC/HEIF in-browser using a JavaScript decoder, then re-encodes as WebP. This is the most space-efficient way to share iPhone photos on any modern website."}}]}</script>

@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "JPG to WebP", "item": "https://imgready.app/jpg-to-webp/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will JPG to WebP look the same as the original?", "acceptedAnswer": {"@type": "Answer", "text": "At imgready's default quality of 82, the WebP output is visually indistinguishable from the JPG at normal viewing distance. The savings come from WebP's more efficient compression, not from quality loss."}}, {"@type": "Question", "name": "How much smaller will my files be?", "acceptedAnswer": {"@type": "Answer", "text": "Typically 25–35% smaller for already-compressed JPGs, much more (often 80%+) for high-quality JPGs straight from a camera."}}, {"@type": "Question", "name": "Will old browsers display the WebP?", "acceptedAnswer": {"@type": "Answer", "text": "Browsers shipped since 2020 will. For older browsers (Internet Explorer, pre-2020 Android stock), use the <picture> element to serve a JPG fallback."}}, {"@type": "Question", "name": "Can WebP have transparency?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — WebP has a full alpha channel. For converting JPG to WebP this rarely matters (JPGs don't have transparency), but it makes WebP a great PNG replacement separately."}}, {"@type": "Question", "name": "Should I just always use WebP for everything on my website?", "acceptedAnswer": {"@type": "Answer", "text": "For modern audiences, yes. For email and print, stay with JPG. The simplest universal answer is to generate both and use the <picture> element."}}, {"@type": "Question", "name": "Does converting JPG to WebP lose any more quality?", "acceptedAnswer": {"@type": "Answer", "text": "Technically yes — re-encoding from one lossy format to another adds a small amount of additional loss. At quality 82 it is invisible. To minimize the loss, stay at quality 85+ when re-encoding from a high-quality source."}}]}</script>

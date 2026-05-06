@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "AVIF converter", "item": "https://imgready.app/avif-converter/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much smaller is AVIF vs JPG?", "acceptedAnswer": {"@type": "Answer", "text": "On photographic content, AVIF is typically 40–50% smaller than JPG at the same visible quality. Savings can reach 60% on certain images."}}, {"@type": "Question", "name": "How is AVIF different from WebP?", "acceptedAnswer": {"@type": "Answer", "text": "Both are modern image formats designed to replace JPG. WebP is older (2010) and broader in support; AVIF (2019) compresses tighter at the cost of slower encoding and slightly less universal browser support."}}, {"@type": "Question", "name": "Why does AVIF encoding take so long?", "acceptedAnswer": {"@type": "Answer", "text": "AVIF is based on the AV1 video codec, which uses much more sophisticated compression than JPG or WebP. The result is a smaller file but the encoder has to do more work — typically 5–10x the compute. imgready runs encoding in your browser, so it'll be slower on phones and older laptops."}}, {"@type": "Question", "name": "Does AVIF support transparency?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — AVIF has a full alpha channel, just like PNG and WebP. AVIF-lossless preserves every pixel exactly with full transparency."}}, {"@type": "Question", "name": "Should I serve AVIF directly or use a fallback?", "acceptedAnswer": {"@type": "Answer", "text": "Use a fallback. Browser support for AVIF is around 95% globally as of 2026, but for production sites it's still best to use the <picture> element with AVIF, WebP, and JPG sources so every visitor gets the best format their browser can handle."}}, {"@type": "Question", "name": "Can imgready convert HEIC to AVIF?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. imgready decodes HEIC/HEIF in-browser, then re-encodes as AVIF. The savings are significant — a typical 3 MB HEIC becomes a 200–400 KB AVIF."}}]}</script>

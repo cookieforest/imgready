@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"BMP to JPG","item":"https://imgready.app/bmp-to-jpg/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why are my BMP files so large?", "acceptedAnswer": {"@type": "Answer", "text": "BMP stores every pixel as raw data with no compression. A standard 24-bit BMP at 3000×2000 pixels is 18 MB regardless of what the image looks like. JPG applies compression that reduces this to 1–2 MB with imperceptible quality loss."}}, {"@type": "Question", "name": "Will converting BMP to JPG lose quality?", "acceptedAnswer": {"@type": "Answer", "text": "JPG is lossy, so yes — a tiny amount of precision is discarded. At imgready's default quality 82, the output is visually identical to the BMP at normal screen viewing. For archival purposes, consider PNG (lossless) instead."}}, {"@type": "Question", "name": "Can I convert multiple BMP files at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drop a folder of BMPs and click Process All. All files are converted in sequence in your browser and downloadable as a single ZIP."}}, {"@type": "Question", "name": "My BMP is from a scanner — should I use JPG or PNG?", "acceptedAnswer": {"@type": "Answer", "text": "If the scanned document has text, use PNG — it preserves hard edges and fine text detail losslessly. If it's a photograph, JPG is fine and will produce a much smaller file."}}, {"@type": "Question", "name": "Does imgready support 32-bit BMP with an alpha channel?", "acceptedAnswer": {"@type": "Answer", "text": "imgready reads the image data from the BMP via the browser's built-in canvas decoder. Most modern browsers support 24-bit and 32-bit BMP. If your BMP is an unusual variant (OS/2 BMP, 16-colour BMP), it may not decode correctly."}}, {"@type": "Question", "name": "Can I convert BMP screenshots to JPG?", "acceptedAnswer": {"@type": "Answer", "text": "Absolutely. BMP is the default format for Windows screenshots saved via the Snipping Tool or Print Screen. Converting them to JPG typically reduces the file from 3–6 MB down to 200–400 KB — perfect for attaching to emails or uploading to bug trackers without hitting file-size limits."}}]}</script>

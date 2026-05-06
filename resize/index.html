@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Resize", "item": "https://imgready.app/resize/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will resizing change my image's aspect ratio?", "acceptedAnswer": {"@type": "Answer", "text": "No. imgready always preserves the aspect ratio when resizing. If you need a specific aspect ratio (1:1, 16:9, etc), use the Crop Ratio buttons in Settings — those crop first from the center, then resize."}}, {"@type": "Question", "name": "Can imgready upscale (make images larger)?", "acceptedAnswer": {"@type": "Answer", "text": "No. imgready only resizes down. Bilinear upscaling produces blurry results; if you need to enlarge, use an AI upscaler designed for that task."}}, {"@type": "Question", "name": "What's the difference between resize and crop?", "acceptedAnswer": {"@type": "Answer", "text": "Resize keeps the whole image visible but makes it smaller. Crop discards parts of the image to fit a specific aspect ratio. imgready can do both in one pass — crop first, then resize the cropped result."}}, {"@type": "Question", "name": "Why does my resized image look blurry?", "acceptedAnswer": {"@type": "Answer", "text": "Two common causes: (1) the original was already small, so resizing to a similar size changes very little; (2) you've upscaled, which imgready does not do — check that your target dimensions are smaller than the original."}}, {"@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open Settings, set the longest side, then pick your output format and quality. imgready does all three operations (resize → optional crop → compress) in a single pass."}}, {"@type": "Question", "name": "Does resize work on HEIC iPhone photos?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. imgready decodes HEIC/HEIF in-browser and then applies your resize and format choice. The output can be WebP, JPG, PNG, or AVIF."}}]}</script>

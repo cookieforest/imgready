@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Compress PNG", "item": "https://imgready.app/compress-png/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will PNG compression hurt the transparency?", "acceptedAnswer": {"@type": "Answer", "text": "No. imgready preserves the alpha channel through both PNG-8 quantization and WebP-lossless conversion. Transparent areas remain transparent in the output."}}, {"@type": "Question", "name": "What is PNG-8 and is it really smaller than PNG-24?", "acceptedAnswer": {"@type": "Answer", "text": "PNG-8 stores at most 256 colors (or 8-bit indexed) instead of 16.7 million. For images with limited color variety — illustrations, icons, screenshots — PNG-8 is typically 40–70% smaller than PNG-24 with imperceptible visual difference."}}, {"@type": "Question", "name": "How is this different from TinyPNG?", "acceptedAnswer": {"@type": "Answer", "text": "TinyPNG uploads your file to their server. imgready does the same kind of quantization (using UPNG.js) entirely in your browser — no upload, no quota, no signup, free."}}, {"@type": "Question", "name": "Should I just convert PNG to WebP instead?", "acceptedAnswer": {"@type": "Answer", "text": "If your audience uses modern browsers (essentially everyone since 2020), WebP-lossless is typically 26% smaller than PNG-lossless with identical fidelity and full alpha support. Many sites benefit from doing both — keeping a PNG fallback for old browsers via the <picture> element."}}, {"@type": "Question", "name": "Does compress-PNG work on transparent UI screenshots?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — UI screenshots are exactly the kind of content PNG quantization handles best. Expect savings around 50–70%."}}, {"@type": "Question", "name": "Why is my PNG still huge after compression?", "acceptedAnswer": {"@type": "Answer", "text": "Most likely it's a photograph saved as PNG. PNG is a lossless format and photographs simply do not compress losslessly into a small file. Convert to JPG (around 85 quality) or WebP — both will be 80%+ smaller."}}]}</script>

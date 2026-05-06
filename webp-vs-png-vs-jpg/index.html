@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "WebP vs PNG vs JPG", "item": "https://imgready.app/webp-vs-png-vs-jpg/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is WebP really always better than JPG?", "acceptedAnswer": {"@type": "Answer", "text": "For photographs displayed on a modern web browser, yes — typically 25–35% smaller at the same visible quality. For email or non-browser destinations, JPG is still safer because of broader compatibility."}}, {"@type": "Question", "name": "Should I just use AVIF for everything?", "acceptedAnswer": {"@type": "Answer", "text": "AVIF compresses tighter than WebP but encodes 5–10x slower and has slightly less universal browser support. For static assets compiled once, AVIF is fine. For dynamic content, WebP is a better default."}}, {"@type": "Question", "name": "Can I serve WebP and have old browsers fall back to JPG?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Use the HTML <picture> element with a WebP source first and a JPG <img> fallback. Browsers that support WebP use it; older browsers fall back automatically."}}, {"@type": "Question", "name": "What about PNG-8 vs WebP-lossless?", "acceptedAnswer": {"@type": "Answer", "text": "Both are lossless options for graphics. WebP-lossless is typically 26% smaller than PNG-24 for the same content. PNG-8 (color-quantized) can be smaller still for very flat illustrations but introduces visible color banding on photographs."}}, {"@type": "Question", "name": "Is AVIF supported by Safari?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — Safari has supported AVIF since macOS Ventura (2022) / iOS 16. Total browser support is ~95%+ as of 2026. For production, still use a fallback in the <picture> element."}}, {"@type": "Question", "name": "Why would I ever pick JPG today?", "acceptedAnswer": {"@type": "Answer", "text": "Compatibility. Email clients, photo printing services, and a handful of older or specialised pipelines still expect JPG. If your audience or destination might fall in those categories, JPG is the safe choice."}}]}</script>

@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"JPG to AVIF","item":"https://imgready.app/jpg-to-avif/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is AVIF supported on iPhone?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, since iOS 16 (September 2022). Safari on iOS 16 and later fully supports AVIF for both display and download."}}, {"@type": "Question", "name": "Why does AVIF take longer to encode than JPG or WebP?", "acceptedAnswer": {"@type": "Answer", "text": "AVIF uses a more computationally intensive compression algorithm derived from video encoding. imgready uses Google's reference WebAssembly encoder, which is optimised for quality but not for speed. A batch of large images will take longer to encode as AVIF than as JPG."}}, {"@type": "Question", "name": "Can I use AVIF on my WordPress site?", "acceptedAnswer": {"@type": "Answer", "text": "WordPress 6.5 and later supports AVIF uploads natively. For older versions, plugins like ShortPixel or Imagify can serve AVIF automatically."}}, {"@type": "Question", "name": "Does AVIF support transparency?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, AVIF has full alpha channel support. Unlike JPG, transparent areas are preserved correctly in AVIF output — making it a potential replacement for PNG in some web use cases."}}, {"@type": "Question", "name": "How does AVIF compare to HEIC?", "acceptedAnswer": {"@type": "Answer", "text": "Both are derived from similar video compression technology, but AVIF is open and royalty-free while HEIC is patent-encumbered. AVIF has broad web browser support; HEIC is primarily used in Apple devices for camera storage. For web publishing, AVIF is the right choice."}}, {"@type": "Question", "name": "Is AVIF supported in all browsers in 2026?", "acceptedAnswer": {"@type": "Answer", "text": "AVIF has approximately 93% global browser coverage as of 2026, supported by Chrome, Firefox, Safari 16+, and Edge. For maximum compatibility, serve AVIF as the primary format with a WebP or JPEG fallback using the HTML &lt;picture&gt; element. imgready exports pure AVIF — pair it with a WebP version from our JPG to WebP tool for a complete fallback stack."}}]}</script>

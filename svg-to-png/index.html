@@ -98,39 +98,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}@media(prefers-color-scheme:dark){
-body{background:#1c1916;color:#e8e4dc;}
-.nav-brand{color:#e8e4dc;}
-.nav-sep{color:#3a3530;}
-.topnav a.nav-link{color:#7aae7a;}
-.topnav a.nav-link:hover{color:#a0c8a0;}
-.hero h1{color:#e8e4dc;}
-.hero p.lede,.lede{color:#b4b0a8;}
-.hero-sub{color:#6a6660;}
-.feat{background:#252220;border-color:#3a3530;}
-.feat h3{color:#e8e4dc;}
-.feat p{color:#8a8680;}
-h2{color:#e8e4dc;}
-h3.sub{color:#7aae7a;}
-p,li{color:#b4b0a8;}
-strong{color:#d0ccc4;}
-.callout{background:#1e2a1e;border-left-color:#5a7a5a;color:#b4b0a8;}
-th{background:#2e2a26;color:#e8e4dc;border-color:#3a3530;}
-td{border-color:#3a3530;color:#b4b0a8;}
-tr:nth-child(even) td{background:#252220;}
-.faq-item{border-bottom-color:#3a3530;}
-.faq-item summary{color:#e8e4dc;}
-.faq-item p{color:#b4b0a8;}
-.related a{background:#252220;border-color:#3a3530;color:#e8e4dc;}
-.related a small{color:#6a6660;}
-.related a:hover{border-color:#7aae7a;}
-.bottom-cta{border-top-color:#3a3530;}
-.bottom-cta p{color:#6a6660;}
-.crumbs{color:#6a6660;}
-.crumbs a{color:#7aae7a;}
-.site-footer{border-top-color:#3a3530;color:#6a6660;}
-.site-footer a{color:#7aae7a;}
-}
+@media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"SVG to PNG","item":"https://imgready.app/svg-to-png/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will the PNG look sharp at large sizes?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — SVG is a mathematical description of shapes, not pixels. imgready renders it at whatever pixel dimension you specify, so a 4000 px PNG from a 1 KB SVG will be perfectly crisp."}}, {"@type": "Question", "name": "Can I convert an SVG with custom fonts?", "acceptedAnswer": {"@type": "Answer", "text": "It depends. If the SVG embeds the font glyphs as paths (common when exporting from Illustrator or Figma with 'Outline Text'), they convert perfectly. If the SVG references an external font by name and that font isn't available in the browser, the text will fall back to a system font. Convert text to paths before exporting if exact typography matters."}}, {"@type": "Question", "name": "Is there a file size limit for SVG input?", "acceptedAnswer": {"@type": "Answer", "text": "No server-side limit because everything runs in your browser. Very complex SVGs with thousands of paths may take a moment to render, but there's no cap."}}, {"@type": "Question", "name": "Can imgready convert multiple SVGs at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drop a folder or select multiple SVGs and imgready processes them all. You can set the output width once and it applies to the whole batch."}}, {"@type": "Question", "name": "Why does my SVG look different as a PNG than in the browser?", "acceptedAnswer": {"@type": "Answer", "text": "A few common reasons: external CSS or fonts not embedded in the SVG, filter effects that render differently between browsers, or a viewBox that clips part of the design. Check the SVG in a standalone browser tab first — what you see there is what imgready will rasterise."}}, {"@type": "Question", "name": "What resolution should I use when converting SVG to PNG?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the use case. For standard web display, 1× (72–96 dpi) is fine. For retina / HiDPI screens, export at 2× your display size — a 400×400 SVG becomes a 800×800 PNG. For print, use 300 dpi minimum. imgready lets you set an exact pixel width before converting so you get the resolution you need."}}]}</script>
