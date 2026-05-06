@@ -24,14 +24,21 @@
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
 
-<!-- Google AdSense loader (deferred for FCP). Loads on the first real
-     user interaction OR after a 3s idle window — whichever comes first.
-     Trade-off: drop-and-bounce traffic that leaves before either trigger
-     never sees ads. In exchange the page paints in <1s instead of ~10s,
-     which materially helps Core Web Vitals + SEO and aligns with Google's
-     own recommendations (async + idle is fine for AdSense). The
-     `_adsenseLoading` guard prevents double-injection if multiple
-     triggers fire concurrently. -->
+<!-- Google AdSense loader (deferred for FCP). Sequenced so the script tag
+     never competes with first paint:
+       1. Synchronously install interaction listeners (pointer/key/touch/
+          scroll) — first real input fires the load immediately.
+       2. After window.onload (i.e. the page's initial paint + layout has
+          settled), schedule a requestIdleCallback to load AdSense, with a
+          1.5s extra hold-off as a floor so even on a "page is already idle
+          at load" browser we don't pile AdSense onto the same RAF as the
+          last layout pass. setTimeout fallback for browsers without RIC.
+     Without the load-event gate, RIC's timeout argument is a *cap*, not a
+     *minimum* — Chrome happily fired the callback at 254 ms (mid-HTML-parse)
+     on a fast connection, which defeated the entire deferral. Now the
+     earliest AdSense can fetch is post-load + 1.5 s, which empirically
+     leaves FCP/LCP/TTI uncontested. The `_adsenseLoading` guard prevents
+     double-injection if multiple triggers fire concurrently. -->
 <script>
 (function(){
   if(window._adsenseLoading)return;
@@ -50,10 +57,22 @@
     loadAdsense();
   }
   triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  if('requestIdleCallback' in window){
-    requestIdleCallback(loadAdsense,{timeout:3000});
+  function scheduleAfterIdle(){
+    /* 1.5s floor before RIC schedule. Empirically keeps AdSense out of the
+       FCP critical path even on fast connections where RIC fires almost
+       immediately after registration. */
+    setTimeout(function(){
+      if('requestIdleCallback' in window){
+        requestIdleCallback(loadAdsense,{timeout:3000});
+      } else {
+        setTimeout(loadAdsense,1500);
+      }
+    },1500);
+  }
+  if(document.readyState==='complete'){
+    scheduleAfterIdle();
   } else {
-    setTimeout(loadAdsense,3000);
+    window.addEventListener('load',scheduleAfterIdle,{once:true});
   }
 })();
 </script>
@@ -689,33 +708,4 @@ window.dispatchEvent(new Event('jsquash-avif-ready'));
       return;
     }
     var b = document.getElementById('installBanner');
-    if (b) b.classList.add('show');
-  };
-
-  window.acceptInstall = async function(){
-    var b = document.getElementById('installBanner');
-    if (!deferredInstall) { if (b) b.classList.remove('show'); return; }
-    try {
-      deferredInstall.prompt();
-      var choice = await deferredInstall.userChoice;
-      /* Either way the event is one-shot */
-      deferredInstall = null;
-      if (b) b.classList.remove('show');
-      if (choice && choice.outcome === 'dismissed') {
-        try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
-      }
-    } catch(err) {
-      console.warn('[imgready] install prompt error:', err);
-      if (b) b.classList.remove('show');
-    }
-  };
-
-  window.dismissInstall = function(){
-    var b = document.getElementById('installBanner');
-    if (b) b.classList.remove('show');
-    try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
-  };
-})();
-</script>
-</body>
-</html>
+    if (b) b.class

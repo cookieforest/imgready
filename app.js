@@ -3741,29 +3741,49 @@ window.toggleTheme=function(){
     try{localStorage.removeItem('imgready_fmt');}catch(_){}
   }catch(e){}
 })();
-/* Intent priming: if visitor came from a format-specific landing page or has ?fmt=
-   in the URL, pre-select that format. URL takes priority; referrer is a fallback.
-   Runs AFTER restoreLastSettings, so explicit intent wins over a stale localStorage value. */
+/* Intent priming: if the visitor's URL or referrer suggests a specific output
+   format, pre-select it. Runs AFTER restoreLastSettings so explicit intent
+   wins over a stale localStorage value. Three priorities:
+     1. ?fmt=jpg query param (explicit, always wins)
+     2. location.pathname matches a known format slug (covers the post-P5
+        case where the lifted tool runs ON the slug page itself, e.g.
+        a Google visitor landing directly on /heic-to-jpg/ — referrer
+        is google.com, not a slug page, so the old referrer-only check
+        missed this entirely).
+     3. document.referrer matches a slug (covers the legacy case of
+        clicking through from a non-lifted page back to homepage). */
 (function primeFormatFromIntent(){
   var fmt=null;
+  var slugMap={
+    'heic-to-jpg':'jpg','heic-to-png':'png','heic-to-webp':'webp','heic-to-avif':'avif',
+    'jpg-to-png':'png','jpg-to-webp':'webp','jpg-to-avif':'avif',
+    'png-to-jpg':'jpg','png-to-webp':'webp','png-to-avif':'avif',
+    'tiff-to-jpg':'jpg','tiff-to-webp':'webp','tiff-to-png':'png',
+    'webp-to-jpg':'jpg','webp-to-png':'png','webp-to-avif':'avif',
+    'avif-to-jpg':'jpg','avif-to-png':'png',
+    'bmp-to-jpg':'jpg','gif-to-webp':'webp','svg-to-png':'png',
+    'compress-jpg':'jpg','compress-png':'png',
+    'webp-converter':'webp','avif-converter':'avif'
+  };
   try{
-    /* 1. URL param ?fmt=jpg / ?fmt=webp / etc. */
+    /* 1. URL param wins. */
     var p=new URLSearchParams(location.search);
     var q=(p.get('fmt')||'').toLowerCase();
     if(['webp','avif','png','jpg','jpeg','gif'].indexOf(q)!==-1)fmt=q==='jpeg'?'jpg':q;
-    /* 2. Referrer pattern matching — convert /heic-to-jpg/ → jpg, etc. */
+    /* 2. Pathname slug match. Walk the slugMap, look for /{slug}/ in the path. */
+    if(!fmt){
+      var path=(location.pathname||'').toLowerCase();
+      for(var slug in slugMap){
+        if(path.indexOf('/'+slug+'/')!==-1 || path.indexOf('/'+slug)===path.length-1-slug.length){
+          fmt=slugMap[slug]; break;
+        }
+      }
+    }
+    /* 3. Referrer fallback for visitors arriving via legacy CTA links. */
     if(!fmt&&document.referrer){
       var ref=document.referrer;
-      var slugMap={
-        'heic-to-jpg':'jpg','heic-to-png':'png','heic-to-webp':'webp',
-        'jpg-to-png':'png','jpg-to-webp':'webp',
-        'png-to-jpg':'jpg','png-to-webp':'webp',
-        'tiff-to-jpg':'jpg','tiff-to-webp':'webp',
-        'compress-jpg':'jpg','compress-png':'png',
-        'webp-converter':'webp','avif-converter':'avif'
-      };
-      for(var slug in slugMap){
-        if(ref.indexOf('/'+slug+'/')!==-1||ref.indexOf('/'+slug)!==-1){fmt=slugMap[slug];break;}
+      for(var slug2 in slugMap){
+        if(ref.indexOf('/'+slug2+'/')!==-1||ref.indexOf('/'+slug2)!==-1){fmt=slugMap[slug2];break;}
       }
     }
   }catch(e){}
@@ -3891,28 +3911,4 @@ updateFormatUI();
 renderAll();
 /* Sticky action-bar elevation. The bar uses position:sticky;top:8px so it
    pins as the user scrolls. We can't tell from CSS alone whether it's
-   currently pinned vs flowing in normal layout — IntersectionObserver with a
-   sentinel above the bar fires when the bar leaves natural position, and we
-   add `.is-stuck` for the box-shadow + border colour-mix. */
-(function watchActionBarStuck(){
-  if(!('IntersectionObserver' in window))return;
-  var bar=G('actionBar');if(!bar)return;
-  var sentinel=document.createElement('div');
-  sentinel.style.cssText='position:absolute;top:0;height:1px;width:1px;pointer-events:none;';
-  if(bar.parentNode){bar.parentNode.insertBefore(sentinel,bar);}
-  var io=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){bar.classList.toggle('is-stuck',!e.isIntersecting);});
-  },{rootMargin:'-9px 0px 0px 0px',threshold:[0,1]});
-  io.observe(sentinel);
-})();
-var _resizeEl=G('resizeMax');
-if(_resizeEl)_resizeEl.addEventListener('input',resetPresetToCustom);
-var _origSetCrop=window.setCropRatio;
-window.setCropRatio=function(r){
-  _origSetCrop(r);
-  var s=G('presetSelect');if(!s)return;
-  var ap=PRESETS[s.value];
-  if(ap&&ap.crop!==r)s.value='custom';
-};
-
-})();
+   currently pinned vs flowing in normal layout — IntersectionObs
