@@ -16,9 +16,17 @@
  * encoding runs.
  */
 
-const LIBHEIF_URL = 'https://cdn.jsdelivr.net/npm/libheif-js@1.18.2/libheif/libheif.js';
-const UPNG_URL    = 'https://cdnjs.cloudflare.com/ajax/libs/upng-js/2.1.0/UPNG.min.js';
-const PAKO_URL    = 'https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js';
+// libheif / UPNG / pako self-hosted from /vendor/. Same bytes as the cdnjs
+// originals (verified by SHA-384 hashes maintained in the main HTML's <script>
+// integrity attributes) — moved on-origin so the worker doesn't depend on
+// third-party CDN uptime for image decoding. Same-origin loads also dodge the
+// CORS preflight that occasionally bit older browsers' worker importScripts().
+const LIBHEIF_URL = '/vendor/libheif.js';
+const UPNG_URL    = '/vendor/UPNG.min.js';
+const PAKO_URL    = '/vendor/pako.min.js';
+// jsquash WebP/AVIF/JPEG/OxiPNG remain on esm.sh for now. Vendoring them
+// requires bundling each package's WASM sidecar locally, which means a real
+// build step we don't currently have. Tracked as future work.
 const WEBP_ESM    = 'https://esm.sh/@jsquash/webp@1.4.0';
 const AVIF_ESM    = 'https://esm.sh/@jsquash/avif@2.1.1';
 const JPEG_ESM    = 'https://esm.sh/@jsquash/jpeg@1.6.0';   // MozJPEG — better than canvas.toBlob('image/jpeg')

@@ -13,7 +13,34 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://imgready.app/about/">
 <!-- AdSense: uncomment when slot ID is approved
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795" crossorigin="anonymous"></script>
+<!-- Google AdSense loader (deferred for FCP). Loads on first user
+     interaction or after a 3s idle window. See index.html for the
+     long form of this comment. -->
+<script>
+(function(){
+  if(window._adsenseLoading)return;
+  function loadAdsense(){
+    if(window._adsenseLoading)return;
+    window._adsenseLoading=true;
+    var s=document.createElement('script');
+    s.async=true;
+    s.crossOrigin='anonymous';
+    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
+    document.head.appendChild(s);
+  }
+  var triggers=['pointerdown','keydown','touchstart','scroll'];
+  function onInteract(){
+    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
+    loadAdsense();
+  }
+  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
+  if('requestIdleCallback' in window){
+    requestIdleCallback(loadAdsense,{timeout:3000});
+  } else {
+    setTimeout(loadAdsense,3000);
+  }
+})();
+</script>
 -->
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
