@@ -53,13 +53,18 @@ jobs:
       - name: HTML structural integrity (catches silent truncation)
         # Browsers tolerate missing </script></body></html> so HTML
         # truncation can ship invisibly — the page renders but parts
-        # of the script may not run. Grep-assert each HTML file ends
-        # cleanly + key SW registration symbols are present in the
-        # homepage.
+        # of the script may not run. Grep-assert each real HTML file
+        # ends cleanly + key SW-registration symbols are present in
+        # the homepage.
+        #
+        # Only files that actually contain <html ...> get the closing-
+        # tag check; that excludes plain-text stubs like Google Search
+        # Console verification files which legitimately have no HTML.
         run: |
           set -e
           missing=0
           for f in $(find dist -name '*.html'); do
+            head -c 200 "$f" | grep -qi '<html\|<!doctype' || continue
             tail=$(tail -c 200 "$f")
             if ! echo "$tail" | grep -q '</html>'; then
               echo "::error::$f missing </html> closing tag"
