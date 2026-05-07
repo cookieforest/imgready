@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>imgready — 3-pane prototype</title>
+<title>imgready — Free Image Optimizer (BETA)</title>
+<!-- Production CSS — drives the empty-state styling so beta inherits the
+     stable homepage look. Beta's inline <style> below overrides only when
+     in solo/multi state (the dark workspace) via :root variables scoped
+     to body[data-state]. -->
+<link rel="stylesheet" href="/app.css">
 <style>
   :root{
     --bg:#f5f0e8;--text:#2a2a26;--muted:#7a7872;
@@ -19,10 +24,17 @@
     --accent:#8aae8a;--accent-strong:#7a9a7a;
   }
   *,*::before,*::after{box-sizing:border-box;}
-  html,body{height:100%;}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
-    color:var(--text);background:var(--bg);overflow:hidden;
-    user-select:none;-webkit-user-select:none;}
+  /* Empty state = scrollable marketing page (mirrors stable homepage).
+     Workspace state (solo/multi) = locked viewport for the image canvas. */
+  html{height:auto;}
+  html,body{margin:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    color:var(--text);background:var(--bg);}
+  body[data-state="empty"]{overflow:auto;height:auto;min-height:100vh;}
+  body[data-state="solo"],body[data-state="multi"]{
+    overflow:hidden;height:100%;
+    user-select:none;-webkit-user-select:none;
+  }
 
   .brand-bar{height:var(--brand-h);display:flex;align-items:center;gap:14px;
     padding:0 16px;background:var(--bg);position:relative;z-index:10;}
@@ -49,8 +61,12 @@
 
   /* --- empty state --- */
   .empty-state{display:none;height:calc(100vh - var(--brand-h));align-items:center;justify-content:center;padding:24px;}
-  body[data-state="empty"] .empty-state{display:flex;}
+  /* Empty state shows the marketing page, workspace hides it */
+  body[data-state="empty"] .empty-state{display:block;}
   body[data-state="empty"] .stage{display:none;}
+  body[data-state="empty"] .brand-bar{position:sticky;top:0;background:var(--bg);}
+  body[data-state="solo"] .empty-state,
+  body[data-state="multi"] .empty-state{display:none;}
   .dropzone{width:min(620px,100%);
     border:2px dashed color-mix(in srgb,var(--accent) 35%,var(--border));
     border-radius:18px;padding:54px 32px;text-align:center;
@@ -325,18 +341,86 @@
 </div>
 
 <section class="empty-state">
-  <div class="dropzone" onclick="document.getElementById('dzFileInput').click()">
-    <div class="dz-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    </div>
-    <h2 class="dz-title">Drop your images here</h2>
-    <p class="dz-sub">or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
-    <input type="file" id="dzFileInput" accept="image/*" multiple style="display:none;">
-    <span class="dz-trust">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Stays on your device — never uploaded
+  <div class="app">
+    <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
+    <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files to compress">
+    <span class="dz-icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
+    <h2>Drop your images here</h2>
+    <p>or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
+         TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
+         in the same eye-line as the action, so first-time visitors don't
+         have to scroll to know what makes this different. Hidden in the
+         compact "Add more images" mode (body.has-images) since returning
+         users don't need re-reassurance mid-batch. -->
+    <div class="dz-trust" aria-hidden="false">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Stays on your device — never uploaded</span>
+    </div>
+    <div class="paste-hint">Tip: paste from clipboard works too.</div>
   </div>
+
+    <header class="hero-below">
+    <h1 class="brand-h1">
+      The image tool that <span class="brand-ready">never uploads.</span>
+      <span class="sr-tagline">imgready — Free in-browser image compressor, converter and resizer.</span>
+    </h1>
+    <p>Compress, convert and resize photos right in your browser. Free. No accounts. No file size limits.</p>
+  </header>
+
+  <div class="content-section">
+
+    <h2>What imgready does</h2>
+    <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use — WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Use a platform preset. Live-edit quality with the fullscreen compare editor.</p>
+    <p>Encoding runs in your browser. The <a href="/why/">thinking behind it</a> goes deeper into what that means for speed and file-size limits.</p>
+
+    <h3>Supported formats</h3>
+    <table class="format-table"><tr><th>Format</th><th>Best for</th><th>Compression</th></tr><tr><td><strong>WebP</strong></td><td>Modern web — blogs, e-commerce</td><td>25–35% smaller than JPEG</td></tr><tr><td><strong>AVIF</strong></td><td>Maximum compression, photos</td><td>Up to 50% smaller than JPEG</td></tr><tr><td><strong>JPEG / JPG</strong></td><td>Universal compatibility</td><td>Lossy, works everywhere</td></tr><tr><td><strong>PNG</strong></td><td>Screenshots, graphics, transparency</td><td>Lossless at 100, lossy PNG-8 below</td></tr><tr><td><strong>GIF</strong></td><td>Simple animations, flat colour</td><td>Limited to 256 colours</td></tr></table>
+
+    <h3>Common use cases</h3>
+    <p>imgready is designed for the everyday image work that doesn't deserve a separate app. A few of the things it gets used for:</p>
+    <ul class="use-cases">
+      <li><strong>iPhone photos for Windows colleagues.</strong> Drop a HEIC, get a JPG back. No app install, no email back-and-forth about &quot;why won't this open&quot;.</li>
+      <li><strong>Hero images for blog posts.</strong> Resize a 5&nbsp;MB phone photo to 1600&nbsp;px wide WebP under 200&nbsp;KB. Pages load faster, Lighthouse score climbs, no CDN cost.</li>
+      <li><strong>Shopify or Etsy product photography.</strong> Drop a folder of 50 photos, set a platform preset, hit Process All, download a single ZIP. Aspect ratios stay correct.</li>
+      <li><strong>EXIF stripping before sharing.</strong> Phone photos carry GPS coordinates by default. imgready strips them invisibly before you post — no extra step, no extra tool.</li>
+    </ul>
+
+    <h3>How it actually works</h3>
+    <p>When you drop a file, imgready runs the same WebAssembly encoders Squoosh ships — but locally, on your machine. <strong>HEIC and HEIF</strong> decode through libheif (the C++ library Apple uses). <strong>WebP and AVIF</strong> encode with jsquash, Google's reference encoders ported to WebAssembly. <strong>PNG</strong> compression uses OxiPNG and UPNG for size, the browser's canvas for lossless. Resizing and cropping run on the HTML5 canvas API. None of this requires a server because none of it needs one — your machine has the compute.</p>
+
+    <h3>Frequently asked</h3>
+    <details class="faq-item"><summary>Are my images uploaded?</summary><p>No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file — no requests carry image data.</p></details>
+    <details class="faq-item"><summary>What's the difference between WebP and AVIF?</summary><p>Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly. imgready uses WebAssembly encoders for both so every device gets identical output regardless of browser.</p></details>
+    <details class="faq-item"><summary>How big a batch can I drop in?</summary><p>The soft cap is 200 files, with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop.</p></details>
+    <details class="faq-item"><summary>Is there a file-size cap?</summary><p>No. Drop a 100&nbsp;MB TIFF if you have one. imgready has no caps because there's no server to bill for storage.</p></details>
+    <details class="faq-item"><summary>Can I resize and compress at the same time?</summary><p>Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass — no double-encoding.</p></details>
+    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes — completely, with no caps. The site runs on Google AdSense ads (your image data is never sent to ad partners) and voluntary Ko-fi contributions.</p></details>
+
+    <p class="content-foot">Ads on this page never see your image data. <a href="/privacy/">Privacy policy</a> · <a href="/terms/">Terms</a> · <a href="/why/">Why we built it</a></p>
+  </div>
+
+    <footer class="site-footer">
+    <div style="font-weight:700;color:var(--text2);">imgready</div>
+    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a><a href="/support/">♥ Support</a>
+    </div>
+    <div style="margin-top:4px;">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div style="margin-top:8px;">
+      <a href="#" id="themeBtn" onclick="event.preventDefault();toggleTheme()">Night mode</a>
+      <span style="color:var(--border);margin:0 4px">|</span>
+      <a href="#" onclick="event.preventDefault();window.openCmpSettings&&window.openCmpSettings()">Cookie &amp; ad settings</a>
+      <span style="color:var(--border);margin:0 4px">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
+    </div>
+    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
+</div>
 </section>
 
 <!-- ============================ SOLO STATE (1 image) — same canvas as multi ============================ -->
@@ -462,8 +546,9 @@ function init(){
   flow.addEventListener('wheel', onWheel, {passive:false});
   attachHoverDelegation();
 
-  /* Wire the dropzone file input + document-wide drop handlers */
-  document.getElementById('dzFileInput').addEventListener('change', onFiles);
+  /* Wire the dropzone's file input (#fileInput from production HTML) */
+  const fi = document.getElementById('fileInput') || document.getElementById('dzFileInput');
+  if (fi) fi.addEventListener('change', onFiles);
   document.getElementById('moreInput').addEventListener('change', onFiles);
   document.addEventListener('dragover', e => { e.preventDefault(); });
   document.addEventListener('drop', e => {
