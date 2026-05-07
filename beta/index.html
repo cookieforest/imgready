@@ -59,25 +59,22 @@
   body[data-state="empty"] .state-toggle button{border-color:var(--border);}
   .state-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
-  /* --- empty state --- */
-  .empty-state{display:none;height:calc(100vh - var(--brand-h));align-items:center;justify-content:center;padding:24px;}
-  /* Empty state shows the marketing page, workspace hides it */
-  body[data-state="empty"] .empty-state{display:block;}
+  /* --- empty state ---
+     NOTE: must NOT use class name `.empty-state` — production app.css already
+     defines that selector at line 596 with `text-align:center` + muted color,
+     which would cascade into our hero/content section. We use `.beta-empty`
+     instead so the production homepage CSS (which keys off `.app`, `.dropzone`,
+     `.content-section`, etc.) renders unchanged. */
+  .beta-empty{display:none;}
+  body[data-state="empty"] .beta-empty{display:block;}
   body[data-state="empty"] .stage{display:none;}
   body[data-state="empty"] .brand-bar{position:sticky;top:0;background:var(--bg);}
-  body[data-state="solo"] .empty-state,
-  body[data-state="multi"] .empty-state{display:none;}
-  .dropzone{width:min(620px,100%);
-    border:2px dashed color-mix(in srgb,var(--accent) 35%,var(--border));
-    border-radius:18px;padding:54px 32px;text-align:center;
-    background:color-mix(in srgb,var(--card) 80%,transparent);cursor:pointer;}
-  .dropzone:hover{background:var(--accent-light);border-color:var(--accent);}
-  .dz-icon{width:60px;height:60px;border-radius:50%;background:var(--accent-light);color:var(--accent);
-    display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;}
-  .dz-icon svg{width:30px;height:30px;}
-  .dz-title{font-weight:600;font-size:1.18rem;margin:0 0 4px;}
-  .dz-sub{color:var(--muted);font-size:.88rem;margin:0;}
-  .dz-trust{margin-top:10px;font-size:.74rem;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+  body[data-state="solo"] .beta-empty,
+  body[data-state="multi"] .beta-empty{display:none;}
+  /* Beta does NOT override .dropzone / .dz-icon / .dz-title / .dz-sub / .dz-trust —
+     production app.css owns the empty-state styling so beta inherits the
+     stable homepage look pixel-for-pixel (84px padding, 280px min-height,
+     full content-column width, etc). */
 
   /* --- stage --- */
   .stage{display:none;position:relative;height:calc(100vh - var(--brand-h));background:#000;overflow:hidden;}
@@ -161,17 +158,19 @@
   }
   .cflow-thumb .thumb-num{font-size:.78rem;line-height:1;}
   .cflow-thumb.active .thumb-num{font-size:1rem;}
-  /* Add-more tile: dotted outline, no background */
+  /* Add-more tile: white-15% bg, thicker black dotted border, black text.
+     Per user spec — affordance reads as "drop a new file here", deliberately
+     differentiated from image thumbs (which have full-color contents). */
   .cflow-thumb.add-more .thumb-slot{
-    background:transparent;
-    border:2px dashed rgba(255,255,255,.32);
-    color:rgba(255,255,255,.65);
+    background:rgba(255,255,255,.15);
+    border:3px dotted #000;
+    color:#000;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:4px;
-    transition:border-color .15s,color .15s;
+    transition:background .15s,border-color .15s,color .15s;
   }
   .cflow-thumb.add-more:hover .thumb-slot{
-    border-color:rgba(255,255,255,.65);color:#fff;
+    background:rgba(255,255,255,.28);border-color:#000;color:#000;
   }
   .cflow-thumb.add-more .add-more-label{
     font-size:.62rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
@@ -340,7 +339,7 @@
   <a href="/" class="exit-link" title="Back to the stable app">← Stable app</a>
 </div>
 
-<section class="empty-state">
+<section class="beta-empty">
   <div class="app">
     <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
     <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files to compress">
