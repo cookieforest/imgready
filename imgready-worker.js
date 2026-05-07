@@ -74,6 +74,11 @@ async function ensureLibheif(){
 
 async function ensureUPNG(){
   if (upngLoaded) return;
+  /* UPNG.min.js's UMD footer is `typeof module!=='undefined'?module.exports=e:window.UPNG=e`
+     which throws ReferenceError in classic workers (no `window`, no `module`). Shim
+     `window = self` before importScripts so the assignment lands on the worker scope.
+     Same trick libheif and several other UMD bundles need. */
+  if (typeof self.window === 'undefined') self.window = self;
   importScripts(PAKO_URL, UPNG_URL);
   upngLoaded = true;
 }
