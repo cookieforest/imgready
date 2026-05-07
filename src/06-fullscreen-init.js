@@ -529,4 +529,44 @@ window.setCropRatio=function(r){
   if(ap&&ap.crop!==r)s.value='custom';
 };
 
+/* Pre-warm WASM encoders on idle. The first encode pays a one-time WASM
+   instantiation cost (~330ms cold for MozJPEG, similar for AVIF/WebP). By
+   sending a `prewarm` message to the worker pool once the page has been
+   idle for a moment, that cost happens during a quiet window instead of
+   while the user is staring at a "Processing..." spinner.
+   Gating: wait for window.load + 1.5s floor + idle callback. We piggyback
+   on the same gating philosophy as AdSense — never compete with FCP/LCP
+   work on the main thread. The pool is created lazily; calling
+   getWorkerPool() here triggers a one-time spin-up of the workers. We
+   prewarm with [auto-target, webp] which covers the cases where the user
+   has a remembered format pref AND the safe default fallback. */
+(function schedulePrewarm(){
+  if(typeof getWorkerPool!=='function')return;
+  function fire(){
+    try{
+      var pool=getWorkerPool(); if(!pool||!pool.prewarm)return;
+      var fmts=[];
+      if(typeof selectedFormat==='string' && selectedFormat!=='auto'){
+        fmts.push(selectedFormat);
+      }
+      if(fmts.indexOf('webp')===-1)fmts.push('webp');
+      pool.prewarm(fmts);
+    }catch(_){}
+  }
+  function schedule(){
+    setTimeout(function(){
+      if('requestIdleCallback' in window){
+        requestIdleCallback(fire,{timeout:5000});
+      } else {
+        setTimeout(fire,200);
+      }
+    },1500);
+  }
+  if(document.readyState==='complete'){
+    schedule();
+  } else {
+    window.addEventListener('load',schedule,{once:true});
+  }
+})();
+
 })();

@@ -57,6 +57,57 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 .settings-trigger-arrow{font-size:.65rem;line-height:1;display:inline-block;transition:transform .15s;}
 .settings-trigger[aria-expanded="true"] .settings-trigger-arrow{transform:rotate(90deg);}
 .settings-trigger[aria-expanded="true"]{background:color-mix(in srgb,var(--accent) 4%,transparent);}
+/* First-visit pulse: a soft outward halo on the Settings button so new
+   visitors notice the panel without us forcing it open. The animation
+   uses box-shadow so it doesn't reflow neighbours. Removed once the user
+   opens the panel for the first time, or auto-clears after 8 seconds. */
+.settings-trigger.pulse{animation:settings-pulse 1.6s ease-out infinite;}
+@keyframes settings-pulse{
+  0%  {box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 35%,transparent);}
+  70% {box-shadow:0 0 0 10px color-mix(in srgb,var(--accent) 0%,transparent);}
+  100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 0%,transparent);}
+}
+@media (prefers-reduced-motion: reduce){
+  .settings-trigger.pulse{animation:none;}
+}
+/* Quality slider — custom thumb sized for touch (44x44 on coarse pointers,
+   per Apple HIG and Material spec) and a thicker track so the thumb doesn't
+   look out of proportion. The native range thumb at default browser sizing
+   is 14-20px which is well below the 44px touch-target threshold; users
+   reported it being hard to grab on phones. We style WebKit and Moz pseudo-
+   elements separately because they don't share specs. */
+.adv-group input[type="range"]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:6px;margin:8px 0;padding:0;
+  background:color-mix(in srgb,var(--accent) 18%,transparent);
+  border-radius:999px;outline:none;cursor:pointer;
+}
+.adv-group input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--accent);border:3px solid var(--bg);
+  box-shadow:0 1px 3px rgba(0,0,0,.18);
+  cursor:grab;transition:transform .12s;
+}
+.adv-group input[type="range"]::-moz-range-thumb{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--accent);border:3px solid var(--bg);
+  box-shadow:0 1px 3px rgba(0,0,0,.18);
+  cursor:grab;transition:transform .12s;
+}
+.adv-group input[type="range"]:active::-webkit-slider-thumb{cursor:grabbing;transform:scale(1.08);}
+.adv-group input[type="range"]:active::-moz-range-thumb{cursor:grabbing;transform:scale(1.08);}
+.adv-group input[type="range"]:focus-visible::-webkit-slider-thumb{
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent),0 1px 3px rgba(0,0,0,.18);
+}
+.adv-group input[type="range"]:focus-visible::-moz-range-thumb{
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent),0 1px 3px rgba(0,0,0,.18);
+}
+@media (pointer: coarse){
+  .adv-group input[type="range"]{height:8px;}
+  .adv-group input[type="range"]::-webkit-slider-thumb{width:28px;height:28px;}
+  .adv-group input[type="range"]::-moz-range-thumb{width:28px;height:28px;}
+}
 /* Mobile nav was previously a horizontal scroll-strip with .hide-mobile
    classes — replaced by the hamburger menu (see the rules in the larger
    responsive block below). Old block removed; the hamburger version is
@@ -863,4 +914,23 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
   /* Reprocess link — center-aligned text on its own row on mobile,
      never competing visually with the primary cluster above. */
   .action-left > #reprocessBtn{width:100%;text-align:center;padding:6px;font-size:.78rem;}
-  .charge-preview{width:100%;tex
+  .charge-preview{width:100%;text-align:center;order:3;}
+  .action-meta{width:100%;order:3;margin-left:0;justify-content:space-between;gap:10px;}
+  .action-meta .savings-pill{margin:0;}
+  .action-meta .btn-ghost{margin:0;padding:8px 16px;font-size:.82rem;}
+  .sup-modal{padding:24px 20px;}
+  /* Live editor on mobile — bumped from cramped 22-px tap targets up to
+     proper touch sizes (~40 px) without crowding. Format pills get more
+     breathing room, the quality slider stays touch-grippable, and the
+     Download button stays solid + brand green from its desktop rule. */
+  .fs-editor-inner{flex-wrap:wrap;gap:8px;padding:10px 12px;border-radius:12px;justify-content:center;}
+  .fs-editor .fe-fmt{width:100%;justify-content:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .fs-editor .fe-fmt::-webkit-scrollbar{display:none;}
+  .fs-editor .fe-fmt button{padding:8px 14px;font-size:.82rem;min-height:38px;border-radius:8px;flex-shrink:0;}
+  .fs-editor .fe-q{flex:1;min-width:0;gap:8px;}
+  .fs-editor .fe-q input[type=range]{height:24px;}
+  .fs-editor .fe-dl{padding:8px 16px;font-size:.82rem;min-height:38px;}
+  .fs-lbl{font-size:.65rem;padding:3px 8px;top:14px;}
+  .fs-lbl.r{right:50px;}
+  .fs-close{top:12px;right:12px;width:32px;height:32px;font-size:.9rem;}
+}

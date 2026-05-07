@@ -406,7 +406,23 @@ async function processOne(file, fmt, settings){
 
 /* ---------- worker message handler ---------- */
 self.onmessage = async (e) => {
-  const { id, action, file, fmt, settings } = e.data;
+  const { id, action, file, fmt, settings, formats } = e.data;
+  /* prewarm: load encoder modules (and instantiate their WASM) without
+     doing any actual encoding. The main thread fires this once on idle so
+     the user's first drop doesn't pay the WASM cold-start. Best-effort —
+     any error is swallowed because the real encode path will retry. */
+  if (action === 'prewarm') {
+    const list = (formats && formats.length) ? formats : ['webp'];
+    for (const f of list) {
+      try {
+        if (f === 'webp') await ensureWebp();
+        else if (f === 'avif') await ensureAvif();
+        else if (f === 'jpg' || f === 'jpeg') await ensureJpeg();
+        else if (f === 'oxipng') await ensureOxipng();
+      } catch (_) { /* swallow — best-effort */ }
+    }
+    return;
+  }
   if (action !== 'process') return;
   try {
     self.postMessage({ id, type: 'progress', stage: 'decoding' });

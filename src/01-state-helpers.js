@@ -506,21 +506,27 @@ window.toggleAdvanced=function(){
     if(t)t.classList.remove('pulse');
   }catch(e){}
 };
-/* Restore Settings panel state. First-visit policy: open the panel by
-   default so visitors discover format/quality/resize without hunting.
-   Detection: imgready_seen_settings is set the first time toggleAdvanced
-   runs, so if it's missing we know the user has never interacted with
-   the panel — open it for them. After their first toggle, respect the
-   explicit imgready_settings_open preference and never auto-open again. */
+/* Restore Settings panel state. First-visit policy: keep the panel CLOSED
+   so the dropzone is the unambiguous focal point on first paint. The
+   earlier auto-open default looked discoverable in isolation but in mobile
+   viewport tests it pushed the dropzone below the fold — bad trade. To
+   keep discoverability we add a one-time `pulse` class to the Settings
+   toggle on first visit; the pulse is removed the first time the user
+   opens the panel (or after a few seconds, whichever comes first). */
 (function restoreSettingsPanel(){
   try{
     var saved=localStorage.getItem('imgready_settings_open');
     var seen=localStorage.getItem('imgready_seen_settings');
-    var shouldOpen = (saved==='1') || (saved===null && seen===null);
-    if(shouldOpen){
-      var t=G('advToggle'),p=G('advPanel');
+    var t=G('advToggle'),p=G('advPanel');
+    if(saved==='1'){
       if(t){t.classList.add('open');t.setAttribute('aria-expanded','true');}
       if(p)p.classList.add('open');
+    } else if(seen===null){
+      /* First-time visitor — pulse the Settings button so they notice
+         the panel exists without us forcing it open. */
+      if(t)t.classList.add('pulse');
+      /* Auto-stop the pulse after 8s so it never feels naggy. */
+      setTimeout(function(){ if(t)t.classList.remove('pulse'); },8000);
     }
   }catch(e){}
 })();

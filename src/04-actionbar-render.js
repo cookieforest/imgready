@@ -857,6 +857,19 @@ function getWorkerPool(){
       pool.busy.length = 0;
       _workerPool = null;
     };
+    /* Pre-warm: tell every worker to import + instantiate the encoder
+       modules for the given formats. Fire-and-forget — the worker swallows
+       errors and we never wait for completion. Sending to all workers (not
+       just one) means the first user drop can use any of them without
+       paying the cold-start. The default `formats` is the user's last
+       picked format and webp as a safe fallback (most likely encode path
+       on a fresh visit). */
+    pool.prewarm = function(formats){
+      var list = (formats && formats.length) ? formats : ['webp'];
+      for (var pi = 0; pi < pool.workers.length; pi++) {
+        try { pool.workers[pi].postMessage({ action: 'prewarm', formats: list }); } catch(_){}
+      }
+    };
     _workerPool = pool;
     return pool;
   }catch(e){
