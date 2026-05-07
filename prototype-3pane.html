@@ -199,9 +199,15 @@
     border-bottom:1px solid rgba(255,255,255,.10);
   }
   .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.04);}
-  .settings-toggle .tri{font-size:.68rem;line-height:1;display:inline-block;
-    transition:transform .18s;color:rgba(255,255,255,.55);}
-  body[data-adjust="open"] .settings-toggle .tri{transform:rotate(180deg);}
+  .settings-toggle .toggle-icon{
+    width:18px;height:18px;
+    display:inline-flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,.7);font-weight:700;font-size:1.1rem;
+    line-height:1;transition:color .15s;
+  }
+  .settings-toggle .toggle-icon::before{content:"+";}
+  body[data-adjust="open"] .settings-toggle .toggle-icon::before{content:"−";}
+  body[data-adjust="open"] .settings-toggle .toggle-icon{color:#fff;}
   body[data-adjust="open"] .settings-toggle{color:#fff;}
   body[data-adjust="closed"] .settings-toggle{border-bottom-color:rgba(255,255,255,.06);}
 
@@ -330,7 +336,7 @@
   </div>
   <div class="menu-wrap">
     <div class="menu-card">
-      <button class="settings-toggle" onclick="toggleAdjust()"><span>Settings</span><span class="tri">▼</span></button>
+      <button class="settings-toggle" onclick="toggleAdjust()"><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
       <div class="adjust-panel">
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button>Auto</button><button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button></div></div>
@@ -374,7 +380,7 @@
 
   <div class="menu-wrap" id="menuWrap">
     <div class="menu-card">
-      <button class="settings-toggle" onclick="toggleAdjust()"><span>Settings</span><span class="tri">▼</span></button>
+      <button class="settings-toggle" onclick="toggleAdjust()"><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
       <div class="adjust-panel">
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
@@ -680,10 +686,11 @@ function onPointerMove(e){
   const dt = Math.max(1, now - CFLOW.lastT);
   CFLOW.vel = -(e.clientX - CFLOW.lastX) / stride / dt * 16;
   CFLOW.lastX = e.clientX; CFLOW.lastT = now;
-  /* clamp at boundaries */
+  /* clamp at boundaries — last *image* (not Add-more) is the natural end */
+  const LAST_IMG = CFLOW.thumbs.length - 2;
   const target = CFLOW.draggingFrom.startSel + CFLOW.drift;
   if (target < 0) CFLOW.drift = -CFLOW.draggingFrom.startSel;
-  if (target > CFLOW.thumbs.length - 1) CFLOW.drift = CFLOW.thumbs.length - 1 - CFLOW.draggingFrom.startSel;
+  if (target > LAST_IMG) CFLOW.drift = LAST_IMG - CFLOW.draggingFrom.startSel;
   layoutCoverFlow();
   /* don't sync main image during drag */
 }
@@ -699,21 +706,21 @@ function onPointerUp(){
   }
 }
 function runMomentum(){
+  const LAST_IMG = CFLOW.thumbs.length - 2;
   const tick = () => {
     CFLOW.vel *= 0.93;
     CFLOW.drift += CFLOW.vel;
-    while (CFLOW.drift > 0.5 && CFLOW.selected < CFLOW.thumbs.length - 1) {
+    while (CFLOW.drift > 0.5 && CFLOW.selected < LAST_IMG) {
       CFLOW.selected++; CFLOW.drift -= 1;
     }
     while (CFLOW.drift < -0.5 && CFLOW.selected > 0) {
       CFLOW.selected--; CFLOW.drift += 1;
     }
     /* boundary kill */
-    if ((CFLOW.selected <= 0 && CFLOW.drift < 0) || (CFLOW.selected >= CFLOW.thumbs.length - 1 && CFLOW.drift > 0)) {
+    if ((CFLOW.selected <= 0 && CFLOW.drift < 0) || (CFLOW.selected >= LAST_IMG && CFLOW.drift > 0)) {
       CFLOW.drift = 0; CFLOW.vel = 0;
     }
     layoutCoverFlow();
-    /* SNAP-when-slow: if velocity is below threshold, snap and stop */
     if (Math.abs(CFLOW.vel) < 0.02) {
       settleSelection();
       return;
@@ -724,11 +731,12 @@ function runMomentum(){
   CFLOW.rafId = requestAnimationFrame(tick);
 }
 function settleSelection(){
+  /* Snap target is the last *image* (not Add-more); Add-more is click-only */
+  const LAST_IMG = CFLOW.thumbs.length - 2;
   CFLOW.selected = Math.round(CFLOW.selected + CFLOW.drift);
-  CFLOW.selected = Math.max(0, Math.min(CFLOW.thumbs.length - 1, CFLOW.selected));
+  CFLOW.selected = Math.max(0, Math.min(LAST_IMG, CFLOW.selected));
   CFLOW.drift = 0; CFLOW.vel = 0;
   layoutCoverFlow();
-  /* now that we've settled, update the main image */
   syncMainImage();
 }
 
@@ -745,17 +753,18 @@ function onWheel(e){
   /* ~70px wheel per index step — feels close to one mouse-wheel notch per image */
   CFLOW.drift += delta / 70;
   /* Roll drift into selected when it crosses ±0.5 */
-  while (CFLOW.drift > 0.5 && CFLOW.selected < CFLOW.thumbs.length - 1) {
+  /* Cap natural cycling at the last actual image (one before Add-more).
+     Add-more is only reachable by direct click — gesture won't carry into it. */
+  const LAST_IMG = CFLOW.thumbs.length - 2;
+  while (CFLOW.drift > 0.5 && CFLOW.selected < LAST_IMG) {
     CFLOW.selected++; CFLOW.drift -= 1;
   }
   while (CFLOW.drift < -0.5 && CFLOW.selected > 0) {
     CFLOW.selected--; CFLOW.drift += 1;
   }
-  /* Boundary clamp */
   if (CFLOW.selected <= 0 && CFLOW.drift < 0) CFLOW.drift = 0;
-  if (CFLOW.selected >= CFLOW.thumbs.length - 1 && CFLOW.drift > 0) CFLOW.drift = 0;
+  if (CFLOW.selected >= LAST_IMG && CFLOW.drift > 0) CFLOW.drift = 0;
   layoutCoverFlow();
-  /* Settle (snap + sync main image) once wheel input stops */
   clearTimeout(_wheelDebounce);
   _wheelDebounce = setTimeout(() => settleSelection(), 160);
 }
