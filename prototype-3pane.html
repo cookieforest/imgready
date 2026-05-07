@@ -444,9 +444,10 @@
       text-align:left;font-size:.78rem;margin:0;flex:0 0 auto;
     }
     .three-pane .bulk-actions .bulk-buttons-row{
-      display:flex;gap:8px;align-items:stretch;
+      display:flex;flex-direction:row;gap:8px;align-items:stretch;
     }
     .three-pane .bulk-actions .bulk-buttons-row .btn{flex:1;min-width:0;}
+    .three-pane .bulk-actions .bulk-buttons-row .btn-clear{flex:0 0 auto;}
     /* Clear all sits inline with Share/Download but reads as a quiet ghost
        so Download stays the obvious primary. Matches production .btn-ghost. */
     .three-pane .bulk-actions .btn-clear{
