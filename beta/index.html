@@ -28,6 +28,18 @@
     padding:0 16px;background:var(--bg);position:relative;z-index:10;}
   .brand{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
   .brand .g{color:var(--accent);}
+  .beta-badge{
+    display:inline-flex;align-items:center;
+    background:var(--accent);color:#fff;
+    font-size:.6rem;font-weight:700;letter-spacing:.08em;
+    padding:2px 7px;border-radius:4px;text-transform:uppercase;
+  }
+  .brand-spacer{flex:1;}
+  .exit-link{
+    color:var(--muted);font-size:.74rem;text-decoration:none;
+    padding:4px 8px;border-radius:5px;
+  }
+  .exit-link:hover{color:var(--text);background:rgba(255,255,255,.06);}
   .state-toggle{margin-left:auto;display:flex;gap:6px;align-items:center;}
   .state-toggle small{color:var(--muted);font-size:.66rem;}
   .state-toggle button{border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);
@@ -126,6 +138,10 @@
     padding:4px;color:#fff;font-weight:700;
     text-shadow:0 1px 2px rgba(0,0,0,.4);
     overflow:hidden;
+  }
+  .cflow-thumb .thumb-content-img{
+    max-width:100%;max-height:100%;width:auto;height:auto;
+    object-fit:contain;display:block;
   }
   .cflow-thumb .thumb-num{font-size:.78rem;line-height:1;}
   .cflow-thumb.active .thumb-num{font-size:1rem;}
@@ -299,25 +315,23 @@
   .mock-image.large{font-size:1.4rem;padding:20px;}
 </style>
 </head>
-<body data-state="multi" data-adjust="closed" data-pi-actions="closed" data-confirm="closed">
+<body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed">
 
 <div class="brand-bar">
   <a href="/" class="brand">img<span class="g">ready</span></a>
-  <div class="state-toggle">
-    <small>State:</small>
-    <button data-tgt="empty" onclick="setState('empty')">Empty</button>
-    <button data-tgt="solo" onclick="setState('solo')">Solo</button>
-    <button data-tgt="multi" onclick="setState('multi')" class="active">Multi (20)</button>
-  </div>
+  <span class="beta-badge">BETA</span>
+  <div class="brand-spacer"></div>
+  <a href="/" class="exit-link" title="Back to the stable app">← Stable app</a>
 </div>
 
 <section class="empty-state">
-  <div class="dropzone" onclick="setState('multi')">
+  <div class="dropzone" onclick="document.getElementById('dzFileInput').click()">
     <div class="dz-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </div>
     <h2 class="dz-title">Drop your images here</h2>
     <p class="dz-sub">or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <input type="file" id="dzFileInput" accept="image/*" multiple style="display:none;">
     <span class="dz-trust">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Stays on your device — never uploaded
@@ -325,15 +339,13 @@
   </div>
 </section>
 
-<!-- ============================ SOLO STATE ============================ -->
+<!-- ============================ SOLO STATE (1 image) — same canvas as multi ============================ -->
 <section class="stage solo">
-  <div class="image-canvas">
-    <div class="mock-image large compare-before" style="background:linear-gradient(135deg,#446644,#8aba8a)">test-photo.jpg</div>
-    <div class="compare-after"><div class="mock-image large" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">test-photo.jpg</div></div>
-    <div class="compare-divider"></div>
-    <button class="compare-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg></button>
-    <div class="compare-meta l"><span class="lbl-title">Before</span><span>493 KB · JPG</span></div>
-    <div class="compare-meta r"><span class="lbl-title">After</span><span>322 KB · JPG</span><span class="pct">35% smaller</span></div>
+  <div class="image-canvas" id="centerImageSolo">
+    <div class="compare-before" id="cbBeforeSolo" style="background:#000;"></div>
+    <div class="compare-after"><div id="cbAfterSolo" style="position:absolute;inset:0;background:#000;"></div></div>
+    <div class="compare-meta l"><span class="lbl-title">Preview</span><span>—</span></div>
+    <div class="compare-meta r"><span class="lbl-title">Beta</span><span>Encoder not yet wired</span></div>
   </div>
   <div class="menu-wrap">
     <div class="menu-card">
@@ -402,6 +414,8 @@
   </div>
 </section>
 
+<input type="file" id="moreInput" accept="image/*" multiple style="display:none;">
+
 <div class="confirm-overlay" onclick="if(event.target===this)cancelConfirm()">
   <div class="confirm-modal">
     <h3>Clear all images?</h3>
@@ -414,30 +428,18 @@
 </div>
 
 <script>
-/* ===== state toggles ===== */
 function setState(s){
   document.body.dataset.state = s;
   document.body.dataset.adjust = 'closed';
   document.body.dataset.piActions = 'closed';
-  document.querySelectorAll('.state-toggle button').forEach(b=>{
-    b.classList.toggle('active', b.dataset.tgt === s);
-  });
   if(s==='multi') requestAnimationFrame(layoutCoverFlow);
 }
 function toggleAdjust(){
   document.body.dataset.adjust = document.body.dataset.adjust==='open' ? 'closed' : 'open';
 }
 
-/* ===== mock thumbnail palette (20 distinct gradients) ===== */
-const PALETTE = [
-  ['#5a7a5a','#a8d5a8'],['#406ba6','#88b4dc'],['#b8651e','#f0a060'],
-  ['#7a4a4a','#c98080'],['#3e3a4a','#7a778a'],['#946a2a','#dcb878'],
-  ['#2a5a4a','#76b09a'],['#9a3a6a','#d088a4'],['#3a6a7a','#86b4c4'],
-  ['#705a3a','#c0a878'],['#5a4a7a','#9888c0'],['#aa5a3a','#dc9078'],
-  ['#3a8aaa','#80c8e0'],['#7a8a3a','#c0d088'],['#a87a5a','#dcc4a4'],
-  ['#5a3a3a','#a07878'],['#3a5a3a','#80a880'],['#7a5a3a','#c0a078'],
-  ['#5a5a8a','#a0a0d0'],['#aa8a5a','#e0c898']
-];
+/* ===== beta: file-based thumb data ===== */
+const FILES = [];  // array of { file, url, name, w, h }
 
 /* ===== cover flow state ===== */
 const CFLOW = {
@@ -452,9 +454,7 @@ const CFLOW = {
 };
 
 function init(){
-  buildThumbs(20);
   layoutCoverFlow();
-  syncMainImage(true);
   updateMenuHeight();
 
   const flow = document.getElementById('coverFlow');
@@ -462,10 +462,64 @@ function init(){
   flow.addEventListener('wheel', onWheel, {passive:false});
   attachHoverDelegation();
 
-  /* Track menu height changes so the mobile strip can sit just above it */
+  /* Wire the dropzone file input + document-wide drop handlers */
+  document.getElementById('dzFileInput').addEventListener('change', onFiles);
+  document.getElementById('moreInput').addEventListener('change', onFiles);
+  document.addEventListener('dragover', e => { e.preventDefault(); });
+  document.addEventListener('drop', e => {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+      addFilesFromList(e.dataTransfer.files);
+    }
+  });
+  /* Paste support */
+  document.addEventListener('paste', e => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    const files = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const f = items[i].getAsFile();
+        if (f) files.push(f);
+      }
+    }
+    if (files.length) addFilesFromList(files);
+  });
+
   const obs = new MutationObserver(updateMenuHeight);
   obs.observe(document.body, {attributes:true, attributeFilter:['data-adjust','data-state']});
   window.addEventListener('resize', updateMenuHeight);
+}
+
+function onFiles(e){
+  if (e.target.files && e.target.files.length) {
+    addFilesFromList(e.target.files);
+    e.target.value = '';
+  }
+}
+function addFilesFromList(fileList){
+  const fresh = [];
+  for (let i = 0; i < fileList.length; i++) {
+    const file = fileList[i];
+    if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name)) continue;
+    const url = URL.createObjectURL(file);
+    fresh.push({ file, url, name: file.name });
+  }
+  if (!fresh.length) return;
+  FILES.push(...fresh);
+  buildThumbs();
+  if (FILES.length === 1) {
+    document.body.dataset.state = 'solo';
+    CFLOW.selected = 0;
+  } else {
+    document.body.dataset.state = 'multi';
+    /* Newly added: jump to the first new one */
+    if (FILES.length === fresh.length) CFLOW.selected = 0;
+  }
+  CFLOW.drift = 0;
+  layoutCoverFlow();
+  CFLOW.prevSelected = -1;
+  syncMainImage(true);
 }
 function updateMenuHeight(){
   /* Read the active state's menu-card height and expose as --menu-h */
@@ -478,48 +532,30 @@ function updateMenuHeight(){
 window.addEventListener('DOMContentLoaded', init);
 window.addEventListener('resize', layoutCoverFlow);
 
-/* Mock variety: different aspect ratios so the prototype shows how
-   the strip renders long/tall/tiny images. Each entry: shape, ratio. */
-const SHAPES = [
-  ['square',  '1/1'],   ['wide',   '16/9'],  ['tall',  '9/16'],  ['small',  'small'],
-  ['square',  '1/1'],   ['wide',   '4/3'],   ['tall',  '3/4'],   ['square', '1/1'],
-  ['wide',   '21/9'],   ['tall',   '2/3'],   ['small', 'small'], ['square', '1/1'],
-  ['wide',   '16/10'],  ['tall',   '9/14'],  ['square','1/1'],   ['small',  'small'],
-  ['wide',   '3/2'],    ['tall',   '4/5'],   ['square','1/1'],   ['wide',   '5/4']
-];
-
-function buildThumbs(n){
+/* Build thumbs from real files. Each thumb shows the file as a contained
+   <img> inside the slot; aspect ratios are preserved with letterboxing. */
+function buildThumbs(){
   const track = document.getElementById('cflowTrack');
   Array.from(track.querySelectorAll('.cflow-thumb,.add-more')).forEach(t=>t.remove());
   CFLOW.thumbs = [];
-  for (let i = 0; i < n; i++) {
-    const [a,b] = PALETTE[i % PALETTE.length];
-    const [shape, ratio] = SHAPES[i % SHAPES.length];
+  for (let i = 0; i < FILES.length; i++) {
+    const f = FILES[i];
     const t = document.createElement('div');
     t.className = 'cflow-thumb';
     t.dataset.i = String(i);
-    t.dataset.name = `photo-${i+1}.jpg`;
-    t.dataset.gradA = a; t.dataset.gradB = b;
-    t.dataset.shape = shape;
-    /* Wrap the gradient in a slot that centers it; gradient itself is sized
-       to its actual aspect ratio so wide / tall / small images look distinct. */
-    const ratioStyle = ratio === 'small'
-      ? 'width:38%;aspect-ratio:1/1;'
-      : 'aspect-ratio:' + ratio + ';' + (ratio.startsWith('9/') || ratio.startsWith('3/') || ratio.startsWith('2/') || ratio.startsWith('4/5')
-          ? 'height:88%;width:auto;'
-          : 'width:88%;height:auto;');
+    t.dataset.name = f.name;
     t.innerHTML = `
       <div class="thumb-slot">
-        <div class="thumb-content" style="${ratioStyle}background:linear-gradient(135deg,${a},${b});"><span class="thumb-num">${i+1}</span></div>
+        <img class="thumb-content-img" src="${f.url}" alt="" loading="lazy">
       </div>`;
     t.addEventListener('click', e => onThumbClick(i, e));
     track.insertBefore(t, document.getElementById('piActions'));
     CFLOW.thumbs.push(t);
   }
-  /* Add-more tile at the end of the cover flow */
+  /* Add-more tile at the end */
   const addMore = document.createElement('div');
   addMore.className = 'cflow-thumb add-more';
-  addMore.dataset.i = String(n);
+  addMore.dataset.i = String(FILES.length);
   addMore.innerHTML = `
     <div class="thumb-slot add-more-slot">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -528,7 +564,7 @@ function buildThumbs(n){
       </svg>
       <span class="add-more-label">Add more</span>
     </div>`;
-  addMore.addEventListener('click', () => alert('Open file picker (mock)'));
+  addMore.addEventListener('click', () => document.getElementById('moreInput').click());
   track.insertBefore(addMore, document.getElementById('piActions'));
   CFLOW.thumbs.push(addMore);
 }
@@ -576,23 +612,31 @@ function syncMainImage(force){
   if (!force && idx === CFLOW.prevSelected) return;
   CFLOW.prevSelected = idx;
   const thumb = CFLOW.thumbs[idx];
-  if (!thumb) return;
-  /* Add-more tile isn't a real image; skip the main-image swap for it */
-  if (thumb.classList.contains('add-more')) return;
-  const a = thumb.dataset.gradA, b = thumb.dataset.gradB, name = thumb.dataset.name;
+  if (!thumb || thumb.classList.contains('add-more')) return;
+  const f = FILES[idx];
+  if (!f) return;
+  /* Beta: no real encoding yet — show the same file in both Before and After
+     halves. Once the encoder is wired, After becomes the optimised result. */
   const before = document.getElementById('cbBefore');
   const after = document.getElementById('cbAfter');
-  before.style.background = `linear-gradient(135deg, ${shade(a,-12)}, ${shade(b,-12)})`;
-  before.textContent = name;
-  after.style.background = `linear-gradient(135deg, ${a}, ${b})`;
-  after.textContent = name;
-}
-function shade(hex, pct){
-  const h = hex.replace('#','');
-  const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
-  const f = (pct < 0 ? 0 : 255), t = pct < 0 ? -pct : pct;
-  const cl = v => Math.round((f - v) * (t/100) + v);
-  return '#'+[cl(r),cl(g),cl(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  before.style.backgroundImage = `url("${f.url}")`;
+  before.style.backgroundSize = 'contain';
+  before.style.backgroundPosition = 'center';
+  before.style.backgroundRepeat = 'no-repeat';
+  before.style.backgroundColor = '#000';
+  before.textContent = '';
+  after.style.backgroundImage = `url("${f.url}")`;
+  after.style.backgroundSize = 'contain';
+  after.style.backgroundPosition = 'center';
+  after.style.backgroundRepeat = 'no-repeat';
+  after.style.backgroundColor = '#000';
+  after.textContent = '';
+  /* Update file size readout */
+  const sz = (n) => n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1) + ' KB' : (n/1024/1024).toFixed(2) + ' MB';
+  document.querySelectorAll('.compare-meta.l span:not(.lbl-title)').forEach(el => el.textContent = sz(f.file.size) + ' · ' + (f.file.type.split('/')[1] || 'IMG').toUpperCase());
+  /* No real "After" yet, hide the savings/batch lines */
+  document.querySelectorAll('.compare-meta.r .pct, .compare-meta.r .batch-row').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.compare-meta.r span:not(.lbl-title):not(.pct):not(.batch-row)').forEach(el => el.textContent = 'Preview only');
 }
 
 /* ===== thumb click: select OR open per-image actions ===== */
@@ -771,16 +815,20 @@ function onWheel(e){
 function piShare(){ alert('Share photo-' + (CFLOW.selected+1) + ' (mock)'); }
 function piDownload(){ alert('Download photo-' + (CFLOW.selected+1) + ' (mock)'); }
 function piDelete(){
-  const thumb = CFLOW.thumbs[CFLOW.selected];
-  if (!thumb) return;
-  thumb.remove();
-  CFLOW.thumbs.splice(CFLOW.selected, 1);
-  CFLOW.thumbs.forEach((t,i)=>t.dataset.i = String(i));
-  if (CFLOW.selected >= CFLOW.thumbs.length) CFLOW.selected = CFLOW.thumbs.length - 1;
+  const idx = CFLOW.selected;
+  const f = FILES[idx];
+  if (!f) return;
+  try { URL.revokeObjectURL(f.url); } catch(_){}
+  FILES.splice(idx, 1);
+  buildThumbs();
+  if (FILES.length === 0) { setState('empty'); return; }
+  if (CFLOW.selected >= FILES.length) CFLOW.selected = FILES.length - 1;
   document.body.dataset.piActions = 'closed';
-  if (CFLOW.thumbs.length === 0) setState('empty');
-  else if (CFLOW.thumbs.length === 1) setState('solo');
-  else { layoutCoverFlow(); CFLOW.prevSelected = -1; syncMainImage(); }
+  if (FILES.length === 1) document.body.dataset.state = 'solo';
+  else document.body.dataset.state = 'multi';
+  layoutCoverFlow();
+  CFLOW.prevSelected = -1;
+  syncMainImage();
 }
 
 /* ===== Clear all (with confirm) ===== */
@@ -788,6 +836,12 @@ function askClear(){ document.body.dataset.confirm = 'open'; }
 function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
 function doClear(){
   document.body.dataset.confirm = 'closed';
+  /* Revoke all blob URLs to free memory */
+  FILES.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
+  FILES.length = 0;
+  CFLOW.thumbs = [];
+  CFLOW.selected = 0; CFLOW.drift = 0;
+  document.getElementById('cflowTrack').querySelectorAll('.cflow-thumb,.add-more').forEach(t => t.remove());
   setState('empty');
 }
 </script>
