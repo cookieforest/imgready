@@ -333,6 +333,8 @@
   }
   /* Desktop: hide the mobile-only saved counter (filmstrip header carries it) */
   .mobile-only-saved{display:none;}
+  .short-label{display:none;}
+  .full-label{display:inline;}
   .bulk-buttons-row{display:flex;flex-direction:column;gap:8px;}
   .bulk-buttons-row .btn{width:100%;}
   .bulk-saved{
@@ -444,10 +446,17 @@
       text-align:left;font-size:.78rem;margin:0;flex:0 0 auto;
     }
     .three-pane .bulk-actions .bulk-buttons-row{
-      display:flex;flex-direction:row;gap:8px;align-items:stretch;
+      display:flex;flex-direction:row;gap:6px;align-items:stretch;
     }
-    .three-pane .bulk-actions .bulk-buttons-row .btn{flex:1;min-width:0;}
-    .three-pane .bulk-actions .bulk-buttons-row .btn-clear{flex:0 0 auto;}
+    .three-pane .bulk-actions .bulk-buttons-row .btn{
+      flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      padding:10px 8px;font-size:.82rem;
+    }
+    .three-pane .bulk-actions .bulk-buttons-row .btn-clear{
+      flex:0 0 auto;padding:10px 12px;
+    }
+    .three-pane .bulk-actions .bulk-buttons-row .full-label{display:none;}
+    .three-pane .bulk-actions .bulk-buttons-row .short-label{display:inline;}
     /* Clear all sits inline with Share/Download but reads as a quiet ghost
        so Download stays the obvious primary. Matches production .btn-ghost. */
     .three-pane .bulk-actions .btn-clear{
@@ -678,9 +687,9 @@
            the filmstrip header above. Avoiding the duplicate. -->
       <div class="bulk-saved mobile-only-saved"><strong>↓ 1.4 MB saved</strong> · 6 images</div>
       <div class="bulk-buttons-row">
-        <button class="btn">Share all (6)</button>
-        <button class="btn btn-primary">Download all (6)</button>
-        <button class="btn btn-clear" type="button">Clear all</button>
+        <button class="btn"><span class="full-label">Share all (6)</span><span class="short-label">Share (6)</span></button>
+        <button class="btn btn-primary"><span class="full-label">Download all (6)</span><span class="short-label">Download (6)</span></button>
+        <button class="btn btn-clear" type="button"><span class="full-label">Clear all</span><span class="short-label">Clear</span></button>
       </div>
     </div>
   </aside>
