@@ -88,7 +88,11 @@
     height:170px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
-    overflow:hidden;
+    /* overflow:visible so the per-image action icons (which sit ABOVE the
+       centered thumb's top edge) aren't clipped. Thumbs that drift far
+       out are positioned past the viewport via translate so they don't
+       visually escape. */
+    overflow:visible;
   }
   .cover-flow.dragging{cursor:grabbing;}
   body[data-state="solo"] .cover-flow{display:none;}
@@ -198,6 +202,9 @@
   .btn-clear{color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.16);}
   .btn-clear:hover{color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);}
   .btn-icon{width:auto;flex:0 0 auto;padding:8px 9px;}
+  /* Dual-label: desktop shows .lbl-full, mobile (in @media below) swaps to .lbl-short */
+  .lbl-short{display:none;}
+  .lbl-full{display:inline;}
 
   /* ---------- confirm modal ---------- */
   .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
@@ -227,9 +234,16 @@
       flex-direction:row;flex-wrap:nowrap;gap:6px;
       padding:10px 12px max(12px,env(safe-area-inset-bottom,12px));
     }
-    .actions .btn{flex:1;min-width:0;font-size:.74rem;padding:9px 8px;}
+    /* Override desktop's width:100% which fights the row flex sizing */
+    .actions .btn{
+      flex:1;min-width:0;width:auto;
+      font-size:.74rem;padding:9px 6px;
+      overflow:hidden;text-overflow:ellipsis;
+    }
     .actions .btn-primary{flex:1.4;}
-    .actions .btn-clear{flex:0 0 auto;padding:9px 12px;}
+    .actions .btn-clear{flex:0 0 auto;padding:9px 10px;}
+    .actions .lbl-full{display:none;}
+    .actions .lbl-short{display:inline;}
     .compare-meta{font-size:.68rem;padding:6px 9px;}
     .compare-meta .lbl-title{font-size:.8rem;}
     .state-toggle small{display:none;}
@@ -339,9 +353,9 @@
           <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata</span></label></div>
       </div>
       <div class="actions">
-        <button class="btn btn-primary">Download all</button>
-        <button class="btn">Share all</button>
-        <button class="btn btn-clear" onclick="askClear()">Clear all</button>
+        <button class="btn btn-primary"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span></button>
+        <button class="btn"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
+        <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
       </div>
     </div>
   </div>
