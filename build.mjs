@@ -66,6 +66,7 @@ const TAIL_SENTINELS = {
   'src/06-fullscreen-init.js':   '/* CHUNK_END:06-fullscreen-init v1 */',
   'src/app.css':                 '/* CSS_EOF_MARKER */',
   'imgready-worker.js':          '/* WORKER_EOF */',
+  'sw.js':                       '/* SW_EOF */',
 };
 
 function validateTailSentinels() {

@@ -418,6 +418,44 @@ document.addEventListener('paste',function(e){
 });
 
 /* ========================================
+   WEB SHARE TARGET PICKUP
+   ======================================== */
+/* When a mobile user picks imgready from the system Share sheet, the
+   browser POSTs the files to /share-target/. Our service worker
+   intercepts the POST, stashes the files, and redirects here with
+   ?share-pending=1. We notice the param on load and ask the SW (via
+   MessageChannel) to deliver the queued files, which we then feed
+   straight into addFiles() — same path as drag-and-drop. The query
+   param is then stripped from the URL so a refresh doesn't try to
+   pick up a now-empty queue. */
+(function pickupSharedFiles(){
+  try {
+    var params = new URLSearchParams(location.search);
+    if (!params.get('share-pending')) return;
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.ready.then(function(reg){
+      var sw = reg.active || navigator.serviceWorker.controller;
+      if (!sw) return;
+      var ch = new MessageChannel();
+      ch.port1.onmessage = function(ev){
+        var files = (ev.data && ev.data.files) || [];
+        if (files.length && typeof addFiles === 'function') {
+          addFiles(files);
+        }
+        /* Strip the ?share-pending=1 from the URL so a manual refresh
+           or a back-nav doesn't try to re-pickup an empty queue. */
+        try {
+          var u = new URL(location.href);
+          u.searchParams.delete('share-pending');
+          history.replaceState(null, '', u.pathname + (u.search || '') + (u.hash || ''));
+        } catch(_) {}
+      };
+      sw.postMessage({ type: 'pickup-share' }, [ch.port2]);
+    });
+  } catch(_) {}
+})();
+
+/* ========================================
    DROP / ADD FILES
    ======================================== */
 /* Full-window drop overlay. The previous behaviour only highlighted the

@@ -16,7 +16,7 @@
 
 // Bump on every deploy. Tag is just for humans; what matters is that the
 // string changes so old caches get evicted in the activate step.
-const CACHE_VERSION = 'imgready-2026-05-06-vendor';
+const CACHE_VERSION = 'imgready-2026-05-07-share-target';
 const PRECACHE  = `${CACHE_VERSION}-precache`;
 const RUNTIME   = `${CACHE_VERSION}-runtime`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -199,6 +199,50 @@ async function staleWhileRevalidate(req, cacheName) {
   return new Response('Offline and no cache available.', { status: 503, statusText: 'Offline' });
 }
 
+
+/* Web Share Target API — receives files shared FROM other apps (camera,
+   gallery, screenshot tools) on mobile when the user picks imgready as
+   the destination. The browser POSTs a multipart/form-data to the
+   `share_target.action` URL declared in manifest.webmanifest. The SW
+   intercepts that POST, stashes the files in a session-scoped queue,
+   and 303-redirects the page to `/?share-pending=1` so the SPA boots
+   normally and the client picks the files up via postMessage. */
+const _shareInbox = []; /* { files: File[] } */
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'POST') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname !== '/share-target/' && url.pathname !== '/share-target') return;
+
+  event.respondWith((async () => {
+    try {
+      const form = await req.formData();
+      const files = form.getAll('files').filter(f => f && typeof f === 'object' && 'arrayBuffer' in f);
+      if (files.length) {
+        _shareInbox.push({ files });
+      }
+    } catch (e) {
+      /* If the body's malformed for some reason, swallow it — the user
+         still ends up on / with no files queued, which is recoverable. */
+    }
+    return Response.redirect('/?share-pending=1', 303);
+  })());
+});
+
+/* Pickup handler: client asks for queued shared files via postMessage.
+   Responds via the MessageChannel port the client provides. */
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || data.type !== 'pickup-share') return;
+  const port = event.ports[0];
+  if (!port) return;
+  const drained = _shareInbox.splice(0, _shareInbox.length);
+  const all = drained.flatMap(b => b.files);
+  port.postMessage({ files: all });
+});
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -233,3 +277,4 @@ self.addEventListener('fetch', (event) => {
 
   // Other cross-origin (analytics, ads): pass through to the network as-is.
 });
+/* SW_EOF */
