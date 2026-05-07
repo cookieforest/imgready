@@ -113,11 +113,45 @@
   }
   .cover-flow.dragging .cflow-thumb{transition:none;}
   .cflow-thumb.active{z-index:5;}
-  .cflow-thumb .thumb-img{width:100%;height:100%;display:block;font-size:1rem;}
-  .cflow-thumb.active .thumb-img{font-size:1.6rem;}
+  /* Slot is the 1:1 box; content sits centered with letterbox/pillarbox */
+  .cflow-thumb .thumb-slot{
+    width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;
+    background:#1a1a1a;border-radius:8px;overflow:hidden;
+  }
+  .cflow-thumb .thumb-content{
+    border-radius:4px;
+    display:flex;align-items:flex-end;justify-content:flex-start;
+    padding:4px;color:#fff;font-weight:700;
+    text-shadow:0 1px 2px rgba(0,0,0,.4);
+    overflow:hidden;
+  }
+  .cflow-thumb .thumb-num{font-size:.78rem;line-height:1;}
+  .cflow-thumb.active .thumb-num{font-size:1rem;}
   .cflow-thumb .thumb-savings{position:absolute;right:5px;top:5px;
     background:rgba(255,255,255,.92);color:var(--accent-strong);
-    font-size:.6rem;font-weight:700;padding:1px 5px;border-radius:99px;}
+    font-size:.6rem;font-weight:700;padding:1px 5px;border-radius:99px;
+    z-index:2;}
+  /* Add-more tile: dotted outline, no background, no savings chip */
+  .cflow-thumb.add-more .thumb-slot{
+    background:transparent;
+    border:2px dashed rgba(255,255,255,.32);
+    color:rgba(255,255,255,.65);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;
+    transition:border-color .15s,color .15s;
+  }
+  .cflow-thumb.add-more:hover .thumb-slot{
+    border-color:rgba(255,255,255,.65);color:#fff;
+  }
+  .cflow-thumb.add-more .add-more-label{
+    font-size:.62rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  }
+  .cflow-thumb.add-more .thumb-savings{display:none;}
+  /* Add-more shouldn't be the "selected" main image — exclude from active styling */
+  .cflow-thumb.add-more.active .thumb-slot{
+    border-color:var(--accent);color:var(--accent);
+  }
 
   /* ---------- per-image action icons ---------- */
   .pi-actions{
@@ -353,9 +387,9 @@
           <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata</span></label></div>
       </div>
       <div class="actions">
-        <button class="btn btn-primary"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span></button>
-        <button class="btn"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
         <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
+        <button class="btn"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
+        <button class="btn btn-primary"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span></button>
       </div>
     </div>
   </div>
@@ -437,24 +471,62 @@ function updateMenuHeight(){
 window.addEventListener('DOMContentLoaded', init);
 window.addEventListener('resize', layoutCoverFlow);
 
+/* Mock variety: different aspect ratios so the prototype shows how
+   the strip renders long/tall/tiny images. Each entry: shape, ratio. */
+const SHAPES = [
+  ['square',  '1/1'],   ['wide',   '16/9'],  ['tall',  '9/16'],  ['small',  'small'],
+  ['square',  '1/1'],   ['wide',   '4/3'],   ['tall',  '3/4'],   ['square', '1/1'],
+  ['wide',   '21/9'],   ['tall',   '2/3'],   ['small', 'small'], ['square', '1/1'],
+  ['wide',   '16/10'],  ['tall',   '9/14'],  ['square','1/1'],   ['small',  'small'],
+  ['wide',   '3/2'],    ['tall',   '4/5'],   ['square','1/1'],   ['wide',   '5/4']
+];
+
 function buildThumbs(n){
   const track = document.getElementById('cflowTrack');
-  Array.from(track.querySelectorAll('.cflow-thumb')).forEach(t=>t.remove());
+  Array.from(track.querySelectorAll('.cflow-thumb,.add-more')).forEach(t=>t.remove());
   CFLOW.thumbs = [];
   for (let i = 0; i < n; i++) {
     const [a,b] = PALETTE[i % PALETTE.length];
+    const [shape, ratio] = SHAPES[i % SHAPES.length];
     const t = document.createElement('div');
     t.className = 'cflow-thumb';
     t.dataset.i = String(i);
     t.dataset.name = `photo-${i+1}.jpg`;
     t.dataset.gradA = a; t.dataset.gradB = b;
+    t.dataset.shape = shape;
     const savings = [78,22,35,19,42,28,55,12,67,38,49,15,72,31,44,29,58,21,63,36][i % 20];
     t.dataset.savings = String(savings);
-    t.innerHTML = `<div class="thumb-img" style="width:100%;height:100%;background:linear-gradient(135deg,${a},${b});display:flex;align-items:flex-end;padding:6px;color:#fff;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.4);">${i+1}</div><span class="thumb-savings">${savings}%</span>`;
+    /* Wrap the gradient in a slot that centers it; gradient itself is sized
+       to its actual aspect ratio so wide / tall / small images look distinct. */
+    const ratioStyle = ratio === 'small'
+      ? 'width:38%;aspect-ratio:1/1;'
+      : 'aspect-ratio:' + ratio + ';' + (ratio.startsWith('9/') || ratio.startsWith('3/') || ratio.startsWith('2/') || ratio.startsWith('4/5')
+          ? 'height:88%;width:auto;'
+          : 'width:88%;height:auto;');
+    t.innerHTML = `
+      <div class="thumb-slot">
+        <div class="thumb-content" style="${ratioStyle}background:linear-gradient(135deg,${a},${b});"><span class="thumb-num">${i+1}</span></div>
+      </div>
+      <span class="thumb-savings">${savings}%</span>`;
     t.addEventListener('click', e => onThumbClick(i, e));
     track.insertBefore(t, document.getElementById('piActions'));
     CFLOW.thumbs.push(t);
   }
+  /* Add-more tile at the end of the cover flow */
+  const addMore = document.createElement('div');
+  addMore.className = 'cflow-thumb add-more';
+  addMore.dataset.i = String(n);
+  addMore.innerHTML = `
+    <div class="thumb-slot add-more-slot">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <span class="add-more-label">Add more</span>
+    </div>`;
+  addMore.addEventListener('click', () => alert('Open file picker (mock)'));
+  track.insertBefore(addMore, document.getElementById('piActions'));
+  CFLOW.thumbs.push(addMore);
 }
 
 function layoutCoverFlow(){
@@ -501,8 +573,9 @@ function syncMainImage(force){
   CFLOW.prevSelected = idx;
   const thumb = CFLOW.thumbs[idx];
   if (!thumb) return;
+  /* Add-more tile isn't a real image; skip the main-image swap for it */
+  if (thumb.classList.contains('add-more')) return;
   const a = thumb.dataset.gradA, b = thumb.dataset.gradB, name = thumb.dataset.name;
-  // pick a slightly darker shade for "before" — we just darken the gradient
   const before = document.getElementById('cbBefore');
   const after = document.getElementById('cbAfter');
   before.style.background = `linear-gradient(135deg, ${shade(a,-12)}, ${shade(b,-12)})`;
@@ -521,6 +594,12 @@ function shade(hex, pct){
 /* ===== thumb click: select OR open per-image actions ===== */
 function onThumbClick(i, e){
   if (CFLOW._suppressClick) { CFLOW._suppressClick = false; return; }
+  const thumb = CFLOW.thumbs[i];
+  /* Add-more tile: clicking it opens the file picker (mock) — don't select */
+  if (thumb && thumb.classList.contains('add-more')) {
+    /* the click handler set in buildThumbs already fires alert() */
+    return;
+  }
   if (i === CFLOW.selected && Math.abs(CFLOW.drift) < 0.05) {
     openPiActions();
   } else {
@@ -555,6 +634,7 @@ function attachHoverDelegation(){
     const t = e.target.closest('.cflow-thumb');
     if (!t) return;
     if (!t.classList.contains('active')) return;
+    if (t.classList.contains('add-more')) return;  /* no per-image actions for the add tile */
     if (document.body.dataset.piActions === 'open') resetPiTimer();
     else openPiActions();
   });
