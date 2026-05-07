@@ -24,17 +24,18 @@
 const LIBHEIF_URL = '/vendor/libheif.js';
 const UPNG_URL    = '/vendor/UPNG.min.js';
 const PAKO_URL    = '/vendor/pako.min.js';
-// jsquash WebP/AVIF/JPEG/OxiPNG self-hosted from /vendor/jsquash/. Same
-// underlying npm packages, bundled by esbuild during build (see build.mjs).
-// Each .mjs has its WASM sidecar(s) alongside in the same directory and
-// loads them via `new URL('xyz.wasm', import.meta.url)` at runtime.
-// OxiPNG runtime-detects single-thread vs multi-thread; in our setup
-// (no SharedArrayBuffer because no COOP/COEP — AdSense conflicts with
-// those) it lazily uses the single-thread codec.
-const WEBP_ESM    = '/vendor/jsquash/webp.mjs';
-const AVIF_ESM    = '/vendor/jsquash/avif.mjs';
-const JPEG_ESM    = '/vendor/jsquash/jpeg.mjs';   // MozJPEG — better than canvas.toBlob('image/jpeg')
-const OXIPNG_ESM  = '/vendor/jsquash/oxipng.mjs';
+// jsquash WebP/AVIF/JPEG/OxiPNG loaded from esm.sh. The previous self-host
+// attempt referenced /vendor/jsquash/*.mjs but those binaries were never
+// committed to the repo, which broke encoding on every format. Reverted to
+// esm.sh until we ship a real, verified vendor bundle.
+//
+// esm.sh bundles each package's WASM sidecar alongside the .mjs and loads it
+// via `new URL('xyz.wasm', import.meta.url)`, so it works in classic workers
+// using dynamic import().
+const WEBP_ESM    = 'https://esm.sh/@jsquash/webp@1.5.0?bundle';
+const AVIF_ESM    = 'https://esm.sh/@jsquash/avif@2.1.0?bundle';
+const JPEG_ESM    = 'https://esm.sh/@jsquash/jpeg@1.5.0?bundle';   // MozJPEG — better than canvas.toBlob('image/jpeg')
+const OXIPNG_ESM  = 'https://esm.sh/@jsquash/oxipng@2.3.0?bundle';
 
 let libheifModule = null;
 let upngLoaded = false;
@@ -304,13 +305,18 @@ async function processOne(file, fmt, settings){
     w = sw; h = sh;
   }
 
-  // Resize longest side
+  // Resize longest side OR percent — only one of maxDim/resizePct will
+  // be non-zero (getSettings on the main thread enforces that).
   if (settings.maxDim) {
     const longest = Math.max(w, h);
     if (longest > settings.maxDim) {
       const scale = settings.maxDim / longest;
       w = Math.round(w*scale); h = Math.round(h*scale);
     }
+  } else if (settings.resizePct && settings.resizePct > 0 && settings.resizePct < 100) {
+    const scale = settings.resizePct / 100;
+    w = Math.max(1, Math.round(w*scale));
+    h = Math.max(1, Math.round(h*scale));
   }
 
   const c = new OffscreenCanvas(w, h);
@@ -406,7 +412,23 @@ async function processOne(file, fmt, settings){
 
 /* ---------- worker message handler ---------- */
 self.onmessage = async (e) => {
-  const { id, action, file, fmt, settings } = e.data;
+  const { id, action, file, fmt, settings, formats } = e.data;
+  /* prewarm: load encoder modules (and instantiate their WASM) without
+     doing any actual encoding. The main thread fires this once on idle so
+     the user's first drop doesn't pay the WASM cold-start. Best-effort —
+     any error is swallowed because the real encode path will retry. */
+  if (action === 'prewarm') {
+    const list = (formats && formats.length) ? formats : ['webp'];
+    for (const f of list) {
+      try {
+        if (f === 'webp') await ensureWebp();
+        else if (f === 'avif') await ensureAvif();
+        else if (f === 'jpg' || f === 'jpeg') await ensureJpeg();
+        else if (f === 'oxipng') await ensureOxipng();
+      } catch (_) { /* swallow — best-effort */ }
+    }
+    return;
+  }
   if (action !== 'process') return;
   try {
     self.postMessage({ id, type: 'progress', stage: 'decoding' });
@@ -416,3 +438,4 @@ self.onmessage = async (e) => {
     self.postMessage({ id, type: 'error', message: String(err && err.message || err) });
   }
 };
+/* WORKER_EOF */
