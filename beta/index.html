@@ -508,14 +508,12 @@ function addFilesFromList(fileList){
   if (!fresh.length) return;
   FILES.push(...fresh);
   buildThumbs();
-  if (FILES.length === 1) {
-    document.body.dataset.state = 'solo';
-    CFLOW.selected = 0;
-  } else {
-    document.body.dataset.state = 'multi';
-    /* Newly added: jump to the first new one */
-    if (FILES.length === fresh.length) CFLOW.selected = 0;
-  }
+  /* Always use multi state — the cover flow handles 1 image cleanly
+     (one thumb + Add-more) and uses the same image-canvas elements for
+     rendering. Solo state had its own separate IDs that never got
+     wired to syncMainImage. */
+  document.body.dataset.state = 'multi';
+  if (FILES.length === fresh.length) CFLOW.selected = 0;
   CFLOW.drift = 0;
   layoutCoverFlow();
   CFLOW.prevSelected = -1;
@@ -834,6 +832,39 @@ function piDelete(){
 /* ===== Clear all (with confirm) ===== */
 function askClear(){ document.body.dataset.confirm = 'open'; }
 function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
+
+/* ===== before/after slider drag handler ===== */
+(function wireSlider(){
+  function setSplit(canvas, pct){
+    pct = Math.max(0, Math.min(100, pct));
+    const after = canvas.querySelector('.compare-after');
+    const divider = canvas.querySelector('.compare-divider');
+    const handle = canvas.querySelector('.compare-handle');
+    if (after) after.style.clipPath = `inset(0 0 0 ${pct}%)`;
+    if (divider) divider.style.left = pct + '%';
+    if (handle) handle.style.left = pct + '%';
+  }
+  let dragging = null;
+  document.addEventListener('pointerdown', e => {
+    const handle = e.target.closest('.compare-handle');
+    if (!handle) return;
+    const canvas = handle.closest('.image-canvas');
+    if (!canvas) return;
+    dragging = canvas;
+    e.preventDefault();
+    moveFrom(e);
+  });
+  function moveFrom(e){
+    if (!dragging) return;
+    const rect = dragging.getBoundingClientRect();
+    const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    setSplit(dragging, (cx - rect.left) / rect.width * 100);
+  }
+  document.addEventListener('pointermove', e => { if (dragging) moveFrom(e); });
+  document.addEventListener('pointerup', () => { dragging = null; });
+  document.addEventListener('pointercancel', () => { dragging = null; });
+})();
+
 function doClear(){
   document.body.dataset.confirm = 'closed';
   /* Revoke all blob URLs to free memory */

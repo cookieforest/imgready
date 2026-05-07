@@ -786,6 +786,39 @@ function piDelete(){
 /* ===== Clear all (with confirm) ===== */
 function askClear(){ document.body.dataset.confirm = 'open'; }
 function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
+
+/* ===== before/after slider drag handler ===== */
+(function wireSlider(){
+  function setSplit(canvas, pct){
+    pct = Math.max(0, Math.min(100, pct));
+    const after = canvas.querySelector('.compare-after');
+    const divider = canvas.querySelector('.compare-divider');
+    const handle = canvas.querySelector('.compare-handle');
+    if (after) after.style.clipPath = `inset(0 0 0 ${pct}%)`;
+    if (divider) divider.style.left = pct + '%';
+    if (handle) handle.style.left = pct + '%';
+  }
+  let dragging = null;
+  document.addEventListener('pointerdown', e => {
+    const handle = e.target.closest('.compare-handle');
+    if (!handle) return;
+    const canvas = handle.closest('.image-canvas');
+    if (!canvas) return;
+    dragging = canvas;
+    e.preventDefault();
+    moveFrom(e);
+  });
+  function moveFrom(e){
+    if (!dragging) return;
+    const rect = dragging.getBoundingClientRect();
+    const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    setSplit(dragging, (cx - rect.left) / rect.width * 100);
+  }
+  document.addEventListener('pointermove', e => { if (dragging) moveFrom(e); });
+  document.addEventListener('pointerup', () => { dragging = null; });
+  document.addEventListener('pointercancel', () => { dragging = null; });
+})();
+
 function doClear(){
   document.body.dataset.confirm = 'closed';
   setState('empty');
