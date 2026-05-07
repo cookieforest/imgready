@@ -7,11 +7,12 @@
 <style>
   /* ---------- design tokens (lifted from imgready.app/app.css) ---------- */
   :root{
+    /* Light tokens (used in empty state — the calm landing) */
     --bg:#f5f0e8;
     --text:#2a2a26;
     --muted:#7a7872;
-    --accent:#5a7a5a;
-    --accent-strong:#4a6a4a;
+    --accent:#7a9a7a;
+    --accent-strong:#5a7a5a;
     --accent-light:rgba(90,122,90,.10);
     --card:#fffefb;
     --border:rgba(0,0,0,.10);
@@ -23,6 +24,23 @@
     --filmstrip-w:280px;
     --brand-h:54px;
     --action-h:60px;
+  }
+  /* Dark theme: editing/work surface — image is the subject. Activates the
+     moment the user actually has work in front of them. Empty state stays
+     calm cream. */
+  body[data-state="solo"],
+  body[data-state="multi"]{
+    --bg:#141414;
+    --text:#ececea;
+    --muted:#8a8a82;
+    --accent:#8aae8a;
+    --accent-strong:#7a9a7a;
+    --accent-light:rgba(138,174,138,.16);
+    --card:#1f1f1f;
+    --border:rgba(255,255,255,.08);
+    --border-strong:rgba(255,255,255,.14);
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+    --shadow-lg:0 8px 24px rgba(0,0,0,.5);
   }
   *,*::before,*::after{box-sizing:border-box;}
   html,body{height:100%;}
@@ -40,15 +58,17 @@
     display:flex;align-items:center;gap:14px;
     padding:0 20px;
     border-bottom:1px solid var(--border);
-    background:var(--bg);
+    background:var(--bg);color:var(--text);
     z-index:10;position:relative;
   }
+  .brand-bar .brand{color:var(--text);}
+  .brand-bar .brand .g{color:var(--accent);}
   .brand{font-weight:700;font-size:1.18rem;letter-spacing:-.02em;}
   .brand .g{color:var(--accent);}
   .state-toggle{margin-left:auto;display:flex;gap:6px;align-items:center;}
   .state-toggle small{color:var(--muted);font-size:.72rem;margin-right:6px;}
   .state-toggle button{
-    border:1px solid var(--border);background:transparent;color:var(--text);
+    border:1px solid var(--border-strong);background:transparent;color:var(--text);
     font-size:.74rem;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;
   }
   .state-toggle button.active{
@@ -105,15 +125,14 @@
     display:none;
     height:calc(100vh - var(--brand-h));
     flex-direction:column;
-    padding:24px;gap:14px;
+    padding:0;gap:0;
   }
   body[data-state="solo"] .solo-state{display:flex;}
   body[data-state="solo"] .three-pane,
   body[data-state="solo"] .empty-state{display:none;}
   .solo-image{
     flex:1;min-height:0;
-    border-radius:14px;background:var(--card);
-    box-shadow:var(--shadow);
+    background:#000;
     overflow:hidden;position:relative;
   }
 
@@ -195,12 +214,11 @@
 
   /* center pane */
   .center-pane{
-    display:flex;flex-direction:column;padding:18px;gap:12px;min-height:0;
+    display:flex;flex-direction:column;padding:0;gap:0;min-height:0;
   }
   .center-image{
     flex:1;min-height:0;
-    background:var(--card);border:1px solid var(--border);border-radius:14px;
-    box-shadow:var(--shadow);
+    background:#000;
     overflow:hidden;position:relative;
   }
   .compare-after,.compare-before{position:absolute;inset:0;}
@@ -219,11 +237,13 @@
   }
   .compare-meta{
     position:absolute;top:14px;left:14px;
-    background:rgba(255,255,255,.86);backdrop-filter:blur(6px);
+    background:rgba(0,0,0,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:#fff;
     padding:6px 10px;border-radius:8px;font-size:.74rem;font-weight:600;
+    z-index:4;
   }
   .compare-meta.right{left:auto;right:14px;text-align:right;}
-  .compare-meta .pct{color:var(--accent);font-weight:700;display:block;font-size:.85rem;}
+  .compare-meta .pct{color:#bfe6bf;font-weight:700;display:block;font-size:.85rem;}
   .compare-zoom{
     position:absolute;bottom:64px;right:14px;
     width:32px;height:32px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;
@@ -238,7 +258,8 @@
     position:absolute;left:0;right:0;bottom:0;
     display:flex;gap:10px;align-items:center;flex-wrap:wrap;
     padding:10px 14px;
-    background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 60%, rgba(0,0,0,.7) 100%);
+    background:rgba(0,0,0,.72);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     color:#fff;
     z-index:5;
   }
@@ -324,8 +345,8 @@
     /* Flatten right-rail into the flex column so we can order its children
        (tabs / filmstrip / bulk-actions) inline with .left-rail (settings) */
     .three-pane .right-rail{display:contents;}
-    .three-pane .center-pane{padding:10px 10px 6px;flex:1;min-height:0;order:1;}
-    .three-pane .center-image{border-radius:12px;}
+    .three-pane .center-pane{padding:0;flex:1;min-height:0;order:1;}
+    /* center-image stays full-bleed on mobile too */
     /* tabs after center, then either filmstrip or settings, then bulk-actions */
     .three-pane .mobile-tabs{
       order:2;border-top:1px solid var(--border);background:var(--bg);
@@ -372,10 +393,7 @@
     }
 
     /* solo state on mobile: tighter padding, modifier sticks bottom */
-    body[data-state="solo"] .solo-state{padding:10px 10px env(safe-area-inset-bottom,10px);gap:10px;}
-    body[data-state="solo"] .solo-modifier{
-      flex-wrap:wrap;
-    }
+    body[data-state="solo"] .solo-state{padding:0;gap:0;}
 
     /* state toggle compact */
     .state-toggle small{display:none;}
