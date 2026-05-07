@@ -5,49 +5,31 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>imgready — 3-pane prototype</title>
 <style>
-  /* ---------- design tokens ---------- */
   :root{
-    --bg:#f5f0e8;
-    --text:#2a2a26;
-    --muted:#7a7872;
-    --accent:#7a9a7a;
-    --accent-strong:#5a7a5a;
-    --accent-light:rgba(90,122,90,.10);
-    --card:#fffefb;
-    --border:rgba(0,0,0,.10);
+    --bg:#f5f0e8;--text:#2a2a26;--muted:#7a7872;
+    --accent:#7a9a7a;--accent-strong:#5a7a5a;--accent-light:rgba(90,122,90,.10);
+    --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
-    /* card chrome (matches production fs-editor) */
-    --card-bg:rgba(20,20,20,.82);
-    --card-border:rgba(255,255,255,.12);
-    --card-radius:12px;
+    --card-bg:rgba(20,20,20,.82);--card-border:rgba(255,255,255,.12);--card-radius:12px;
+    --thumb-center:150px;
   }
-  body[data-state="solo"],
-  body[data-state="multi"]{
-    --bg:#0d0d0d;
-    --text:#ececea;
-    --muted:#9a9a92;
-    --accent:#8aae8a;
-    --accent-strong:#7a9a7a;
+  body[data-state="solo"],body[data-state="multi"]{
+    --bg:#0d0d0d;--text:#ececea;--muted:#9a9a92;
+    --accent:#8aae8a;--accent-strong:#7a9a7a;
   }
   *,*::before,*::after{box-sizing:border-box;}
   html,body{height:100%;}
   body{
-    margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
     color:var(--text);background:var(--bg);overflow:hidden;
+    user-select:none;-webkit-user-select:none;
   }
 
-  /* ---------- brand bar ---------- */
   .brand-bar{
-    height:var(--brand-h);
-    display:flex;align-items:center;gap:14px;
-    padding:0 16px;
-    background:var(--bg);position:relative;z-index:10;
+    height:var(--brand-h);display:flex;align-items:center;gap:14px;
+    padding:0 16px;background:var(--bg);position:relative;z-index:10;
   }
-  .brand{
-    font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);
-    text-decoration:none;
-  }
+  .brand{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
   .brand .g{color:var(--accent);}
   .state-toggle{margin-left:auto;display:flex;gap:6px;align-items:center;}
   .state-toggle small{color:var(--muted);font-size:.66rem;}
@@ -58,11 +40,8 @@
   body[data-state="empty"] .state-toggle button{border-color:var(--border);}
   .state-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
-  /* ---------- empty state (calm landing) ---------- */
-  .empty-state{
-    display:none;height:calc(100vh - var(--brand-h));
-    align-items:center;justify-content:center;padding:24px;
-  }
+  /* --- empty state --- */
+  .empty-state{display:none;height:calc(100vh - var(--brand-h));align-items:center;justify-content:center;padding:24px;}
   body[data-state="empty"] .empty-state{display:flex;}
   body[data-state="empty"] .stage{display:none;}
   .dropzone{
@@ -72,239 +51,193 @@
     background:color-mix(in srgb,var(--card) 80%,transparent);cursor:pointer;
   }
   .dropzone:hover{background:var(--accent-light);border-color:var(--accent);}
-  .dz-icon{width:60px;height:60px;border-radius:50%;
-    background:var(--accent-light);color:var(--accent);
+  .dz-icon{width:60px;height:60px;border-radius:50%;background:var(--accent-light);color:var(--accent);
     display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;}
   .dz-icon svg{width:30px;height:30px;}
   .dz-title{font-weight:600;font-size:1.18rem;margin:0 0 4px;}
   .dz-sub{color:var(--muted);font-size:.88rem;margin:0;}
   .dz-trust{margin-top:10px;font-size:.74rem;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:6px;}
 
-  /* ---------- stage (full-bleed image canvas with floating overlays) ---------- */
-  .stage{
-    display:none;
-    position:relative;
-    height:calc(100vh - var(--brand-h));
-    background:#000;overflow:hidden;
-  }
+  /* --- stage (full-bleed image canvas + overlays) --- */
+  .stage{display:none;position:relative;height:calc(100vh - var(--brand-h));background:#000;overflow:hidden;}
   body[data-state="solo"] .stage.solo{display:block;}
   body[data-state="multi"] .stage.multi{display:block;}
 
-  /* ---------- image canvas (fills entire stage) ---------- */
   .image-canvas{position:absolute;inset:0;}
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
-  .compare-divider{
-    position:absolute;top:0;bottom:0;left:50%;width:2px;
+  .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;
     background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(0,0,0,.18);
-    transform:translateX(-1px);pointer-events:none;z-index:3;
-  }
-  .compare-handle{
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    transform:translateX(-1px);pointer-events:none;z-index:3;}
+  .compare-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     width:36px;height:36px;border-radius:50%;background:#fff;
-    box-shadow:0 1px 4px rgba(0,0,0,.25);
-    display:flex;align-items:center;justify-content:center;
-    cursor:ew-resize;color:var(--text);z-index:4;
-  }
-  .compare-meta{
-    position:absolute;top:14px;
-    background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:0 1px 4px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;
+    cursor:ew-resize;color:var(--text);z-index:4;}
+  .compare-meta{position:absolute;top:14px;background:var(--card-bg);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     color:#fff;padding:8px 12px;border-radius:8px;
     font-size:.74rem;font-weight:600;line-height:1.35;
     pointer-events:none;z-index:5;display:flex;flex-direction:column;gap:2px;
-    border:1px solid var(--card-border);
-  }
+    border:1px solid var(--card-border);}
   .compare-meta.l{left:14px;align-items:flex-start;}
   .compare-meta.r{right:14px;align-items:flex-end;text-align:right;}
   .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
   .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.78rem;}
-  .compare-meta .batch-row{
-    margin-top:5px;padding-top:5px;
+  .compare-meta .batch-row{margin-top:5px;padding-top:5px;
     border-top:1px solid rgba(255,255,255,.18);
-    font-size:.7rem;font-weight:500;color:rgba(255,255,255,.85);
-  }
+    font-size:.7rem;font-weight:500;color:rgba(255,255,255,.85);}
   body[data-state="solo"] .compare-meta .batch-row{display:none;}
 
-  /* ---------- floating filmstrip (desktop: right edge / mobile: bottom) ---------- */
-  .filmstrip-card{
-    position:absolute;
-    /* No card chrome — thumbs float directly over the image. Spans nearly the
-       full vertical height of the image area on desktop. */
-    top:130px;right:14px;bottom:160px;
-    width:140px;
-    overflow-y:auto;z-index:5;
-    /* hide scrollbar so the floating thumbs don't show a column gutter */
-    scrollbar-width:none;-ms-overflow-style:none;
+  /* ---------- COVER FLOW filmstrip ---------- */
+  .cover-flow{
+    position:absolute;left:0;right:0;
+    bottom:200px;  /* above the menu card */
+    height:180px;
+    z-index:6;
+    cursor:grab;touch-action:pan-y;
   }
-  .filmstrip-card::-webkit-scrollbar{display:none;}
-  body[data-state="solo"] .filmstrip-card{display:none;}
-  .thumb{
-    width:100%;aspect-ratio:1/1;border-radius:8px;
-    margin-bottom:8px;cursor:pointer;
-    overflow:hidden;position:relative;
-    border:0;
-    box-shadow:0 1px 3px rgba(0,0,0,.22);
-    opacity:.5;
-    transition:opacity .15s,transform .12s;
+  .cover-flow.dragging{cursor:grabbing;}
+  body[data-state="solo"] .cover-flow{display:none;}
+  .cflow-track{position:absolute;left:50%;top:50%;width:0;height:0;}
+  .cflow-thumb{
+    position:absolute;left:0;top:0;
+    width:var(--thumb-center);aspect-ratio:1/1;
+    border-radius:10px;overflow:hidden;
+    transform-origin:center center;
+    transform:translate(-50%,-50%) translateX(var(--ox,0)) scale(var(--scale,1));
+    opacity:var(--opacity,.5);
+    box-shadow:0 2px 12px rgba(0,0,0,.35);
+    transition:transform .28s cubic-bezier(.22,1,.36,1),opacity .25s ease;
+    cursor:pointer;
   }
-  .thumb:hover{opacity:.85;transform:translateY(-1px);}
-  /* Selected = full opacity; everything else is dimmed. No outline / no extra ring. */
-  .thumb.active{opacity:1;}
-  .thumb-img{width:100%;height:100%;display:block;}
-  .thumb-savings{
+  .cflow-thumb.active{opacity:1;}
+  .cflow-thumb .thumb-img{width:100%;height:100%;display:block;}
+  .cflow-thumb .thumb-savings{
     position:absolute;right:6px;top:6px;
     background:rgba(255,255,255,.92);color:var(--accent-strong);
-    font-size:.65rem;font-weight:700;padding:2px 6px;border-radius:99px;
+    font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:99px;
   }
 
-  /* ---------- floating menu card (bottom center) ---------- */
+  /* ---------- per-image action icons (above centered thumb) ---------- */
+  .pi-actions{
+    position:absolute;left:50%;top:0;
+    transform:translate(-50%,-100%) translateY(-12px);
+    display:flex;gap:8px;
+    opacity:0;pointer-events:none;
+    transition:opacity .18s ease,transform .18s ease;
+    z-index:9;
+  }
+  body[data-pi-actions="open"] .pi-actions{
+    opacity:1;pointer-events:auto;
+    transform:translate(-50%,-100%) translateY(-6px);
+  }
+  .pi-icon{
+    width:38px;height:38px;border-radius:50%;
+    background:rgba(20,20,20,.92);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-family:inherit;
+    transition:background .15s,transform .12s;
+  }
+  .pi-icon:hover{background:rgba(50,50,50,.95);transform:translateY(-2px);}
+  .pi-icon.danger:hover{background:rgba(160,60,60,.92);border-color:rgba(220,160,160,.5);}
+  .pi-icon svg{width:16px;height:16px;}
+
+  /* ---------- bottom menu card ---------- */
   .menu-wrap{
     position:absolute;left:0;right:0;bottom:14px;
     display:flex;flex-direction:column;align-items:center;
-    pointer-events:none;z-index:7;
-    padding:0 14px;
+    pointer-events:none;z-index:7;padding:0 14px;
   }
-  /* Settings toggle inside the menu card — header row. Click toggles the panel. */
-  .settings-toggle{
+  .menu-card{
     pointer-events:auto;
-    background:transparent;border:0;width:100%;
+    background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--card-border);border-radius:var(--card-radius);
+    width:min(720px,calc(100% - 28px));overflow:hidden;color:#fff;
+  }
+  .settings-toggle{
+    pointer-events:auto;background:transparent;border:0;width:100%;
     display:flex;align-items:center;justify-content:space-between;
     color:rgba(255,255,255,.78);font-family:inherit;font-size:.78rem;font-weight:600;
-    cursor:pointer;padding:11px 16px;
-    letter-spacing:.04em;text-transform:uppercase;
+    cursor:pointer;padding:11px 16px;letter-spacing:.04em;text-transform:uppercase;
     border-bottom:1px solid rgba(255,255,255,.10);
   }
   .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.04);}
-  .settings-toggle .tri{
-    font-size:.7rem;line-height:1;display:inline-block;
-    transition:transform .18s;color:rgba(255,255,255,.55);
-  }
+  .settings-toggle .tri{font-size:.7rem;line-height:1;display:inline-block;
+    transition:transform .18s;color:rgba(255,255,255,.55);}
   body[data-adjust="open"] .settings-toggle .tri{transform:rotate(180deg);}
   body[data-adjust="open"] .settings-toggle{color:#fff;}
-  /* When the settings panel is open the bottom border of the toggle joins the
-     panel below — keep the visual continuity */
-
-  .menu-card{
-    pointer-events:auto;
-    background:var(--card-bg);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border:1px solid var(--card-border);border-radius:var(--card-radius);
-    width:min(720px,calc(100% - 28px));
-    overflow:hidden;
-    color:#fff;
-  }
-
-  .adjust-panel{
-    display:none;padding:14px 16px;
-    border-bottom:1px solid rgba(255,255,255,.10);
-  }
   body[data-adjust="closed"] .settings-toggle{border-bottom-color:rgba(255,255,255,.06);}
+
+  .adjust-panel{display:none;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10);}
   body[data-adjust="open"] .adjust-panel{display:block;}
   .adjust-section{margin-bottom:14px;}
   .adjust-section:last-child{margin-bottom:0;}
-  .adjust-label{
-    display:block;font-size:.66rem;font-weight:700;letter-spacing:.06em;
-    text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:7px;
-  }
+  .adjust-label{display:block;font-size:.66rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:7px;}
   .adjust-pills{display:flex;flex-wrap:wrap;gap:5px;}
-  .adjust-pills button{
-    padding:5px 11px;border:1px solid rgba(255,255,255,.18);background:transparent;
+  .adjust-pills button{padding:5px 11px;border:1px solid rgba(255,255,255,.18);background:transparent;
     border-radius:6px;color:rgba(255,255,255,.7);font-family:inherit;font-size:.72rem;font-weight:600;
-    cursor:pointer;text-transform:uppercase;letter-spacing:.02em;
-  }
+    cursor:pointer;text-transform:uppercase;letter-spacing:.02em;}
   .adjust-pills button:hover{background:rgba(255,255,255,.08);color:#fff;}
   .adjust-pills button.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.4);}
   .quality-row{display:flex;align-items:center;gap:8px;}
   .quality-row input[type=range]{flex:1;accent-color:var(--accent);height:4px;}
-  .q-val{
-    color:#fff;font-weight:700;font-size:.74rem;min-width:28px;text-align:center;
-  }
-  .adjust-input,.adjust-select{
-    padding:6px 9px;border:1px solid rgba(255,255,255,.18);
-    background:rgba(255,255,255,.04);color:#fff;
-    border-radius:6px;font-family:inherit;font-size:.78rem;
-  }
+  .q-val{color:#fff;font-weight:700;font-size:.74rem;min-width:28px;text-align:center;}
+  .adjust-input,.adjust-select{padding:6px 9px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.04);color:#fff;border-radius:6px;font-family:inherit;font-size:.78rem;}
   .adjust-row-inline{display:flex;gap:6px;}
   .adjust-row-inline .adjust-input{flex:1;}
   .adjust-checkbox{display:flex;align-items:center;gap:8px;font-size:.78rem;color:rgba(255,255,255,.85);cursor:pointer;}
-  .adjust-hint{font-size:.68rem;color:rgba(255,255,255,.5);margin-top:4px;}
 
-  /* Action area: always visible inside menu card. Generous bottom padding
-     so buttons aren't flush against the card bottom on either viewport. */
-  .actions{
-    display:flex;flex-direction:column;gap:8px;
-    padding:14px 14px max(14px,env(safe-area-inset-bottom,14px));
-  }
-  .action-row{display:flex;gap:6px;}
-  .action-row .btn{flex:1;min-width:0;}
-
-  /* card-style buttons (matching production fs-editor) */
+  .actions{display:flex;flex-direction:column;gap:8px;padding:14px 14px max(14px,env(safe-area-inset-bottom,14px));}
+  .action-row{display:flex;gap:8px;}
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:5px;
-    padding:8px 12px;border-radius:7px;font-family:inherit;font-size:.78rem;font-weight:600;
+    padding:9px 12px;border-radius:7px;font-family:inherit;font-size:.78rem;font-weight:600;
     border:1px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.92);
-    cursor:pointer;white-space:nowrap;
+    cursor:pointer;white-space:nowrap;flex:1;min-width:0;
   }
   .btn:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4);}
-  /* Hierarchy by frequency: icon (least) → sm → md → primary lg (most) */
-  .btn-icon{flex:0 0 auto;padding:8px 9px;}
-  .btn-sm{flex:0 0 auto;padding:8px 12px;font-size:.74rem;font-weight:600;color:rgba(255,255,255,.78);}
-  .btn-md{flex:1;min-width:0;font-size:.8rem;}
-  .btn-lg{flex:1.4;min-width:0;font-size:.84rem;padding:9px 14px;}
-  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;flex:1.4;}
   .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  .btn-clear{flex:0 0 auto;color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.16);padding:9px 14px;}
+  .btn-clear:hover{color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);}
+  .btn-icon{flex:0 0 auto;padding:8px 9px;}
 
-  /* Clear all moved into the filmstrip footer — small, quiet, destructive tint */
-  .filmstrip-clear{
-    display:block;width:100%;
-    margin-top:2px;padding:8px 10px;
-    background:transparent;border:1px dashed rgba(220,160,160,.28);
-    color:rgba(220,160,160,.7);font-family:inherit;font-size:.72rem;font-weight:600;
-    border-radius:7px;cursor:pointer;letter-spacing:.02em;
+  /* ---------- confirm modal ---------- */
+  .confirm-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;z-index:100;padding:24px;
   }
-  .filmstrip-clear:hover{
-    color:#fff;background:rgba(220,160,160,.10);border-color:rgba(220,160,160,.5);
-    border-style:solid;
+  body[data-confirm="open"] .confirm-overlay{display:flex;}
+  .confirm-modal{
+    background:#1f1f1f;border:1px solid rgba(255,255,255,.14);border-radius:14px;
+    color:#fff;padding:24px;max-width:380px;width:100%;
+    box-shadow:0 12px 40px rgba(0,0,0,.5);
   }
+  .confirm-modal h3{margin:0 0 8px;font-size:1.05rem;}
+  .confirm-modal p{margin:0 0 18px;font-size:.86rem;color:rgba(255,255,255,.78);line-height:1.45;}
+  .confirm-actions{display:flex;gap:10px;justify-content:flex-end;}
 
-  /* ---------- narrow desktop guard so menu-card and filmstrip don't fight ---------- */
-  @media(max-width:1100px) and (min-width:768px){
-    .filmstrip-card{width:140px;}
-  }
   /* ---------- mobile ---------- */
   @media(max-width:767px){
-    /* Filmstrip strips dark card on mobile too — just a row of floating thumbs */
-    .filmstrip-card{
-      top:auto;right:0;left:0;
-      bottom:200px;  /* sits above menu, leaving safe spacing */
-      width:auto;
-      height:auto;
-      display:flex;flex-direction:row;gap:8px;
-      padding:8px 14px;
-      background:transparent;
-      overflow-x:auto;overflow-y:hidden;
-    }
-    .filmstrip-card .thumb{
-      width:64px;height:64px;flex-shrink:0;margin:0;aspect-ratio:1/1;
-    }
-    .filmstrip-card .thumb .mock-image{
-      /* drop the readable name on mobile horizontal strip — savings chip is enough */
-      font-size:0;padding:0;
-    }
+    :root{--thumb-center:120px;}
+    .cover-flow{height:140px;bottom:200px;}
     .menu-wrap{bottom:8px;}
     .menu-card{width:calc(100% - 16px);}
     .compare-meta{font-size:.7rem;padding:6px 10px;}
     .compare-meta .lbl-title{font-size:.82rem;}
     .state-toggle small{display:none;}
     .brand-bar{padding:0 12px;}
+    .pi-icon{width:42px;height:42px;}
   }
 
   /* ---------- mock images ---------- */
-  .mock-image{
-    width:100%;height:100%;display:flex;align-items:flex-end;
-    padding:14px;color:#fff;font-weight:600;font-size:1rem;
-    text-shadow:0 1px 3px rgba(0,0,0,.4);
-  }
+  .mock-image{width:100%;height:100%;display:flex;align-items:flex-end;
+    padding:14px;color:#fff;font-weight:600;font-size:.7rem;
+    text-shadow:0 1px 3px rgba(0,0,0,.4);}
   .mock-image.large{font-size:1.4rem;padding:20px;}
   .mi-1{background:linear-gradient(135deg,#5a7a5a,#a8d5a8);}
   .mi-2{background:linear-gradient(135deg,#406ba6,#88b4dc);}
@@ -320,10 +253,10 @@
   .mi-6b{background:linear-gradient(135deg,#74521e,#c39c5c);}
 </style>
 </head>
-<body data-state="multi" data-adjust="closed">
+<body data-state="multi" data-adjust="closed" data-pi-actions="closed" data-confirm="closed">
 
 <div class="brand-bar">
-  <a href="/" class="brand" title="Back to landing">img<span class="g">ready</span></a>
+  <a href="/" class="brand">img<span class="g">ready</span></a>
   <div class="state-toggle">
     <small>State:</small>
     <button data-tgt="empty" onclick="setState('empty')">Empty</button>
@@ -332,7 +265,6 @@
   </div>
 </div>
 
-<!-- ============================ EMPTY STATE ============================ -->
 <section class="empty-state">
   <div class="dropzone" onclick="setState('multi')">
     <div class="dz-icon">
@@ -351,68 +283,34 @@
 <section class="stage solo">
   <div class="image-canvas">
     <div class="mock-image large mi-1b compare-before">test-photo.jpg</div>
-    <div class="compare-after">
-      <div class="mock-image large mi-1">test-photo.jpg</div>
-    </div>
+    <div class="compare-after"><div class="mock-image large mi-1">test-photo.jpg</div></div>
     <div class="compare-divider"></div>
     <button class="compare-handle" aria-label="Drag to compare">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg>
     </button>
-    <div class="compare-meta l">
-      <span class="lbl-title">Before</span>
-      <span>493 KB · JPG</span>
-    </div>
-    <div class="compare-meta r">
-      <span class="lbl-title">After</span>
-      <span>322 KB · JPG</span>
-      <span class="pct">35% smaller</span>
-    </div>
+    <div class="compare-meta l"><span class="lbl-title">Before</span><span>493 KB · JPG</span></div>
+    <div class="compare-meta r"><span class="lbl-title">After</span><span>322 KB · JPG</span><span class="pct">35% smaller</span></div>
   </div>
-
   <div class="menu-wrap">
     <div class="menu-card">
       <button class="settings-toggle" onclick="toggleAdjust()">
         <span>Settings</span><span class="tri">▼</span>
       </button>
       <div class="adjust-panel">
-        <div class="adjust-section">
-          <span class="adjust-label">Format</span>
-          <div class="adjust-pills">
-            <button>Auto</button><button>WebP</button><button>AVIF</button>
-            <button class="active">JPG</button><button>PNG</button>
-          </div>
-        </div>
-        <div class="adjust-section">
-          <span class="adjust-label">Quality · 82</span>
-          <div class="quality-row">
-            <input type="range" min="10" max="100" value="82">
-            <span class="q-val">82</span>
-          </div>
-        </div>
-        <div class="adjust-section">
-          <span class="adjust-label">Resize</span>
-          <div class="adjust-row-inline">
-            <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
-            <input type="number" class="adjust-input" placeholder="e.g. 1200">
-          </div>
-        </div>
-        <div class="adjust-section">
-          <span class="adjust-label">Privacy</span>
-          <label class="adjust-checkbox">
-            <input type="checkbox" checked>
-            <span>Strip metadata (EXIF, GPS, camera info)</span>
-          </label>
-        </div>
+        <div class="adjust-section"><span class="adjust-label">Format</span>
+          <div class="adjust-pills"><button>Auto</button><button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button></div></div>
+        <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
+          <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span></div></div>
+        <div class="adjust-section"><span class="adjust-label">Resize</span>
+          <div class="adjust-row-inline"><select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select><input type="number" class="adjust-input" placeholder="e.g. 1200"></div></div>
+        <div class="adjust-section"><span class="adjust-label">Privacy</span>
+          <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata (EXIF, GPS)</span></label></div>
       </div>
       <div class="actions">
         <div class="action-row">
-          <button class="btn btn-icon" title="Share" aria-label="Share">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          </button>
-          <button class="btn btn-icon" title="Copy" aria-label="Copy to clipboard">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-          </button>
-          <button class="btn btn-primary btn-lg">Download</button>
+          <button class="btn btn-icon" title="Share"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+          <button class="btn btn-icon" title="Copy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <button class="btn btn-primary">Download</button>
         </div>
       </div>
     </div>
@@ -423,49 +321,27 @@
 <section class="stage multi">
   <div class="image-canvas" id="centerImage">
     <div class="mock-image large mi-1b compare-before">photo-1.jpg</div>
-    <div class="compare-after">
-      <div class="mock-image large mi-1">photo-1.jpg</div>
-    </div>
+    <div class="compare-after"><div class="mock-image large mi-1">photo-1.jpg</div></div>
     <div class="compare-divider"></div>
-    <button class="compare-handle" aria-label="Drag to compare">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg>
-    </button>
-    <div class="compare-meta l">
-      <span class="lbl-title">Before</span>
-      <span>1.4 MB · PNG</span>
-    </div>
-    <div class="compare-meta r">
-      <span class="lbl-title">After</span>
-      <span>312 KB · WebP</span>
-      <span class="pct">78% smaller</span>
-      <span class="batch-row">↓ 1.4 MB · 6 files total</span>
-    </div>
+    <button class="compare-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg></button>
+    <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
+    <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 1.4 MB · 6 files total</span></div>
   </div>
 
-  <div class="filmstrip-card">
-    <div class="thumb active" data-name="photo-1.jpg" data-grad="1" onclick="selectThumb(this)">
-      <div class="mock-image mi-1 thumb-img">photo-1</div>
-      <span class="thumb-savings">78%</span>
-    </div>
-    <div class="thumb" data-name="photo-2.jpg" data-grad="2" onclick="selectThumb(this)">
-      <div class="mock-image mi-2 thumb-img">photo-2</div>
-      <span class="thumb-savings">22%</span>
-    </div>
-    <div class="thumb" data-name="photo-3.jpg" data-grad="3" onclick="selectThumb(this)">
-      <div class="mock-image mi-3 thumb-img">photo-3</div>
-      <span class="thumb-savings">35%</span>
-    </div>
-    <div class="thumb" data-name="photo-4.jpg" data-grad="4" onclick="selectThumb(this)">
-      <div class="mock-image mi-4 thumb-img">photo-4</div>
-      <span class="thumb-savings">19%</span>
-    </div>
-    <div class="thumb" data-name="photo-5.jpg" data-grad="5" onclick="selectThumb(this)">
-      <div class="mock-image mi-5 thumb-img">photo-5</div>
-      <span class="thumb-savings">42%</span>
-    </div>
-    <div class="thumb" data-name="photo-6.jpg" data-grad="6" onclick="selectThumb(this)">
-      <div class="mock-image mi-6 thumb-img">photo-6</div>
-      <span class="thumb-savings">28%</span>
+  <div class="cover-flow" id="coverFlow">
+    <div class="cflow-track" id="cflowTrack">
+      <div class="cflow-thumb" data-i="0" data-name="photo-1.jpg" data-grad="1"><div class="mock-image mi-1 thumb-img">1</div><span class="thumb-savings">78%</span></div>
+      <div class="cflow-thumb" data-i="1" data-name="photo-2.jpg" data-grad="2"><div class="mock-image mi-2 thumb-img">2</div><span class="thumb-savings">22%</span></div>
+      <div class="cflow-thumb" data-i="2" data-name="photo-3.jpg" data-grad="3"><div class="mock-image mi-3 thumb-img">3</div><span class="thumb-savings">35%</span></div>
+      <div class="cflow-thumb" data-i="3" data-name="photo-4.jpg" data-grad="4"><div class="mock-image mi-4 thumb-img">4</div><span class="thumb-savings">19%</span></div>
+      <div class="cflow-thumb" data-i="4" data-name="photo-5.jpg" data-grad="5"><div class="mock-image mi-5 thumb-img">5</div><span class="thumb-savings">42%</span></div>
+      <div class="cflow-thumb" data-i="5" data-name="photo-6.jpg" data-grad="6"><div class="mock-image mi-6 thumb-img">6</div><span class="thumb-savings">28%</span></div>
+      <!-- per-image actions: hover/2nd-click on centered thumb shows them -->
+      <div class="pi-actions" id="piActions">
+        <button class="pi-icon" title="Share this" onclick="piShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+        <button class="pi-icon" title="Download this" onclick="piDownload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+        <button class="pi-icon danger" title="Delete this" onclick="piDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+      </div>
     </div>
   </div>
 
@@ -475,66 +351,117 @@
         <span>Settings</span><span class="tri">▼</span>
       </button>
       <div class="adjust-panel">
-        <div class="adjust-section">
-          <span class="adjust-label">Format</span>
-          <div class="adjust-pills">
-            <button class="active">Auto</button><button>WebP</button><button>AVIF</button>
-            <button>JPG</button><button>PNG</button>
-          </div>
-        </div>
-        <div class="adjust-section">
-          <span class="adjust-label">Quality · 82</span>
-          <div class="quality-row">
-            <input type="range" min="10" max="100" value="82">
-            <span class="q-val">82</span>
-          </div>
-        </div>
-        <div class="adjust-section">
-          <span class="adjust-label">Resize</span>
-          <div class="adjust-row-inline">
-            <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
-            <input type="number" class="adjust-input" placeholder="e.g. 1200">
-          </div>
-        </div>
-        <div class="adjust-section">
-          <span class="adjust-label">Privacy</span>
-          <label class="adjust-checkbox">
-            <input type="checkbox" checked>
-            <span>Strip metadata (EXIF, GPS)</span>
-          </label>
-        </div>
+        <div class="adjust-section"><span class="adjust-label">Format</span>
+          <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
+        <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
+          <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span></div></div>
+        <div class="adjust-section"><span class="adjust-label">Resize</span>
+          <div class="adjust-row-inline"><select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select><input type="number" class="adjust-input" placeholder="e.g. 1200"></div></div>
+        <div class="adjust-section"><span class="adjust-label">Privacy</span>
+          <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata (EXIF, GPS)</span></label></div>
       </div>
       <div class="actions">
         <div class="action-row">
-          <button class="btn btn-icon" title="Share this image" aria-label="Share this image">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          </button>
-          <button class="btn btn-sm">Share all</button>
-          <button class="btn btn-md">Download this</button>
-          <button class="btn btn-primary btn-lg">Download all</button>
+          <button class="btn btn-clear" onclick="askClear()">Clear all</button>
+          <button class="btn">Share all</button>
+          <button class="btn btn-primary">Download all</button>
         </div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ---- Confirm modal ---- -->
+<div class="confirm-overlay" onclick="if(event.target===this)cancelConfirm()">
+  <div class="confirm-modal">
+    <h3>Clear all images?</h3>
+    <p>This will remove all 6 images from this batch. You can't undo this.</p>
+    <div class="confirm-actions">
+      <button class="btn" onclick="cancelConfirm()">Cancel</button>
+      <button class="btn btn-clear" onclick="doClear()" style="color:#ff9c9c;border-color:rgba(220,120,120,.5);">Clear all</button>
+    </div>
+  </div>
+</div>
+
 <script>
+/* ===== state toggles ===== */
 function setState(s){
   document.body.dataset.state = s;
   document.body.dataset.adjust = 'closed';
+  document.body.dataset.piActions = 'closed';
   document.querySelectorAll('.state-toggle button').forEach(b=>{
     b.classList.toggle('active', b.dataset.tgt === s);
   });
+  if(s==='multi') requestAnimationFrame(layoutCoverFlow);
 }
 function toggleAdjust(){
-  document.body.dataset.adjust =
-    document.body.dataset.adjust === 'open' ? 'closed' : 'open';
+  document.body.dataset.adjust = document.body.dataset.adjust==='open' ? 'closed' : 'open';
 }
-function selectThumb(el){
-  document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  const grad = el.dataset.grad;
-  const name = el.dataset.name;
+
+/* ===== cover flow layout: symmetric scale cascade =====
+   Selected thumb is centered (delta=0, scale=1, opacity=1).
+   Each step out, scale decreases with quadratic falloff so the cascade
+   visually "decreases by an increasing amount each time."
+*/
+const CFLOW = {
+  thumbs: [],
+  selected: 0,
+  drift: 0,           // current drift in fractional indices (for momentum)
+  vel: 0,             // velocity of drift (in indices/frame)
+  draggingFrom: null,
+  rafId: null,
+};
+
+function init(){
+  CFLOW.thumbs = Array.from(document.querySelectorAll('.cflow-thumb'));
+  CFLOW.thumbs.forEach((t,i)=>{
+    t.addEventListener('click', e => onThumbClick(i, e));
+    t.addEventListener('mouseenter', () => onCenterHover(i));
+    t.addEventListener('mouseleave', () => onCenterLeave(i));
+  });
+  layoutCoverFlow();
+
+  /* drag handlers on the cover-flow container */
+  const flow = document.getElementById('coverFlow');
+  flow.addEventListener('pointerdown', onPointerDown);
+  flow.addEventListener('wheel', onWheel, {passive:false});
+}
+window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('resize', layoutCoverFlow);
+
+function layoutCoverFlow(){
+  const baseStride = window.innerWidth < 768 ? 86 : 110;
+  const baseScaleStep = 0.78;  // each step: 78% of previous
+  const focal = CFLOW.selected + CFLOW.drift;  // floating-point center
+
+  CFLOW.thumbs.forEach((thumb, i) => {
+    const delta = i - focal;
+    const adel = Math.abs(delta);
+    const sign = Math.sign(delta);
+    const scale = Math.max(0.18, Math.pow(baseScaleStep, adel));
+    /* Stride accumulates exponentially: each step out moves by less */
+    let offset = 0;
+    if (Math.abs(delta) > 0.001) {
+      const steps = adel;
+      offset = sign * baseStride * (1 - Math.pow(baseScaleStep, steps)) / (1 - baseScaleStep);
+    }
+    thumb.style.setProperty('--ox', offset.toFixed(1) + 'px');
+    thumb.style.setProperty('--scale', scale.toFixed(3));
+    thumb.style.setProperty('--opacity', Math.abs(delta) < 0.5 ? '1' : '0.5');
+    thumb.classList.toggle('active', Math.abs(delta) < 0.5);
+    thumb.style.zIndex = String(20 - Math.round(adel));
+  });
+  syncMainImage();
+  positionPiActions();
+}
+
+function syncMainImage(){
+  const i = Math.round(CFLOW.selected + CFLOW.drift);
+  const idx = Math.max(0, Math.min(CFLOW.thumbs.length - 1, i));
+  const thumb = CFLOW.thumbs[idx];
+  if (!thumb) return;
+  const grad = thumb.dataset.grad;
+  const name = thumb.dataset.name;
   const ci = document.getElementById('centerImage');
   const before = ci.querySelector('.compare-before');
   const after = ci.querySelector('.compare-after .mock-image');
@@ -542,7 +469,186 @@ function selectThumb(el){
   before.textContent = name;
   after.className = 'mock-image large mi-' + grad;
   after.textContent = name;
-  /* focused name display removed; download button label could update here if we want it later */
+}
+
+function positionPiActions(){
+  const pi = document.getElementById('piActions');
+  if (!pi) return;
+  /* Sit it directly above the centered thumb in track-space.
+     The track origin is at center of cover-flow, so x:0 already. */
+}
+
+/* ===== thumb click: 1st = select, 2nd (already centered) = open icons ===== */
+function onThumbClick(i, e){
+  /* If a drag just ended, suppress click */
+  if (CFLOW._suppressClick) { CFLOW._suppressClick = false; return; }
+  if (i === CFLOW.selected && Math.abs(CFLOW.drift) < 0.05) {
+    /* already centered → toggle per-image actions */
+    openPiActions();
+  } else {
+    selectIndex(i);
+  }
+}
+
+function selectIndex(i){
+  i = Math.max(0, Math.min(CFLOW.thumbs.length - 1, i));
+  CFLOW.selected = i;
+  CFLOW.drift = 0;
+  CFLOW.vel = 0;
+  document.body.dataset.piActions = 'closed';
+  layoutCoverFlow();
+}
+
+/* ===== per-image actions visibility with 3s timer ===== */
+let piTimer = null;
+function openPiActions(){
+  document.body.dataset.piActions = 'open';
+  resetPiTimer();
+}
+function resetPiTimer(){
+  if (piTimer) clearTimeout(piTimer);
+  piTimer = setTimeout(() => {
+    document.body.dataset.piActions = 'closed';
+  }, 3000);
+}
+function onCenterHover(i){
+  if (i !== CFLOW.selected || Math.abs(CFLOW.drift) > 0.1) return;
+  openPiActions();
+}
+function onCenterLeave(i){
+  /* don't hide immediately — let the timer run */
+  /* nothing to do here; timer handles it */
+}
+/* Hovering on the actions themselves keeps the timer alive */
+document.addEventListener('mousemove', e => {
+  const pi = document.getElementById('piActions');
+  if (pi && document.body.dataset.piActions === 'open' && pi.contains(e.target)) {
+    resetPiTimer();
+  }
+});
+/* Clicking outside closes immediately */
+document.addEventListener('click', e => {
+  if (document.body.dataset.piActions !== 'open') return;
+  if (e.target.closest('.pi-icon')) return;
+  if (e.target.closest('.cflow-thumb.active')) return;
+  document.body.dataset.piActions = 'closed';
+});
+
+/* ===== drag + momentum cycling ===== */
+function onPointerDown(e){
+  if (e.target.closest('.pi-icon')) return;  /* let icons handle their clicks */
+  CFLOW.draggingFrom = { x: e.clientX, t: performance.now(), startSel: CFLOW.selected, startDrift: CFLOW.drift };
+  CFLOW.lastX = e.clientX;
+  CFLOW.lastT = performance.now();
+  CFLOW.vel = 0;
+  CFLOW._dragMoved = false;
+  document.getElementById('coverFlow').classList.add('dragging');
+  document.body.dataset.piActions = 'closed';
+  document.addEventListener('pointermove', onPointerMove);
+  document.addEventListener('pointerup', onPointerUp, {once:true});
+  e.preventDefault();
+  e.target.setPointerCapture && e.target.setPointerCapture(e.pointerId);
+}
+function onPointerMove(e){
+  if (!CFLOW.draggingFrom) return;
+  const dx = e.clientX - CFLOW.draggingFrom.x;
+  const stride = window.innerWidth < 768 ? 86 : 110;
+  /* Convert pixel drag to fractional index drift (negative dx = drift right, ie. show next images) */
+  const driftDelta = -dx / stride;
+  CFLOW.drift = driftDelta;
+  if (Math.abs(dx) > 4) CFLOW._dragMoved = true;
+  /* compute instantaneous velocity (indices per ms) */
+  const now = performance.now();
+  const dt = Math.max(1, now - CFLOW.lastT);
+  CFLOW.vel = -(e.clientX - CFLOW.lastX) / stride / dt * 16;  // approx per-frame
+  CFLOW.lastX = e.clientX;
+  CFLOW.lastT = now;
+  /* clamp at boundaries */
+  const target = CFLOW.draggingFrom.startSel + CFLOW.drift;
+  if (target < 0) CFLOW.drift = -CFLOW.draggingFrom.startSel;
+  if (target > CFLOW.thumbs.length - 1) CFLOW.drift = CFLOW.thumbs.length - 1 - CFLOW.draggingFrom.startSel;
+  layoutCoverFlow();
+}
+function onPointerUp(){
+  document.removeEventListener('pointermove', onPointerMove);
+  document.getElementById('coverFlow').classList.remove('dragging');
+  CFLOW.draggingFrom = null;
+  /* Bake drift into selected, then run momentum from any remaining velocity */
+  CFLOW.selected = Math.round(CFLOW.selected + CFLOW.drift);
+  CFLOW.selected = Math.max(0, Math.min(CFLOW.thumbs.length - 1, CFLOW.selected));
+  CFLOW.drift = 0;
+  /* If significant velocity, kick off momentum */
+  if (Math.abs(CFLOW.vel) > 0.06) {
+    CFLOW._suppressClick = CFLOW._dragMoved;
+    runMomentum();
+  } else {
+    CFLOW._suppressClick = CFLOW._dragMoved;
+    layoutCoverFlow();
+  }
+}
+function runMomentum(){
+  const tick = () => {
+    /* friction */
+    CFLOW.vel *= 0.92;
+    /* apply velocity to drift; when drift accumulates a full step, advance selected */
+    CFLOW.drift += CFLOW.vel;
+    while (CFLOW.drift > 0.5 && CFLOW.selected < CFLOW.thumbs.length - 1) {
+      CFLOW.selected++; CFLOW.drift -= 1;
+    }
+    while (CFLOW.drift < -0.5 && CFLOW.selected > 0) {
+      CFLOW.selected--; CFLOW.drift += 1;
+    }
+    /* boundary bounce: if at end and trying to go further, kill velocity */
+    if ((CFLOW.selected <= 0 && CFLOW.drift < 0) || (CFLOW.selected >= CFLOW.thumbs.length - 1 && CFLOW.drift > 0)) {
+      CFLOW.drift = Math.max(-0.001, Math.min(0.001, CFLOW.drift));
+      CFLOW.vel = 0;
+    }
+    layoutCoverFlow();
+    if (Math.abs(CFLOW.vel) > 0.005 || Math.abs(CFLOW.drift) > 0.01) {
+      CFLOW.rafId = requestAnimationFrame(tick);
+    } else {
+      CFLOW.drift = 0;
+      layoutCoverFlow();
+    }
+  };
+  cancelAnimationFrame(CFLOW.rafId);
+  CFLOW.rafId = requestAnimationFrame(tick);
+}
+
+function onWheel(e){
+  /* Only react to wheel events when over the cover-flow */
+  e.preventDefault();
+  /* Add to velocity instead of jumping the index — feels physical */
+  const stride = window.innerWidth < 768 ? 86 : 110;
+  CFLOW.vel += (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX) / stride / 30;
+  CFLOW.vel = Math.max(-0.6, Math.min(0.6, CFLOW.vel));
+  if (!CFLOW.rafId) runMomentum();
+}
+
+/* ===== per-image actions ===== */
+function piShare(){ alert('Share photo-' + (CFLOW.selected+1) + ' (mock)'); }
+function piDownload(){ alert('Download photo-' + (CFLOW.selected+1) + ' (mock)'); }
+function piDelete(){
+  /* No confirm per-image: just remove the thumb */
+  const thumb = CFLOW.thumbs[CFLOW.selected];
+  if (!thumb) return;
+  thumb.remove();
+  CFLOW.thumbs.splice(CFLOW.selected, 1);
+  /* Reindex the data-i attributes */
+  CFLOW.thumbs.forEach((t,i)=>t.dataset.i = String(i));
+  if (CFLOW.selected >= CFLOW.thumbs.length) CFLOW.selected = CFLOW.thumbs.length - 1;
+  document.body.dataset.piActions = 'closed';
+  if (CFLOW.thumbs.length === 0) setState('empty');
+  else if (CFLOW.thumbs.length === 1) setState('solo');
+  else layoutCoverFlow();
+}
+
+/* ===== Clear all (with confirm) ===== */
+function askClear(){ document.body.dataset.confirm = 'open'; }
+function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
+function doClear(){
+  document.body.dataset.confirm = 'closed';
+  setState('empty');
 }
 </script>
 
