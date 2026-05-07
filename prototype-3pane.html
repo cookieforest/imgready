@@ -128,12 +128,13 @@
   /* ---------- floating filmstrip (desktop: right edge / mobile: bottom) ---------- */
   .filmstrip-card{
     position:absolute;
-    top:14px;right:14px;bottom:170px;  /* leave room for menu card below */
-    width:200px;
+    /* sits BELOW the corner meta labels so After is visible at top:14 */
+    top:90px;right:14px;bottom:170px;
+    width:180px;
     background:var(--card-bg);
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border:1px solid var(--card-border);border-radius:var(--card-radius);
-    padding:10px;overflow-y:auto;z-index:6;
+    padding:10px;overflow-y:auto;z-index:5;
   }
   body[data-state="solo"] .filmstrip-card{display:none;}
   .thumb{
@@ -160,16 +161,19 @@
   /* Adjust pull-up handle: triangle ABOVE the text, centered, above the card */
   .adjust-handle{
     pointer-events:auto;
-    background:transparent;border:0;
-    display:flex;flex-direction:column;align-items:center;gap:1px;
-    color:rgba(255,255,255,.62);font-family:inherit;font-size:.74rem;font-weight:600;
-    cursor:pointer;padding:6px 16px;margin-bottom:4px;
-    letter-spacing:.04em;
+    background:rgba(20,20,20,.62);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid var(--card-border);
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    color:rgba(255,255,255,.92);font-family:inherit;font-size:.76rem;font-weight:600;
+    cursor:pointer;padding:6px 18px 5px;margin-bottom:6px;
+    letter-spacing:.05em;border-radius:9px;
+    text-transform:uppercase;
   }
-  .adjust-handle:hover{color:#fff;}
+  .adjust-handle:hover{color:#fff;background:rgba(40,40,40,.78);}
   .adjust-handle .tri{
-    font-size:.62rem;line-height:1;display:inline-block;
-    transition:transform .18s;
+    font-size:.7rem;line-height:1;display:inline-block;
+    transition:transform .18s;color:rgba(255,255,255,.7);
   }
   body[data-adjust="open"] .adjust-handle .tri{transform:rotate(180deg);}
 
@@ -243,6 +247,10 @@
   .btn-clear{flex:0 0 auto;color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.16);}
   .btn-clear:hover{color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);}
 
+  /* ---------- narrow desktop guard so menu-card and filmstrip don't fight ---------- */
+  @media(max-width:1100px) and (min-width:768px){
+    .filmstrip-card{width:140px;}
+  }
   /* ---------- mobile ---------- */
   @media(max-width:767px){
     /* Filmstrip moves from right-rail to a horizontal strip at the bottom of the image area, ABOVE the menu card */
@@ -259,6 +267,10 @@
     }
     .filmstrip-card .thumb{
       width:64px;height:64px;flex-shrink:0;margin:0;aspect-ratio:1/1;
+    }
+    .filmstrip-card .thumb .mock-image{
+      /* drop the readable name on mobile horizontal strip — savings chip is enough */
+      font-size:0;padding:0;
     }
     .menu-wrap{bottom:8px;}
     .menu-card{width:calc(100% - 16px);}
