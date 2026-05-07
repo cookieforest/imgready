@@ -159,6 +159,11 @@
   body[data-state="multi"] .solo-state{display:none;}
   .three-pane.rail-collapsed{grid-template-columns:var(--rail-collapsed) 1fr var(--filmstrip-w);}
 
+  /* Grid items must have min-height:0 to be capped by the row, otherwise they
+     size to their content (filmstrip + flex:1 children intrinsically grow).
+     Same for nested flex children. */
+  .three-pane > * { min-height: 0; min-width: 0; overflow: hidden; }
+
   /* left rail */
   .left-rail{
     border-right:1px solid var(--border);
@@ -248,7 +253,7 @@
     background:var(--bg);
   }
   .filmstrip-header{
-    padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
   }
   .filmstrip-header h3{
     margin:0;font-size:.7rem;font-weight:700;letter-spacing:.05em;
@@ -256,7 +261,7 @@
   }
   .filmstrip-header .count{font-size:.74rem;color:var(--muted);}
   .filmstrip{
-    flex:1;overflow-y:auto;padding:8px 14px 14px;
+    flex:1;min-height:0;overflow-y:auto;padding:8px 14px 14px;
   }
   .thumb{
     width:100%;aspect-ratio:4/3;border-radius:10px;
@@ -280,7 +285,7 @@
 
   /* bulk action bar */
   .bulk-actions{
-    display:flex;flex-direction:column;gap:8px;
+    display:flex;flex-direction:column;gap:8px;flex-shrink:0;
     padding:14px;border-top:1px solid var(--border);
     background:var(--bg);
   }
