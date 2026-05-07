@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>imgready — 3-pane prototype</title>
 <style>
-  /* ---------- design tokens (lifted from imgready.app/app.css) ---------- */
+  /* ---------- design tokens ---------- */
   :root{
-    /* Light tokens (used in empty state — the calm landing) */
     --bg:#f5f0e8;
     --text:#2a2a26;
     --muted:#7a7872;
@@ -16,18 +15,11 @@
     --accent-light:rgba(90,122,90,.10);
     --card:#fffefb;
     --border:rgba(0,0,0,.10);
-    --border-strong:rgba(0,0,0,.16);
     --shadow:0 1px 3px rgba(0,0,0,.06);
-    --shadow-lg:0 8px 24px rgba(0,0,0,.10);
-    --rail-w:240px;
-    --rail-collapsed:48px;
-    --filmstrip-w:200px;
-    --brand-h:54px;
-    --action-h:60px;
+    --right-rail-w:280px;
+    --brand-h:48px;
   }
-  /* Dark theme: editing/work surface — image is the subject. Activates the
-     moment the user actually has work in front of them. Empty state stays
-     calm cream. */
+  /* Dark workspace tokens — engaged once user has work to do */
   body[data-state="solo"],
   body[data-state="multi"]{
     --bg:#141414;
@@ -38,80 +30,56 @@
     --accent-light:rgba(138,174,138,.16);
     --card:#1f1f1f;
     --border:rgba(255,255,255,.08);
-    --border-strong:rgba(255,255,255,.14);
     --shadow:0 1px 3px rgba(0,0,0,.4);
-    --shadow-lg:0 8px 24px rgba(0,0,0,.5);
   }
   *,*::before,*::after{box-sizing:border-box;}
   html,body{height:100%;}
   body{
     margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
-    color:var(--text);
-    background:var(--bg);
-    overflow:hidden;
+    color:var(--text);background:var(--bg);overflow:hidden;
   }
 
-  /* ---------- brand bar ---------- */
+  /* ---------- brand bar (small) ---------- */
   .brand-bar{
     height:var(--brand-h);
     display:flex;align-items:center;gap:14px;
-    padding:0 20px;
-    border-bottom:1px solid var(--border);
-    background:var(--bg);color:var(--text);
-    z-index:10;position:relative;
+    padding:0 16px;border-bottom:1px solid var(--border);
+    background:var(--bg);position:relative;z-index:10;
   }
-  .brand-bar .brand{color:var(--text);}
-  .brand-bar .brand .g{color:var(--accent);}
-  .brand{font-weight:700;font-size:1.18rem;letter-spacing:-.02em;}
+  .brand{
+    font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);
+    text-decoration:none;
+  }
   .brand .g{color:var(--accent);}
   .state-toggle{margin-left:auto;display:flex;gap:6px;align-items:center;}
-  .state-toggle small{color:var(--muted);font-size:.72rem;margin-right:6px;}
+  .state-toggle small{color:var(--muted);font-size:.66rem;}
   .state-toggle button{
-    border:1px solid var(--border-strong);background:transparent;color:var(--text);
-    font-size:.74rem;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:inherit;
+    border:1px solid var(--border);background:transparent;color:var(--text);
+    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;
   }
-  .state-toggle button.active{
-    background:var(--accent);color:#fff;border-color:var(--accent);
-  }
+  .state-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
   /* ---------- shared button styles ---------- */
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:6px;
-    padding:9px 14px;border-radius:8px;font-family:inherit;font-size:.84rem;font-weight:600;
+    padding:10px 14px;border-radius:8px;font-family:inherit;font-size:.84rem;font-weight:600;
     border:1px solid var(--border);background:var(--card);color:var(--text);
     cursor:pointer;transition:background .12s,border-color .12s;
   }
   .btn:hover{background:var(--accent-light);border-color:color-mix(in srgb,var(--accent) 40%,var(--border));}
   .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
   .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
-  .btn-ghost{background:transparent;}
-  .btn-danger{color:#9c4a4a;border-color:rgba(156,74,74,.25);}
-  .btn-danger:hover{background:rgba(156,74,74,.08);}
-  /* Desktop Clear all: quiet ghost, slim padding, flex:0 0 auto so it doesn't
-     grow with the row. On dark theme the colour shifts to a softer terracotta. */
-  .btn-clear{
-    background:transparent;border:1px solid var(--border);color:var(--muted);
-    padding:9px 14px;border-radius:8px;font-family:inherit;font-size:.84rem;
-    font-weight:600;cursor:pointer;
-  }
-  .btn-clear:hover{background:rgba(156,74,74,.06);color:#c98080;border-color:rgba(156,74,74,.3);}
-  body[data-state="solo"] .btn-clear,
-  body[data-state="multi"] .btn-clear{
-    color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.14);
-  }
+  .btn-clear{background:transparent;color:rgba(220,160,160,.7);border-color:var(--border);}
   body[data-state="solo"] .btn-clear:hover,
   body[data-state="multi"] .btn-clear:hover{
     color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);
   }
-  .btn-block{width:100%;}
 
   /* ---------- empty state ---------- */
   .empty-state{
-    display:none;
-    height:calc(100vh - var(--brand-h));
-    align-items:center;justify-content:center;
-    padding:24px;
+    display:none;height:calc(100vh - var(--brand-h));
+    align-items:center;justify-content:center;padding:24px;
   }
   body[data-state="empty"] .empty-state{display:flex;}
   body[data-state="empty"] .three-pane,
@@ -119,123 +87,21 @@
   .dropzone{
     width:min(620px,100%);
     border:2px dashed color-mix(in srgb,var(--accent) 35%,var(--border));
-    border-radius:18px;
-    padding:54px 32px;
-    text-align:center;
-    background:color-mix(in srgb,var(--card) 80%,transparent);
-    cursor:pointer;
+    border-radius:18px;padding:54px 32px;text-align:center;
+    background:color-mix(in srgb,var(--card) 80%,transparent);cursor:pointer;
   }
   .dropzone:hover{background:var(--accent-light);border-color:var(--accent);}
-  .dz-icon{
-    width:60px;height:60px;border-radius:50%;
+  .dz-icon{width:60px;height:60px;border-radius:50%;
     background:var(--accent-light);color:var(--accent);
-    display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;
-  }
+    display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;}
   .dz-icon svg{width:30px;height:30px;}
   .dz-title{font-weight:600;font-size:1.18rem;margin:0 0 4px;}
   .dz-sub{color:var(--muted);font-size:.88rem;margin:0;}
   .dz-trust{margin-top:10px;font-size:.74rem;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:6px;}
 
-  /* ---------- solo state ---------- */
-  .solo-state{
-    display:none;
-    height:calc(100vh - var(--brand-h));
-    flex-direction:column;
-    padding:0;gap:0;
-  }
-  body[data-state="solo"] .solo-state{display:flex;}
-  body[data-state="solo"] .three-pane,
-  body[data-state="solo"] .empty-state{display:none;}
-  .solo-image{
-    flex:1;min-height:0;
-    background:#000;
-    overflow:hidden;position:relative;
-  }
-
-  /* ---------- shared modifier bar contents (used solo + center pane) ---------- */
-  .format-pills{display:flex;gap:4px;background:rgba(0,0,0,.04);padding:3px;border-radius:8px;}
-  .format-pills button{
-    border:0;background:transparent;color:var(--muted);
-    font-family:inherit;font-size:.78rem;font-weight:600;
-    padding:6px 12px;border-radius:6px;cursor:pointer;
-  }
-  .format-pills button.active{background:var(--card);color:var(--text);box-shadow:var(--shadow);}
-  .quality-block{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);}
-  .quality-block label{font-weight:600;color:var(--text);}
-  .quality-block input[type=range]{
-    -webkit-appearance:none;appearance:none;
-    width:120px;height:6px;background:var(--accent-light);border-radius:99px;cursor:pointer;
-  }
-  .quality-block input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none;appearance:none;
-    width:18px;height:18px;border-radius:50%;background:var(--accent);
-    border:2px solid var(--card);box-shadow:var(--shadow);
-  }
-  .q-val{
-    background:var(--accent);color:#fff;font-weight:700;font-size:.74rem;
-    padding:2px 8px;border-radius:4px;min-width:32px;text-align:center;
-  }
-  .modifier-actions{margin-left:auto;display:flex;gap:6px;}
-
-  /* ---------- 3-pane layout ---------- */
-  .three-pane{
-    display:none;
-    height:calc(100vh - var(--brand-h));
-    grid-template-columns:var(--rail-w) 1fr var(--filmstrip-w);
-    grid-template-rows:1fr;
-  }
-  body[data-state="multi"] .three-pane{display:grid;}
-  body[data-state="multi"] .empty-state,
-  body[data-state="multi"] .solo-state{display:none;}
-  .three-pane.rail-collapsed{grid-template-columns:var(--rail-collapsed) 1fr var(--filmstrip-w);}
-
-  /* Grid items must have min-height:0 to be capped by the row, otherwise they
-     size to their content (filmstrip + flex:1 children intrinsically grow).
-     Same for nested flex children. */
-  .three-pane > * { min-height: 0; min-width: 0; overflow: hidden; }
-
-  /* left rail */
-  .left-rail{
-    border-right:1px solid var(--border);
-    display:flex;flex-direction:column;
-    background:var(--bg);position:relative;
-  }
-  .rail-toggle{
-    width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
-    background:var(--card);color:var(--text);cursor:pointer;
-    display:inline-flex;align-items:center;justify-content:center;
-    margin:8px;font-size:.9rem;
-  }
-  .rail-toggle:hover{background:var(--accent-light);border-color:var(--accent);}
-  .three-pane.rail-collapsed .rail-content{display:none;}
-  .three-pane.rail-collapsed .rail-toggle svg{transform:rotate(180deg);}
-  .rail-content{flex:1;overflow-y:auto;padding:0 18px 18px;}
-  .rail-section{margin-top:18px;}
-  .rail-label{
-    display:block;font-size:.7rem;font-weight:700;letter-spacing:.05em;
-    text-transform:uppercase;color:var(--muted);margin-bottom:8px;
-  }
-  .rail-pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
-  .rail-pills button{
-    padding:8px 6px;border:1px solid var(--border);background:var(--card);
-    border-radius:8px;color:var(--text);font-family:inherit;font-size:.74rem;font-weight:600;
-    cursor:pointer;
-  }
-  .rail-pills button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .rail-input{
-    width:100%;padding:8px 10px;border:1px solid var(--border);
-    background:var(--card);border-radius:8px;font-family:inherit;font-size:.84rem;
-  }
-  .rail-input + .rail-hint{font-size:.72rem;color:var(--muted);margin-top:4px;}
-
-  /* center pane */
-  .center-pane{
-    display:flex;flex-direction:column;padding:0;gap:0;min-height:0;
-  }
-  .center-image{
-    flex:1;min-height:0;
-    background:#000;
-    overflow:hidden;position:relative;
+  /* ---------- shared image-viewer pieces ---------- */
+  .image-viewer{
+    flex:1;min-height:0;background:#000;overflow:hidden;position:relative;
   }
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -252,58 +118,133 @@
     cursor:ew-resize;color:var(--text);
   }
   .compare-meta{
-    position:absolute;top:14px;left:14px;
+    position:absolute;top:14px;
     background:rgba(0,0,0,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-    color:#fff;
-    padding:6px 10px;border-radius:8px;font-size:.74rem;font-weight:600;
-    z-index:4;
+    color:#fff;padding:7px 12px;border-radius:8px;
+    font-size:.74rem;font-weight:600;line-height:1.35;
+    pointer-events:none;z-index:4;display:flex;flex-direction:column;gap:2px;
   }
-  .compare-meta.right{left:auto;right:14px;text-align:right;}
-  .compare-meta .pct{color:#bfe6bf;font-weight:700;display:block;font-size:.85rem;}
+  .compare-meta.l{left:14px;align-items:flex-start;}
+  .compare-meta.r{right:14px;align-items:flex-end;text-align:right;}
+  .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
+  .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.78rem;}
+  /* The After-corner batch summary row — replaces the standalone saved counter */
+  .compare-meta .batch-row{
+    margin-top:5px;padding-top:5px;
+    border-top:1px solid rgba(255,255,255,.18);
+    font-size:.7rem;font-weight:500;color:rgba(255,255,255,.85);
+    letter-spacing:.01em;
+  }
+  body[data-state="solo"] .compare-meta .batch-row{display:none;} /* solo = 1 file, no batch row */
   .compare-zoom{
-    position:absolute;bottom:64px;right:14px;
+    position:absolute;bottom:14px;right:14px;
     width:32px;height:32px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;
     border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;
   }
 
-  /* fs-editor — the live editor pill, lifted from production app.css */
-  .fs-editor{position:absolute;bottom:14px;left:0;right:0;z-index:8;display:flex;align-items:center;justify-content:center;padding:0 16px;pointer-events:none;}
-  .fs-editor-inner{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:14px;row-gap:8px;background:rgba(20,20,20,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;pointer-events:auto;max-width:720px;width:100%;}
-  .fs-editor .fe-tuning{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap;}
-  .fs-editor .fe-actions{display:flex;align-items:center;gap:6px;justify-self:end;flex-shrink:0;}
-  .fs-editor .fe-fmt{display:flex;gap:3px;flex-shrink:0;}
-  .fs-editor .fe-fmt button{padding:3px 9px;border-radius:5px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.55);font-size:.7rem;font-weight:600;cursor:pointer;text-transform:uppercase;font-family:inherit;transition:all .15s;}
-  .fs-editor .fe-fmt button:hover{background:rgba(255,255,255,.12);color:#fff;}
-  .fs-editor .fe-fmt button.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.45);}
-  .fs-editor .fe-q-label{color:rgba(255,255,255,.55);font-size:.7rem;font-weight:600;letter-spacing:.04em;white-space:nowrap;text-transform:uppercase;}
-  .fs-editor .fe-q{display:flex;align-items:center;gap:6px;flex:1;min-width:0;}
-  .fs-editor .fe-q input[type=range]{flex:1;min-width:60px;accent-color:#6e9e6e;height:4px;cursor:pointer;}
-  .fs-editor .fe-q-val{color:#fff;font-size:.75rem;font-weight:700;min-width:28px;text-align:center;}
-  .fs-editor .fe-dl{padding:6px 16px;border-radius:7px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:.73rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;flex-shrink:0;}
-  .fs-editor .fe-dl:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.4);}
-  .fs-editor .fe-action{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;}
-  .fs-editor .fe-action svg{flex-shrink:0;opacity:.92;}
-  .fs-editor .fe-action-ghost{background:transparent;border-color:rgba(255,255,255,.22);color:rgba(255,255,255,.92);font-weight:600;}
-  .fs-editor .fe-action-ghost:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4);color:#fff;}
-  .fs-editor .fe-dl-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
-  .fs-editor .fe-dl-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  /* ---------- the work column (image + adjust + actions) ---------- */
+  .work-stack{
+    display:flex;flex-direction:column;min-height:0;height:100%;
+  }
+  .work-stack > .image-viewer{flex:1;min-height:0;}
 
-  /* right rail / filmstrip */
+  /* ---------- adjust toggle + collapsible panel ---------- */
+  .adjust-row{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px;border-top:1px solid var(--border);background:var(--bg);
+    flex-shrink:0;
+  }
+  .adjust-toggle{
+    display:inline-flex;align-items:center;gap:6px;
+    background:transparent;border:0;color:var(--muted);
+    font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;
+    padding:4px 8px;border-radius:6px;
+  }
+  .adjust-toggle:hover{color:var(--text);background:var(--accent-light);}
+  .adjust-toggle .tri{
+    display:inline-block;font-size:.6rem;transition:transform .15s;
+  }
+  body[data-adjust="open"] .adjust-toggle .tri{transform:rotate(180deg);}
+  .adjust-row .saved-summary{
+    margin-left:auto;font-size:.74rem;color:var(--muted);
+  }
+  .adjust-row .saved-summary strong{color:var(--accent);font-weight:700;}
+
+  .adjust-panel{
+    display:none;
+    padding:14px 16px;background:var(--card);
+    border-top:1px solid var(--border);
+    flex-shrink:0;
+  }
+  body[data-adjust="open"] .adjust-panel{display:block;}
+  .adjust-section{margin-bottom:14px;}
+  .adjust-section:last-child{margin-bottom:0;}
+  .adjust-label{
+    display:block;font-size:.68rem;font-weight:700;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+  }
+  .adjust-pills{display:flex;flex-wrap:wrap;gap:6px;}
+  .adjust-pills button{
+    padding:7px 12px;border:1px solid var(--border);background:transparent;
+    border-radius:7px;color:var(--text);font-family:inherit;font-size:.78rem;font-weight:600;
+    cursor:pointer;
+  }
+  .adjust-pills button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .quality-row{display:flex;align-items:center;gap:8px;}
+  .quality-row input[type=range]{flex:1;accent-color:var(--accent);}
+  .q-val{
+    background:var(--accent);color:#fff;font-weight:700;font-size:.74rem;
+    padding:2px 8px;border-radius:4px;min-width:32px;text-align:center;
+  }
+  .adjust-input{
+    width:100%;padding:8px 10px;border:1px solid var(--border);
+    background:var(--bg);color:var(--text);
+    border-radius:7px;font-family:inherit;font-size:.84rem;
+  }
+  .adjust-row-inline{display:flex;gap:8px;align-items:center;}
+  .adjust-row-inline select{
+    padding:8px 10px;border:1px solid var(--border);
+    background:var(--bg);color:var(--text);
+    border-radius:7px;font-family:inherit;font-size:.78rem;
+  }
+  .adjust-checkbox{display:flex;align-items:center;gap:8px;font-size:.84rem;cursor:pointer;}
+  .adjust-hint{font-size:.7rem;color:var(--muted);margin-top:5px;}
+
+  /* ---------- action bar (terminal actions) ---------- */
+  .action-bar{
+    display:flex;flex-direction:column;gap:8px;
+    padding:12px 14px env(safe-area-inset-bottom,12px);
+    border-top:1px solid var(--border);background:var(--bg);
+    flex-shrink:0;
+  }
+  .action-row{
+    display:flex;gap:8px;align-items:stretch;
+  }
+  .action-row .btn{flex:1;min-width:0;}
+  .action-row .btn-clear{flex:0 0 auto;padding:10px 12px;}
+  .action-bar .focused-name{
+    font-size:.7rem;color:var(--muted);text-align:center;
+    font-variant-numeric:tabular-nums;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .action-bar .focused-name strong{color:var(--text);font-weight:600;}
+
+  /* ---------- empty / solo / multi state switching ---------- */
+  .solo-state,.three-pane{display:none;}
+  body[data-state="solo"] .solo-state{display:flex;flex-direction:column;height:calc(100vh - var(--brand-h));}
+  body[data-state="multi"] .three-pane{
+    display:grid;grid-template-columns:1fr var(--right-rail-w);
+    height:calc(100vh - var(--brand-h));
+  }
+  .three-pane > *{min-height:0;min-width:0;overflow:hidden;}
+
+  /* ---------- right rail (filmstrip + adjust + actions) ---------- */
   .right-rail{
     display:flex;flex-direction:column;
-    border-left:1px solid var(--border);
-    background:var(--bg);
+    border-left:1px solid var(--border);background:var(--bg);
   }
-  .filmstrip-header{
-    padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
-  }
-  .filmstrip-header h3{
-    margin:0;font-size:.7rem;font-weight:700;letter-spacing:.05em;
-    text-transform:uppercase;color:var(--muted);
-  }
-  .filmstrip-header .count{font-size:.74rem;color:var(--muted);}
-  .filmstrip{
-    flex:1;min-height:0;overflow-y:auto;padding:8px 14px 14px;
+  .filmstrip-wrap{
+    flex:1;min-height:0;overflow-y:auto;padding:12px;
   }
   .thumb{
     width:100%;aspect-ratio:1/1;border-radius:10px;
@@ -312,169 +253,47 @@
     border:2px solid transparent;transition:border-color .12s,transform .12s;
   }
   .thumb:hover{transform:translateY(-1px);}
-  .thumb.active{border-color:var(--accent);box-shadow:var(--shadow);}
+  .thumb.active{border-color:var(--accent);}
   .thumb-img{width:100%;height:100%;display:block;}
-  .thumb-meta{
-    position:absolute;left:6px;bottom:6px;
-    font-size:.68rem;font-weight:700;color:#fff;
-    text-shadow:0 1px 2px rgba(0,0,0,.5);
-  }
   .thumb-savings{
     position:absolute;right:6px;top:6px;
-    background:rgba(255,255,255,.92);color:var(--accent);
+    background:rgba(255,255,255,.92);color:var(--accent-strong);
     font-size:.65rem;font-weight:700;padding:2px 6px;border-radius:99px;
   }
 
-  /* bulk action bar */
-  .bulk-actions{
-    display:flex;flex-direction:column;gap:8px;flex-shrink:0;
-    padding:14px;border-top:1px solid var(--border);
-    background:var(--bg);
-  }
-  /* Desktop: hide the mobile-only saved counter (filmstrip header carries it) */
-  .mobile-only-saved{display:none;}
-  .bulk-buttons-row{display:flex;flex-direction:column;gap:8px;}
-  .bulk-saved{
-    font-size:.74rem;color:var(--muted);text-align:center;margin-bottom:2px;
-  }
-  .bulk-saved strong{color:var(--accent);font-weight:700;}
-
-  /* ---------- desktop default: mobile bits hidden ---------- */
-  .mobile-tabs{display:none;}
-  /* footer note shouldn't overlap multi/solo content */
-  body[data-state="multi"] .footer-note,
-  body[data-state="solo"] .footer-note{display:none;}
+  /* center pane on desktop */
+  .center-pane{display:flex;flex-direction:column;}
 
   /* ---------- mobile: <768px ---------- */
   @media(max-width:767px){
     body[data-state="multi"] .three-pane{
       display:flex;flex-direction:column;
       grid-template-columns:none;
-      height:calc(100vh - var(--brand-h));
     }
-    /* Flatten right-rail into the flex column so we can order its children
-       (tabs / filmstrip / bulk-actions) inline with .left-rail (settings) */
     .three-pane .right-rail{display:contents;}
-    .three-pane .center-pane{padding:0;flex:1;min-height:0;order:1;}
-    /* center-image stays full-bleed on mobile too */
-    /* tabs after center, then either filmstrip or settings, then bulk-actions */
-    .three-pane .mobile-tabs{
-      order:2;border-top:1px solid var(--border);background:var(--bg);
-      flex-shrink:0;
+    .center-pane{order:1;flex:1;min-height:0;}
+    .filmstrip-wrap{
+      order:2;flex:0 0 auto;
+      display:flex;flex-direction:row;gap:8px;
+      overflow-x:auto;overflow-y:hidden;
+      padding:10px 12px;
+      border-top:1px solid var(--border);
     }
-    /* Filmstrip when tab=images (default) */
-    body[data-mobile-tab="images"] .three-pane .filmstrip{order:3;flex:0 0 auto;display:flex;}
-    body[data-mobile-tab="settings"] .three-pane .filmstrip{display:none;}
-    /* Settings (left-rail) when tab=settings — sits in the same slot */
-    body[data-mobile-tab="images"] .three-pane .left-rail{display:none;}
-    body[data-mobile-tab="settings"] .three-pane .left-rail{
-      order:3;flex-shrink:1;flex-basis:auto;
-      display:flex;flex-direction:column;border-right:0;
-      padding:14px 16px env(safe-area-inset-bottom,14px);
-      overflow-y:auto;
-    }
-    /* On mobile the rail-collapsed flag from desktop default doesn't apply —
-       there's no "collapse" concept here, the Settings tab IS the toggle.
-       Force rail-content visible regardless. */
-    .three-pane.rail-collapsed .rail-content{display:block;}
-    .three-pane .rail-toggle{display:none;}
-    /* Settings tab on mobile takes whatever space remains after the image,
-       tabs, and bulk-actions. Image flex:1 still grows to fill. */
-    /* Bulk actions always last */
-    .three-pane .bulk-actions{order:4;flex-shrink:0;border-top:1px solid var(--border);}
-    .mobile-tabs{
-      display:flex;border-bottom:1px solid var(--border);background:var(--bg);
-    }
-    .mobile-tabs button{
-      flex:1;padding:10px;border:0;background:transparent;
-      color:var(--muted);font-family:inherit;font-weight:600;font-size:.86rem;
-      cursor:pointer;border-bottom:2px solid transparent;
-    }
-    .mobile-tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);}
-    .filmstrip-header{display:none;}
-
-    .filmstrip{
-      flex:0 0 auto;
-      padding:10px 12px;overflow-x:auto;overflow-y:hidden;gap:8px;
-      flex-direction:row;
-    }
-    .filmstrip .thumb{
+    .filmstrip-wrap .thumb{
       width:84px;height:84px;flex-shrink:0;margin:0;aspect-ratio:1/1;
     }
+    .three-pane .adjust-row{order:3;}
+    .three-pane .adjust-panel{order:4;max-height:50vh;overflow-y:auto;}
+    .three-pane .action-bar{order:5;}
 
-    .left-rail .rail-toggle{display:none;} /* no rail-collapse on mobile, the tab is the toggle */
-
-    .bulk-actions{
-      flex-direction:row;gap:8px;
-      padding:10px 14px env(safe-area-inset-bottom,10px);
-    }
-    .bulk-saved{
-      flex:1;text-align:left;align-self:center;margin:0;
-    }
-
-    /* solo state on mobile: tighter padding, modifier sticks bottom */
-    body[data-state="solo"] .solo-state{padding:0;gap:0;}
-
-    /* state toggle compact */
     .state-toggle small{display:none;}
-    .state-toggle button{padding:4px 8px;font-size:.7rem;}
     .brand-bar{padding:0 12px;}
-  
-    /* fs-editor mobile (mirrors production app.css mobile rules) */
-    .fs-editor{padding:0 8px;bottom:8px;}
-    .fs-editor-inner{flex-wrap:wrap;gap:8px;padding:10px 12px;border-radius:12px;justify-content:center;display:flex;}
-    .fs-editor .fe-tuning{order:1;width:100%;}
-    .fs-editor .fe-actions{order:2;width:100%;justify-content:space-between;}
-    .fs-editor .fe-fmt{width:100%;justify-content:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-    .fs-editor .fe-fmt::-webkit-scrollbar{display:none;}
-    .fs-editor .fe-fmt button{padding:8px 14px;font-size:.82rem;min-height:38px;border-radius:8px;flex-shrink:0;}
-    .fs-editor .fe-q{flex:1;min-width:0;gap:8px;}
-    .fs-editor .fe-q input[type=range]{height:24px;}
-    .fs-editor .fe-q-label{font-size:.74rem;}
-    .fs-editor .fe-dl{padding:8px 16px;font-size:.82rem;min-height:38px;}
-    .fs-editor .fe-action{padding:8px 10px;gap:4px;}
-    .fs-editor .fe-action .fe-action-label{display:none;}
+  }
 
-    /* Mobile bulk-actions: visible only when Images tab is active.
-       When Settings tab is active, the user is configuring, not acting. */
-    body[data-mobile-tab="settings"] .three-pane .bulk-actions{display:none;}
-    body[data-mobile-tab="images"] .three-pane .bulk-actions{
-      display:flex;flex-direction:column;gap:8px;padding:12px 10px env(safe-area-inset-bottom,12px);
-    }
-    body[data-mobile-tab="images"] .three-pane .mobile-only-saved{display:block;}
-    /* Saved counter on its own row (top), buttons row below. Matches production
-       action-cluster layout where stats and CTAs occupy separate visual lines. */
-    .three-pane .bulk-actions .bulk-saved{
-      text-align:left;font-size:.78rem;margin:0;flex:0 0 auto;
-    }
-    .three-pane .bulk-actions .bulk-buttons-row{
-      display:flex;flex-direction:row;gap:6px;align-items:stretch;
-    }
-    .three-pane .bulk-actions .bulk-buttons-row .btn{
-      flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      padding:10px 6px;font-size:.8rem;
-    }
-    .three-pane .bulk-actions .bulk-buttons-row .btn-clear{
-      flex:0 0 auto;padding:10px 10px;font-size:.78rem;
-    }
-
-    /* Clear all sits inline with Share/Download but reads as a quiet ghost
-       so Download stays the obvious primary. Matches production .btn-ghost. */
-    .three-pane .bulk-actions .btn-clear{
-      flex:0 0 auto;padding:8px 12px;
-      background:transparent;border:1px solid rgba(255,255,255,.18);
-      color:rgba(220,160,160,.85);font-weight:600;font-family:inherit;
-      border-radius:8px;cursor:pointer;font-size:.78rem;
-    }
-    .three-pane .bulk-actions .btn-clear:hover{
-      color:#fff;border-color:rgba(220,160,160,.5);background:rgba(220,160,160,.12);
-    }
-}
-
-  /* ---------- mock images: gradient backdrops + label ---------- */
+  /* ---------- mock images ---------- */
   .mock-image{
     width:100%;height:100%;display:flex;align-items:flex-end;
-    padding:14px;color:#fff;font-weight:600;font-size:1.1rem;
+    padding:14px;color:#fff;font-weight:600;font-size:1rem;
     text-shadow:0 1px 3px rgba(0,0,0,.4);
   }
   .mock-image.large{font-size:1.4rem;padding:20px;}
@@ -484,29 +303,22 @@
   .mi-4{background:linear-gradient(135deg,#7a4a4a,#c98080);}
   .mi-5{background:linear-gradient(135deg,#3e3a4a,#7a778a);}
   .mi-6{background:linear-gradient(135deg,#946a2a,#dcb878);}
-  .mi-7{background:linear-gradient(135deg,#2a5a4a,#76b09a);}
-  .mi-1b{background:linear-gradient(135deg,#446644,#8aba8a);} /* darker variant for "before" half */
+  .mi-1b{background:linear-gradient(135deg,#446644,#8aba8a);}
   .mi-2b{background:linear-gradient(135deg,#2f5482,#6792b8);}
   .mi-3b{background:linear-gradient(135deg,#965010,#cc8c54);}
   .mi-4b{background:linear-gradient(135deg,#5d3a3a,#a86c6c);}
   .mi-5b{background:linear-gradient(135deg,#2a263a,#605d70);}
   .mi-6b{background:linear-gradient(135deg,#74521e,#c39c5c);}
-
-  .footer-note{
-    position:fixed;bottom:8px;left:8px;right:8px;text-align:center;
-    font-size:.7rem;color:var(--muted);pointer-events:none;
-  }
-  body[data-state="empty"] .footer-note{display:none;}
 </style>
 </head>
-<body data-state="multi" data-mobile-tab="images">
+<body data-state="multi" data-adjust="closed">
 
 <div class="brand-bar">
-  <span class="brand">img<span class="g">ready</span></span>
+  <a href="/" class="brand" title="Back to landing">img<span class="g">ready</span></a>
   <div class="state-toggle">
-    <small>Prototype state:</small>
+    <small>State:</small>
     <button data-tgt="empty" onclick="setState('empty')">Empty</button>
-    <button data-tgt="solo" onclick="setState('solo')">Solo (1 image)</button>
+    <button data-tgt="solo" onclick="setState('solo')">Solo</button>
     <button data-tgt="multi" onclick="setState('multi')" class="active">Multi (6)</button>
   </div>
 </div>
@@ -527,137 +339,104 @@
 </section>
 
 <!-- ============================ SOLO STATE ============================ -->
-<section class="solo-state">
-  <div class="solo-image">
-    <div class="mock-image large mi-1b" style="position:absolute;inset:0;">test-photo.jpg</div>
-    <div class="mock-image large mi-1" style="position:absolute;inset:0;clip-path:inset(0 0 0 50%);">test-photo.jpg</div>
+<section class="solo-state work-stack">
+  <div class="image-viewer">
+    <div class="mock-image large mi-1b compare-before">test-photo.jpg</div>
+    <div class="compare-after">
+      <div class="mock-image large mi-1">test-photo.jpg</div>
+    </div>
     <div class="compare-divider"></div>
     <button class="compare-handle" aria-label="Drag to compare">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg>
     </button>
-    <div class="compare-meta">Before<br><strong>493 KB · JPG</strong></div>
-    <div class="compare-meta right">After<br><strong>322 KB · JPG</strong><span class="pct">35% smaller</span></div>
-    <button class="compare-zoom" aria-label="Open fullscreen">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+    <div class="compare-meta l">
+      <span class="lbl-title">Before</span>
+      <span>493 KB · JPG</span>
+    </div>
+    <div class="compare-meta r">
+      <span class="lbl-title">After</span>
+      <span>322 KB · JPG</span>
+      <span class="pct">35% smaller</span>
+    </div>
+  </div>
+
+  <div class="adjust-row">
+    <button class="adjust-toggle" onclick="toggleAdjust()">
+      <span>Adjust</span><span class="tri">▼</span>
     </button>
-    <div class="fs-editor">
-      <div class="fs-editor-inner">
-        <div class="fe-tuning">
-          <div class="fe-fmt">
-            <button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button>
-          </div>
-          <span class="fe-q-label">Quality</span>
-          <div class="fe-q">
-            <input type="range" min="10" max="100" value="82">
-            <span class="fe-q-val">82</span>
-          </div>
-        </div>
-        <div class="fe-actions">
-          <button class="fe-dl fe-action fe-action-ghost" title="Share">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span class="fe-action-label">Share</span>
-          </button>
-          <button class="fe-dl fe-action fe-action-ghost" title="Copy">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span class="fe-action-label">Copy</span>
-          </button>
-          <button class="fe-dl fe-dl-primary">Download</button>
-        </div>
+  </div>
+
+  <div class="adjust-panel">
+    <div class="adjust-section">
+      <span class="adjust-label">Format</span>
+      <div class="adjust-pills">
+        <button>Auto</button><button>WebP</button><button>AVIF</button>
+        <button class="active">JPG</button><button>PNG</button>
       </div>
+    </div>
+    <div class="adjust-section">
+      <span class="adjust-label">Quality · 82</span>
+      <div class="quality-row">
+        <input type="range" min="10" max="100" value="82">
+        <span class="q-val">82</span>
+      </div>
+      <div class="adjust-hint">Great quality with significant file size savings.</div>
+    </div>
+    <div class="adjust-section">
+      <span class="adjust-label">Resize</span>
+      <div class="adjust-row-inline">
+        <select><option>Longest side (px)</option><option>Percent (%)</option></select>
+        <input type="number" class="adjust-input" placeholder="e.g. 1200" style="flex:1;">
+      </div>
+      <div class="adjust-hint">Aspect ratio is always preserved.</div>
+    </div>
+    <div class="adjust-section">
+      <span class="adjust-label">Privacy</span>
+      <label class="adjust-checkbox">
+        <input type="checkbox" checked>
+        <span>Strip metadata (EXIF, GPS, camera info)</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="focused-name"><strong>test-photo.jpg</strong></div>
+    <div class="action-row">
+      <button class="btn">Share</button>
+      <button class="btn">Copy</button>
+      <button class="btn btn-primary">Download</button>
     </div>
   </div>
 </section>
 
-<!-- ============================ MULTI STATE — 3-PANE ============================ -->
-<section class="three-pane rail-collapsed">
+<!-- ============================ MULTI STATE — 2-PANE ============================ -->
+<section class="three-pane">
 
-  <!-- LEFT: settings rail (collapsible) -->
-  <aside class="left-rail">
-    <button class="rail-toggle" onclick="toggleRail()" aria-label="Toggle settings">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <div class="rail-content">
-      <div class="rail-section">
-        <span class="rail-label">Output</span>
-        <div class="rail-pills">
-          <button class="active">Auto</button><button>WebP</button><button>AVIF</button>
-          <button>PNG</button><button>JPG</button><button>GIF</button>
-        </div>
-      </div>
-      <div class="rail-section">
-        <span class="rail-label">Quality</span>
-        <div class="quality-block" style="width:100%;">
-          <input type="range" min="30" max="100" value="82" style="flex:1;width:auto;">
-          <span class="q-val">82</span>
-        </div>
-        <div class="rail-hint">Great quality with significant file size savings.</div>
-      </div>
-      <div class="rail-section">
-        <span class="rail-label">Resize</span>
-        <input type="number" class="rail-input" placeholder="e.g. 1200">
-        <div class="rail-hint">Aspect ratio is always preserved.</div>
-      </div>
-      <div class="rail-section">
-        <span class="rail-label">Privacy</span>
-        <label style="display:flex;align-items:center;gap:8px;font-size:.84rem;cursor:pointer;">
-          <input type="checkbox" checked>
-          <span>Strip metadata (EXIF, GPS)</span>
-        </label>
-      </div>
-    </div>
-  </aside>
-
-  <!-- CENTER: focused image -->
   <main class="center-pane">
-    <div class="center-image" id="centerImage">
-      <div class="mock-image large mi-1b" style="position:absolute;inset:0;">photo-1.jpg</div>
-      <div class="mock-image large mi-1" style="position:absolute;inset:0;clip-path:inset(0 0 0 50%);">photo-1.jpg</div>
+    <div class="image-viewer" id="centerImage">
+      <div class="mock-image large mi-1b compare-before">photo-1.jpg</div>
+      <div class="compare-after">
+        <div class="mock-image large mi-1">photo-1.jpg</div>
+      </div>
       <div class="compare-divider"></div>
       <button class="compare-handle" aria-label="Drag to compare">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg>
       </button>
-      <div class="compare-meta">Before<br><strong>1.4 MB · PNG</strong></div>
-      <div class="compare-meta right">After<br><strong>312 KB · WebP</strong><span class="pct">78% smaller</span></div>
-      <button class="compare-zoom" aria-label="Open fullscreen">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-      </button>
-      <div class="fs-editor">
-        <div class="fs-editor-inner">
-          <div class="fe-tuning">
-            <div class="fe-fmt">
-              <button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button>
-            </div>
-            <span class="fe-q-label">Quality</span>
-            <div class="fe-q">
-              <input type="range" min="10" max="100" value="82">
-              <span class="fe-q-val">82</span>
-            </div>
-          </div>
-          <div class="fe-actions">
-            <button class="fe-dl fe-action fe-action-ghost" title="Share">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span class="fe-action-label">Share</span>
-            </button>
-            <button class="fe-dl fe-action fe-action-ghost" title="Copy">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span class="fe-action-label">Copy</span>
-            </button>
-            <button class="fe-dl fe-dl-primary">Download</button>
-          </div>
-        </div>
+      <div class="compare-meta l">
+        <span class="lbl-title">Before</span>
+        <span>1.4 MB · PNG</span>
+      </div>
+      <div class="compare-meta r">
+        <span class="lbl-title">After</span>
+        <span>312 KB · WebP</span>
+        <span class="pct">78% smaller</span>
+        <span class="batch-row">↓ 1.4 MB · 6 files total</span>
       </div>
     </div>
   </main>
 
-  <!-- RIGHT: filmstrip + bulk actions -->
   <aside class="right-rail">
-    <!-- mobile tabs (hidden on desktop) -->
-    <div class="mobile-tabs">
-      <button aria-selected="true" data-tab="images" onclick="setMobileTab('images')">Images (6)</button>
-      <button aria-selected="false" data-tab="settings" onclick="setMobileTab('settings')">Settings</button>
-    </div>
-
-    <div class="filmstrip-header">
-      <h3>6 images</h3>
-      <span class="count">↓ 1.4 MB saved</span>
-    </div>
-    <div class="filmstrip" id="filmstrip">
+    <div class="filmstrip-wrap" id="filmstrip">
       <div class="thumb active" data-name="photo-1.jpg" data-grad="1" onclick="selectThumb(this)">
         <div class="mock-image mi-1 thumb-img">photo-1</div>
         <span class="thumb-savings">78%</span>
@@ -683,51 +462,85 @@
         <span class="thumb-savings">28%</span>
       </div>
     </div>
-    <div class="bulk-actions">
-      <!-- Saved counter only renders on mobile — desktop shows it once in
-           the filmstrip header above. Avoiding the duplicate. -->
-      <div class="bulk-saved mobile-only-saved"><strong>↓ 1.4 MB saved</strong> · 6 images</div>
-      <div class="bulk-buttons-row">
-        <button class="btn">Share all</button>
+
+    <div class="adjust-row">
+      <button class="adjust-toggle" onclick="toggleAdjust()">
+        <span>Adjust</span><span class="tri">▼</span>
+      </button>
+    </div>
+
+    <div class="adjust-panel">
+      <div class="adjust-section">
+        <span class="adjust-label">Format</span>
+        <div class="adjust-pills">
+          <button class="active">Auto</button><button>WebP</button><button>AVIF</button>
+          <button>JPG</button><button>PNG</button>
+        </div>
+      </div>
+      <div class="adjust-section">
+        <span class="adjust-label">Quality · 82</span>
+        <div class="quality-row">
+          <input type="range" min="10" max="100" value="82">
+          <span class="q-val">82</span>
+        </div>
+        <div class="adjust-hint">Great quality with significant file size savings.</div>
+      </div>
+      <div class="adjust-section">
+        <span class="adjust-label">Resize</span>
+        <div class="adjust-row-inline">
+          <select><option>Longest side (px)</option><option>Percent (%)</option></select>
+          <input type="number" class="adjust-input" placeholder="e.g. 1200" style="flex:1;">
+        </div>
+      </div>
+      <div class="adjust-section">
+        <span class="adjust-label">Privacy</span>
+        <label class="adjust-checkbox">
+          <input type="checkbox" checked>
+          <span>Strip metadata (EXIF, GPS)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <div class="focused-name"><strong id="focusedName">photo-1.jpg</strong></div>
+      <div class="action-row">
+        <button class="btn" id="dlOneBtn">Download this</button>
         <button class="btn btn-primary">Download all</button>
-        <button class="btn btn-clear" type="button">Clear all</button>
+      </div>
+      <div class="action-row">
+        <button class="btn">Share all</button>
+        <button class="btn btn-clear">Clear all</button>
       </div>
     </div>
   </aside>
 </section>
 
-<div class="footer-note">Static prototype — drop in real images by going back to <a href="/">imgready.app</a>. State and tab toggles are at the top of this page.</div>
-
 <script>
 function setState(s){
   document.body.dataset.state = s;
+  document.body.dataset.adjust = 'closed';  /* always start adjust-closed when switching */
   document.querySelectorAll('.state-toggle button').forEach(b=>{
     b.classList.toggle('active', b.dataset.tgt === s);
   });
 }
+function toggleAdjust(){
+  document.body.dataset.adjust =
+    document.body.dataset.adjust === 'open' ? 'closed' : 'open';
+}
 function selectThumb(el){
   document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  // Swap center image gradient + name
   const grad = el.dataset.grad;
   const name = el.dataset.name;
   const ci = document.getElementById('centerImage');
-  ci.querySelectorAll('.mock-image').forEach((m,i)=>{
-    m.className = 'mock-image large mi-' + grad + (i===0 ? 'b' : '') + ' thumb-img';
-    m.style.position='absolute';m.style.inset='0';
-    if(i===1){m.style.clipPath='inset(0 0 0 50%)';}
-    m.textContent = name;
-  });
-  document.getElementById('modName').textContent = name;
-}
-function toggleRail(){
-  document.querySelector('.three-pane').classList.toggle('rail-collapsed');
-}
-function setMobileTab(t){
-  document.body.dataset.mobileTab = t;
-  document.querySelectorAll('.mobile-tabs button').forEach(b=>{
-    b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false');
-  });
+  const before = ci.querySelector('.compare-before');
+  const after = ci.querySelector('.compare-after .mock-image');
+  before.className = 'mock-image large mi-' + grad + 'b compare-before';
+  before.textContent = name;
+  after.className = 'mock-image large mi-' + grad;
+  after.textContent = name;
+  document.getElementById('focusedName').textContent = name;
+  document.getElementById('dlOneBtn').textContent = 'Download this';
 }
 </script>
 
