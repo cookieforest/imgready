@@ -376,6 +376,11 @@
       padding:14px 16px env(safe-area-inset-bottom,14px);
       overflow-y:auto;
     }
+    /* On mobile the rail-collapsed flag from desktop default doesn't apply —
+       there's no "collapse" concept here, the Settings tab IS the toggle.
+       Force rail-content visible regardless. */
+    .three-pane.rail-collapsed .rail-content{display:block;}
+    .three-pane .rail-toggle{display:none;}
     /* Settings tab on mobile takes whatever space remains after the image,
        tabs, and bulk-actions. Image flex:1 still grows to fill. */
     /* Bulk actions always last */
