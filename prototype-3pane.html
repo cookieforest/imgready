@@ -10,7 +10,7 @@
     --accent:#7a9a7a;--accent-strong:#5a7a5a;--accent-light:rgba(90,122,90,.10);
     --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
-    --card-bg:rgba(20,20,20,.82);--card-border:rgba(255,255,255,.12);--card-radius:12px;
+    --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
     --thumb-big:150px;--thumb-small:70px;--stride:120px;
     --action-w:240px;
   }
@@ -82,8 +82,9 @@
   /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
   .cover-flow{
     position:absolute;
-    /* desktop: bottom, leaves room on the right for the action card */
-    bottom:14px;left:14px;right:calc(var(--action-w) + 28px);
+    /* full-width so the centered thumb sits at viewport center;
+       the action card overlays the right portion */
+    bottom:14px;left:0;right:0;
     height:170px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
@@ -107,11 +108,7 @@
     cursor:pointer;
   }
   .cover-flow.dragging .cflow-thumb{transition:none;}
-  .cflow-thumb.active{
-    width:var(--thumb-big);
-    opacity:1;
-    z-index:5;
-  }
+  .cflow-thumb.active{z-index:5;}
   .cflow-thumb .thumb-img{width:100%;height:100%;display:block;font-size:1rem;}
   .cflow-thumb.active .thumb-img{font-size:1.6rem;}
   .cflow-thumb .thumb-savings{position:absolute;right:5px;top:5px;
@@ -216,22 +213,28 @@
 
   /* ---------- mobile ---------- */
   @media(max-width:767px){
-    :root{--thumb-big:110px;--thumb-small:55px;--stride:90px;--action-w:auto;}
+    :root{--thumb-big:110px;--thumb-small:55px;--action-w:auto;}
     .cover-flow{
-      /* Sit just above the menu card, as close as possible */
-      bottom:auto;top:auto;
+      /* Sit just above the menu card. Bottom value is updated by JS so the
+         strip stays ~6px above whatever the menu's current height is. */
+      bottom:calc(var(--menu-h,100px) + 6px);
       left:0;right:0;
       height:130px;
     }
-    .menu-wrap{
-      left:8px;right:8px;bottom:8px;width:auto;
+    .menu-wrap{left:8px;right:8px;bottom:8px;width:auto;}
+    /* Mobile actions on a single row */
+    .actions{
+      flex-direction:row;flex-wrap:nowrap;gap:6px;
+      padding:10px 12px max(12px,env(safe-area-inset-bottom,12px));
     }
+    .actions .btn{flex:1;min-width:0;font-size:.74rem;padding:9px 8px;}
+    .actions .btn-primary{flex:1.4;}
+    .actions .btn-clear{flex:0 0 auto;padding:9px 12px;}
     .compare-meta{font-size:.68rem;padding:6px 9px;}
     .compare-meta .lbl-title{font-size:.8rem;}
     .state-toggle small{display:none;}
     .brand-bar{padding:0 12px;}
     .pi-icon{width:42px;height:42px;}
-    .actions{padding:10px 12px max(12px,env(safe-area-inset-bottom,12px));}
   }
 
   /* ---------- mock images ---------- */
@@ -395,28 +398,33 @@ const CFLOW = {
 
 function init(){
   buildThumbs(20);
-  CFLOW.STRIDE = readStride();
   layoutCoverFlow();
   syncMainImage(true);
+  updateMenuHeight();
 
   const flow = document.getElementById('coverFlow');
   flow.addEventListener('pointerdown', onPointerDown);
   flow.addEventListener('wheel', onWheel, {passive:false});
+  attachHoverDelegation();
+
+  /* Track menu height changes so the mobile strip can sit just above it */
+  const obs = new MutationObserver(updateMenuHeight);
+  obs.observe(document.body, {attributes:true, attributeFilter:['data-adjust','data-state']});
+  window.addEventListener('resize', updateMenuHeight);
+}
+function updateMenuHeight(){
+  /* Read the active state's menu-card height and expose as --menu-h */
+  const card = document.querySelector('body[data-state="multi"] .stage.multi .menu-card')
+            || document.querySelector('body[data-state="solo"] .stage.solo .menu-card');
+  if (!card) return;
+  const h = card.offsetHeight || 100;
+  document.documentElement.style.setProperty('--menu-h', h + 'px');
 }
 window.addEventListener('DOMContentLoaded', init);
-window.addEventListener('resize', () => {
-  CFLOW.STRIDE = readStride();
-  layoutCoverFlow();
-});
-
-function readStride(){
-  const v = getComputedStyle(document.documentElement).getPropertyValue('--stride');
-  return parseInt(v) || 120;
-}
+window.addEventListener('resize', layoutCoverFlow);
 
 function buildThumbs(n){
   const track = document.getElementById('cflowTrack');
-  // Remove any existing thumbs (preserve pi-actions)
   Array.from(track.querySelectorAll('.cflow-thumb')).forEach(t=>t.remove());
   CFLOW.thumbs = [];
   for (let i = 0; i < n; i++) {
@@ -430,7 +438,6 @@ function buildThumbs(n){
     t.dataset.savings = String(savings);
     t.innerHTML = `<div class="thumb-img" style="width:100%;height:100%;background:linear-gradient(135deg,${a},${b});display:flex;align-items:flex-end;padding:6px;color:#fff;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.4);">${i+1}</div><span class="thumb-savings">${savings}%</span>`;
     t.addEventListener('click', e => onThumbClick(i, e));
-    t.addEventListener('mouseenter', () => onThumbHover(t));
     track.insertBefore(t, document.getElementById('piActions'));
     CFLOW.thumbs.push(t);
   }
@@ -438,13 +445,38 @@ function buildThumbs(n){
 
 function layoutCoverFlow(){
   const focal = CFLOW.selected + CFLOW.drift;
-  const STRIDE = CFLOW.STRIDE;
+  const cs = getComputedStyle(document.documentElement);
+  const W_BIG = parseInt(cs.getPropertyValue('--thumb-big')) || 150;
+  const W_SMALL = parseInt(cs.getPropertyValue('--thumb-small')) || 70;
+  const GAP = Math.round(W_SMALL / 5);  // 1/5 of small width as spacing
+  /* Variable stride:
+     STEP_TO_BIG = stride between selected (centered) and adjacent thumb
+     STEP_SMALL  = stride between two non-selected adjacent thumbs */
+  const STEP_TO_BIG = (W_BIG + W_SMALL)/2 + GAP;
+  const STEP_SMALL = W_SMALL + GAP;
+  /* Cache STRIDE for drag math: use STEP_TO_BIG since drag movement near focal
+     is dominated by the wider stride. */
+  CFLOW.STRIDE = STEP_TO_BIG;
+
   CFLOW.thumbs.forEach((thumb, i) => {
     const delta = i - focal;
-    const offset = delta * STRIDE;
+    const sign = Math.sign(delta);
+    const adel = Math.abs(delta);
+    /* Offset: linear from 0..STEP_TO_BIG over delta 0..1, then STEP_SMALL per step */
+    let offset;
+    if (adel < 0.0001) offset = 0;
+    else if (adel <= 1) offset = sign * adel * STEP_TO_BIG;
+    else offset = sign * (STEP_TO_BIG + (adel - 1) * STEP_SMALL);
+    /* Width: interpolate BIG↔SMALL when |delta|<0.5, else SMALL */
+    let w;
+    if (adel >= 0.5) w = W_SMALL;
+    else w = W_BIG + (W_SMALL - W_BIG) * (adel / 0.5);
     thumb.style.setProperty('--ox', offset.toFixed(1) + 'px');
-    const isActive = Math.abs(delta) < 0.5;
+    thumb.style.width = w.toFixed(1) + 'px';
+    const isActive = adel < 0.5;
     thumb.classList.toggle('active', isActive);
+    /* Opacity differential: full at center, .55 outside */
+    thumb.style.opacity = isActive ? (1 - adel * 0.9) : 0.55;
   });
 }
 
@@ -499,10 +531,19 @@ function resetPiTimer(){
   if (piTimer) clearTimeout(piTimer);
   piTimer = setTimeout(() => { document.body.dataset.piActions = 'closed'; }, 3000);
 }
-function onThumbHover(thumb){
-  if (thumb.classList.contains('active') && Math.abs(CFLOW.drift) < 0.1 && !CFLOW.draggingFrom){
-    openPiActions();
-  }
+/* Delegated hover: any pointer movement over an active thumb opens pi-actions
+   and refreshes the timer. Uses pointerover for reliable bubbling. */
+function attachHoverDelegation(){
+  const flow = document.getElementById('coverFlow');
+  flow.addEventListener('pointerover', e => {
+    if (CFLOW.draggingFrom) return;
+    if (e.pointerType === 'touch') return;  /* mobile uses 2nd-tap, not hover */
+    const t = e.target.closest('.cflow-thumb');
+    if (!t) return;
+    if (!t.classList.contains('active')) return;
+    if (document.body.dataset.piActions === 'open') resetPiTimer();
+    else openPiActions();
+  });
 }
 /* keep open while mouse is anywhere over the pi-actions cluster */
 document.addEventListener('mousemove', e => {
@@ -557,7 +598,7 @@ function onPointerUp(){
   document.getElementById('coverFlow').classList.remove('dragging');
   CFLOW.draggingFrom = null;
   CFLOW._suppressClick = CFLOW._dragMoved;
-  if (Math.abs(CFLOW.vel) > 0.05) {
+  if (Math.abs(CFLOW.vel) > 0.02) {
     runMomentum();
   } else {
     settleSelection();
@@ -579,7 +620,7 @@ function runMomentum(){
     }
     layoutCoverFlow();
     /* SNAP-when-slow: if velocity is below threshold, snap and stop */
-    if (Math.abs(CFLOW.vel) < 0.06) {
+    if (Math.abs(CFLOW.vel) < 0.02) {
       settleSelection();
       return;
     }
