@@ -618,13 +618,43 @@ function getWorker(){
       const m = e.data;
       const entry = ENCODE.pending[m.id];
       if (!entry) return;
-      if (m.type === 'result') { delete ENCODE.pending[m.id]; entry.resolve(m.blob); }
-      else if (m.type === 'error') { delete ENCODE.pending[m.id]; entry.reject(new Error(m.message)); }
-      /* progress messages ignored for now */
+      if (m.type === 'result') {
+        delete ENCODE.pending[m.id];
+        if (entry.timer) clearTimeout(entry.timer);
+        entry.resolve(m.blob);
+      } else if (m.type === 'error') {
+        delete ENCODE.pending[m.id];
+        if (entry.timer) clearTimeout(entry.timer);
+        console.warn('[beta encode error]', m.message);
+        entry.reject(new Error(m.message));
+      } else if (m.type === 'progress') {
+        /* Show stage text in the After meta — first encode includes WASM
+           download (~250KB) so progress feedback matters most here. */
+        showAfterStatus(m.stage === 'decoding' ? 'Decoding…' : 'Encoding…');
+      }
     };
-    ENCODE.worker.onerror = (err) => { console.warn('[beta worker error]', err); };
+    ENCODE.worker.onerror = (err) => {
+      console.warn('[beta worker error]', err && err.message || err);
+      /* Reject every pending so the UI doesn't hang forever */
+      Object.keys(ENCODE.pending).forEach(id => {
+        const entry = ENCODE.pending[id];
+        if (entry) {
+          if (entry.timer) clearTimeout(entry.timer);
+          entry.reject(new Error('Worker crashed'));
+          delete ENCODE.pending[id];
+        }
+      });
+    };
   }
   return ENCODE.worker;
+}
+function showAfterStatus(text){
+  const afterMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.r');
+  if (!afterMeta) return;
+  const sizeSpan = afterMeta.querySelector('span:not(.lbl-title):not(.pct):not(.batch-row)');
+  if (sizeSpan) sizeSpan.textContent = text;
+  const pct = afterMeta.querySelector('.pct'); if (pct) pct.style.display = 'none';
+  const batch = afterMeta.querySelector('.batch-row'); if (batch) batch.style.display = 'none';
 }
 function pickAutoFormat(file){
   const t = (file.type || '').toLowerCase();
@@ -668,9 +698,22 @@ function encodeFile(idx){
   settings.mime = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif' }[realFmt] || settings.mime;
   const id = ++ENCODE.pendingId;
   return new Promise((resolve, reject) => {
-    ENCODE.pending[id] = { resolve, reject, format: realFmt };
+    const entry = { resolve, reject, format: realFmt };
+    /* 60s safety timeout: if the worker stalls (rare, but observed in
+       practice) the UI isn't stuck on "Encoding…" forever. */
+    entry.timer = setTimeout(() => {
+      if (ENCODE.pending[id] === entry) {
+        delete ENCODE.pending[id];
+        reject(new Error('Encoding timed out (>60s) — try a different format or smaller image'));
+      }
+    }, 60000);
+    ENCODE.pending[id] = entry;
     try { getWorker().postMessage({ id, action: 'process', file: f.file, fmt: realFmt, settings }); }
-    catch(e){ delete ENCODE.pending[id]; reject(e); }
+    catch(e){
+      clearTimeout(entry.timer);
+      delete ENCODE.pending[id];
+      reject(e);
+    }
   });
 }
 function fmtSize(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
@@ -738,7 +781,7 @@ async function syncMainImage(force){
   try {
     const blob = await encodeFile(idx);
     const url = URL.createObjectURL(blob);
-    const fmtFromMime = (blob.type || '').split('/')[1] || 'img';
+    const fmtFromMime = ((blob.type || '').split('/')[1] || 'img').replace('jpeg','jpg');
     const enc = { blob, url, size: blob.size, format: fmtFromMime };
     ENCODE.encoded.set(idx, enc);
     if (CFLOW.selected === idx) {
@@ -747,7 +790,14 @@ async function syncMainImage(force){
     }
   } catch (err) {
     console.warn('[beta encode failed]', err);
-    /* Leave the placeholder; the meta will still say Encoding... */
+    /* Show the failure visibly so user knows it didn't hang */
+    if (CFLOW.selected === idx) {
+      const afterMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.r');
+      if (afterMeta) {
+        const sizeSpan = afterMeta.querySelector('span:not(.lbl-title):not(.pct):not(.batch-row)');
+        if (sizeSpan) sizeSpan.textContent = 'Encode failed';
+      }
+    }
   }
 }
 
@@ -1044,7 +1094,7 @@ async function ensureAllEncoded(){
     try {
       const blob = await encodeFile(i);
       const url = URL.createObjectURL(blob);
-      ENCODE.encoded.set(i, { blob, url, size: blob.size, format: (blob.type||'').split('/')[1]||'img' });
+      ENCODE.encoded.set(i, { blob, url, size: blob.size, format: ((blob.type||'').split('/')[1]||'img').replace('jpeg','jpg') });
     } catch(e){ console.warn('encode failed for', i, e); }
   }
 }
