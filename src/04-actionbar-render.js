@@ -318,6 +318,17 @@ function updateCardResults(item){
     var cropOv=card.querySelector('.crop-overlay');if(cropOv)cropOv.remove();
     var thumbImg=card.querySelector('.card-thumb .plain-img');
     if(thumbImg&&firstResultUrl&&thumbImg.src!==firstResultUrl){thumbImg.src=firstResultUrl;}
+    /* Compare DOM transition: if this card is newly done and has both
+       origUrl and a result URL but isn't yet a .compare-thumb, fall back
+       to a full re-render so the slider markup gets rendered. Cheaper
+       than splicing the DOM in place. */
+    var existingThumb=card.querySelector('.card-thumb');
+    var shouldBeCompare=hasBlob&&firstResultUrl&&item.origUrl&&firstResultUrl!==item.origUrl;
+    var isCompare=existingThumb&&existingThumb.classList.contains('compare-thumb');
+    if(shouldBeCompare&&!isCompare){
+      renderAll();
+      return;
+    }
     /* 4. THE STAMP. This was the missing piece — when the first result
           for a card completed, updateCardResults updated the actions and
           thumb image but never added the savings stamp, so the first
@@ -418,9 +429,41 @@ function renderAll(){
          users who came up before share buttons existed. The src is
          already the result blob URL post-encode, so the browser saves
          the optimized output, not the original input. */
-      th='<div class="card-thumb" onclick="thumbClick(\''+item.id+'\')"><img class="plain-img" id="'+imgId+'" src="'+thumbSrc+'"';
-      if(!isDone&&!item.natW)th+=' onload="imgLoaded(\''+item.id+'\')"';
-      th+='>'+cropOverlay+zoomSvg+stampHTML+lpChipHTML+'</div>';
+      /* Done cards with both an original and a result blob become a
+         before/after compare slider — the original sits below, the
+         result is overlaid with a clip-path, and a centered handle
+         drags the divider left/right. The slider IIFE in 06 attaches
+         drag handlers to .compare-handle (not the whole thumb) so a
+         tap on the rest of the thumb still opens fullscreen via the
+         corner zoom icon. */
+      var firstResult=null;
+      for(var rri=0;rri<item.results.length;rri++){
+        var rr=item.results[rri];
+        if(rr&&rr.url&&rr.blob&&!rr.isLivePhotoVideo){firstResult=rr;break;}
+      }
+      var canCompare=isDone&&firstResult&&item.origUrl&&firstResult.url!==item.origUrl;
+      if(canCompare){
+        /* Compare DOM: original behind, result clipped in front, divider + handle on top.
+           Click on .thumb-zoom-hint opens fullscreen — that's the explicit
+           affordance for "I want a bigger look". */
+        th='<div class="card-thumb compare-thumb" data-id="'+item.id+'">'+
+            '<img class="plain-img compare-before" src="'+escHtml(item.origUrl)+'" alt="">'+
+            '<div class="compare-after">'+
+              '<img class="plain-img" id="'+imgId+'" src="'+thumbSrc+'" alt="">'+
+            '</div>'+
+            '<div class="compare-divider"></div>'+
+            '<button type="button" class="compare-handle" aria-label="Drag to compare original and optimized" onclick="event.stopPropagation()">'+
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg>'+
+            '</button>'+
+            cropOverlay+
+            '<div class="thumb-zoom-hint" onclick="thumbClick(\''+item.id+'\')" role="button" aria-label="Open fullscreen view"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>'+
+            stampHTML+lpChipHTML+
+          '</div>';
+      } else {
+        th='<div class="card-thumb" onclick="thumbClick(\''+item.id+'\')"><img class="plain-img" id="'+imgId+'" src="'+thumbSrc+'"';
+        if(!isDone&&!item.natW)th+=' onload="imgLoaded(\''+item.id+'\')"';
+        th+='>'+cropOverlay+zoomSvg+stampHTML+lpChipHTML+'</div>';
+      }
     }else{
       /* No-origUrl fallback uses the SAME .proc-overlay structure that
          setCardProcessing manages, so when encoding kicks off the overlay

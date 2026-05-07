@@ -123,6 +123,50 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 @media (max-width:520px){
   .resize-mode-select{min-width:0;flex-basis:42%;}
 }
+/* Inline before/after compare slider. The .card-thumb gets .compare-thumb
+   when the card has both an original and a result blob; the layout is:
+     - .compare-before    (original image, full thumb)
+     - .compare-after     (result image, clipped from the left by the divider %)
+     - .compare-divider   (1px line marking the split)
+     - .compare-handle    (round button, the only draggable surface so the
+                           rest of the thumb stays clickable for fullscreen)
+   The clipPath approach beats two separate <img> halves because both
+   images stay layout-untouched and the only thing changing per drag is
+   the inset() value — single style mutation per move event. */
+.compare-thumb{position:relative;overflow:hidden;}
+.compare-thumb > .compare-before,
+.compare-thumb > .compare-after img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:block;
+}
+.compare-thumb > .compare-after{
+  position:absolute;inset:0;clip-path:inset(0 0 0 50%);pointer-events:none;
+}
+.compare-thumb > .compare-divider{
+  position:absolute;top:0;bottom:0;left:50%;width:2px;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 0 0 1px rgba(0,0,0,.18);
+  pointer-events:none;transform:translateX(-1px);
+}
+.compare-thumb > .compare-handle{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:32px;height:32px;border-radius:50%;
+  background:#fff;color:#222;border:0;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.25),0 0 0 1px rgba(0,0,0,.06);
+  cursor:ew-resize;touch-action:none;z-index:3;
+}
+.compare-thumb > .compare-handle:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.compare-thumb > .compare-handle:active{cursor:grabbing;}
+.compare-thumb > .compare-handle svg{display:block;}
+/* The thumb-zoom-hint sits in the same coord space; bump z-index above
+   divider so a click on the corner icon always opens fullscreen. */
+.compare-thumb > .thumb-zoom-hint{z-index:4;cursor:pointer;}
+@media (pointer: coarse){
+  /* Bigger touch target on phones — handle becomes 40px and the hit area
+     is the same since the button is the listener. */
+  .compare-thumb > .compare-handle{width:40px;height:40px;}
+}
 /* Mobile nav was previously a horizontal scroll-strip with .hide-mobile
    classes — replaced by the hamburger menu (see the rules in the larger
    responsive block below). Old block removed; the hamburger version is
