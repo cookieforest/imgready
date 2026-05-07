@@ -128,23 +128,26 @@
   /* ---------- floating filmstrip (desktop: right edge / mobile: bottom) ---------- */
   .filmstrip-card{
     position:absolute;
-    /* sits BELOW the corner meta labels so After (4 lines incl batch-row) is visible at top:14 */
-    top:130px;right:14px;bottom:170px;
-    width:180px;
-    background:var(--card-bg);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border:1px solid var(--card-border);border-radius:var(--card-radius);
-    padding:10px;overflow-y:auto;z-index:5;
+    /* No card chrome — thumbs float directly over the image. Spans nearly the
+       full vertical height of the image area on desktop. */
+    top:130px;right:14px;bottom:160px;
+    width:140px;
+    overflow-y:auto;z-index:5;
+    /* hide scrollbar so the floating thumbs don't show a column gutter */
+    scrollbar-width:none;-ms-overflow-style:none;
   }
+  .filmstrip-card::-webkit-scrollbar{display:none;}
   body[data-state="solo"] .filmstrip-card{display:none;}
   .thumb{
     width:100%;aspect-ratio:1/1;border-radius:8px;
     margin-bottom:8px;cursor:pointer;
     overflow:hidden;position:relative;
-    border:2px solid transparent;transition:border-color .12s,transform .12s;
+    border:2px solid rgba(255,255,255,.18);
+    box-shadow:0 2px 10px rgba(0,0,0,.45);
+    transition:border-color .12s,transform .12s,box-shadow .12s;
   }
-  .thumb:hover{transform:translateY(-1px);}
-  .thumb.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+  .thumb:hover{transform:translateY(-1px);box-shadow:0 3px 14px rgba(0,0,0,.55);}
+  .thumb.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 3px 14px rgba(0,0,0,.55);}
   .thumb-img{width:100%;height:100%;display:block;}
   .thumb-savings{
     position:absolute;right:6px;top:6px;
@@ -157,25 +160,27 @@
     position:absolute;left:0;right:0;bottom:14px;
     display:flex;flex-direction:column;align-items:center;
     pointer-events:none;z-index:7;
+    padding:0 14px;
   }
-  /* Adjust pull-up handle: triangle ABOVE the text, centered, above the card */
-  .adjust-handle{
+  /* Settings toggle inside the menu card — header row. Click toggles the panel. */
+  .settings-toggle{
     pointer-events:auto;
-    background:rgba(20,20,20,.62);
-    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-    border:1px solid var(--card-border);
-    display:flex;flex-direction:column;align-items:center;gap:2px;
-    color:rgba(255,255,255,.92);font-family:inherit;font-size:.76rem;font-weight:600;
-    cursor:pointer;padding:6px 18px 5px;margin-bottom:6px;
-    letter-spacing:.05em;border-radius:9px;
-    text-transform:uppercase;
+    background:transparent;border:0;width:100%;
+    display:flex;align-items:center;justify-content:space-between;
+    color:rgba(255,255,255,.78);font-family:inherit;font-size:.78rem;font-weight:600;
+    cursor:pointer;padding:11px 16px;
+    letter-spacing:.04em;text-transform:uppercase;
+    border-bottom:1px solid rgba(255,255,255,.10);
   }
-  .adjust-handle:hover{color:#fff;background:rgba(40,40,40,.78);}
-  .adjust-handle .tri{
+  .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.04);}
+  .settings-toggle .tri{
     font-size:.7rem;line-height:1;display:inline-block;
-    transition:transform .18s;color:rgba(255,255,255,.7);
+    transition:transform .18s;color:rgba(255,255,255,.55);
   }
-  body[data-adjust="open"] .adjust-handle .tri{transform:rotate(180deg);}
+  body[data-adjust="open"] .settings-toggle .tri{transform:rotate(180deg);}
+  body[data-adjust="open"] .settings-toggle{color:#fff;}
+  /* When the settings panel is open the bottom border of the toggle joins the
+     panel below — keep the visual continuity */
 
   .menu-card{
     pointer-events:auto;
@@ -191,6 +196,7 @@
     display:none;padding:14px 16px;
     border-bottom:1px solid rgba(255,255,255,.10);
   }
+  body[data-adjust="closed"] .settings-toggle{border-bottom-color:rgba(255,255,255,.06);}
   body[data-adjust="open"] .adjust-panel{display:block;}
   .adjust-section{margin-bottom:14px;}
   .adjust-section:last-child{margin-bottom:0;}
@@ -221,16 +227,12 @@
   .adjust-checkbox{display:flex;align-items:center;gap:8px;font-size:.78rem;color:rgba(255,255,255,.85);cursor:pointer;}
   .adjust-hint{font-size:.68rem;color:rgba(255,255,255,.5);margin-top:4px;}
 
-  /* Action area: always visible inside menu card */
+  /* Action area: always visible inside menu card. Generous bottom padding
+     so buttons aren't flush against the card bottom on either viewport. */
   .actions{
-    display:flex;flex-direction:column;gap:6px;
-    padding:10px 12px env(safe-area-inset-bottom,10px);
+    display:flex;flex-direction:column;gap:8px;
+    padding:14px 14px max(14px,env(safe-area-inset-bottom,14px));
   }
-  .actions .focused-name{
-    font-size:.66rem;color:rgba(255,255,255,.55);text-align:center;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  }
-  .actions .focused-name strong{color:#fff;font-weight:600;}
   .action-row{display:flex;gap:6px;}
   .action-row .btn{flex:1;min-width:0;}
 
@@ -253,17 +255,16 @@
   }
   /* ---------- mobile ---------- */
   @media(max-width:767px){
-    /* Filmstrip moves from right-rail to a horizontal strip at the bottom of the image area, ABOVE the menu card */
+    /* Filmstrip strips dark card on mobile too — just a row of floating thumbs */
     .filmstrip-card{
       top:auto;right:0;left:0;
-      bottom:170px;  /* sits above menu */
+      bottom:200px;  /* sits above menu, leaving safe spacing */
       width:auto;
       height:auto;
-      display:flex;flex-direction:row;gap:6px;
-      padding:8px 10px;
+      display:flex;flex-direction:row;gap:8px;
+      padding:8px 14px;
+      background:transparent;
       overflow-x:auto;overflow-y:hidden;
-      border-left:0;border-right:0;border-radius:0;
-      background:rgba(20,20,20,.62);
     }
     .filmstrip-card .thumb{
       width:64px;height:64px;flex-shrink:0;margin:0;aspect-ratio:1/1;
@@ -351,11 +352,10 @@
   </div>
 
   <div class="menu-wrap">
-    <button class="adjust-handle" onclick="toggleAdjust()">
-      <span class="tri">▲</span>
-      <span>Adjust</span>
-    </button>
     <div class="menu-card">
+      <button class="settings-toggle" onclick="toggleAdjust()">
+        <span>Settings</span><span class="tri">▼</span>
+      </button>
       <div class="adjust-panel">
         <div class="adjust-section">
           <span class="adjust-label">Format</span>
@@ -448,11 +448,10 @@
   </div>
 
   <div class="menu-wrap">
-    <button class="adjust-handle" onclick="toggleAdjust()">
-      <span class="tri">▲</span>
-      <span>Adjust</span>
-    </button>
     <div class="menu-card">
+      <button class="settings-toggle" onclick="toggleAdjust()">
+        <span>Settings</span><span class="tri">▼</span>
+      </button>
       <div class="adjust-panel">
         <div class="adjust-section">
           <span class="adjust-label">Format</span>
@@ -484,7 +483,6 @@
         </div>
       </div>
       <div class="actions">
-        <div class="focused-name">For: <strong id="focusedName">photo-1.jpg</strong></div>
         <div class="action-row">
           <button class="btn">Download this</button>
           <button class="btn btn-primary">Download all</button>
@@ -522,7 +520,7 @@ function selectThumb(el){
   before.textContent = name;
   after.className = 'mock-image large mi-' + grad;
   after.textContent = name;
-  document.getElementById('focusedName').textContent = name;
+  /* focused name display removed; download button label could update here if we want it later */
 }
 </script>
 
