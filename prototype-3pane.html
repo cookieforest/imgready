@@ -88,6 +88,22 @@
   .btn-ghost{background:transparent;}
   .btn-danger{color:#9c4a4a;border-color:rgba(156,74,74,.25);}
   .btn-danger:hover{background:rgba(156,74,74,.08);}
+  /* Desktop Clear all: quiet ghost, slim padding, flex:0 0 auto so it doesn't
+     grow with the row. On dark theme the colour shifts to a softer terracotta. */
+  .btn-clear{
+    background:transparent;border:1px solid var(--border);color:var(--muted);
+    padding:9px 14px;border-radius:8px;font-family:inherit;font-size:.84rem;
+    font-weight:600;cursor:pointer;
+  }
+  .btn-clear:hover{background:rgba(156,74,74,.06);color:#c98080;border-color:rgba(156,74,74,.3);}
+  body[data-state="solo"] .btn-clear,
+  body[data-state="multi"] .btn-clear{
+    color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.14);
+  }
+  body[data-state="solo"] .btn-clear:hover,
+  body[data-state="multi"] .btn-clear:hover{
+    color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);
+  }
   .btn-block{width:100%;}
 
   /* ---------- empty state ---------- */
@@ -353,9 +369,13 @@
     /* Settings (left-rail) when tab=settings — sits in the same slot */
     body[data-mobile-tab="images"] .three-pane .left-rail{display:none;}
     body[data-mobile-tab="settings"] .three-pane .left-rail{
-      order:3;flex-shrink:0;max-height:42vh;overflow-y:auto;
+      order:3;flex-shrink:1;flex-basis:auto;
       display:flex;flex-direction:column;border-right:0;
+      padding:14px 16px env(safe-area-inset-bottom,14px);
+      overflow-y:auto;
     }
+    /* Settings tab on mobile takes whatever space remains after the image,
+       tabs, and bulk-actions. Image flex:1 still grows to fill. */
     /* Bulk actions always last */
     .three-pane .bulk-actions{order:4;flex-shrink:0;border-top:1px solid var(--border);}
     .mobile-tabs{
@@ -427,13 +447,17 @@
       display:flex;gap:8px;align-items:stretch;
     }
     .three-pane .bulk-actions .bulk-buttons-row .btn{flex:1;min-width:0;}
-    /* Clear all is a quiet ghost action — visually de-emphasized vs the
-       primary Download all. Matches production .btn-link style. */
-    .three-pane .bulk-actions .btn-danger{
-      flex:0 0 auto;padding:0 10px;background:transparent;border-color:transparent;
-      color:rgba(255,255,255,.55);font-weight:500;text-decoration:underline;
+    /* Clear all sits inline with Share/Download but reads as a quiet ghost
+       so Download stays the obvious primary. Matches production .btn-ghost. */
+    .three-pane .bulk-actions .btn-clear{
+      flex:0 0 auto;padding:8px 12px;
+      background:transparent;border:1px solid rgba(255,255,255,.18);
+      color:rgba(220,160,160,.85);font-weight:600;font-family:inherit;
+      border-radius:8px;cursor:pointer;font-size:.78rem;
     }
-    .three-pane .bulk-actions .btn-danger:hover{color:#fff;background:transparent;}
+    .three-pane .bulk-actions .btn-clear:hover{
+      color:#fff;border-color:rgba(220,160,160,.5);background:rgba(220,160,160,.12);
+    }
 }
 
   /* ---------- mock images: gradient backdrops + label ---------- */
@@ -655,7 +679,7 @@
       <div class="bulk-buttons-row">
         <button class="btn">Share all (6)</button>
         <button class="btn btn-primary">Download all (6)</button>
-        <button class="btn btn-ghost btn-danger">Clear all</button>
+        <button class="btn btn-clear" type="button">Clear all</button>
       </div>
     </div>
   </aside>
