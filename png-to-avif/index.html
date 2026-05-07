@@ -250,8 +250,14 @@ tr:nth-child(even) td{background:#faf7f2;}
     -->
     <div class="adv-group adv-group-resize">
       <label>Resize</label>
-      <input type="number" id="resizeMax" placeholder="Longest side, e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
-      <span class="adv-hint">Aspect ratio is always preserved.</span>
+      <div class="resize-mode-row">
+        <select id="resizeMode" class="resize-mode-select" onchange="setResizeMode(this.value)" aria-label="Resize mode">
+          <option value="dim" selected>Longest side (px)</option>
+          <option value="pct">Percent (%)</option>
+        </select>
+        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
+      </div>
+      <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
     <!-- Metadata strip hidden — defaulted to ON via the checkbox initial
          state, which is the right behaviour for privacy regardless of

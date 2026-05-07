@@ -476,8 +476,12 @@ async function feReEncode(){
   var w=bmp.width,h=bmp.height,sx=0,sy=0,sw=w,sh=h;
   var cropRatio=CROP_RATIOS[currentCropRatio];
   if(cropRatio){if(w/h>cropRatio){sw=Math.round(h*cropRatio);sx=Math.round((w-sw)/2);}else{sh=Math.round(w/cropRatio);sy=Math.round((h-sh)/2);}w=sw;h=sh;}
-  var maxDim=parseInt((G('resizeMax')||{}).value)||0;
+  var resizeMode=(G('resizeMode')||{}).value||'dim';
+  var resizeVal=parseInt((G('resizeMax')||{}).value)||0;
+  var maxDim=resizeMode==='dim'?resizeVal:0;
+  var resizePct=resizeMode==='pct'?Math.max(1,Math.min(100,resizeVal)):0;
   if(maxDim){var longest=Math.max(w,h);if(longest>maxDim){var scale=maxDim/longest;w=Math.round(w*scale);h=Math.round(h*scale);}}
+  else if(resizePct&&resizePct<100){var pscale=resizePct/100;w=Math.max(1,Math.round(w*pscale));h=Math.max(1,Math.round(h*pscale));}
   var c=document.createElement('canvas');c.width=w;c.height=h;
   var ctx=c.getContext('2d');
   /* WHITE BACKGROUND FIX for live editor */

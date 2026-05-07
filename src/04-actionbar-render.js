@@ -604,7 +604,7 @@ window.processAll=async function(){
           var fallbackQs=[Math.max(0.4,settings.quality-0.10),Math.max(0.4,settings.quality-0.20)];
           for(var fqi=0;fqi<fallbackQs.length;fqi++){
             if(_processingCancelled)break;
-            var s2={mime:settings.mime,quality:fallbackQs[fqi],maxDim:settings.maxDim,stripExif:settings.stripExif};
+            var s2={mime:settings.mime,quality:fallbackQs[fqi],maxDim:settings.maxDim,resizePct:settings.resizePct||0,stripExif:settings.stripExif};
             var b2=await processImg(src,s2,fmt);
             if(s2.stripExif===false){b2=await preserveExifIntoBlob(item.file,b2);}
             if(b2.size<item.file.size){blob=b2;break;}
@@ -896,6 +896,7 @@ function processImg(file, s, fmt){
     var settings = {
       quality: s.quality,
       maxDim: s.maxDim,
+      resizePct: s.resizePct||0,
       crop: currentCropRatio,
       stripExif: s.stripExif !== false
     };
@@ -963,6 +964,7 @@ function processImg_main(file,s,fmt){return new Promise(function(resolve,reject)
     var cropRatio=CROP_RATIOS[currentCropRatio];
     if(cropRatio){if(w/h>cropRatio){sw=Math.round(h*cropRatio);sx=Math.round((w-sw)/2);}else{sh=Math.round(w/cropRatio);sy=Math.round((h-sh)/2);}w=sw;h=sh;}
     if(s.maxDim){var longest=Math.max(w,h);if(longest>s.maxDim){var scale=s.maxDim/longest;w=Math.round(w*scale);h=Math.round(h*scale);}}
+    else if(s.resizePct&&s.resizePct>0&&s.resizePct<100){var pscale=s.resizePct/100;w=Math.max(1,Math.round(w*pscale));h=Math.max(1,Math.round(h*pscale));}
     var c=document.createElement('canvas');c.width=w;c.height=h;
     var ctx=c.getContext('2d');
     /* WHITE BACKGROUND FIX:

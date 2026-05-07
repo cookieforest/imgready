@@ -304,13 +304,18 @@ async function processOne(file, fmt, settings){
     w = sw; h = sh;
   }
 
-  // Resize longest side
+  // Resize longest side OR percent — only one of maxDim/resizePct will
+  // be non-zero (getSettings on the main thread enforces that).
   if (settings.maxDim) {
     const longest = Math.max(w, h);
     if (longest > settings.maxDim) {
       const scale = settings.maxDim / longest;
       w = Math.round(w*scale); h = Math.round(h*scale);
     }
+  } else if (settings.resizePct && settings.resizePct > 0 && settings.resizePct < 100) {
+    const scale = settings.resizePct / 100;
+    w = Math.max(1, Math.round(w*scale));
+    h = Math.max(1, Math.round(h*scale));
   }
 
   const c = new OffscreenCanvas(w, h);

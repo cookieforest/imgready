@@ -322,8 +322,14 @@ window.dispatchEvent(new Event('jsquash-avif-ready'));
     -->
     <div class="adv-group adv-group-resize">
       <label>Resize</label>
-      <input type="number" id="resizeMax" placeholder="Longest side, e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
-      <span class="adv-hint">Aspect ratio is always preserved.</span>
+      <div class="resize-mode-row">
+        <select id="resizeMode" class="resize-mode-select" onchange="setResizeMode(this.value)" aria-label="Resize mode">
+          <option value="dim" selected>Longest side (px)</option>
+          <option value="pct">Percent (%)</option>
+        </select>
+        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
+      </div>
+      <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
     <!-- Metadata strip hidden — defaulted to ON via the checkbox initial
          state, which is the right behaviour for privacy regardless of
@@ -707,40 +713,4 @@ window.dispatchEvent(new Event('jsquash-avif-ready'));
     if (isStandalone()) return;             /* already running as installed PWA */
     try { if (localStorage.getItem('imgready_installed') === '1') return; } catch(_){}
     if (dismissedRecently()) return;
-    /* Avoid stacking with the support nudge — give it the floor first */
-    var nudge = document.getElementById('nudgeBanner');
-    if (nudge && nudge.classList.contains('show')) {
-      setTimeout(window.maybeShowInstallPrompt, 4000);
-      return;
-    }
-    var b = document.getElementById('installBanner');
-    if (b) b.classList.add('show');
-  };
-
-  window.acceptInstall = async function(){
-    var b = document.getElementById('installBanner');
-    if (!deferredInstall) { if (b) b.classList.remove('show'); return; }
-    try {
-      deferredInstall.prompt();
-      var choice = await deferredInstall.userChoice;
-      /* Either way the event is one-shot */
-      deferredInstall = null;
-      if (b) b.classList.remove('show');
-      if (choice && choice.outcome === 'dismissed') {
-        try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
-      }
-    } catch(err) {
-      console.warn('[imgready] install prompt error:', err);
-      if (b) b.classList.remove('show');
-    }
-  };
-
-  window.dismissInstall = function(){
-    var b = document.getElementById('installBanner');
-    if (b) b.classList.remove('show');
-    try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
-  };
-})();
-</script>
-</body>
-</html>
+    

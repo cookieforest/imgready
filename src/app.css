@@ -108,6 +108,21 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
   .adv-group input[type="range"]::-webkit-slider-thumb{width:28px;height:28px;}
   .adv-group input[type="range"]::-moz-range-thumb{width:28px;height:28px;}
 }
+/* Resize mode row — a compact dropdown next to the numeric input lets
+   users pick "longest side" vs "percent". The select narrows on small
+   viewports so the input stays the dominant control. */
+.resize-mode-row{display:flex;gap:8px;align-items:stretch;}
+.resize-mode-select{
+  flex:0 0 auto;min-width:130px;padding:7px 10px;
+  font-family:inherit;font-size:.85rem;color:var(--text);
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  cursor:pointer;
+}
+.resize-mode-select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+.resize-mode-row input[type="number"]{flex:1;min-width:0;}
+@media (max-width:520px){
+  .resize-mode-select{min-width:0;flex-basis:42%;}
+}
 /* Mobile nav was previously a horizontal scroll-strip with .hide-mobile
    classes — replaced by the hamburger menu (see the rules in the larger
    responsive block below). Old block removed; the hamburger version is

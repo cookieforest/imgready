@@ -10,7 +10,7 @@
 var _lastAppliedSettings = null;
 
 function _captureSettings(){
-  var qs=G('qualitySlider'), rs=G('resizeMax'), ps=G('presetSelect');
+  var qs=G('qualitySlider'), rs=G('resizeMax'), ps=G('presetSelect'), rm=G('resizeMode');
   var stripExifEl=G('stripExif');
   var lpEl=G('livePhotoExtract');
   return {
@@ -19,6 +19,7 @@ function _captureSettings(){
     multi: typeof multiOutputMode !== 'undefined' && !!multiOutputMode,
     quality: qs ? parseInt(qs.value, 10) : 82,
     maxDim: rs ? (parseInt(rs.value, 10) || 0) : 0,
+    resizeMode: rm ? rm.value : 'dim',
     preset: ps ? ps.value : 'custom',
     crop: typeof currentCropRatio !== 'undefined' ? currentCropRatio : 'none',
     stripExif: stripExifEl ? !!stripExifEl.checked : true,
@@ -34,6 +35,7 @@ function _settingsEqual(a, b){
   if(a.format !== b.format) return false;
   if(a.quality !== b.quality) return false;
   if(a.maxDim !== b.maxDim) return false;
+  if(a.resizeMode !== b.resizeMode) return false;
   if(a.preset !== b.preset) return false;
   if(a.crop !== b.crop) return false;
   if(a.stripExif !== b.stripExif) return false;

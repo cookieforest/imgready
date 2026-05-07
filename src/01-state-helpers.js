@@ -166,6 +166,10 @@ var PRESETS={
 window.applyPreset=function(key){
   var p=PRESETS[key];if(!p)return;
   var r=G('resizeMax');if(r)r.value=p.maxDim;
+  /* Presets are dimension-based; switch the mode back to dim when a
+     preset fires so the value the user sees matches what will apply. */
+  var rm=G('resizeMode');if(rm)rm.value='dim';
+  if(typeof setResizeMode==='function')setResizeMode('dim');
   setCropRatio(p.crop);
   /* Surface Reprocess if a batch has already been processed and the
      preset shifts the resize/crop away from what was applied. */
@@ -491,6 +495,45 @@ document.addEventListener('click',function(e){
   closeNavMenu();
 });
 
+/* Resize mode toggle. The single Resize input swaps semantic between
+   "longest side in pixels" (capped at 8000) and "percent of original"
+   (capped at 100). The placeholder + min/max attributes change with
+   the mode so the input self-documents. Persisted via localStorage so
+   returning users see their preferred mode. */
+window.setResizeMode=function(mode){
+  if(mode!=='dim'&&mode!=='pct')mode='dim';
+  var input=G('resizeMax');
+  var hint=G('resizeHint');
+  var sel=G('resizeMode');
+  if(sel&&sel.value!==mode)sel.value=mode;
+  if(input){
+    if(mode==='pct'){
+      input.placeholder='e.g. 50';
+      input.min='1'; input.max='100';
+      /* Cap the existing value at 100 if it was a px value */
+      var v=parseInt(input.value)||0;
+      if(v>100)input.value=100;
+    } else {
+      input.placeholder='e.g. 1200';
+      input.min='10'; input.max='8000';
+    }
+  }
+  if(hint){
+    hint.textContent=mode==='pct'
+      ? 'Scale to a percentage of the original size. Aspect ratio preserved.'
+      : 'Aspect ratio is always preserved.';
+  }
+  try{localStorage.setItem('imgready_resize_mode',mode);}catch(_){}
+  if(typeof updateChargePreview==='function')updateChargePreview();
+};
+/* Restore the persisted resize mode on load. */
+(function restoreResizeMode(){
+  try{
+    var saved=localStorage.getItem('imgready_resize_mode');
+    if(saved==='dim'||saved==='pct')window.setResizeMode(saved);
+  }catch(_){}
+})();
+
 window.toggleAdvanced=function(){
   var t=G('advToggle'),p=G('advPanel');
   if(t)t.classList.toggle('open');
@@ -546,11 +589,18 @@ window.setCropRatio=function(r){
    ======================================== */
 function getSettings(fmt){
   var q=parseInt((G('qualitySlider')||{value:82}).value)/100;
-  var maxDim=parseInt((G('resizeMax')||{}).value)||0;
+  /* Resize input drives one of two modes — Longest side (px) or Percent.
+     Mode toggle persists separately; the same input value carries the
+     numeric. We split into maxDim/resizePct here so the worker doesn't
+     have to know about modes — it just sees one or the other. */
+  var resizeMode=(G('resizeMode')||{}).value||'dim';
+  var resizeVal=parseInt((G('resizeMax')||{}).value)||0;
+  var maxDim=resizeMode==='dim'?resizeVal:0;
+  var resizePct=resizeMode==='pct'?Math.max(1,Math.min(100,resizeVal)):0;
   var stripExifEl=G('stripExif');
   var stripExif=stripExifEl?!!stripExifEl.checked:true;
   var mimeMap={webp:'image/webp',avif:'image/avif',png:'image/png',jpg:'image/jpeg',gif:'image/gif'};
-  return{mime:mimeMap[fmt]||'image/webp',quality:fmt==='gif'?undefined:q,maxDim:maxDim,stripExif:stripExif};
+  return{mime:mimeMap[fmt]||'image/webp',quality:fmt==='gif'?undefined:q,maxDim:maxDim,resizePct:resizePct,stripExif:stripExif};
 }
 
 /* ========================================
