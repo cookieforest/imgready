@@ -407,8 +407,8 @@
       </div>
       <div class="actions">
         <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
-        <button class="btn"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
-        <button class="btn btn-primary"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span></button>
+        <button class="btn" onclick="shareAll()"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
+        <button class="btn btn-primary" onclick="downloadAll()"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span></button>
       </div>
     </div>
   </div>
@@ -604,8 +604,108 @@ function layoutCoverFlow(){
   });
 }
 
-/* Sync big image only when selection actually changes (skip during drag/momentum) */
-function syncMainImage(force){
+/* ===== ENCODING via /imgready-worker.js (the same one production uses) ===== */
+const ENCODE = {
+  worker: null,
+  pendingId: 0,
+  pending: {},          // id -> {resolve, reject}
+  encoded: new Map(),   // file index -> { blob, url, size, format }
+};
+function getWorker(){
+  if (!ENCODE.worker) {
+    ENCODE.worker = new Worker('/imgready-worker.js');
+    ENCODE.worker.onmessage = (e) => {
+      const m = e.data;
+      const entry = ENCODE.pending[m.id];
+      if (!entry) return;
+      if (m.type === 'result') { delete ENCODE.pending[m.id]; entry.resolve(m.blob); }
+      else if (m.type === 'error') { delete ENCODE.pending[m.id]; entry.reject(new Error(m.message)); }
+      /* progress messages ignored for now */
+    };
+    ENCODE.worker.onerror = (err) => { console.warn('[beta worker error]', err); };
+  }
+  return ENCODE.worker;
+}
+function pickAutoFormat(file){
+  const t = (file.type || '').toLowerCase();
+  const e = (file.name.split('.').pop() || '').toLowerCase();
+  if (t.includes('jpeg') || e === 'jpg' || e === 'jpeg') return 'jpg';
+  if (t.includes('png')  || e === 'png')  return 'png';
+  if (t.includes('webp') || e === 'webp') return 'webp';
+  if (t.includes('avif') || e === 'avif') return 'avif';
+  if (t.includes('gif')  || e === 'gif')  return 'gif';
+  if (e === 'svg' || t.includes('svg'))   return 'png';
+  return 'jpg';
+}
+function getActiveSettings(){
+  const formatBtn = document.querySelector('body[data-state="multi"] .stage.multi .adjust-pills button.active');
+  let fmt = formatBtn ? formatBtn.textContent.trim().toLowerCase() : 'auto';
+  const qSlider = document.querySelector('body[data-state="multi"] .stage.multi .quality-row input[type=range]');
+  const quality = qSlider ? parseInt(qSlider.value)/100 : 0.82;
+  const sizeSel = document.querySelector('body[data-state="multi"] .stage.multi .adjust-row-inline select');
+  const sizeInp = document.querySelector('body[data-state="multi"] .stage.multi .adjust-row-inline input[type=number]');
+  const sizeVal = sizeInp && sizeInp.value ? parseInt(sizeInp.value) : 0;
+  const isPercent = sizeSel && sizeSel.value && sizeSel.value.toLowerCase().includes('percent');
+  const stripExifEl = document.querySelector('body[data-state="multi"] .stage.multi .adjust-checkbox input[type=checkbox]');
+  const stripExif = stripExifEl ? stripExifEl.checked : true;
+  const MIME = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif' };
+  return {
+    fmt,
+    settings: {
+      mime: MIME[fmt] || 'image/webp',
+      quality,
+      maxDim:    !isPercent ? sizeVal : 0,
+      resizePct:  isPercent ? sizeVal : 0,
+      stripExif,
+    },
+  };
+}
+function encodeFile(idx){
+  const f = FILES[idx];
+  if (!f) return Promise.reject(new Error('no file'));
+  const { fmt, settings } = getActiveSettings();
+  const realFmt = fmt === 'auto' ? pickAutoFormat(f.file) : fmt;
+  settings.mime = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif' }[realFmt] || settings.mime;
+  const id = ++ENCODE.pendingId;
+  return new Promise((resolve, reject) => {
+    ENCODE.pending[id] = { resolve, reject, format: realFmt };
+    try { getWorker().postMessage({ id, action: 'process', file: f.file, fmt: realFmt, settings }); }
+    catch(e){ delete ENCODE.pending[id]; reject(e); }
+  });
+}
+function fmtSize(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
+function setMetaCorners(beforeFile, encoded){
+  const beforeMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.l');
+  if (beforeMeta) {
+    const span = beforeMeta.querySelector('span:not(.lbl-title)');
+    if (span) span.textContent = `${fmtSize(beforeFile.size)} · ${(beforeFile.type.split('/')[1]||'IMG').toUpperCase()}`;
+  }
+  const afterMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.r');
+  if (afterMeta) {
+    const sizeSpan = afterMeta.querySelector('span:not(.lbl-title):not(.pct):not(.batch-row)');
+    const pctSpan  = afterMeta.querySelector('.pct');
+    const batchRow = afterMeta.querySelector('.batch-row');
+    if (encoded) {
+      if (sizeSpan) sizeSpan.textContent = `${fmtSize(encoded.size)} · ${(encoded.format||'').toUpperCase()}`;
+      const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
+      if (pctSpan) { pctSpan.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`; pctSpan.style.display = ''; }
+      let totalBefore = 0, totalAfter = 0, count = 0;
+      FILES.forEach((f, i) => {
+        const e = ENCODE.encoded.get(i);
+        if (e) { totalBefore += f.file.size; totalAfter += e.size; count++; }
+      });
+      if (batchRow && count > 1) { batchRow.textContent = `↓ ${fmtSize(totalBefore - totalAfter)} · ${count} files total`; batchRow.style.display = ''; }
+      else if (batchRow) batchRow.style.display = 'none';
+    } else {
+      if (sizeSpan) sizeSpan.textContent = 'Encoding…';
+      if (pctSpan) pctSpan.style.display = 'none';
+      if (batchRow) batchRow.style.display = 'none';
+    }
+  }
+}
+
+/* Sync big image — shows original + (encoded or encoding-in-progress) */
+async function syncMainImage(force){
   const idx = CFLOW.selected;
   if (!force && idx === CFLOW.prevSelected) return;
   CFLOW.prevSelected = idx;
@@ -613,28 +713,50 @@ function syncMainImage(force){
   if (!thumb || thumb.classList.contains('add-more')) return;
   const f = FILES[idx];
   if (!f) return;
-  /* Beta: no real encoding yet — show the same file in both Before and After
-     halves. Once the encoder is wired, After becomes the optimised result. */
+
   const before = document.getElementById('cbBefore');
   const after = document.getElementById('cbAfter');
-  before.style.backgroundImage = `url("${f.url}")`;
-  before.style.backgroundSize = 'contain';
-  before.style.backgroundPosition = 'center';
-  before.style.backgroundRepeat = 'no-repeat';
-  before.style.backgroundColor = '#000';
-  before.textContent = '';
-  after.style.backgroundImage = `url("${f.url}")`;
-  after.style.backgroundSize = 'contain';
-  after.style.backgroundPosition = 'center';
-  after.style.backgroundRepeat = 'no-repeat';
-  after.style.backgroundColor = '#000';
-  after.textContent = '';
-  /* Update file size readout */
-  const sz = (n) => n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1) + ' KB' : (n/1024/1024).toFixed(2) + ' MB';
-  document.querySelectorAll('.compare-meta.l span:not(.lbl-title)').forEach(el => el.textContent = sz(f.file.size) + ' · ' + (f.file.type.split('/')[1] || 'IMG').toUpperCase());
-  /* No real "After" yet, hide the savings/batch lines */
-  document.querySelectorAll('.compare-meta.r .pct, .compare-meta.r .batch-row').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('.compare-meta.r span:not(.lbl-title):not(.pct):not(.batch-row)').forEach(el => el.textContent = 'Preview only');
+  const setBg = (el, url) => {
+    el.style.backgroundImage = `url("${url}")`;
+    el.style.backgroundSize = 'contain';
+    el.style.backgroundPosition = 'center';
+    el.style.backgroundRepeat = 'no-repeat';
+    el.style.backgroundColor = '#000';
+    el.textContent = '';
+  };
+  setBg(before, f.url);
+  /* Show encoding state on After while we wait */
+  const cached = ENCODE.encoded.get(idx);
+  if (cached) {
+    setBg(after, cached.url);
+    setMetaCorners(f.file, cached);
+    return;
+  }
+  /* placeholder: same as before until encode completes */
+  setBg(after, f.url);
+  setMetaCorners(f.file, null);
+  try {
+    const blob = await encodeFile(idx);
+    const url = URL.createObjectURL(blob);
+    const fmtFromMime = (blob.type || '').split('/')[1] || 'img';
+    const enc = { blob, url, size: blob.size, format: fmtFromMime };
+    ENCODE.encoded.set(idx, enc);
+    if (CFLOW.selected === idx) {
+      setBg(after, enc.url);
+      setMetaCorners(f.file, enc);
+    }
+  } catch (err) {
+    console.warn('[beta encode failed]', err);
+    /* Leave the placeholder; the meta will still say Encoding... */
+  }
+}
+
+/* When settings change: invalidate cache + re-render the focused image */
+function invalidateEncoded(){
+  ENCODE.encoded.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} });
+  ENCODE.encoded.clear();
+  CFLOW.prevSelected = -1;
+  syncMainImage(true);
 }
 
 /* ===== thumb click: select OR open per-image actions ===== */
@@ -810,13 +932,60 @@ function onWheel(e){
 }
 
 /* ===== per-image actions ===== */
-function piShare(){ alert('Share photo-' + (CFLOW.selected+1) + ' (mock)'); }
-function piDownload(){ alert('Download photo-' + (CFLOW.selected+1) + ' (mock)'); }
+async function piShare(){
+  const idx = CFLOW.selected;
+  const f = FILES[idx];
+  if (!f) return;
+  let enc = ENCODE.encoded.get(idx);
+  if (!enc) {
+    try { const blob = await encodeFile(idx);
+      const url = URL.createObjectURL(blob);
+      enc = { blob, url, size: blob.size, format: (blob.type||'').split('/')[1]||'img' };
+      ENCODE.encoded.set(idx, enc);
+    } catch(e){ alert('Encode failed: '+e.message); return; }
+  }
+  const base = f.file.name.replace(/\.[^.]+$/, '');
+  const ext = enc.format || 'jpg';
+  const file = new File([enc.blob], `${base}_imgready.${ext}`, { type: enc.blob.type });
+  if (navigator.canShare && navigator.canShare({ files:[file] })) {
+    try { await navigator.share({ files:[file], title: 'imgready' }); } catch(_){}
+  } else { triggerDownload(enc.url, `${base}_imgready.${ext}`); }
+}
+async function piDownload(){
+  const idx = CFLOW.selected;
+  const f = FILES[idx];
+  if (!f) return;
+  let enc = ENCODE.encoded.get(idx);
+  if (!enc) {
+    try { const blob = await encodeFile(idx);
+      const url = URL.createObjectURL(blob);
+      enc = { blob, url, size: blob.size, format: (blob.type||'').split('/')[1]||'img' };
+      ENCODE.encoded.set(idx, enc);
+    } catch(e){ alert('Encode failed: '+e.message); return; }
+  }
+  const base = f.file.name.replace(/\.[^.]+$/, '');
+  const ext = enc.format || 'jpg';
+  triggerDownload(enc.url, `${base}_imgready.${ext}`);
+}
+function triggerDownload(url, filename){
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { try { a.remove(); } catch(_){} }, 1000);
+}
 function piDelete(){
   const idx = CFLOW.selected;
   const f = FILES[idx];
   if (!f) return;
   try { URL.revokeObjectURL(f.url); } catch(_){}
+  /* drop the encoded cache entry too; reindex remaining entries */
+  const e = ENCODE.encoded.get(idx);
+  if (e) { try { URL.revokeObjectURL(e.url); } catch(_){} }
+  ENCODE.encoded.delete(idx);
+  /* shift down indices > idx */
+  const newMap = new Map();
+  ENCODE.encoded.forEach((v, k) => { if (k > idx) newMap.set(k - 1, v); else newMap.set(k, v); });
+  ENCODE.encoded = newMap;
   FILES.splice(idx, 1);
   buildThumbs();
   if (FILES.length === 0) { setState('empty'); return; }
@@ -865,10 +1034,92 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
   document.addEventListener('pointercancel', () => { dragging = null; });
 })();
 
+async function ensureAllEncoded(){
+  /* Ensure every file has an encoded blob; encode in parallel-with-cap */
+  const missing = [];
+  for (let i = 0; i < FILES.length; i++) if (!ENCODE.encoded.has(i)) missing.push(i);
+  if (!missing.length) return;
+  /* Sequential to keep memory low; could be parallelised later */
+  for (const i of missing) {
+    try {
+      const blob = await encodeFile(i);
+      const url = URL.createObjectURL(blob);
+      ENCODE.encoded.set(i, { blob, url, size: blob.size, format: (blob.type||'').split('/')[1]||'img' });
+    } catch(e){ console.warn('encode failed for', i, e); }
+  }
+}
+async function downloadAll(){
+  await ensureAllEncoded();
+  for (let i = 0; i < FILES.length; i++) {
+    const f = FILES[i]; const enc = ENCODE.encoded.get(i);
+    if (!f || !enc) continue;
+    const base = f.file.name.replace(/\.[^.]+$/, '');
+    triggerDownload(enc.url, `${base}_imgready.${enc.format}`);
+    /* Stagger so browsers don't throttle simultaneous downloads */
+    await new Promise(r => setTimeout(r, 80));
+  }
+}
+async function shareAll(){
+  await ensureAllEncoded();
+  const files = [];
+  for (let i = 0; i < FILES.length; i++) {
+    const f = FILES[i]; const enc = ENCODE.encoded.get(i);
+    if (!f || !enc) continue;
+    const base = f.file.name.replace(/\.[^.]+$/, '');
+    files.push(new File([enc.blob], `${base}_imgready.${enc.format}`, { type: enc.blob.type }));
+  }
+  if (navigator.canShare && navigator.canShare({ files })) {
+    try { await navigator.share({ files, title: 'imgready' }); } catch(_){}
+  } else {
+    /* Fallback: trigger downloads (Web Share unavailable) */
+    for (const f of files) triggerDownload(URL.createObjectURL(f), f.name);
+  }
+}
+
+/* Wire settings changes so the focused image re-encodes when user adjusts */
+function attachSettingsListeners(){
+  const root = document.querySelector('.stage.multi .menu-card');
+  if (!root) return;
+  /* Format pills: click → set active + re-encode */
+  root.querySelectorAll('.adjust-pills button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      invalidateEncoded();
+    });
+  });
+  /* Quality slider — re-encode on release (input is too chatty) */
+  const qSlider = root.querySelector('.quality-row input[type=range]');
+  if (qSlider) {
+    qSlider.addEventListener('input', () => {
+      const v = parseInt(qSlider.value);
+      const lbl = root.querySelector('.quality-row + .adjust-hint, .adjust-section .adjust-label');
+      const valSpan = root.querySelector('.q-val'); if (valSpan) valSpan.textContent = String(v);
+      const labelEl = root.querySelector('.adjust-section .adjust-label');
+      /* Update label from "Quality · 82" → "Quality · NN" */
+      root.querySelectorAll('.adjust-label').forEach(el => {
+        if (el.textContent.startsWith('Quality')) el.textContent = `Quality · ${v}`;
+      });
+    });
+    qSlider.addEventListener('change', invalidateEncoded);
+  }
+  /* Resize input — re-encode on change */
+  const sizeInp = root.querySelector('.adjust-row-inline input[type=number]');
+  if (sizeInp) sizeInp.addEventListener('change', invalidateEncoded);
+  const sizeSel = root.querySelector('.adjust-row-inline select');
+  if (sizeSel) sizeSel.addEventListener('change', invalidateEncoded);
+  /* Privacy checkbox */
+  const stripCb = root.querySelector('.adjust-checkbox input[type=checkbox]');
+  if (stripCb) stripCb.addEventListener('change', invalidateEncoded);
+}
+window.addEventListener('DOMContentLoaded', attachSettingsListeners);
+
 function doClear(){
   document.body.dataset.confirm = 'closed';
-  /* Revoke all blob URLs to free memory */
+  /* Revoke all blob URLs (originals + encoded) to free memory */
   FILES.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
+  ENCODE.encoded.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} });
+  ENCODE.encoded.clear();
   FILES.length = 0;
   CFLOW.thumbs = [];
   CFLOW.selected = 0; CFLOW.drift = 0;
