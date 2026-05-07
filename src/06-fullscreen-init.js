@@ -1,3 +1,4 @@
+/* ========================================
    ACTIONS
    ======================================== */
 function downloadOrShare(blob,filename){
@@ -570,3 +571,4 @@ window.setCropRatio=function(r){
 })();
 
 })();
+/* CHUNK_END:06-fullscreen-init v1 */

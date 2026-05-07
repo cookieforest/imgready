@@ -676,3 +676,6 @@ async function preserveExifIntoBlob(originalFile,outBlob){
 }
 
 /* ========================================
+   END OF CHUNK 01 — file helpers continue in 02
+   ======================================== */
+/* CHUNK_END:01-state-helpers v1 */

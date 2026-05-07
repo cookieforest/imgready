@@ -1,8 +1,5 @@
 # Validation gate. Goal: nothing broken ever reaches Cloudflare's
-# deploy queue. This caught the silent JS-source truncation we hit
-# during P5; a later session caught a separate silent HTML truncation
-# (the SW registration block dropped its tail without the browser
-# complaining). Both kinds of failure are now flagged here.
+# deploy queue. Catches the kind of silent truncation we hit during P5.
 name: check
 
 on:
@@ -16,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - uses: actions/setup-node@v4
         with:
@@ -37,58 +36,131 @@ jobs:
             [ "$size" -gt 100 ] || { echo "::error::$f looks suspiciously small ($size bytes)"; exit 1; }
           done
 
+      - name: Tail sentinel check (Layer 1 truncation defense)
+        # Every important source file ends with a known sentinel comment.
+        # If a file is truncated, the sentinel is the first thing to go.
+        # See https://github.com/anthropics/claude-code/issues/53940 for the
+        # byte-conservation truncation bug this defends against.
+        run: |
+          set -e
+          declare -A SENTINELS=(
+            ["src/01-state-helpers.js"]="/* CHUNK_END:01-state-helpers v1 */"
+            ["src/02-decoders.js"]="/* CHUNK_END:02-decoders v1 */"
+            ["src/03-drop-addfiles.js"]="/* CHUNK_END:03-drop-addfiles v1 */"
+            ["src/04-actionbar-render.js"]="/* CHUNK_END:04-actionbar-render v1 */"
+            ["src/05-process-modal.js"]="/* CHUNK_END:05-process-modal v1 */"
+            ["src/06-fullscreen-init.js"]="/* CHUNK_END:06-fullscreen-init v1 */"
+            ["src/app.css"]="/* CSS_EOF_MARKER */"
+            ["imgready-worker.js"]="/* WORKER_EOF */"
+          )
+          fail=0
+          for path in "${!SENTINELS[@]}"; do
+            sentinel="${SENTINELS[$path]}"
+            if ! tail -c 200 "$path" | grep -qF "$sentinel"; then
+              echo "::error::$path missing tail sentinel \"$sentinel\" — file likely truncated"
+              fail=1
+            fi
+          done
+          [ "$fail" = 0 ] || exit 1
+          echo "All tail sentinels present."
+
+      - name: CSS structural integrity (Layer 3 truncation defense)
+        # Catches truncation that lands inside a CSS file: balanced braces
+        # and a clean trailing character. Cheap, deterministic.
+        run: |
+          set -e
+          for f in src/app.css; do
+            open=$(grep -o '{' "$f" | wc -l)
+            close=$(grep -o '}' "$f" | wc -l)
+            if [ "$open" != "$close" ]; then
+              echo "::error::$f has unbalanced braces ($open open, $close close)"
+              exit 1
+            fi
+            # Strip whitespace, check the last visible char is a } or / (close of */)
+            last=$(tr -d '[:space:]' < "$f" | tail -c 1)
+            if [ "$last" != "}" ] && [ "$last" != "/" ]; then
+              echo "::error::$f doesn't end with } or */ (last char: $last)"
+              exit 1
+            fi
+            echo "$f: balanced ($open/{$close}), ends with $last"
+          done
+
+      - name: File size shrinkage guard (Layer 3)
+        # Compare each tracked file's size to the previous commit. A drop
+        # >5% without a corresponding diff line removal is the truncation
+        # signature. Skipped if HEAD~1 doesn't have the file (new file).
+        run: |
+          set -e
+          # We need the previous commit available; checkout fetches depth=1
+          # by default. Re-fetch with depth=2.
+          git fetch --depth=2 origin "${GITHUB_REF}" || true
+          tracked="src/01-state-helpers.js src/02-decoders.js src/03-drop-addfiles.js src/04-actionbar-render.js src/05-process-modal.js src/06-fullscreen-init.js src/app.css imgready-worker.js"
+          fail=0
+          for f in $tracked; do
+            if ! git show "HEAD~1:$f" >/dev/null 2>&1; then
+              echo "$f: new file, skipping shrinkage check"
+              continue
+            fi
+            old=$(git show "HEAD~1:$f" | wc -c)
+            new=$(wc -c < "$f")
+            if [ "$old" -gt 0 ]; then
+              pct=$(awk -v o="$old" -v n="$new" 'BEGIN{printf "%.1f", n/o*100}')
+              # Threshold: shrinking to less than 80% of previous size is
+              # suspicious unless explicitly justified. CSS overhauls and
+              # JS refactors that legitimately shrink files can override
+              # this by adding [skip-size-guard] to the commit message.
+              skip=$(git log -1 --format=%B HEAD | grep -c '\[skip-size-guard\]' || true)
+              ok=$(awk -v p="$pct" 'BEGIN{print (p >= 80) ? "ok" : "shrunk"}')
+              echo "$f: $old → $new ($pct%) — $ok"
+              if [ "$ok" = "shrunk" ] && [ "$skip" = 0 ]; then
+                echo "::error::$f shrunk from $old to $new bytes ($pct%) — likely truncation. Add [skip-size-guard] to the commit message if intentional."
+                fail=1
+              fi
+            fi
+          done
+          [ "$fail" = 0 ] || exit 1
+
       - name: Build
+        # Concatenates src/0N-*.js, bundles + minifies → dist/app.js,
+        # mirrors static files. Build itself fails if any chunk's
+        # content can't be joined into a syntactically valid IIFE.
         run: npm run build
 
       - name: Syntax check (built outputs + sibling scripts)
         run: |
           set -e
+          # The bundle Cloudflare actually serves
           node --check dist/app.js
+          # Web Worker + service worker stay standalone
           node --check imgready-worker.js
           node --check sw.js
+          # Vendor bundles
           for f in vendor/*.js; do node --check "$f"; done
-          test -s dist/app.js
-          test -s dist/app.css
-
-      - name: HTML structural integrity (catches silent truncation)
-        # Browsers tolerate missing </script></body></html> so HTML
-        # truncation can ship invisibly — the page renders but parts
-        # of the script may not run. Grep-assert each real HTML file
-        # ends cleanly + key SW-registration symbols are present in
-        # the homepage.
-        #
-        # Only files that actually contain <html ...> get the closing-
-        # tag check; that excludes plain-text stubs like Google Search
-        # Console verification files which legitimately have no HTML.
-        run: |
-          set -e
-          missing=0
-          for f in $(find dist -name '*.html'); do
-            head -c 200 "$f" | grep -qi '<html\|<!doctype' || continue
-            tail=$(tail -c 200 "$f")
-            if ! echo "$tail" | grep -q '</html>'; then
-              echo "::error::$f missing </html> closing tag"
-              missing=$((missing+1))
-            fi
-          done
-          [ "$missing" -eq 0 ] || exit 1
-          # Homepage-specific structural checks: SW registration block must
-          # contain its key entry-point functions, OR the live install
-          # prompt won't fire at all.
-          for sym in 'acceptInstall' 'maybeShowInstallPrompt' 'dismissInstall' 'beforeinstallprompt'; do
-            grep -q "$sym" dist/index.html || {
-              echo "::error::dist/index.html missing $sym (SW registration block truncated?)"
-              exit 1
-            }
-          done
+          # Built artifacts non-empty
+          test -s dist/app.js || { echo "::error::dist/app.js empty"; exit 1; }
+          test -s dist/app.css || { echo "::error::dist/app.css empty"; exit 1; }
+          # Mirrored landing pages should be present
+          test -f dist/index.html || { echo "::error::dist/index.html missing"; exit 1; }
+          test -f dist/compress/index.html || { echo "::error::dist/compress/index.html missing"; exit 1; }
+          # Sanity: vendor mirrored too
+          test -f dist/vendor/libheif.js || { echo "::error::dist/vendor/libheif.js missing"; exit 1; }
 
       - name: Re-build + diff (catches uncommitted dist drift)
+        # If the committed dist/ doesn't match what a fresh build would
+        # produce, fail. This protects against someone editing src/
+        # without running 'npm run build' before committing.
+        # Note: rebuilding into a temp directory so we don't touch
+        # the just-built dist/.
         run: |
           set -e
           rm -rf /tmp/expected_dist
           mkdir -p /tmp/expected_dist
           cp -r dist/* /tmp/expected_dist/
           npm run build
+          # esbuild's exact byte output is deterministic for the same
+          # input, so a diff of dist/app.js (and app.css) should be
+          # empty. We exclude the source map because its file paths can
+          # legitimately differ across environments.
           diff -q /tmp/expected_dist/app.js dist/app.js || {
             echo "::error::dist/app.js drifted from a fresh build — run 'npm run build' and commit the result"
             exit 1

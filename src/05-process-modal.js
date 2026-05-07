@@ -824,3 +824,6 @@ document.addEventListener('keydown',function(e){
 });
 
 /* ========================================
+   END OF CHUNK 05 — actions continue in 06
+   ======================================== */
+/* CHUNK_END:05-process-modal v1 */
