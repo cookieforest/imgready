@@ -232,7 +232,7 @@
 
   /* center modifier bar — same ergonomics as solo modifier */
   .center-modifier{
-    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-shrink:0;
     padding:11px 14px;border-radius:14px;background:var(--card);
     border:1px solid var(--border);box-shadow:var(--shadow);
   }
@@ -289,6 +289,12 @@
   }
   .bulk-saved strong{color:var(--accent);font-weight:700;}
 
+  /* ---------- desktop default: mobile bits hidden ---------- */
+  .mobile-tabs{display:none;}
+  /* footer note shouldn't overlap multi/solo content */
+  body[data-state="multi"] .footer-note,
+  body[data-state="solo"] .footer-note{display:none;}
+
   /* ---------- mobile: <768px ---------- */
   @media(max-width:767px){
     body[data-state="multi"] .three-pane{
@@ -299,7 +305,7 @@
     .three-pane .left-rail{display:none;}
     .three-pane .center-pane{padding:10px 10px 6px;flex:1;min-height:0;}
     .three-pane .center-image{border-radius:12px;}
-    .three-pane .center-modifier{display:none;} /* center modifier bar moves into mobile flow */
+    /* keep .center-modifier visible on mobile — actions for the focused image sit between image and tabs */
 
     .three-pane .right-rail{
       border-left:0;border-top:1px solid var(--border);
