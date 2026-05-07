@@ -638,14 +638,32 @@ function settleSelection(){
   syncMainImage();
 }
 
+/* Wheel: directly accumulate drift instead of feeding into velocity-decay
+   (which snaps too quickly with the tightened 0.02 threshold for small
+   trackpad deltas). After 160ms of no wheel input, settle/snap. */
+let _wheelDebounce = null;
 function onWheel(e){
   e.preventDefault();
-  const delta = (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX);
-  CFLOW.vel += delta / CFLOW.STRIDE / 30;
-  CFLOW.vel = Math.max(-0.6, Math.min(0.6, CFLOW.vel));
   document.body.dataset.piActions = 'closed';
   cancelAnimationFrame(CFLOW.rafId);
-  runMomentum();
+  CFLOW.vel = 0;
+  const delta = (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX);
+  /* ~70px wheel per index step — feels close to one mouse-wheel notch per image */
+  CFLOW.drift += delta / 70;
+  /* Roll drift into selected when it crosses ±0.5 */
+  while (CFLOW.drift > 0.5 && CFLOW.selected < CFLOW.thumbs.length - 1) {
+    CFLOW.selected++; CFLOW.drift -= 1;
+  }
+  while (CFLOW.drift < -0.5 && CFLOW.selected > 0) {
+    CFLOW.selected--; CFLOW.drift += 1;
+  }
+  /* Boundary clamp */
+  if (CFLOW.selected <= 0 && CFLOW.drift < 0) CFLOW.drift = 0;
+  if (CFLOW.selected >= CFLOW.thumbs.length - 1 && CFLOW.drift > 0) CFLOW.drift = 0;
+  layoutCoverFlow();
+  /* Settle (snap + sync main image) once wheel input stops */
+  clearTimeout(_wheelDebounce);
+  _wheelDebounce = setTimeout(() => settleSelection(), 160);
 }
 
 /* ===== per-image actions ===== */
