@@ -99,18 +99,12 @@ window.removeImage=function(id){
 /* Inline compare slider: drag horizontally on a done card thumb to compare
    original vs result without entering the fullscreen modal. Single click on
    the handle area still opens fullscreen for power users (zoom, format swap). */
-/* Inline compare slider — drag the handle to swipe between the original
-   and the optimised result on a done card thumbnail. Drag is anchored
-   to the .compare-handle button, not the whole thumb, so the rest of
-   the thumb area stays free for the corner fullscreen icon. Both
-   pointer-events: mouse and touch are wired; on touchstart we don't
-   preventDefault (passive) and let the OS scroll if the user swipes
-   vertically — horizontal swipe wins because the handle is small and
-   centered. */
 (function inlineCompareSlider(){
   var dragging=null;
-  function setPct(thumb,pct){
-    pct=Math.max(0,Math.min(100,pct));
+  function move(e,thumb){
+    var rect=thumb.getBoundingClientRect();
+    var cx=e.touches?e.touches[0].clientX:e.clientX;
+    var pct=Math.max(0,Math.min(100,(cx-rect.left)/rect.width*100));
     var divider=thumb.querySelector('.compare-divider');
     var handle=thumb.querySelector('.compare-handle');
     var clip=thumb.querySelector('.compare-after');
@@ -118,45 +112,30 @@ window.removeImage=function(id){
     if(handle)handle.style.left=pct+'%';
     if(clip)clip.style.clipPath='inset(0 0 0 '+pct+'%)';
   }
-  function moveFromEvent(e,thumb){
-    var rect=thumb.getBoundingClientRect();
-    var cx=(e.touches&&e.touches[0])?e.touches[0].clientX:e.clientX;
-    setPct(thumb,(cx-rect.left)/rect.width*100);
-  }
-  function startDrag(e,handle){
-    var thumb=handle.closest('.compare-thumb');
-    if(!thumb)return false;
-    dragging=thumb;
-    /* Prevent the browser's image-drag ghost on desktop, and prevent the
-       native click-bubbling that would otherwise open fullscreen. */
-    if(e.cancelable)e.preventDefault();
-    return true;
-  }
   document.addEventListener('mousedown',function(e){
-    var h=e.target.closest('.compare-handle');
-    if(!h)return;
-    startDrag(e,h);
-  });
-  document.addEventListener('mousemove',function(e){if(dragging)moveFromEvent(e,dragging);});
-  document.addEventListener('mouseup',function(){dragging=null;});
-  document.addEventListener('mouseleave',function(){dragging=null;});
-  document.addEventListener('touchstart',function(e){
-    var h=e.target.closest('.compare-handle');
-    if(!h)return;
-    /* Touch listener is non-passive specifically on the handle path so we
-       can preventDefault and stop the ghost click + page scroll. */
-    var thumb=h.closest('.compare-thumb');
-    if(!thumb)return;
-    dragging=thumb;
+    var t=e.target.closest('.compare-thumb');
+    if(!t)return;
+    dragging=t;
+    move(e,t);
     e.preventDefault();
-  },{passive:false});
-  document.addEventListener('touchmove',function(e){
-    if(!dragging)return;
-    moveFromEvent(e,dragging);
-    if(e.cancelable)e.preventDefault();
-  },{passive:false});
+  });
+  document.addEventListener('mousemove',function(e){if(dragging)move(e,dragging);});
+  document.addEventListener('mouseup',function(){dragging=null;});
+  document.addEventListener('touchstart',function(e){
+    var t=e.target.closest('.compare-thumb');
+    if(!t)return;
+    dragging=t;
+    move(e,t);
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){if(dragging)move(e,dragging);},{passive:true});
   document.addEventListener('touchend',function(){dragging=null;});
-  document.addEventListener('touchcancel',function(){dragging=null;});
+  /* Double-click opens fullscreen for users who want zoom + format-swap */
+  document.addEventListener('dblclick',function(e){
+    var t=e.target.closest('.compare-thumb');
+    if(!t)return;
+    var id=t.getAttribute('data-id');
+    if(id&&typeof window.thumbClick==='function')window.thumbClick(id);
+  });
 })();
 
 /* previewFmt was previously redefined here for the now-removed inline compare
