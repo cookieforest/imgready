@@ -11,7 +11,8 @@
     --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.82);--card-border:rgba(255,255,255,.12);--card-radius:12px;
-    --thumb-center:150px;
+    --thumb-big:150px;--thumb-small:70px;--stride:120px;
+    --action-w:240px;
   }
   body[data-state="solo"],body[data-state="multi"]{
     --bg:#0d0d0d;--text:#ececea;--muted:#9a9a92;
@@ -19,24 +20,18 @@
   }
   *,*::before,*::after{box-sizing:border-box;}
   html,body{height:100%;}
-  body{
-    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
     color:var(--text);background:var(--bg);overflow:hidden;
-    user-select:none;-webkit-user-select:none;
-  }
+    user-select:none;-webkit-user-select:none;}
 
-  .brand-bar{
-    height:var(--brand-h);display:flex;align-items:center;gap:14px;
-    padding:0 16px;background:var(--bg);position:relative;z-index:10;
-  }
+  .brand-bar{height:var(--brand-h);display:flex;align-items:center;gap:14px;
+    padding:0 16px;background:var(--bg);position:relative;z-index:10;}
   .brand{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
   .brand .g{color:var(--accent);}
   .state-toggle{margin-left:auto;display:flex;gap:6px;align-items:center;}
   .state-toggle small{color:var(--muted);font-size:.66rem;}
-  .state-toggle button{
-    border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);
-    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;
-  }
+  .state-toggle button{border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);
+    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;}
   body[data-state="empty"] .state-toggle button{border-color:var(--border);}
   .state-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
@@ -44,12 +39,10 @@
   .empty-state{display:none;height:calc(100vh - var(--brand-h));align-items:center;justify-content:center;padding:24px;}
   body[data-state="empty"] .empty-state{display:flex;}
   body[data-state="empty"] .stage{display:none;}
-  .dropzone{
-    width:min(620px,100%);
+  .dropzone{width:min(620px,100%);
     border:2px dashed color-mix(in srgb,var(--accent) 35%,var(--border));
     border-radius:18px;padding:54px 32px;text-align:center;
-    background:color-mix(in srgb,var(--card) 80%,transparent);cursor:pointer;
-  }
+    background:color-mix(in srgb,var(--card) 80%,transparent);cursor:pointer;}
   .dropzone:hover{background:var(--accent-light);border-color:var(--accent);}
   .dz-icon{width:60px;height:60px;border-radius:50%;background:var(--accent-light);color:var(--accent);
     display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;}
@@ -58,11 +51,10 @@
   .dz-sub{color:var(--muted);font-size:.88rem;margin:0;}
   .dz-trust{margin-top:10px;font-size:.74rem;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:6px;}
 
-  /* --- stage (full-bleed image canvas + overlays) --- */
+  /* --- stage --- */
   .stage{display:none;position:relative;height:calc(100vh - var(--brand-h));background:#000;overflow:hidden;}
   body[data-state="solo"] .stage.solo{display:block;}
   body[data-state="multi"] .stage.multi{display:block;}
-
   .image-canvas{position:absolute;inset:0;}
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -83,174 +75,170 @@
   .compare-meta.r{right:14px;align-items:flex-end;text-align:right;}
   .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
   .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.78rem;}
-  .compare-meta .batch-row{margin-top:5px;padding-top:5px;
-    border-top:1px solid rgba(255,255,255,.18);
+  .compare-meta .batch-row{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.18);
     font-size:.7rem;font-weight:500;color:rgba(255,255,255,.85);}
   body[data-state="solo"] .compare-meta .batch-row{display:none;}
 
-  /* ---------- COVER FLOW filmstrip ---------- */
+  /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
   .cover-flow{
-    position:absolute;left:0;right:0;
-    bottom:200px;  /* above the menu card */
-    height:180px;
+    position:absolute;
+    /* desktop: bottom, leaves room on the right for the action card */
+    bottom:14px;left:14px;right:calc(var(--action-w) + 28px);
+    height:170px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
+    overflow:hidden;
   }
   .cover-flow.dragging{cursor:grabbing;}
   body[data-state="solo"] .cover-flow{display:none;}
   .cflow-track{position:absolute;left:50%;top:50%;width:0;height:0;}
   .cflow-thumb{
     position:absolute;left:0;top:0;
-    width:var(--thumb-center);aspect-ratio:1/1;
-    border-radius:10px;overflow:hidden;
+    width:var(--thumb-small);aspect-ratio:1/1;
+    border-radius:8px;overflow:hidden;
     transform-origin:center center;
-    transform:translate(-50%,-50%) translateX(var(--ox,0)) scale(var(--scale,1));
-    opacity:var(--opacity,.5);
-    box-shadow:0 2px 12px rgba(0,0,0,.35);
-    transition:transform .28s cubic-bezier(.22,1,.36,1),opacity .25s ease;
+    transform:translate(-50%,-50%) translate3d(var(--ox,0),0,0);
+    opacity:.55;
+    box-shadow:0 1px 3px rgba(0,0,0,.22);
+    transition:width .26s cubic-bezier(.22,1,.36,1),
+               height .26s cubic-bezier(.22,1,.36,1),
+               opacity .25s ease,
+               transform .28s cubic-bezier(.22,1,.36,1);
     cursor:pointer;
   }
-  .cflow-thumb.active{opacity:1;}
-  .cflow-thumb .thumb-img{width:100%;height:100%;display:block;}
-  .cflow-thumb .thumb-savings{
-    position:absolute;right:6px;top:6px;
-    background:rgba(255,255,255,.92);color:var(--accent-strong);
-    font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:99px;
+  .cover-flow.dragging .cflow-thumb{transition:none;}
+  .cflow-thumb.active{
+    width:var(--thumb-big);
+    opacity:1;
+    z-index:5;
   }
+  .cflow-thumb .thumb-img{width:100%;height:100%;display:block;font-size:1rem;}
+  .cflow-thumb.active .thumb-img{font-size:1.6rem;}
+  .cflow-thumb .thumb-savings{position:absolute;right:5px;top:5px;
+    background:rgba(255,255,255,.92);color:var(--accent-strong);
+    font-size:.6rem;font-weight:700;padding:1px 5px;border-radius:99px;}
 
-  /* ---------- per-image action icons (above centered thumb) ---------- */
+  /* ---------- per-image action icons ---------- */
   .pi-actions{
-    position:absolute;left:50%;top:0;
-    transform:translate(-50%,-100%) translateY(-12px);
+    position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%) translateY(calc(-1 * var(--thumb-big) / 2 - 32px));
     display:flex;gap:8px;
     opacity:0;pointer-events:none;
-    transition:opacity .18s ease,transform .18s ease;
+    transition:opacity .18s ease,transform .2s ease;
     z-index:9;
   }
   body[data-pi-actions="open"] .pi-actions{
     opacity:1;pointer-events:auto;
-    transform:translate(-50%,-100%) translateY(-6px);
+    transform:translate(-50%,-50%) translateY(calc(-1 * var(--thumb-big) / 2 - 38px));
   }
-  .pi-icon{
-    width:38px;height:38px;border-radius:50%;
+  .pi-icon{width:38px;height:38px;border-radius:50%;
     background:rgba(20,20,20,.92);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     border:1px solid rgba(255,255,255,.18);
     color:#fff;display:flex;align-items:center;justify-content:center;
     cursor:pointer;font-family:inherit;
-    transition:background .15s,transform .12s;
-  }
+    transition:background .15s,transform .12s;}
   .pi-icon:hover{background:rgba(50,50,50,.95);transform:translateY(-2px);}
   .pi-icon.danger:hover{background:rgba(160,60,60,.92);border-color:rgba(220,160,160,.5);}
   .pi-icon svg{width:16px;height:16px;}
 
-  /* ---------- bottom menu card ---------- */
+  /* ---------- bottom-right action card ---------- */
   .menu-wrap{
-    position:absolute;left:0;right:0;bottom:14px;
-    display:flex;flex-direction:column;align-items:center;
-    pointer-events:none;z-index:7;padding:0 14px;
+    position:absolute;
+    right:14px;bottom:14px;
+    width:var(--action-w);
+    display:flex;flex-direction:column;
+    pointer-events:none;z-index:7;
   }
   .menu-card{
     pointer-events:auto;
     background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border:1px solid var(--card-border);border-radius:var(--card-radius);
-    width:min(720px,calc(100% - 28px));overflow:hidden;color:#fff;
+    overflow:hidden;color:#fff;width:100%;
   }
   .settings-toggle{
     pointer-events:auto;background:transparent;border:0;width:100%;
     display:flex;align-items:center;justify-content:space-between;
-    color:rgba(255,255,255,.78);font-family:inherit;font-size:.78rem;font-weight:600;
-    cursor:pointer;padding:11px 16px;letter-spacing:.04em;text-transform:uppercase;
+    color:rgba(255,255,255,.78);font-family:inherit;font-size:.74rem;font-weight:600;
+    cursor:pointer;padding:11px 14px;letter-spacing:.04em;text-transform:uppercase;
     border-bottom:1px solid rgba(255,255,255,.10);
   }
   .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.04);}
-  .settings-toggle .tri{font-size:.7rem;line-height:1;display:inline-block;
+  .settings-toggle .tri{font-size:.68rem;line-height:1;display:inline-block;
     transition:transform .18s;color:rgba(255,255,255,.55);}
   body[data-adjust="open"] .settings-toggle .tri{transform:rotate(180deg);}
   body[data-adjust="open"] .settings-toggle{color:#fff;}
   body[data-adjust="closed"] .settings-toggle{border-bottom-color:rgba(255,255,255,.06);}
 
-  .adjust-panel{display:none;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10);}
+  .adjust-panel{display:none;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.10);}
   body[data-adjust="open"] .adjust-panel{display:block;}
-  .adjust-section{margin-bottom:14px;}
+  .adjust-section{margin-bottom:12px;}
   .adjust-section:last-child{margin-bottom:0;}
-  .adjust-label{display:block;font-size:.66rem;font-weight:700;letter-spacing:.06em;
-    text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:7px;}
-  .adjust-pills{display:flex;flex-wrap:wrap;gap:5px;}
-  .adjust-pills button{padding:5px 11px;border:1px solid rgba(255,255,255,.18);background:transparent;
-    border-radius:6px;color:rgba(255,255,255,.7);font-family:inherit;font-size:.72rem;font-weight:600;
-    cursor:pointer;text-transform:uppercase;letter-spacing:.02em;}
-  .adjust-pills button:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adjust-label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:6px;}
+  .adjust-pills{display:flex;flex-wrap:wrap;gap:4px;}
+  .adjust-pills button{padding:5px 8px;border:1px solid rgba(255,255,255,.18);background:transparent;
+    border-radius:5px;color:rgba(255,255,255,.7);font-family:inherit;font-size:.66rem;font-weight:600;
+    cursor:pointer;text-transform:uppercase;}
   .adjust-pills button.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.4);}
-  .quality-row{display:flex;align-items:center;gap:8px;}
+  .quality-row{display:flex;align-items:center;gap:6px;}
   .quality-row input[type=range]{flex:1;accent-color:var(--accent);height:4px;}
-  .q-val{color:#fff;font-weight:700;font-size:.74rem;min-width:28px;text-align:center;}
-  .adjust-input,.adjust-select{padding:6px 9px;border:1px solid rgba(255,255,255,.18);
-    background:rgba(255,255,255,.04);color:#fff;border-radius:6px;font-family:inherit;font-size:.78rem;}
-  .adjust-row-inline{display:flex;gap:6px;}
-  .adjust-row-inline .adjust-input{flex:1;}
-  .adjust-checkbox{display:flex;align-items:center;gap:8px;font-size:.78rem;color:rgba(255,255,255,.85);cursor:pointer;}
+  .q-val{color:#fff;font-weight:700;font-size:.7rem;min-width:24px;text-align:center;}
+  .adjust-input,.adjust-select{padding:5px 7px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.04);color:#fff;border-radius:5px;font-family:inherit;font-size:.7rem;width:100%;}
+  .adjust-checkbox{display:flex;align-items:center;gap:6px;font-size:.7rem;color:rgba(255,255,255,.85);cursor:pointer;}
 
-  .actions{display:flex;flex-direction:column;gap:8px;padding:14px 14px max(14px,env(safe-area-inset-bottom,14px));}
-  .action-row{display:flex;gap:8px;}
-  .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  /* Action area: stacked vertical buttons in narrow card */
+  .actions{display:flex;flex-direction:column;gap:6px;
+    padding:12px 14px max(14px,env(safe-area-inset-bottom,14px));}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;
     padding:9px 12px;border-radius:7px;font-family:inherit;font-size:.78rem;font-weight:600;
     border:1px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.92);
-    cursor:pointer;white-space:nowrap;flex:1;min-width:0;
-  }
+    cursor:pointer;white-space:nowrap;width:100%;}
   .btn:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4);}
-  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;flex:1.4;}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
   .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
-  .btn-clear{flex:0 0 auto;color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.16);padding:9px 14px;}
+  .btn-clear{color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.16);}
   .btn-clear:hover{color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);}
-  .btn-icon{flex:0 0 auto;padding:8px 9px;}
+  .btn-icon{width:auto;flex:0 0 auto;padding:8px 9px;}
 
   /* ---------- confirm modal ---------- */
-  .confirm-overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
-    display:none;align-items:center;justify-content:center;z-index:100;padding:24px;
-  }
+  .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;z-index:100;padding:24px;}
   body[data-confirm="open"] .confirm-overlay{display:flex;}
-  .confirm-modal{
-    background:#1f1f1f;border:1px solid rgba(255,255,255,.14);border-radius:14px;
+  .confirm-modal{background:#1f1f1f;border:1px solid rgba(255,255,255,.14);border-radius:14px;
     color:#fff;padding:24px;max-width:380px;width:100%;
-    box-shadow:0 12px 40px rgba(0,0,0,.5);
-  }
+    box-shadow:0 12px 40px rgba(0,0,0,.5);}
   .confirm-modal h3{margin:0 0 8px;font-size:1.05rem;}
   .confirm-modal p{margin:0 0 18px;font-size:.86rem;color:rgba(255,255,255,.78);line-height:1.45;}
   .confirm-actions{display:flex;gap:10px;justify-content:flex-end;}
+  .confirm-actions .btn{width:auto;}
 
   /* ---------- mobile ---------- */
   @media(max-width:767px){
-    :root{--thumb-center:120px;}
-    .cover-flow{height:140px;bottom:200px;}
-    .menu-wrap{bottom:8px;}
-    .menu-card{width:calc(100% - 16px);}
-    .compare-meta{font-size:.7rem;padding:6px 10px;}
-    .compare-meta .lbl-title{font-size:.82rem;}
+    :root{--thumb-big:110px;--thumb-small:55px;--stride:90px;--action-w:auto;}
+    .cover-flow{
+      /* Sit just above the menu card, as close as possible */
+      bottom:auto;top:auto;
+      left:0;right:0;
+      height:130px;
+    }
+    .menu-wrap{
+      left:8px;right:8px;bottom:8px;width:auto;
+    }
+    .compare-meta{font-size:.68rem;padding:6px 9px;}
+    .compare-meta .lbl-title{font-size:.8rem;}
     .state-toggle small{display:none;}
     .brand-bar{padding:0 12px;}
     .pi-icon{width:42px;height:42px;}
+    .actions{padding:10px 12px max(12px,env(safe-area-inset-bottom,12px));}
   }
 
   /* ---------- mock images ---------- */
   .mock-image{width:100%;height:100%;display:flex;align-items:flex-end;
-    padding:14px;color:#fff;font-weight:600;font-size:.7rem;
+    padding:8px;color:#fff;font-weight:700;font-size:1rem;
     text-shadow:0 1px 3px rgba(0,0,0,.4);}
   .mock-image.large{font-size:1.4rem;padding:20px;}
-  .mi-1{background:linear-gradient(135deg,#5a7a5a,#a8d5a8);}
-  .mi-2{background:linear-gradient(135deg,#406ba6,#88b4dc);}
-  .mi-3{background:linear-gradient(135deg,#b8651e,#f0a060);}
-  .mi-4{background:linear-gradient(135deg,#7a4a4a,#c98080);}
-  .mi-5{background:linear-gradient(135deg,#3e3a4a,#7a778a);}
-  .mi-6{background:linear-gradient(135deg,#946a2a,#dcb878);}
-  .mi-1b{background:linear-gradient(135deg,#446644,#8aba8a);}
-  .mi-2b{background:linear-gradient(135deg,#2f5482,#6792b8);}
-  .mi-3b{background:linear-gradient(135deg,#965010,#cc8c54);}
-  .mi-4b{background:linear-gradient(135deg,#5d3a3a,#a86c6c);}
-  .mi-5b{background:linear-gradient(135deg,#2a263a,#605d70);}
-  .mi-6b{background:linear-gradient(135deg,#74521e,#c39c5c);}
 </style>
 </head>
 <body data-state="multi" data-adjust="closed" data-pi-actions="closed" data-confirm="closed">
@@ -261,7 +249,7 @@
     <small>State:</small>
     <button data-tgt="empty" onclick="setState('empty')">Empty</button>
     <button data-tgt="solo" onclick="setState('solo')">Solo</button>
-    <button data-tgt="multi" onclick="setState('multi')" class="active">Multi (6)</button>
+    <button data-tgt="multi" onclick="setState('multi')" class="active">Multi (20)</button>
   </div>
 </div>
 
@@ -282,36 +270,30 @@
 <!-- ============================ SOLO STATE ============================ -->
 <section class="stage solo">
   <div class="image-canvas">
-    <div class="mock-image large mi-1b compare-before">test-photo.jpg</div>
-    <div class="compare-after"><div class="mock-image large mi-1">test-photo.jpg</div></div>
+    <div class="mock-image large compare-before" style="background:linear-gradient(135deg,#446644,#8aba8a)">test-photo.jpg</div>
+    <div class="compare-after"><div class="mock-image large" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">test-photo.jpg</div></div>
     <div class="compare-divider"></div>
-    <button class="compare-handle" aria-label="Drag to compare">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg>
-    </button>
+    <button class="compare-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg></button>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>493 KB · JPG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>322 KB · JPG</span><span class="pct">35% smaller</span></div>
   </div>
   <div class="menu-wrap">
     <div class="menu-card">
-      <button class="settings-toggle" onclick="toggleAdjust()">
-        <span>Settings</span><span class="tri">▼</span>
-      </button>
+      <button class="settings-toggle" onclick="toggleAdjust()"><span>Settings</span><span class="tri">▼</span></button>
       <div class="adjust-panel">
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button>Auto</button><button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button></div></div>
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
           <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
-          <div class="adjust-row-inline"><select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select><input type="number" class="adjust-input" placeholder="e.g. 1200"></div></div>
+          <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
+          <input type="number" class="adjust-input" placeholder="e.g. 1200" style="margin-top:4px;"></div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
-          <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata (EXIF, GPS)</span></label></div>
+          <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata</span></label></div>
       </div>
       <div class="actions">
-        <div class="action-row">
-          <button class="btn btn-icon" title="Share"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
-          <button class="btn btn-icon" title="Copy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-          <button class="btn btn-primary">Download</button>
-        </div>
+        <button class="btn btn-primary">Download</button>
+        <button class="btn">Share</button>
       </div>
     </div>
   </div>
@@ -320,64 +302,54 @@
 <!-- ============================ MULTI STATE ============================ -->
 <section class="stage multi">
   <div class="image-canvas" id="centerImage">
-    <div class="mock-image large mi-1b compare-before">photo-1.jpg</div>
-    <div class="compare-after"><div class="mock-image large mi-1">photo-1.jpg</div></div>
+    <div class="mock-image large compare-before" id="cbBefore" style="background:linear-gradient(135deg,#446644,#8aba8a)">photo-1.jpg</div>
+    <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">photo-1.jpg</div></div>
     <div class="compare-divider"></div>
     <button class="compare-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg></button>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
-    <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 1.4 MB · 6 files total</span></div>
+    <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
   </div>
 
   <div class="cover-flow" id="coverFlow">
     <div class="cflow-track" id="cflowTrack">
-      <div class="cflow-thumb" data-i="0" data-name="photo-1.jpg" data-grad="1"><div class="mock-image mi-1 thumb-img">1</div><span class="thumb-savings">78%</span></div>
-      <div class="cflow-thumb" data-i="1" data-name="photo-2.jpg" data-grad="2"><div class="mock-image mi-2 thumb-img">2</div><span class="thumb-savings">22%</span></div>
-      <div class="cflow-thumb" data-i="2" data-name="photo-3.jpg" data-grad="3"><div class="mock-image mi-3 thumb-img">3</div><span class="thumb-savings">35%</span></div>
-      <div class="cflow-thumb" data-i="3" data-name="photo-4.jpg" data-grad="4"><div class="mock-image mi-4 thumb-img">4</div><span class="thumb-savings">19%</span></div>
-      <div class="cflow-thumb" data-i="4" data-name="photo-5.jpg" data-grad="5"><div class="mock-image mi-5 thumb-img">5</div><span class="thumb-savings">42%</span></div>
-      <div class="cflow-thumb" data-i="5" data-name="photo-6.jpg" data-grad="6"><div class="mock-image mi-6 thumb-img">6</div><span class="thumb-savings">28%</span></div>
-      <!-- per-image actions: hover/2nd-click on centered thumb shows them -->
+      <!-- thumbs injected by JS -->
       <div class="pi-actions" id="piActions">
-        <button class="pi-icon" title="Share this" onclick="piShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
-        <button class="pi-icon" title="Download this" onclick="piDownload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
-        <button class="pi-icon danger" title="Delete this" onclick="piDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+        <button class="pi-icon" title="Share this" onclick="event.stopPropagation();piShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+        <button class="pi-icon" title="Download this" onclick="event.stopPropagation();piDownload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+        <button class="pi-icon danger" title="Delete this" onclick="event.stopPropagation();piDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
       </div>
     </div>
   </div>
 
-  <div class="menu-wrap">
+  <div class="menu-wrap" id="menuWrap">
     <div class="menu-card">
-      <button class="settings-toggle" onclick="toggleAdjust()">
-        <span>Settings</span><span class="tri">▼</span>
-      </button>
+      <button class="settings-toggle" onclick="toggleAdjust()"><span>Settings</span><span class="tri">▼</span></button>
       <div class="adjust-panel">
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
           <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
-          <div class="adjust-row-inline"><select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select><input type="number" class="adjust-input" placeholder="e.g. 1200"></div></div>
+          <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
+          <input type="number" class="adjust-input" placeholder="e.g. 1200" style="margin-top:4px;"></div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
-          <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata (EXIF, GPS)</span></label></div>
+          <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata</span></label></div>
       </div>
       <div class="actions">
-        <div class="action-row">
-          <button class="btn btn-clear" onclick="askClear()">Clear all</button>
-          <button class="btn">Share all</button>
-          <button class="btn btn-primary">Download all</button>
-        </div>
+        <button class="btn btn-primary">Download all</button>
+        <button class="btn">Share all</button>
+        <button class="btn btn-clear" onclick="askClear()">Clear all</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ---- Confirm modal ---- -->
 <div class="confirm-overlay" onclick="if(event.target===this)cancelConfirm()">
   <div class="confirm-modal">
     <h3>Clear all images?</h3>
-    <p>This will remove all 6 images from this batch. You can't undo this.</p>
+    <p>This removes every image in this batch. You can't undo it.</p>
     <div class="confirm-actions">
-      <button class="btn" onclick="cancelConfirm()">Cancel</button>
+      <button class="btn" onclick="cancelConfirm()" style="border-color:rgba(255,255,255,.22);">Cancel</button>
       <button class="btn btn-clear" onclick="doClear()" style="color:#ff9c9c;border-color:rgba(220,120,120,.5);">Clear all</button>
     </div>
   </div>
@@ -398,108 +370,126 @@ function toggleAdjust(){
   document.body.dataset.adjust = document.body.dataset.adjust==='open' ? 'closed' : 'open';
 }
 
-/* ===== cover flow layout: symmetric scale cascade =====
-   Selected thumb is centered (delta=0, scale=1, opacity=1).
-   Each step out, scale decreases with quadratic falloff so the cascade
-   visually "decreases by an increasing amount each time."
-*/
+/* ===== mock thumbnail palette (20 distinct gradients) ===== */
+const PALETTE = [
+  ['#5a7a5a','#a8d5a8'],['#406ba6','#88b4dc'],['#b8651e','#f0a060'],
+  ['#7a4a4a','#c98080'],['#3e3a4a','#7a778a'],['#946a2a','#dcb878'],
+  ['#2a5a4a','#76b09a'],['#9a3a6a','#d088a4'],['#3a6a7a','#86b4c4'],
+  ['#705a3a','#c0a878'],['#5a4a7a','#9888c0'],['#aa5a3a','#dc9078'],
+  ['#3a8aaa','#80c8e0'],['#7a8a3a','#c0d088'],['#a87a5a','#dcc4a4'],
+  ['#5a3a3a','#a07878'],['#3a5a3a','#80a880'],['#7a5a3a','#c0a078'],
+  ['#5a5a8a','#a0a0d0'],['#aa8a5a','#e0c898']
+];
+
+/* ===== cover flow state ===== */
 const CFLOW = {
-  thumbs: [],
-  selected: 0,
-  drift: 0,           // current drift in fractional indices (for momentum)
-  vel: 0,             // velocity of drift (in indices/frame)
+  thumbs: [],          // DOM elements
+  selected: 0,         // current centered index
+  drift: 0,            // fractional drift (during drag/momentum)
+  vel: 0,              // velocity (idx/frame)
   draggingFrom: null,
   rafId: null,
+  prevSelected: -1,    // last 'committed' selected index (for syncMainImage gating)
+  STRIDE: 120,         // px between thumb centers (matches CSS --stride; updated on resize)
 };
 
 function init(){
-  CFLOW.thumbs = Array.from(document.querySelectorAll('.cflow-thumb'));
-  CFLOW.thumbs.forEach((t,i)=>{
-    t.addEventListener('click', e => onThumbClick(i, e));
-    t.addEventListener('mouseenter', () => onCenterHover(i));
-    t.addEventListener('mouseleave', () => onCenterLeave(i));
-  });
+  buildThumbs(20);
+  CFLOW.STRIDE = readStride();
   layoutCoverFlow();
+  syncMainImage(true);
 
-  /* drag handlers on the cover-flow container */
   const flow = document.getElementById('coverFlow');
   flow.addEventListener('pointerdown', onPointerDown);
   flow.addEventListener('wheel', onWheel, {passive:false});
 }
 window.addEventListener('DOMContentLoaded', init);
-window.addEventListener('resize', layoutCoverFlow);
+window.addEventListener('resize', () => {
+  CFLOW.STRIDE = readStride();
+  layoutCoverFlow();
+});
+
+function readStride(){
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--stride');
+  return parseInt(v) || 120;
+}
+
+function buildThumbs(n){
+  const track = document.getElementById('cflowTrack');
+  // Remove any existing thumbs (preserve pi-actions)
+  Array.from(track.querySelectorAll('.cflow-thumb')).forEach(t=>t.remove());
+  CFLOW.thumbs = [];
+  for (let i = 0; i < n; i++) {
+    const [a,b] = PALETTE[i % PALETTE.length];
+    const t = document.createElement('div');
+    t.className = 'cflow-thumb';
+    t.dataset.i = String(i);
+    t.dataset.name = `photo-${i+1}.jpg`;
+    t.dataset.gradA = a; t.dataset.gradB = b;
+    const savings = [78,22,35,19,42,28,55,12,67,38,49,15,72,31,44,29,58,21,63,36][i % 20];
+    t.dataset.savings = String(savings);
+    t.innerHTML = `<div class="thumb-img" style="width:100%;height:100%;background:linear-gradient(135deg,${a},${b});display:flex;align-items:flex-end;padding:6px;color:#fff;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.4);">${i+1}</div><span class="thumb-savings">${savings}%</span>`;
+    t.addEventListener('click', e => onThumbClick(i, e));
+    t.addEventListener('mouseenter', () => onThumbHover(t));
+    track.insertBefore(t, document.getElementById('piActions'));
+    CFLOW.thumbs.push(t);
+  }
+}
 
 function layoutCoverFlow(){
-  const baseStride = window.innerWidth < 768 ? 86 : 110;
-  const baseScaleStep = 0.78;  // each step: 78% of previous
-  const focal = CFLOW.selected + CFLOW.drift;  // floating-point center
-
+  const focal = CFLOW.selected + CFLOW.drift;
+  const STRIDE = CFLOW.STRIDE;
   CFLOW.thumbs.forEach((thumb, i) => {
     const delta = i - focal;
-    const adel = Math.abs(delta);
-    const sign = Math.sign(delta);
-    const scale = Math.max(0.18, Math.pow(baseScaleStep, adel));
-    /* Stride accumulates exponentially: each step out moves by less */
-    let offset = 0;
-    if (Math.abs(delta) > 0.001) {
-      const steps = adel;
-      offset = sign * baseStride * (1 - Math.pow(baseScaleStep, steps)) / (1 - baseScaleStep);
-    }
+    const offset = delta * STRIDE;
     thumb.style.setProperty('--ox', offset.toFixed(1) + 'px');
-    thumb.style.setProperty('--scale', scale.toFixed(3));
-    thumb.style.setProperty('--opacity', Math.abs(delta) < 0.5 ? '1' : '0.5');
-    thumb.classList.toggle('active', Math.abs(delta) < 0.5);
-    thumb.style.zIndex = String(20 - Math.round(adel));
+    const isActive = Math.abs(delta) < 0.5;
+    thumb.classList.toggle('active', isActive);
   });
-  syncMainImage();
-  positionPiActions();
 }
 
-function syncMainImage(){
-  const i = Math.round(CFLOW.selected + CFLOW.drift);
-  const idx = Math.max(0, Math.min(CFLOW.thumbs.length - 1, i));
+/* Sync big image only when selection actually changes (skip during drag/momentum) */
+function syncMainImage(force){
+  const idx = CFLOW.selected;
+  if (!force && idx === CFLOW.prevSelected) return;
+  CFLOW.prevSelected = idx;
   const thumb = CFLOW.thumbs[idx];
   if (!thumb) return;
-  const grad = thumb.dataset.grad;
-  const name = thumb.dataset.name;
-  const ci = document.getElementById('centerImage');
-  const before = ci.querySelector('.compare-before');
-  const after = ci.querySelector('.compare-after .mock-image');
-  before.className = 'mock-image large mi-' + grad + 'b compare-before';
+  const a = thumb.dataset.gradA, b = thumb.dataset.gradB, name = thumb.dataset.name;
+  // pick a slightly darker shade for "before" — we just darken the gradient
+  const before = document.getElementById('cbBefore');
+  const after = document.getElementById('cbAfter');
+  before.style.background = `linear-gradient(135deg, ${shade(a,-12)}, ${shade(b,-12)})`;
   before.textContent = name;
-  after.className = 'mock-image large mi-' + grad;
+  after.style.background = `linear-gradient(135deg, ${a}, ${b})`;
   after.textContent = name;
 }
-
-function positionPiActions(){
-  const pi = document.getElementById('piActions');
-  if (!pi) return;
-  /* Sit it directly above the centered thumb in track-space.
-     The track origin is at center of cover-flow, so x:0 already. */
+function shade(hex, pct){
+  const h = hex.replace('#','');
+  const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+  const f = (pct < 0 ? 0 : 255), t = pct < 0 ? -pct : pct;
+  const cl = v => Math.round((f - v) * (t/100) + v);
+  return '#'+[cl(r),cl(g),cl(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
-/* ===== thumb click: 1st = select, 2nd (already centered) = open icons ===== */
+/* ===== thumb click: select OR open per-image actions ===== */
 function onThumbClick(i, e){
-  /* If a drag just ended, suppress click */
   if (CFLOW._suppressClick) { CFLOW._suppressClick = false; return; }
   if (i === CFLOW.selected && Math.abs(CFLOW.drift) < 0.05) {
-    /* already centered → toggle per-image actions */
     openPiActions();
   } else {
     selectIndex(i);
   }
 }
-
 function selectIndex(i){
   i = Math.max(0, Math.min(CFLOW.thumbs.length - 1, i));
-  CFLOW.selected = i;
-  CFLOW.drift = 0;
-  CFLOW.vel = 0;
+  CFLOW.selected = i; CFLOW.drift = 0; CFLOW.vel = 0;
   document.body.dataset.piActions = 'closed';
   layoutCoverFlow();
+  syncMainImage();
 }
 
-/* ===== per-image actions visibility with 3s timer ===== */
+/* ===== per-image actions: hover + 2nd click + 3s timer ===== */
 let piTimer = null;
 function openPiActions(){
   document.body.dataset.piActions = 'open';
@@ -507,26 +497,24 @@ function openPiActions(){
 }
 function resetPiTimer(){
   if (piTimer) clearTimeout(piTimer);
-  piTimer = setTimeout(() => {
-    document.body.dataset.piActions = 'closed';
-  }, 3000);
+  piTimer = setTimeout(() => { document.body.dataset.piActions = 'closed'; }, 3000);
 }
-function onCenterHover(i){
-  if (i !== CFLOW.selected || Math.abs(CFLOW.drift) > 0.1) return;
-  openPiActions();
-}
-function onCenterLeave(i){
-  /* don't hide immediately — let the timer run */
-  /* nothing to do here; timer handles it */
-}
-/* Hovering on the actions themselves keeps the timer alive */
-document.addEventListener('mousemove', e => {
-  const pi = document.getElementById('piActions');
-  if (pi && document.body.dataset.piActions === 'open' && pi.contains(e.target)) {
-    resetPiTimer();
+function onThumbHover(thumb){
+  if (thumb.classList.contains('active') && Math.abs(CFLOW.drift) < 0.1 && !CFLOW.draggingFrom){
+    openPiActions();
   }
+}
+/* keep open while mouse is anywhere over the pi-actions cluster */
+document.addEventListener('mousemove', e => {
+  if (document.body.dataset.piActions !== 'open') return;
+  const pi = document.getElementById('piActions');
+  if (pi && pi.contains(e.target)) resetPiTimer();
 });
-/* Clicking outside closes immediately */
+/* hovering the active thumb again also keeps timer alive */
+document.addEventListener('mouseover', e => {
+  if (document.body.dataset.piActions !== 'open') return;
+  if (e.target.closest && e.target.closest('.cflow-thumb.active')) resetPiTimer();
+});
 document.addEventListener('click', e => {
   if (document.body.dataset.piActions !== 'open') return;
   if (e.target.closest('.pi-icon')) return;
@@ -534,63 +522,50 @@ document.addEventListener('click', e => {
   document.body.dataset.piActions = 'closed';
 });
 
-/* ===== drag + momentum cycling ===== */
+/* ===== drag / momentum ===== */
 function onPointerDown(e){
-  if (e.target.closest('.pi-icon')) return;  /* let icons handle their clicks */
-  CFLOW.draggingFrom = { x: e.clientX, t: performance.now(), startSel: CFLOW.selected, startDrift: CFLOW.drift };
-  CFLOW.lastX = e.clientX;
-  CFLOW.lastT = performance.now();
-  CFLOW.vel = 0;
-  CFLOW._dragMoved = false;
+  if (e.target.closest('.pi-icon')) return;
+  CFLOW.draggingFrom = { x: e.clientX, t: performance.now(), startSel: CFLOW.selected };
+  CFLOW.lastX = e.clientX; CFLOW.lastT = performance.now();
+  CFLOW.vel = 0; CFLOW._dragMoved = false;
   document.getElementById('coverFlow').classList.add('dragging');
   document.body.dataset.piActions = 'closed';
+  cancelAnimationFrame(CFLOW.rafId);
   document.addEventListener('pointermove', onPointerMove);
   document.addEventListener('pointerup', onPointerUp, {once:true});
   e.preventDefault();
-  e.target.setPointerCapture && e.target.setPointerCapture(e.pointerId);
 }
 function onPointerMove(e){
   if (!CFLOW.draggingFrom) return;
   const dx = e.clientX - CFLOW.draggingFrom.x;
-  const stride = window.innerWidth < 768 ? 86 : 110;
-  /* Convert pixel drag to fractional index drift (negative dx = drift right, ie. show next images) */
-  const driftDelta = -dx / stride;
-  CFLOW.drift = driftDelta;
+  const stride = CFLOW.STRIDE;
+  CFLOW.drift = -dx / stride;
   if (Math.abs(dx) > 4) CFLOW._dragMoved = true;
-  /* compute instantaneous velocity (indices per ms) */
   const now = performance.now();
   const dt = Math.max(1, now - CFLOW.lastT);
-  CFLOW.vel = -(e.clientX - CFLOW.lastX) / stride / dt * 16;  // approx per-frame
-  CFLOW.lastX = e.clientX;
-  CFLOW.lastT = now;
+  CFLOW.vel = -(e.clientX - CFLOW.lastX) / stride / dt * 16;
+  CFLOW.lastX = e.clientX; CFLOW.lastT = now;
   /* clamp at boundaries */
   const target = CFLOW.draggingFrom.startSel + CFLOW.drift;
   if (target < 0) CFLOW.drift = -CFLOW.draggingFrom.startSel;
   if (target > CFLOW.thumbs.length - 1) CFLOW.drift = CFLOW.thumbs.length - 1 - CFLOW.draggingFrom.startSel;
   layoutCoverFlow();
+  /* don't sync main image during drag */
 }
 function onPointerUp(){
   document.removeEventListener('pointermove', onPointerMove);
   document.getElementById('coverFlow').classList.remove('dragging');
   CFLOW.draggingFrom = null;
-  /* Bake drift into selected, then run momentum from any remaining velocity */
-  CFLOW.selected = Math.round(CFLOW.selected + CFLOW.drift);
-  CFLOW.selected = Math.max(0, Math.min(CFLOW.thumbs.length - 1, CFLOW.selected));
-  CFLOW.drift = 0;
-  /* If significant velocity, kick off momentum */
-  if (Math.abs(CFLOW.vel) > 0.06) {
-    CFLOW._suppressClick = CFLOW._dragMoved;
+  CFLOW._suppressClick = CFLOW._dragMoved;
+  if (Math.abs(CFLOW.vel) > 0.05) {
     runMomentum();
   } else {
-    CFLOW._suppressClick = CFLOW._dragMoved;
-    layoutCoverFlow();
+    settleSelection();
   }
 }
 function runMomentum(){
   const tick = () => {
-    /* friction */
-    CFLOW.vel *= 0.92;
-    /* apply velocity to drift; when drift accumulates a full step, advance selected */
+    CFLOW.vel *= 0.93;
     CFLOW.drift += CFLOW.vel;
     while (CFLOW.drift > 0.5 && CFLOW.selected < CFLOW.thumbs.length - 1) {
       CFLOW.selected++; CFLOW.drift -= 1;
@@ -598,49 +573,54 @@ function runMomentum(){
     while (CFLOW.drift < -0.5 && CFLOW.selected > 0) {
       CFLOW.selected--; CFLOW.drift += 1;
     }
-    /* boundary bounce: if at end and trying to go further, kill velocity */
+    /* boundary kill */
     if ((CFLOW.selected <= 0 && CFLOW.drift < 0) || (CFLOW.selected >= CFLOW.thumbs.length - 1 && CFLOW.drift > 0)) {
-      CFLOW.drift = Math.max(-0.001, Math.min(0.001, CFLOW.drift));
-      CFLOW.vel = 0;
+      CFLOW.drift = 0; CFLOW.vel = 0;
     }
     layoutCoverFlow();
-    if (Math.abs(CFLOW.vel) > 0.005 || Math.abs(CFLOW.drift) > 0.01) {
-      CFLOW.rafId = requestAnimationFrame(tick);
-    } else {
-      CFLOW.drift = 0;
-      layoutCoverFlow();
+    /* SNAP-when-slow: if velocity is below threshold, snap and stop */
+    if (Math.abs(CFLOW.vel) < 0.06) {
+      settleSelection();
+      return;
     }
+    CFLOW.rafId = requestAnimationFrame(tick);
   };
   cancelAnimationFrame(CFLOW.rafId);
   CFLOW.rafId = requestAnimationFrame(tick);
 }
+function settleSelection(){
+  CFLOW.selected = Math.round(CFLOW.selected + CFLOW.drift);
+  CFLOW.selected = Math.max(0, Math.min(CFLOW.thumbs.length - 1, CFLOW.selected));
+  CFLOW.drift = 0; CFLOW.vel = 0;
+  layoutCoverFlow();
+  /* now that we've settled, update the main image */
+  syncMainImage();
+}
 
 function onWheel(e){
-  /* Only react to wheel events when over the cover-flow */
   e.preventDefault();
-  /* Add to velocity instead of jumping the index — feels physical */
-  const stride = window.innerWidth < 768 ? 86 : 110;
-  CFLOW.vel += (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX) / stride / 30;
+  const delta = (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX);
+  CFLOW.vel += delta / CFLOW.STRIDE / 30;
   CFLOW.vel = Math.max(-0.6, Math.min(0.6, CFLOW.vel));
-  if (!CFLOW.rafId) runMomentum();
+  document.body.dataset.piActions = 'closed';
+  cancelAnimationFrame(CFLOW.rafId);
+  runMomentum();
 }
 
 /* ===== per-image actions ===== */
 function piShare(){ alert('Share photo-' + (CFLOW.selected+1) + ' (mock)'); }
 function piDownload(){ alert('Download photo-' + (CFLOW.selected+1) + ' (mock)'); }
 function piDelete(){
-  /* No confirm per-image: just remove the thumb */
   const thumb = CFLOW.thumbs[CFLOW.selected];
   if (!thumb) return;
   thumb.remove();
   CFLOW.thumbs.splice(CFLOW.selected, 1);
-  /* Reindex the data-i attributes */
   CFLOW.thumbs.forEach((t,i)=>t.dataset.i = String(i));
   if (CFLOW.selected >= CFLOW.thumbs.length) CFLOW.selected = CFLOW.thumbs.length - 1;
   document.body.dataset.piActions = 'closed';
   if (CFLOW.thumbs.length === 0) setState('empty');
   else if (CFLOW.thumbs.length === 1) setState('solo');
-  else layoutCoverFlow();
+  else { layoutCoverFlow(); CFLOW.prevSelected = -1; syncMainImage(); }
 }
 
 /* ===== Clear all (with confirm) ===== */
