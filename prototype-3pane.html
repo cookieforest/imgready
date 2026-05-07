@@ -15,22 +15,19 @@
     --accent-light:rgba(90,122,90,.10);
     --card:#fffefb;
     --border:rgba(0,0,0,.10);
-    --shadow:0 1px 3px rgba(0,0,0,.06);
-    --right-rail-w:280px;
     --brand-h:48px;
+    /* card chrome (matches production fs-editor) */
+    --card-bg:rgba(20,20,20,.82);
+    --card-border:rgba(255,255,255,.12);
+    --card-radius:12px;
   }
-  /* Dark workspace tokens — engaged once user has work to do */
   body[data-state="solo"],
   body[data-state="multi"]{
-    --bg:#141414;
+    --bg:#0d0d0d;
     --text:#ececea;
-    --muted:#8a8a82;
+    --muted:#9a9a92;
     --accent:#8aae8a;
     --accent-strong:#7a9a7a;
-    --accent-light:rgba(138,174,138,.16);
-    --card:#1f1f1f;
-    --border:rgba(255,255,255,.08);
-    --shadow:0 1px 3px rgba(0,0,0,.4);
   }
   *,*::before,*::after{box-sizing:border-box;}
   html,body{height:100%;}
@@ -40,11 +37,11 @@
     color:var(--text);background:var(--bg);overflow:hidden;
   }
 
-  /* ---------- brand bar (small) ---------- */
+  /* ---------- brand bar ---------- */
   .brand-bar{
     height:var(--brand-h);
     display:flex;align-items:center;gap:14px;
-    padding:0 16px;border-bottom:1px solid var(--border);
+    padding:0 16px;
     background:var(--bg);position:relative;z-index:10;
   }
   .brand{
@@ -55,35 +52,19 @@
   .state-toggle{margin-left:auto;display:flex;gap:6px;align-items:center;}
   .state-toggle small{color:var(--muted);font-size:.66rem;}
   .state-toggle button{
-    border:1px solid var(--border);background:transparent;color:var(--text);
+    border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);
     font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;
   }
+  body[data-state="empty"] .state-toggle button{border-color:var(--border);}
   .state-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
-  /* ---------- shared button styles ---------- */
-  .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:6px;
-    padding:10px 14px;border-radius:8px;font-family:inherit;font-size:.84rem;font-weight:600;
-    border:1px solid var(--border);background:var(--card);color:var(--text);
-    cursor:pointer;transition:background .12s,border-color .12s;
-  }
-  .btn:hover{background:var(--accent-light);border-color:color-mix(in srgb,var(--accent) 40%,var(--border));}
-  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
-  .btn-clear{background:transparent;color:rgba(220,160,160,.7);border-color:var(--border);}
-  body[data-state="solo"] .btn-clear:hover,
-  body[data-state="multi"] .btn-clear:hover{
-    color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);
-  }
-
-  /* ---------- empty state ---------- */
+  /* ---------- empty state (calm landing) ---------- */
   .empty-state{
     display:none;height:calc(100vh - var(--brand-h));
     align-items:center;justify-content:center;padding:24px;
   }
   body[data-state="empty"] .empty-state{display:flex;}
-  body[data-state="empty"] .three-pane,
-  body[data-state="empty"] .solo-state{display:none;}
+  body[data-state="empty"] .stage{display:none;}
   .dropzone{
     width:min(620px,100%);
     border:2px dashed color-mix(in srgb,var(--accent) 35%,var(--border));
@@ -99,161 +80,70 @@
   .dz-sub{color:var(--muted);font-size:.88rem;margin:0;}
   .dz-trust{margin-top:10px;font-size:.74rem;color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:6px;}
 
-  /* ---------- shared image-viewer pieces ---------- */
-  .image-viewer{
-    flex:1;min-height:0;background:#000;overflow:hidden;position:relative;
+  /* ---------- stage (full-bleed image canvas with floating overlays) ---------- */
+  .stage{
+    display:none;
+    position:relative;
+    height:calc(100vh - var(--brand-h));
+    background:#000;overflow:hidden;
   }
+  body[data-state="solo"] .stage.solo{display:block;}
+  body[data-state="multi"] .stage.multi{display:block;}
+
+  /* ---------- image canvas (fills entire stage) ---------- */
+  .image-canvas{position:absolute;inset:0;}
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
   .compare-divider{
     position:absolute;top:0;bottom:0;left:50%;width:2px;
     background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(0,0,0,.18);
-    transform:translateX(-1px);pointer-events:none;
+    transform:translateX(-1px);pointer-events:none;z-index:3;
   }
   .compare-handle{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     width:36px;height:36px;border-radius:50%;background:#fff;
-    box-shadow:0 1px 4px rgba(0,0,0,.25),0 0 0 1px rgba(0,0,0,.06);
+    box-shadow:0 1px 4px rgba(0,0,0,.25);
     display:flex;align-items:center;justify-content:center;
-    cursor:ew-resize;color:var(--text);
+    cursor:ew-resize;color:var(--text);z-index:4;
   }
   .compare-meta{
     position:absolute;top:14px;
-    background:rgba(0,0,0,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-    color:#fff;padding:7px 12px;border-radius:8px;
+    background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:#fff;padding:8px 12px;border-radius:8px;
     font-size:.74rem;font-weight:600;line-height:1.35;
-    pointer-events:none;z-index:4;display:flex;flex-direction:column;gap:2px;
+    pointer-events:none;z-index:5;display:flex;flex-direction:column;gap:2px;
+    border:1px solid var(--card-border);
   }
   .compare-meta.l{left:14px;align-items:flex-start;}
   .compare-meta.r{right:14px;align-items:flex-end;text-align:right;}
   .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
   .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.78rem;}
-  /* The After-corner batch summary row — replaces the standalone saved counter */
   .compare-meta .batch-row{
     margin-top:5px;padding-top:5px;
     border-top:1px solid rgba(255,255,255,.18);
     font-size:.7rem;font-weight:500;color:rgba(255,255,255,.85);
-    letter-spacing:.01em;
   }
-  body[data-state="solo"] .compare-meta .batch-row{display:none;} /* solo = 1 file, no batch row */
-  .compare-zoom{
-    position:absolute;bottom:14px;right:14px;
-    width:32px;height:32px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;
-    border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;
-  }
+  body[data-state="solo"] .compare-meta .batch-row{display:none;}
 
-  /* ---------- the work column (image + adjust + actions) ---------- */
-  .work-stack{
-    display:flex;flex-direction:column;min-height:0;height:100%;
+  /* ---------- floating filmstrip (desktop: right edge / mobile: bottom) ---------- */
+  .filmstrip-card{
+    position:absolute;
+    top:14px;right:14px;bottom:170px;  /* leave room for menu card below */
+    width:200px;
+    background:var(--card-bg);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--card-border);border-radius:var(--card-radius);
+    padding:10px;overflow-y:auto;z-index:6;
   }
-  .work-stack > .image-viewer{flex:1;min-height:0;}
-
-  /* ---------- adjust toggle + collapsible panel ---------- */
-  .adjust-row{
-    display:flex;align-items:center;gap:8px;
-    padding:10px 14px;border-top:1px solid var(--border);background:var(--bg);
-    flex-shrink:0;
-  }
-  .adjust-toggle{
-    display:inline-flex;align-items:center;gap:6px;
-    background:transparent;border:0;color:var(--muted);
-    font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;
-    padding:4px 8px;border-radius:6px;
-  }
-  .adjust-toggle:hover{color:var(--text);background:var(--accent-light);}
-  .adjust-toggle .tri{
-    display:inline-block;font-size:.6rem;transition:transform .15s;
-  }
-  body[data-adjust="open"] .adjust-toggle .tri{transform:rotate(180deg);}
-  .adjust-row .saved-summary{
-    margin-left:auto;font-size:.74rem;color:var(--muted);
-  }
-  .adjust-row .saved-summary strong{color:var(--accent);font-weight:700;}
-
-  .adjust-panel{
-    display:none;
-    padding:14px 16px;background:var(--card);
-    border-top:1px solid var(--border);
-    flex-shrink:0;
-  }
-  body[data-adjust="open"] .adjust-panel{display:block;}
-  .adjust-section{margin-bottom:14px;}
-  .adjust-section:last-child{margin-bottom:0;}
-  .adjust-label{
-    display:block;font-size:.68rem;font-weight:700;letter-spacing:.05em;
-    text-transform:uppercase;color:var(--muted);margin-bottom:8px;
-  }
-  .adjust-pills{display:flex;flex-wrap:wrap;gap:6px;}
-  .adjust-pills button{
-    padding:7px 12px;border:1px solid var(--border);background:transparent;
-    border-radius:7px;color:var(--text);font-family:inherit;font-size:.78rem;font-weight:600;
-    cursor:pointer;
-  }
-  .adjust-pills button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .quality-row{display:flex;align-items:center;gap:8px;}
-  .quality-row input[type=range]{flex:1;accent-color:var(--accent);}
-  .q-val{
-    background:var(--accent);color:#fff;font-weight:700;font-size:.74rem;
-    padding:2px 8px;border-radius:4px;min-width:32px;text-align:center;
-  }
-  .adjust-input{
-    width:100%;padding:8px 10px;border:1px solid var(--border);
-    background:var(--bg);color:var(--text);
-    border-radius:7px;font-family:inherit;font-size:.84rem;
-  }
-  .adjust-row-inline{display:flex;gap:8px;align-items:center;}
-  .adjust-row-inline select{
-    padding:8px 10px;border:1px solid var(--border);
-    background:var(--bg);color:var(--text);
-    border-radius:7px;font-family:inherit;font-size:.78rem;
-  }
-  .adjust-checkbox{display:flex;align-items:center;gap:8px;font-size:.84rem;cursor:pointer;}
-  .adjust-hint{font-size:.7rem;color:var(--muted);margin-top:5px;}
-
-  /* ---------- action bar (terminal actions) ---------- */
-  .action-bar{
-    display:flex;flex-direction:column;gap:8px;
-    padding:12px 14px env(safe-area-inset-bottom,12px);
-    border-top:1px solid var(--border);background:var(--bg);
-    flex-shrink:0;
-  }
-  .action-row{
-    display:flex;gap:8px;align-items:stretch;
-  }
-  .action-row .btn{flex:1;min-width:0;}
-  .action-row .btn-clear{flex:0 0 auto;padding:10px 12px;}
-  .action-bar .focused-name{
-    font-size:.7rem;color:var(--muted);text-align:center;
-    font-variant-numeric:tabular-nums;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  }
-  .action-bar .focused-name strong{color:var(--text);font-weight:600;}
-
-  /* ---------- empty / solo / multi state switching ---------- */
-  .solo-state,.three-pane{display:none;}
-  body[data-state="solo"] .solo-state{display:flex;flex-direction:column;height:calc(100vh - var(--brand-h));}
-  body[data-state="multi"] .three-pane{
-    display:grid;grid-template-columns:1fr var(--right-rail-w);
-    height:calc(100vh - var(--brand-h));
-  }
-  .three-pane > *{min-height:0;min-width:0;overflow:hidden;}
-
-  /* ---------- right rail (filmstrip + adjust + actions) ---------- */
-  .right-rail{
-    display:flex;flex-direction:column;
-    border-left:1px solid var(--border);background:var(--bg);
-  }
-  .filmstrip-wrap{
-    flex:1;min-height:0;overflow-y:auto;padding:12px;
-  }
+  body[data-state="solo"] .filmstrip-card{display:none;}
   .thumb{
-    width:100%;aspect-ratio:1/1;border-radius:10px;
+    width:100%;aspect-ratio:1/1;border-radius:8px;
     margin-bottom:8px;cursor:pointer;
     overflow:hidden;position:relative;
     border:2px solid transparent;transition:border-color .12s,transform .12s;
   }
   .thumb:hover{transform:translateY(-1px);}
-  .thumb.active{border-color:var(--accent);}
+  .thumb.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
   .thumb-img{width:100%;height:100%;display:block;}
   .thumb-savings{
     position:absolute;right:6px;top:6px;
@@ -261,31 +151,119 @@
     font-size:.65rem;font-weight:700;padding:2px 6px;border-radius:99px;
   }
 
-  /* center pane on desktop */
-  .center-pane{display:flex;flex-direction:column;}
+  /* ---------- floating menu card (bottom center) ---------- */
+  .menu-wrap{
+    position:absolute;left:0;right:0;bottom:14px;
+    display:flex;flex-direction:column;align-items:center;
+    pointer-events:none;z-index:7;
+  }
+  /* Adjust pull-up handle: triangle ABOVE the text, centered, above the card */
+  .adjust-handle{
+    pointer-events:auto;
+    background:transparent;border:0;
+    display:flex;flex-direction:column;align-items:center;gap:1px;
+    color:rgba(255,255,255,.62);font-family:inherit;font-size:.74rem;font-weight:600;
+    cursor:pointer;padding:6px 16px;margin-bottom:4px;
+    letter-spacing:.04em;
+  }
+  .adjust-handle:hover{color:#fff;}
+  .adjust-handle .tri{
+    font-size:.62rem;line-height:1;display:inline-block;
+    transition:transform .18s;
+  }
+  body[data-adjust="open"] .adjust-handle .tri{transform:rotate(180deg);}
 
-  /* ---------- mobile: <768px ---------- */
+  .menu-card{
+    pointer-events:auto;
+    background:var(--card-bg);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--card-border);border-radius:var(--card-radius);
+    width:min(720px,calc(100% - 28px));
+    overflow:hidden;
+    color:#fff;
+  }
+
+  .adjust-panel{
+    display:none;padding:14px 16px;
+    border-bottom:1px solid rgba(255,255,255,.10);
+  }
+  body[data-adjust="open"] .adjust-panel{display:block;}
+  .adjust-section{margin-bottom:14px;}
+  .adjust-section:last-child{margin-bottom:0;}
+  .adjust-label{
+    display:block;font-size:.66rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:7px;
+  }
+  .adjust-pills{display:flex;flex-wrap:wrap;gap:5px;}
+  .adjust-pills button{
+    padding:5px 11px;border:1px solid rgba(255,255,255,.18);background:transparent;
+    border-radius:6px;color:rgba(255,255,255,.7);font-family:inherit;font-size:.72rem;font-weight:600;
+    cursor:pointer;text-transform:uppercase;letter-spacing:.02em;
+  }
+  .adjust-pills button:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adjust-pills button.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.4);}
+  .quality-row{display:flex;align-items:center;gap:8px;}
+  .quality-row input[type=range]{flex:1;accent-color:var(--accent);height:4px;}
+  .q-val{
+    color:#fff;font-weight:700;font-size:.74rem;min-width:28px;text-align:center;
+  }
+  .adjust-input,.adjust-select{
+    padding:6px 9px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.04);color:#fff;
+    border-radius:6px;font-family:inherit;font-size:.78rem;
+  }
+  .adjust-row-inline{display:flex;gap:6px;}
+  .adjust-row-inline .adjust-input{flex:1;}
+  .adjust-checkbox{display:flex;align-items:center;gap:8px;font-size:.78rem;color:rgba(255,255,255,.85);cursor:pointer;}
+  .adjust-hint{font-size:.68rem;color:rgba(255,255,255,.5);margin-top:4px;}
+
+  /* Action area: always visible inside menu card */
+  .actions{
+    display:flex;flex-direction:column;gap:6px;
+    padding:10px 12px env(safe-area-inset-bottom,10px);
+  }
+  .actions .focused-name{
+    font-size:.66rem;color:rgba(255,255,255,.55);text-align:center;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .actions .focused-name strong{color:#fff;font-weight:600;}
+  .action-row{display:flex;gap:6px;}
+  .action-row .btn{flex:1;min-width:0;}
+
+  /* card-style buttons (matching production fs-editor) */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    padding:8px 14px;border-radius:7px;font-family:inherit;font-size:.78rem;font-weight:600;
+    border:1px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.92);
+    cursor:pointer;white-space:nowrap;
+  }
+  .btn:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+  .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  .btn-clear{flex:0 0 auto;color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.16);}
+  .btn-clear:hover{color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);}
+
+  /* ---------- mobile ---------- */
   @media(max-width:767px){
-    body[data-state="multi"] .three-pane{
-      display:flex;flex-direction:column;
-      grid-template-columns:none;
-    }
-    .three-pane .right-rail{display:contents;}
-    .center-pane{order:1;flex:1;min-height:0;}
-    .filmstrip-wrap{
-      order:2;flex:0 0 auto;
-      display:flex;flex-direction:row;gap:8px;
+    /* Filmstrip moves from right-rail to a horizontal strip at the bottom of the image area, ABOVE the menu card */
+    .filmstrip-card{
+      top:auto;right:0;left:0;
+      bottom:170px;  /* sits above menu */
+      width:auto;
+      height:auto;
+      display:flex;flex-direction:row;gap:6px;
+      padding:8px 10px;
       overflow-x:auto;overflow-y:hidden;
-      padding:10px 12px;
-      border-top:1px solid var(--border);
+      border-left:0;border-right:0;border-radius:0;
+      background:rgba(20,20,20,.62);
     }
-    .filmstrip-wrap .thumb{
-      width:84px;height:84px;flex-shrink:0;margin:0;aspect-ratio:1/1;
+    .filmstrip-card .thumb{
+      width:64px;height:64px;flex-shrink:0;margin:0;aspect-ratio:1/1;
     }
-    .three-pane .adjust-row{order:3;}
-    .three-pane .adjust-panel{order:4;max-height:50vh;overflow-y:auto;}
-    .three-pane .action-bar{order:5;}
-
+    .menu-wrap{bottom:8px;}
+    .menu-card{width:calc(100% - 16px);}
+    .compare-meta{font-size:.7rem;padding:6px 10px;}
+    .compare-meta .lbl-title{font-size:.82rem;}
     .state-toggle small{display:none;}
     .brand-bar{padding:0 12px;}
   }
@@ -339,8 +317,8 @@
 </section>
 
 <!-- ============================ SOLO STATE ============================ -->
-<section class="solo-state work-stack">
-  <div class="image-viewer">
+<section class="stage solo">
+  <div class="image-canvas">
     <div class="mock-image large mi-1b compare-before">test-photo.jpg</div>
     <div class="compare-after">
       <div class="mock-image large mi-1">test-photo.jpg</div>
@@ -360,165 +338,158 @@
     </div>
   </div>
 
-  <div class="adjust-row">
-    <button class="adjust-toggle" onclick="toggleAdjust()">
-      <span>Adjust</span><span class="tri">▼</span>
+  <div class="menu-wrap">
+    <button class="adjust-handle" onclick="toggleAdjust()">
+      <span class="tri">▲</span>
+      <span>Adjust</span>
     </button>
-  </div>
-
-  <div class="adjust-panel">
-    <div class="adjust-section">
-      <span class="adjust-label">Format</span>
-      <div class="adjust-pills">
-        <button>Auto</button><button>WebP</button><button>AVIF</button>
-        <button class="active">JPG</button><button>PNG</button>
+    <div class="menu-card">
+      <div class="adjust-panel">
+        <div class="adjust-section">
+          <span class="adjust-label">Format</span>
+          <div class="adjust-pills">
+            <button>Auto</button><button>WebP</button><button>AVIF</button>
+            <button class="active">JPG</button><button>PNG</button>
+          </div>
+        </div>
+        <div class="adjust-section">
+          <span class="adjust-label">Quality · 82</span>
+          <div class="quality-row">
+            <input type="range" min="10" max="100" value="82">
+            <span class="q-val">82</span>
+          </div>
+        </div>
+        <div class="adjust-section">
+          <span class="adjust-label">Resize</span>
+          <div class="adjust-row-inline">
+            <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
+            <input type="number" class="adjust-input" placeholder="e.g. 1200">
+          </div>
+        </div>
+        <div class="adjust-section">
+          <span class="adjust-label">Privacy</span>
+          <label class="adjust-checkbox">
+            <input type="checkbox" checked>
+            <span>Strip metadata (EXIF, GPS, camera info)</span>
+          </label>
+        </div>
       </div>
-    </div>
-    <div class="adjust-section">
-      <span class="adjust-label">Quality · 82</span>
-      <div class="quality-row">
-        <input type="range" min="10" max="100" value="82">
-        <span class="q-val">82</span>
+      <div class="actions">
+        <div class="action-row">
+          <button class="btn">Share</button>
+          <button class="btn">Copy</button>
+          <button class="btn btn-primary">Download</button>
+        </div>
       </div>
-      <div class="adjust-hint">Great quality with significant file size savings.</div>
-    </div>
-    <div class="adjust-section">
-      <span class="adjust-label">Resize</span>
-      <div class="adjust-row-inline">
-        <select><option>Longest side (px)</option><option>Percent (%)</option></select>
-        <input type="number" class="adjust-input" placeholder="e.g. 1200" style="flex:1;">
-      </div>
-      <div class="adjust-hint">Aspect ratio is always preserved.</div>
-    </div>
-    <div class="adjust-section">
-      <span class="adjust-label">Privacy</span>
-      <label class="adjust-checkbox">
-        <input type="checkbox" checked>
-        <span>Strip metadata (EXIF, GPS, camera info)</span>
-      </label>
-    </div>
-  </div>
-
-  <div class="action-bar">
-    <div class="focused-name"><strong>test-photo.jpg</strong></div>
-    <div class="action-row">
-      <button class="btn">Share</button>
-      <button class="btn">Copy</button>
-      <button class="btn btn-primary">Download</button>
     </div>
   </div>
 </section>
 
-<!-- ============================ MULTI STATE — 2-PANE ============================ -->
-<section class="three-pane">
-
-  <main class="center-pane">
-    <div class="image-viewer" id="centerImage">
-      <div class="mock-image large mi-1b compare-before">photo-1.jpg</div>
-      <div class="compare-after">
-        <div class="mock-image large mi-1">photo-1.jpg</div>
-      </div>
-      <div class="compare-divider"></div>
-      <button class="compare-handle" aria-label="Drag to compare">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg>
-      </button>
-      <div class="compare-meta l">
-        <span class="lbl-title">Before</span>
-        <span>1.4 MB · PNG</span>
-      </div>
-      <div class="compare-meta r">
-        <span class="lbl-title">After</span>
-        <span>312 KB · WebP</span>
-        <span class="pct">78% smaller</span>
-        <span class="batch-row">↓ 1.4 MB · 6 files total</span>
-      </div>
+<!-- ============================ MULTI STATE ============================ -->
+<section class="stage multi">
+  <div class="image-canvas" id="centerImage">
+    <div class="mock-image large mi-1b compare-before">photo-1.jpg</div>
+    <div class="compare-after">
+      <div class="mock-image large mi-1">photo-1.jpg</div>
     </div>
-  </main>
-
-  <aside class="right-rail">
-    <div class="filmstrip-wrap" id="filmstrip">
-      <div class="thumb active" data-name="photo-1.jpg" data-grad="1" onclick="selectThumb(this)">
-        <div class="mock-image mi-1 thumb-img">photo-1</div>
-        <span class="thumb-savings">78%</span>
-      </div>
-      <div class="thumb" data-name="photo-2.jpg" data-grad="2" onclick="selectThumb(this)">
-        <div class="mock-image mi-2 thumb-img">photo-2</div>
-        <span class="thumb-savings">22%</span>
-      </div>
-      <div class="thumb" data-name="photo-3.jpg" data-grad="3" onclick="selectThumb(this)">
-        <div class="mock-image mi-3 thumb-img">photo-3</div>
-        <span class="thumb-savings">35%</span>
-      </div>
-      <div class="thumb" data-name="photo-4.jpg" data-grad="4" onclick="selectThumb(this)">
-        <div class="mock-image mi-4 thumb-img">photo-4</div>
-        <span class="thumb-savings">19%</span>
-      </div>
-      <div class="thumb" data-name="photo-5.jpg" data-grad="5" onclick="selectThumb(this)">
-        <div class="mock-image mi-5 thumb-img">photo-5</div>
-        <span class="thumb-savings">42%</span>
-      </div>
-      <div class="thumb" data-name="photo-6.jpg" data-grad="6" onclick="selectThumb(this)">
-        <div class="mock-image mi-6 thumb-img">photo-6</div>
-        <span class="thumb-savings">28%</span>
-      </div>
+    <div class="compare-divider"></div>
+    <button class="compare-handle" aria-label="Drag to compare">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg>
+    </button>
+    <div class="compare-meta l">
+      <span class="lbl-title">Before</span>
+      <span>1.4 MB · PNG</span>
     </div>
-
-    <div class="adjust-row">
-      <button class="adjust-toggle" onclick="toggleAdjust()">
-        <span>Adjust</span><span class="tri">▼</span>
-      </button>
+    <div class="compare-meta r">
+      <span class="lbl-title">After</span>
+      <span>312 KB · WebP</span>
+      <span class="pct">78% smaller</span>
+      <span class="batch-row">↓ 1.4 MB · 6 files total</span>
     </div>
+  </div>
 
-    <div class="adjust-panel">
-      <div class="adjust-section">
-        <span class="adjust-label">Format</span>
-        <div class="adjust-pills">
-          <button class="active">Auto</button><button>WebP</button><button>AVIF</button>
-          <button>JPG</button><button>PNG</button>
+  <div class="filmstrip-card">
+    <div class="thumb active" data-name="photo-1.jpg" data-grad="1" onclick="selectThumb(this)">
+      <div class="mock-image mi-1 thumb-img">photo-1</div>
+      <span class="thumb-savings">78%</span>
+    </div>
+    <div class="thumb" data-name="photo-2.jpg" data-grad="2" onclick="selectThumb(this)">
+      <div class="mock-image mi-2 thumb-img">photo-2</div>
+      <span class="thumb-savings">22%</span>
+    </div>
+    <div class="thumb" data-name="photo-3.jpg" data-grad="3" onclick="selectThumb(this)">
+      <div class="mock-image mi-3 thumb-img">photo-3</div>
+      <span class="thumb-savings">35%</span>
+    </div>
+    <div class="thumb" data-name="photo-4.jpg" data-grad="4" onclick="selectThumb(this)">
+      <div class="mock-image mi-4 thumb-img">photo-4</div>
+      <span class="thumb-savings">19%</span>
+    </div>
+    <div class="thumb" data-name="photo-5.jpg" data-grad="5" onclick="selectThumb(this)">
+      <div class="mock-image mi-5 thumb-img">photo-5</div>
+      <span class="thumb-savings">42%</span>
+    </div>
+    <div class="thumb" data-name="photo-6.jpg" data-grad="6" onclick="selectThumb(this)">
+      <div class="mock-image mi-6 thumb-img">photo-6</div>
+      <span class="thumb-savings">28%</span>
+    </div>
+  </div>
+
+  <div class="menu-wrap">
+    <button class="adjust-handle" onclick="toggleAdjust()">
+      <span class="tri">▲</span>
+      <span>Adjust</span>
+    </button>
+    <div class="menu-card">
+      <div class="adjust-panel">
+        <div class="adjust-section">
+          <span class="adjust-label">Format</span>
+          <div class="adjust-pills">
+            <button class="active">Auto</button><button>WebP</button><button>AVIF</button>
+            <button>JPG</button><button>PNG</button>
+          </div>
+        </div>
+        <div class="adjust-section">
+          <span class="adjust-label">Quality · 82</span>
+          <div class="quality-row">
+            <input type="range" min="10" max="100" value="82">
+            <span class="q-val">82</span>
+          </div>
+        </div>
+        <div class="adjust-section">
+          <span class="adjust-label">Resize</span>
+          <div class="adjust-row-inline">
+            <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
+            <input type="number" class="adjust-input" placeholder="e.g. 1200">
+          </div>
+        </div>
+        <div class="adjust-section">
+          <span class="adjust-label">Privacy</span>
+          <label class="adjust-checkbox">
+            <input type="checkbox" checked>
+            <span>Strip metadata (EXIF, GPS)</span>
+          </label>
         </div>
       </div>
-      <div class="adjust-section">
-        <span class="adjust-label">Quality · 82</span>
-        <div class="quality-row">
-          <input type="range" min="10" max="100" value="82">
-          <span class="q-val">82</span>
+      <div class="actions">
+        <div class="focused-name">For: <strong id="focusedName">photo-1.jpg</strong></div>
+        <div class="action-row">
+          <button class="btn">Download this</button>
+          <button class="btn btn-primary">Download all</button>
         </div>
-        <div class="adjust-hint">Great quality with significant file size savings.</div>
-      </div>
-      <div class="adjust-section">
-        <span class="adjust-label">Resize</span>
-        <div class="adjust-row-inline">
-          <select><option>Longest side (px)</option><option>Percent (%)</option></select>
-          <input type="number" class="adjust-input" placeholder="e.g. 1200" style="flex:1;">
+        <div class="action-row">
+          <button class="btn">Share all</button>
+          <button class="btn btn-clear">Clear all</button>
         </div>
       </div>
-      <div class="adjust-section">
-        <span class="adjust-label">Privacy</span>
-        <label class="adjust-checkbox">
-          <input type="checkbox" checked>
-          <span>Strip metadata (EXIF, GPS)</span>
-        </label>
-      </div>
     </div>
-
-    <div class="action-bar">
-      <div class="focused-name"><strong id="focusedName">photo-1.jpg</strong></div>
-      <div class="action-row">
-        <button class="btn" id="dlOneBtn">Download this</button>
-        <button class="btn btn-primary">Download all</button>
-      </div>
-      <div class="action-row">
-        <button class="btn">Share all</button>
-        <button class="btn btn-clear">Clear all</button>
-      </div>
-    </div>
-  </aside>
+  </div>
 </section>
 
 <script>
 function setState(s){
   document.body.dataset.state = s;
-  document.body.dataset.adjust = 'closed';  /* always start adjust-closed when switching */
+  document.body.dataset.adjust = 'closed';
   document.querySelectorAll('.state-toggle button').forEach(b=>{
     b.classList.toggle('active', b.dataset.tgt === s);
   });
@@ -540,7 +511,6 @@ function selectThumb(el){
   after.className = 'mock-image large mi-' + grad;
   after.textContent = name;
   document.getElementById('focusedName').textContent = name;
-  document.getElementById('dlOneBtn').textContent = 'Download this';
 }
 </script>
 
