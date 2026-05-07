@@ -24,17 +24,18 @@
 const LIBHEIF_URL = '/vendor/libheif.js';
 const UPNG_URL    = '/vendor/UPNG.min.js';
 const PAKO_URL    = '/vendor/pako.min.js';
-// jsquash WebP/AVIF/JPEG/OxiPNG self-hosted from /vendor/jsquash/. Same
-// underlying npm packages, bundled by esbuild during build (see build.mjs).
-// Each .mjs has its WASM sidecar(s) alongside in the same directory and
-// loads them via `new URL('xyz.wasm', import.meta.url)` at runtime.
-// OxiPNG runtime-detects single-thread vs multi-thread; in our setup
-// (no SharedArrayBuffer because no COOP/COEP — AdSense conflicts with
-// those) it lazily uses the single-thread codec.
-const WEBP_ESM    = '/vendor/jsquash/webp.mjs';
-const AVIF_ESM    = '/vendor/jsquash/avif.mjs';
-const JPEG_ESM    = '/vendor/jsquash/jpeg.mjs';   // MozJPEG — better than canvas.toBlob('image/jpeg')
-const OXIPNG_ESM  = '/vendor/jsquash/oxipng.mjs';
+// jsquash WebP/AVIF/JPEG/OxiPNG loaded from esm.sh. The previous self-host
+// attempt referenced /vendor/jsquash/*.mjs but those binaries were never
+// committed to the repo, which broke encoding on every format. Reverted to
+// esm.sh until we ship a real, verified vendor bundle.
+//
+// esm.sh bundles each package's WASM sidecar alongside the .mjs and loads it
+// via `new URL('xyz.wasm', import.meta.url)`, so it works in classic workers
+// using dynamic import().
+const WEBP_ESM    = 'https://esm.sh/@jsquash/webp@1.5.0?bundle';
+const AVIF_ESM    = 'https://esm.sh/@jsquash/avif@2.1.0?bundle';
+const JPEG_ESM    = 'https://esm.sh/@jsquash/jpeg@1.5.0?bundle';   // MozJPEG — better than canvas.toBlob('image/jpeg')
+const OXIPNG_ESM  = 'https://esm.sh/@jsquash/oxipng@2.3.0?bundle';
 
 let libheifModule = null;
 let upngLoaded = false;
