@@ -307,15 +307,27 @@
       grid-template-columns:none;
       height:calc(100vh - var(--brand-h));
     }
-    .three-pane .left-rail{display:none;}
-    .three-pane .center-pane{padding:10px 10px 6px;flex:1;min-height:0;}
+    /* Flatten right-rail into the flex column so we can order its children
+       (tabs / filmstrip / bulk-actions) inline with .left-rail (settings) */
+    .three-pane .right-rail{display:contents;}
+    .three-pane .center-pane{padding:10px 10px 6px;flex:1;min-height:0;order:1;}
     .three-pane .center-image{border-radius:12px;}
-    /* keep .center-modifier visible on mobile — actions for the focused image sit between image and tabs */
-
-    .three-pane .right-rail{
-      border-left:0;border-top:1px solid var(--border);
-      flex-direction:column;flex-shrink:0;
+    /* tabs after center, then either filmstrip or settings, then bulk-actions */
+    .three-pane .mobile-tabs{
+      order:2;border-top:1px solid var(--border);background:var(--bg);
+      flex-shrink:0;
     }
+    /* Filmstrip when tab=images (default) */
+    body[data-mobile-tab="images"] .three-pane .filmstrip{order:3;flex-shrink:0;display:flex;}
+    body[data-mobile-tab="settings"] .three-pane .filmstrip{display:none;}
+    /* Settings (left-rail) when tab=settings — sits in the same slot */
+    body[data-mobile-tab="images"] .three-pane .left-rail{display:none;}
+    body[data-mobile-tab="settings"] .three-pane .left-rail{
+      order:3;flex-shrink:0;max-height:42vh;overflow-y:auto;
+      display:flex;flex-direction:column;border-right:0;
+    }
+    /* Bulk actions always last */
+    .three-pane .bulk-actions{order:4;flex-shrink:0;border-top:1px solid var(--border);}
     .mobile-tabs{
       display:flex;border-bottom:1px solid var(--border);background:var(--bg);
     }
@@ -326,12 +338,6 @@
     }
     .mobile-tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);}
     .filmstrip-header{display:none;}
-
-    /* Filmstrip becomes horizontal swipe */
-    body[data-mobile-tab="images"] .filmstrip{display:flex;}
-    body[data-mobile-tab="settings"] .filmstrip{display:none;}
-    body[data-mobile-tab="settings"] .left-rail{display:flex;flex-direction:column;border-right:0;}
-    body[data-mobile-tab="images"] .left-rail{display:none;}
 
     .filmstrip{
       padding:10px 12px;overflow-x:auto;overflow-y:hidden;gap:8px;
