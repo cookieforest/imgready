@@ -717,4 +717,20 @@ window.dispatchEvent(new Event('jsquash-avif-ready'));
     if (isStandalone()) return;             /* already running as installed PWA */
     try { if (localStorage.getItem('imgready_installed') === '1') return; } catch(_){}
     if (dismissedRecently()) return;
-    
+    /* Show the bookmark/install hint banner. The banner is dismissable via
+       the "Got it" button, which calls window.dismissInstall (defined below). */
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.add('show');
+  };
+
+  /* Dismiss handler wired to the banner's "Got it" button. Records the
+     dismissal time so we don't re-show for 30 days (see dismissedRecently). */
+  window.dismissInstall = function(){
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
+  };
+})();
+</script>
+</body>
+</html>
