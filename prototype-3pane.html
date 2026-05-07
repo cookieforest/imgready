@@ -353,7 +353,7 @@
       flex-shrink:0;
     }
     /* Filmstrip when tab=images (default) */
-    body[data-mobile-tab="images"] .three-pane .filmstrip{order:3;flex-shrink:0;display:flex;}
+    body[data-mobile-tab="images"] .three-pane .filmstrip{order:3;flex:0 0 auto;display:flex;}
     body[data-mobile-tab="settings"] .three-pane .filmstrip{display:none;}
     /* Settings (left-rail) when tab=settings — sits in the same slot */
     body[data-mobile-tab="images"] .three-pane .left-rail{display:none;}
@@ -375,6 +375,7 @@
     .filmstrip-header{display:none;}
 
     .filmstrip{
+      flex:0 0 auto;
       padding:10px 12px;overflow-x:auto;overflow-y:hidden;gap:8px;
       flex-direction:row;
     }
