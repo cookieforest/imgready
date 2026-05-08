@@ -233,10 +233,11 @@
   body[data-encoding="on"] .quality-row .qr-spinner{display:inline-block;}
   body[data-encoding="on"] .quality-row .qr-size{opacity:.5;}
 
-  /* Cursor: regular default over the canvas; the divider follows the
-     mouse on every move so there's no drag affordance to advertise.
-     The .compare-handle keeps its own ew-resize cursor for users who
-     reach for the round handle out of habit. */
+  /* Click-and-drag affordance: col-resize cursor over the compare canvas
+     when the slider is interactive (has-after + not zoomed). When zoomed,
+     CSS toggles to grab/grabbing for pan. */
+  body[data-state="multi"] .stage.multi .image-canvas.has-after:not(.zoomed) .compare-zoom{cursor:col-resize;}
+  body[data-state="multi"] .stage.multi .image-canvas.slider-dragging .compare-zoom{cursor:col-resize;}
 
   /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
   .cover-flow{
@@ -340,10 +341,27 @@
   .pi-icon:hover{background:rgba(50,50,50,.95);transform:translateY(-2px);}
   .pi-icon.danger:hover{background:rgba(160,60,60,.92);border-color:rgba(220,160,160,.5);}
   .pi-icon svg{width:16px;height:16px;}
-  /* Click-confirmation tooltip: pops above the button for 1.2s after a
-     successful action ("Copied!", "Shared", "Downloaded"). Without this,
-     the user has no signal that the click did anything. */
-  .pi-icon{position:relative;}
+  /* Click-confirmation: button itself turns green with a checkmark icon
+     for 1.2s, plus a small tooltip above ("Copied!"). The button-state
+     change is the dominant signal — easy to spot in peripheral vision —
+     and the tooltip provides the explicit verb. Mirrors the standard
+     "click → green check" pattern from gh/google/etc copy-buttons. */
+  .pi-icon{position:relative;
+    transition:background .14s ease,border-color .14s ease,color .14s ease;}
+  .pi-icon.confirmed{
+    background:var(--accent) !important;
+    border-color:var(--accent) !important;
+    color:#fff !important;
+  }
+  /* Hide original icon SVG when confirmed; show injected checkmark span */
+  .pi-icon.confirmed > svg{visibility:hidden;}
+  .pi-icon .pi-check{
+    position:absolute;inset:0;display:none;
+    align-items:center;justify-content:center;color:#fff;
+  }
+  .pi-icon.confirmed .pi-check{display:flex;}
+  .pi-icon .pi-check svg{width:18px;height:18px;}
+  /* Tooltip — supplements the button-state change with the explicit verb. */
   .pi-icon .pi-toast{
     position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);
     background:#fff;color:#111;font-size:.7rem;font-weight:700;letter-spacing:.02em;
@@ -1612,6 +1630,7 @@ function onWheel(e){
    user has explicit confirmation the click registered. */
 function piConfirm(btn, message){
   if (!btn) return;
+  /* Tooltip (the explicit verb) */
   let toast = btn.querySelector('.pi-toast');
   if (!toast) {
     toast = document.createElement('span');
@@ -1619,6 +1638,16 @@ function piConfirm(btn, message){
     btn.appendChild(toast);
   }
   toast.textContent = message;
+  /* Checkmark overlay — same SVG every time, lazy-injected on first
+     confirmation so we don't bloat the initial DOM. */
+  let check = btn.querySelector('.pi-check');
+  if (!check) {
+    check = document.createElement('span');
+    check.className = 'pi-check';
+    check.setAttribute('aria-hidden', 'true');
+    check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    btn.appendChild(check);
+  }
   btn.classList.add('confirmed');
   if (btn._confirmTimer) clearTimeout(btn._confirmTimer);
   btn._confirmTimer = setTimeout(() => {
@@ -1733,7 +1762,21 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
 
 /* ===== before/after slider drag handler ===== */
 (function wireSlider(){
-  /* setSplit — the only positional write. Mirrors stable's setFsP exactly. */
+  /* Click-and-drag slider. Mousemove-follows was discarded because at
+     zoom>1 every cursor move during pan would also drag the divider —
+     two gestures fighting for the same pointer. The drag pattern keeps
+     the divider where the user puts it and frees pointer movement for
+     panning when zoomed.
+
+     Behaviour:
+       pointerdown on canvas (zoom=1, has-after, not on a deadzone)
+         → snap divider to click X, latch dragging
+       pointermove (only when latched)
+         → divider follows cursor X
+       pointerup / pointercancel
+         → unlatch
+     When zoom>1, this handler bails immediately so the existing zoom-pan
+     handler (in wireZoom) takes over the pointer. */
   function setSplit(canvas, pct){
     pct = Math.max(0, Math.min(100, pct));
     const after = canvas.querySelector('.compare-after');
@@ -1743,42 +1786,55 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     if (divider) divider.style.left = pct + '%';
     if (handle) handle.style.left = pct + '%';
   }
-  /* moveFollow — port of stable's mvFs(). Continuously follows the cursor
-     anywhere over the .image-canvas (in active multi-state, with an
-     encoded after result, and no active zoom). Skip when target is over
-     one of the deadzone overlays — settings card, meta labels, cover-flow,
-     center loader, zoom chip, brand bar, per-image actions, or any
-     button. Same deadzone idea stable's mvFs uses. */
-  function moveFollow(e){
-    const canvas = (e.target && e.target.closest) ? e.target.closest('.image-canvas') : null;
+  let dragging = null;
+  function inDeadzone(t){
+    if (!t || !t.closest) return false;
+    return !!(t.closest('.compare-meta') ||
+              t.closest('.menu-card') ||
+              t.closest('.cover-flow') ||
+              t.closest('.brand-bar') ||
+              t.closest('.center-status') ||
+              t.closest('.zoom-chip') ||
+              t.closest('.pi-actions') ||
+              t.closest('button'));
+  }
+  document.addEventListener('pointerdown', e => {
+    /* Find the candidate canvas. The handle counts as a slider grab even
+       though it visually sits on top of the slider — clicking it must
+       drag the slider, not be treated as a deadzone. */
+    const handle = e.target.closest && e.target.closest('.compare-handle');
+    const ic = e.target.closest && e.target.closest('.image-canvas');
+    const canvas = handle ? handle.closest('.image-canvas') : ic;
     if (!canvas) return;
-    /* Active stage check: the .stage.solo is also in DOM but display:none.
-       getComputedStyle filters it. */
     const stage = canvas.closest('.stage');
     if (!stage || getComputedStyle(stage).display === 'none') return;
     if (!canvas.classList.contains('has-after')) return;
+    /* Zoom panning owns the pointer when zoomed in. */
     if (canvas.classList.contains('zoomed')) return;
-    const t = e.target;
-    if (t && t.closest) {
-      if (t.closest('.compare-meta')) return;
-      if (t.closest('.menu-card')) return;
-      if (t.closest('.cover-flow')) return;
-      if (t.closest('.brand-bar')) return;
-      if (t.closest('.center-status')) return;
-      if (t.closest('.zoom-chip')) return;
-      if (t.closest('.pi-actions')) return;
-      if (t.closest('button')) return;
-    }
-    const rect = canvas.getBoundingClientRect();
+    /* Deadzones — skip when grabbing UI. The .compare-handle bypasses
+       the deadzone check above. */
+    if (!handle && inDeadzone(e.target)) return;
+    dragging = canvas;
+    canvas.classList.add('slider-dragging');
+    /* Snap divider to the press point immediately, then drag updates as
+       the user moves. Releasing leaves the divider where dragged. */
+    e.preventDefault();
+    moveFrom(e);
+    try { canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId); } catch(_){}
+  });
+  function moveFrom(e){
+    if (!dragging) return;
+    const rect = dragging.getBoundingClientRect();
     const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-    setSplit(canvas, (cx - rect.left) / rect.width * 100);
+    setSplit(dragging, (cx - rect.left) / rect.width * 100);
   }
-  /* Bind once on document. Stable binds to fsInner; we bind to document so
-     we don't have to re-bind every state transition — the deadzone checks
-     ensure we only act when the cursor is genuinely over the canvas. */
-  document.addEventListener('mousemove', moveFollow);
-  document.addEventListener('touchstart', e => { if (e.touches.length === 1) moveFollow(e); }, { passive: true });
-  document.addEventListener('touchmove',  e => { if (e.touches.length === 1) moveFollow(e); }, { passive: true });
+  document.addEventListener('pointermove', e => { if (dragging) moveFrom(e); });
+  function endDrag(){
+    if (dragging) dragging.classList.remove('slider-dragging');
+    dragging = null;
+  }
+  document.addEventListener('pointerup', endDrag);
+  document.addEventListener('pointercancel', endDrag);
 })();
 
 async function ensureAllEncoded(){
