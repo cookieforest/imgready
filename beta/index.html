@@ -751,9 +751,14 @@
     <div class="compare-zoom" id="compareZoom">
       <div class="mock-image large compare-before" id="cbBefore" style="background:linear-gradient(135deg,#446644,#8aba8a)">photo-1.jpg</div>
       <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">photo-1.jpg</div></div>
+      <!-- Divider + handle live INSIDE compare-zoom so they receive the
+           same scale/translate as cbBefore/cbAfter. Without this, the clip
+           edge moved with the zoom transform but the divider stayed at
+           canvas-50%, producing two visible lines at different screen
+           positions while zoomed. -->
+      <div class="compare-divider"></div>
+      <div class="compare-handle" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     </div>
-    <div class="compare-divider"></div>
-    <div class="compare-handle" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
     <div class="center-status" id="centerStatus" hidden>
@@ -1454,6 +1459,15 @@ function applyZoom(){
   if (!wrap || !canvas) return;
   wrap.style.transform = `translate(${ZOOM.x}px, ${ZOOM.y}px) scale(${ZOOM.scale})`;
   canvas.classList.toggle('zoomed', ZOOM.scale > 1.001);
+  /* Counter-scale the handle and divider so they stay visually consistent
+     size regardless of parent zoom. They're inside .compare-zoom (so they
+     translate with the image), but we don't want a 6x zoom to render a
+     264px handle or a 12px-thick divider. */
+  const inv = 1 / ZOOM.scale;
+  const handle = wrap.querySelector('.compare-handle');
+  const divider = wrap.querySelector('.compare-divider');
+  if (handle) handle.style.transform = `translate(-50%, -50%) scale(${inv})`;
+  if (divider) divider.style.transform = `translateX(-1px) scaleX(${inv})`;
   /* Zoom-level chip — show + auto-fade ONLY when scale actually changed.
      Without the change-check, every syncMainImage → resetZoom → applyZoom
      would flash the chip on selection swaps even though no zoom happened. */
