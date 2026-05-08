@@ -156,6 +156,24 @@
   .image-canvas:not(.has-after) .compare-handle,
   .image-canvas:not(.has-after) .compare-meta.r{display:none;}
 
+  /* Big-batch confirm modal */
+  .bigbatch-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;
+    z-index:1000;padding:24px;
+  }
+  body[data-bigbatch="open"] .bigbatch-overlay{display:flex;}
+  .bigbatch-modal{
+    background:#1a1a1a;border:1px solid rgba(255,255,255,.12);
+    border-radius:14px;padding:24px;max-width:420px;width:100%;
+    color:#fff;
+  }
+  .bigbatch-modal h3{margin:0 0 8px;font-size:1.1rem;}
+  .bigbatch-modal p{margin:0 0 16px;color:rgba(255,255,255,.75);font-size:.85rem;line-height:1.5;}
+  .bigbatch-actions{display:flex;gap:8px;justify-content:flex-end;}
+  .bigbatch-actions .btn{padding:8px 16px;}
+
   /* Filename label — sits BELOW the cover-flow strip, just above the
      bar. The previous position above the strip read as a header for the
      image (wrong eyeline) and crowded the Before meta on narrow viewports.
@@ -977,7 +995,7 @@
   .mock-image.large{font-size:1.4rem;padding:20px;}
 </style>
 </head>
-<body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed">
+<body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed">
 
 <div class="brand-bar">
   <a href="/" class="brand">img<span class="g">ready</span></a>
@@ -2662,6 +2680,132 @@ function attachSettingsListeners(){
 }
 window.addEventListener('DOMContentLoaded', attachSettingsListeners);
 
+/* ============================================================
+   PROD: Big-batch confirm modal — wraps addFilesFromList for >200 file drops
+   ============================================================ */
+let _pendingBigBatch = null;
+function maybeBigBatchConfirm(files){
+  if (!files || files.length <= 200) return Promise.resolve(files);
+  return new Promise(resolve => {
+    _pendingBigBatch = { files, resolve };
+    document.getElementById('bigBatchCount').textContent = files.length;
+    document.body.dataset.bigbatch = 'open';
+  });
+}
+window.acceptBigBatch = function(){
+  document.body.dataset.bigbatch = 'closed';
+  if (_pendingBigBatch) { _pendingBigBatch.resolve(_pendingBigBatch.files); _pendingBigBatch = null; }
+};
+window.cancelBigBatch = function(){
+  document.body.dataset.bigbatch = 'closed';
+  if (_pendingBigBatch) { _pendingBigBatch.resolve([]); _pendingBigBatch = null; }
+};
+
+/* ============================================================
+   PROD: Ctrl+V paste from clipboard
+   ============================================================ */
+document.addEventListener('paste', async e => {
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  const files = [];
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].kind !== 'file') continue;
+    const f = items[i].getAsFile();
+    if (f && f.type.startsWith('image/')) files.push(f);
+  }
+  if (files.length && typeof addFilesFromList === 'function') {
+    e.preventDefault();
+    const accepted = await maybeBigBatchConfirm(files);
+    if (accepted.length) addFilesFromList(accepted);
+  }
+});
+
+/* ============================================================
+   PROD: Full-window drop overlay — drop ANYWHERE on the page
+   ============================================================ */
+let _wdo = null, _wddepth = 0;
+function _ensureWDO(){
+  if (_wdo) return _wdo;
+  _wdo = document.createElement('div');
+  _wdo.className = 'window-drop-overlay';
+  _wdo.setAttribute('aria-hidden', 'true');
+  _wdo.innerHTML = '<div class="wd-card">' +
+    '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+    '<div class="wd-title">Drop anywhere</div>' +
+    '<div class="wd-sub">Stays on your device — never uploaded</div>' +
+  '</div>';
+  document.body.appendChild(_wdo);
+  return _wdo;
+}
+function _hideWDO(){
+  _wddepth = 0;
+  if (_wdo) _wdo.classList.remove('show');
+  document.body.classList.remove('window-dragging');
+}
+document.addEventListener('dragenter', e => {
+  const types = e.dataTransfer && e.dataTransfer.types;
+  if (!types) return;
+  const hasFiles = (typeof types.indexOf === 'function')
+    ? types.indexOf('Files') !== -1
+    : types.contains && types.contains('Files');
+  if (!hasFiles) return;
+  _wddepth++;
+  if (_wddepth === 1) {
+    document.body.classList.add('window-dragging');
+    _ensureWDO().classList.add('show');
+  }
+});
+document.addEventListener('dragover', e => { e.preventDefault(); });
+document.addEventListener('dragleave', () => {
+  if (_wddepth > 0) {
+    _wddepth--;
+    if (_wddepth === 0) _hideWDO();
+  }
+});
+document.addEventListener('drop', async e => {
+  e.preventDefault();
+  _hideWDO();
+  const dt = e.dataTransfer;
+  const list = dt && dt.files;
+  if (!list || !list.length) return;
+  const accepted = await maybeBigBatchConfirm(Array.from(list));
+  if (accepted.length && typeof addFilesFromList === 'function') {
+    addFilesFromList(accepted);
+  }
+});
+
+/* ============================================================
+   PROD: Web Share Target pickup — when a mobile user shares files INTO
+   imgready, the SW intercepts and queues them, redirecting with
+   ?share-pending=1. We dequeue via MessageChannel.
+   ============================================================ */
+(function pickupSharedFiles(){
+  try {
+    const params = new URLSearchParams(location.search);
+    if (!params.get('share-pending')) return;
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.ready.then(reg => {
+      const sw = reg.active || navigator.serviceWorker.controller;
+      if (!sw) return;
+      const ch = new MessageChannel();
+      ch.port1.onmessage = ev => {
+        const files = (ev.data && ev.data.files) || [];
+        if (files.length && typeof addFilesFromList === 'function') {
+          addFilesFromList(files);
+        }
+        try {
+          const u = new URL(location.href);
+          u.searchParams.delete('share-pending');
+          history.replaceState(null, '', u.pathname + (u.search || '') + (u.hash || ''));
+        } catch(_) {}
+      };
+      sw.postMessage({ type: 'pickup-share' }, [ch.port2]);
+    });
+  } catch(_) {}
+})();
+
 function doClear(){
   document.body.dataset.confirm = 'closed';
   /* Revoke all blob URLs (originals + encoded) to free memory */
@@ -2675,6 +2819,71 @@ function doClear(){
   setState('empty');
 }
 </script>
+
+<!-- ============================================================
+     PROD: SW registration + Install prompt — copy of stable's pattern.
+     ============================================================ -->
+<script>
+(function(){
+  'use strict';
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function(err){ console.warn('[imgready] SW register failed:', err); });
+    });
+  }
+  var deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredInstall = e;
+  });
+  window.addEventListener('appinstalled', function(){
+    deferredInstall = null;
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_installed', '1'); } catch(_){}
+  });
+  function isStandalone(){
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.navigator.standalone === true) return true;
+    return false;
+  }
+  function dismissedRecently(){
+    try {
+      var v = localStorage.getItem('imgready_install_dismissed');
+      if (!v) return false;
+      var ts = parseInt(v, 10);
+      if (!ts) return false;
+      return (Date.now() - ts) < 30 * 24 * 60 * 60 * 1000;
+    } catch(_) { return false; }
+  }
+  window.maybeShowInstallPrompt = function(){
+    if (!deferredInstall) return;
+    if (isStandalone()) return;
+    try { if (localStorage.getItem('imgready_installed') === '1') return; } catch(_){}
+    if (dismissedRecently()) return;
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.add('show');
+  };
+  window.dismissInstall = function(){
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
+  };
+})();
+</script>
+
+<!-- Big-batch confirm modal — port of stable's >200-file safeguard. -->
+<div class="bigbatch-overlay" id="bigBatchOverlay" onclick="if(event.target===this)cancelBigBatch()" role="dialog" aria-modal="true" aria-labelledby="bigBatchTitle">
+  <div class="bigbatch-modal">
+    <h3 id="bigBatchTitle">That's a lot of files</h3>
+    <p>You've added <strong><span id="bigBatchCount">0</span></strong> files. Browsers usually handle 200–500 fine; over that, things slow down and your tab can run out of memory. Continue?</p>
+    <div class="bigbatch-actions">
+      <button class="btn btn-clear" onclick="cancelBigBatch()">Cancel</button>
+      <button class="btn btn-primary" onclick="acceptBigBatch()">Continue</button>
+    </div>
+  </div>
+</div>
 
 <!-- PROTOTYPE_EOF -->
 </body>
