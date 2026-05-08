@@ -612,6 +612,10 @@
     text-transform:uppercase;color:rgba(255,255,255,.55);
     flex:none;white-space:nowrap;
   }
+  /* Desktop: row-group wrapper is invisible to layout — its 3 bb-section
+     children participate directly in bb-drawer-inner's flex. The wrapper
+     only kicks in on mobile (see @media block below). */
+  .bb-row-group{display:contents;}
   /* Multi-output toggle: small switch that lives next to the format pills.
      When ON, body[data-multiout="on"] applies and format pills behave as
      multi-toggles. Auto pill hides because "auto" doesn't apply when the
@@ -1076,6 +1080,32 @@
     .bb-drawer-inner .bb-section + .bb-section{
       padding-top:8px;border-top:1px solid rgba(255,255,255,.08);
     }
+    /* Resize + Crop + Privacy share one horizontal row on mobile (saves
+       vertical space). Format keeps its own row above. On desktop the
+       wrapper uses display:contents (declared outside this @media block)
+       so the bb-drawer-inner flex layout treats the sections as siblings. */
+    .bb-row-group{
+      display:flex;flex-direction:row;gap:10px;width:100%;
+      align-items:flex-start;
+    }
+    .bb-row-group > .bb-section{
+      flex:1;min-width:0;
+    }
+    /* Inside the row group, neighbour bb-sections are SIDE-BY-SIDE not
+       stacked, so the section + section top border / padding rule above
+       would draw a stray underline across the row. Suppress it. */
+    .bb-row-group .bb-section + .bb-section{
+      padding-top:0;border-top:none;
+    }
+    /* Format pills span full drawer width and divide equally — easier
+       to tap than the scroll-row default. */
+    .bb-drawer-inner .adjust-pills{
+      width:100%;overflow:visible;
+    }
+    .bb-drawer-inner .adjust-pills button{
+      flex:1;min-width:0;padding:0 4px;
+      justify-content:center;text-align:center;
+    }
     /* Core row: gear + format pills + quality slider on one line.
        Format pills allow horizontal scroll if needed. */
     .bb-core{
@@ -1343,6 +1373,7 @@
             </label>
           </div>
           <div class="bb-divider"></div>
+          <div class="bb-row-group">
           <div class="bb-section">
             <span class="bb-section-label">Resize</span>
             <!-- Stub kept for any JS that reads .rmt-btn.active — pixel-only mode. -->
@@ -1391,6 +1422,7 @@
           <div class="bb-section">
             <span class="bb-section-label">Privacy</span>
             <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label>
+          </div>
           </div>
         </div>
       </div>
@@ -2939,6 +2971,24 @@ function attachSettingsListeners(){
     });
     qSlider.addEventListener('change', invalidateEncoded);
   }
+  /* Mutex helper for the resize/crop preset dropdowns. Called from each
+     trigger's click handler before opening, so only one popover is ever
+     visible at a time. Handles portalled menus by class-matching:
+       - keep is the dropdown we're about to open
+       - any OTHER .resize-presets.open gets .open removed
+       - any portalled menu whose flavor (crop vs resize) doesn't match
+         keep also gets .open removed. */
+  function closeOtherPresetDropdowns(keep){
+    document.querySelectorAll('.resize-presets.open').forEach(p => {
+      if (p !== keep) p.classList.remove('open');
+    });
+    document.querySelectorAll('.resize-presets-menu.open').forEach(m => {
+      if (!keep) { m.classList.remove('open'); return; }
+      const keepIsCrop = keep.classList.contains('crop-dropdown');
+      const menuIsCrop = m.classList.contains('crop-menu');
+      if (keepIsCrop !== menuIsCrop) m.classList.remove('open');
+    });
+  }
   /* Resize dropdown — single control with presets + inline custom input.
      Pattern: trigger button shows current value (or "None"), menu opens
      upward with preset rows + a custom-input row at the bottom.
@@ -2971,6 +3021,9 @@ function attachSettingsListeners(){
     trig.addEventListener('click', e => {
       e.stopPropagation();
       const willOpen = !resizeDropdown.classList.contains('open');
+      /* Mutex: only one preset dropdown open at a time. Close any open
+         crop dropdown (and its portalled menu) before opening resize. */
+      if (willOpen) closeOtherPresetDropdowns(resizeDropdown);
       resizeDropdown.classList.toggle('open');
       menu.classList.toggle('open', willOpen);
       if (willOpen) {
@@ -3030,6 +3083,9 @@ function attachSettingsListeners(){
     trig.addEventListener('click', e => {
       e.stopPropagation();
       const willOpen = !cropDropdown.classList.contains('open');
+      /* Mutex: only one preset dropdown open at a time. Close any open
+         resize dropdown (and its portalled menu) before opening crop. */
+      if (willOpen) closeOtherPresetDropdowns(cropDropdown);
       cropDropdown.classList.toggle('open');
       menu.classList.toggle('open', willOpen);
       if (willOpen) {
