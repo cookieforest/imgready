@@ -480,7 +480,10 @@
     padding:0;
   }
   body[data-adjust="open"] .bb-drawer{
-    max-width:520px;
+    /* Wide enough to hold: Format label + 5 pills + divider + Resize
+       (label + input + presets trigger) + divider + Privacy switch.
+       Was 520px which clipped the format pills into a vertical stack. */
+    max-width:780px;
     padding:0 4px;
     border-right-color:rgba(255,255,255,.12);
   }
@@ -494,6 +497,7 @@
   .bb-section-label{
     font-size:.62rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);
+    flex:none;white-space:nowrap;
   }
   /* Toolbar baseline — every interactive element targets this height so
      the bar reads as one cohesive control surface, not a parade of
@@ -563,7 +567,16 @@
   .adjust-section:last-child{margin-bottom:0;}
   .adjust-label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:6px;}
-  .adjust-pills{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+  .adjust-pills{
+    display:flex;flex-wrap:nowrap;gap:4px;align-items:center;
+    /* Pills must stay on one line. If the container is narrow the row
+       gets a horizontal scroll instead of wrapping vertically (which
+       made the drawer 5 rows tall on mobile). */
+    overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
+    max-width:100%;
+  }
+  .adjust-pills::-webkit-scrollbar{display:none;}
+  .adjust-pills button{flex:none;}
   .adjust-pills button{
     height:var(--bb-btn-h);padding:0 10px;
     border:1px solid rgba(255,255,255,.18);background:transparent;
@@ -797,10 +810,17 @@
       max-height:240px;padding:8px 4px;opacity:1;
     }
     .bb-drawer-inner{
-      flex-direction:column;gap:8px;width:100%;
-      padding:0 8px;white-space:normal;
+      /* Mobile: stack the Format / Resize / Privacy SECTIONS vertically
+         (column) but keep the CHILDREN of each section horizontal. */
+      flex-direction:column;gap:10px;width:100%;
+      padding:6px 10px 8px;white-space:normal;
     }
-    .bb-drawer-inner .bb-section{flex-wrap:wrap;}
+    /* Mobile sections: keep label INLINE with the control row (horizontal),
+       not wrapped onto its own line. The previous flex-wrap rule made
+       Format pills stack vertically, which is what the user reported.
+       Pills handle their own overflow via .adjust-pills' horizontal
+       scroll, so the section never needs to wrap. */
+    .bb-drawer-inner .bb-section{flex-wrap:nowrap;width:100%;}
     .bb-divider{display:none;}
     /* Core row: gear + format pills + quality slider on one line.
        Format pills allow horizontal scroll if needed. */
