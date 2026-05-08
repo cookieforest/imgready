@@ -318,23 +318,43 @@
   }
   .cflow-thumb .thumb-num{font-size:.78rem;line-height:1;}
   .cflow-thumb.active .thumb-num{font-size:1rem;}
-  /* Add-more tile: dark bg, thick white dotted border, white text.
-     Reads as a clear secondary affordance against the dark workspace,
-     and differentiates from image thumbs (which have full-color contents). */
+  /* Add-more tile — frosted-glass card, thin dashed border, large "+".
+     Pattern researched against Google Photos, Figma, Linear, and macOS
+     Big Sur frosted controls. The previous 3px dotted bold border with
+     solid black fill read as draft/unfinished and competed with image
+     thumbs for visual weight. Goal: clearly secondary affordance, neither
+     loud nor invisible.
+       border-style:dashed (not dotted) — dashed reads as "input/dropzone",
+         dotted reads as "diagram placeholder"
+       border-width:1.5px — thin, refined
+       border-color:rgba(255,255,255,.22) — present but quiet
+       background:rgba(255,255,255,.04) + backdrop-filter:blur — glass
+         layer that picks up subtle context from the workspace bg
+       icon: 26px (larger so the "+" is the primary affordance)
+       text: 0.62rem, normal-case, white at 55% opacity (soft label) */
   .cflow-thumb.add-more .thumb-slot{
-    background:rgba(0,0,0,.55);
-    border:3px dotted #fff;
-    color:#fff;
+    background:rgba(255,255,255,.04);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1.5px dashed rgba(255,255,255,.22);
+    color:rgba(255,255,255,.7);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:4px;
-    transition:background .15s,border-color .15s,color .15s;
+    gap:6px;
+    transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease;
   }
   .cflow-thumb.add-more:hover .thumb-slot{
-    background:rgba(0,0,0,.72);border-color:#fff;color:#fff;
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.5);
+    color:#fff;
+    transform:translateY(-1px);
   }
+  .cflow-thumb.add-more svg{width:26px;height:26px;stroke-width:2;}
   .cflow-thumb.add-more .add-more-label{
-    font-size:.62rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    /* Drop the all-caps tracked-out style — too formal for a small chip */
+    text-transform:none;font-weight:500;letter-spacing:0;
+    font-size:.66rem;color:rgba(255,255,255,.55);
   }
+  /* Old uppercase add-more-label rule removed — superseded by the soft
+     style further down. */
   /* Add-more always at full opacity — it's not a navigable image, just an action
      affordance, so the cover-flow's depth-based dimming doesn't apply. */
   .cflow-thumb.add-more{opacity:1 !important;}
