@@ -905,9 +905,55 @@
     background:var(--accent);color:#fff;
   }
 
-  .resize-orig-hint{
-    font-size:.66rem;color:rgba(255,255,255,.4);
-    margin-top:5px;
+  /* Inline Custom px input row inside the resize dropdown.
+     Visually integrated with menu buttons: same horizontal padding,
+     same row height, no hard border — just a subtle top divider. */
+  .resize-custom-row{
+    display:flex;align-items:center;gap:4px;
+    padding:6px 6px 4px;
+    margin-top:4px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .resize-custom-row .resize-custom-input{
+    flex:1;min-width:0;
+    height:26px;padding:0 8px;
+    background:rgba(255,255,255,.06);
+    border:1px solid transparent;
+    color:rgba(255,255,255,.92);
+    font:inherit;font-size:.72rem;
+    border-radius:5px;outline:none;
+    -moz-appearance:textfield;appearance:textfield;
+    transition:background .12s ease,border-color .12s ease;
+  }
+  .resize-custom-row .resize-custom-input::placeholder{
+    color:rgba(255,255,255,.38);
+  }
+  .resize-custom-row .resize-custom-input:hover{
+    background:rgba(255,255,255,.1);
+  }
+  .resize-custom-row .resize-custom-input:focus{
+    background:rgba(255,255,255,.12);
+    border-color:var(--accent);
+  }
+  /* Hide native number-input spin buttons — the value is committed via
+     Set / Enter, so spinners just add visual noise. */
+  .resize-custom-row .resize-custom-input::-webkit-outer-spin-button,
+  .resize-custom-row .resize-custom-input::-webkit-inner-spin-button{
+    -webkit-appearance:none;margin:0;
+  }
+  .resize-custom-row .resize-custom-set{
+    flex:none;height:26px;padding:0 10px;
+    background:transparent;
+    border:1px solid rgba(255,255,255,.18);
+    color:rgba(255,255,255,.85);
+    font:inherit;font-size:.7rem;font-weight:600;
+    border-radius:5px;cursor:pointer;
+    transition:background .12s ease,color .12s ease,border-color .12s ease;
+  }
+  .resize-custom-row .resize-custom-set:hover{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
   }
 
   .adjust-input,.adjust-select{padding:5px 7px;border:1px solid rgba(255,255,255,.18);
@@ -1208,7 +1254,7 @@
               </div>
             </div>
           </div>
-          <div class="resize-orig-hint"></div></div>
+          </div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
           <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label></div>
       </div>
@@ -1322,7 +1368,6 @@
                 </div>
               </div>
             </div>
-            <div class="resize-orig-hint" data-orig></div>
           </div>
           <div class="bb-divider"></div>
           <div class="bb-section">
@@ -1923,9 +1968,9 @@ async function syncMainImage(force){
      the viewer. Updated on every selection swap. */
   const ribbon = document.getElementById('filenameRibbon');
   if (ribbon) ribbon.textContent = f.name || '';
-  /* Show original dimensions in the resize section as a helpful reference.
-     Lazy-decoded once per file via createImageBitmap; cached on the FILES
-     entry so subsequent selects hit the cache. */
+  /* Lazy-decode original dimensions once per file (cached on FILES entry).
+     Used by the encode pipeline / Before meta card; no UI hint anymore
+     since dimensions are already shown in the meta corners. */
   (async () => {
     try {
       if (!f.dims) {
@@ -1933,8 +1978,6 @@ async function syncMainImage(force){
         f.dims = { w: bmp.width, h: bmp.height };
         try { bmp.close && bmp.close(); } catch(_){}
       }
-      const hint = document.querySelector('body[data-state="multi"] .stage.multi .resize-orig-hint');
-      if (hint && f.dims) hint.textContent = `Original: ${f.dims.w} × ${f.dims.h}`;
     } catch(_){ /* non-fatal */ }
   })();
   /* Reset zoom on every selection swap so the new image starts at 1x */
