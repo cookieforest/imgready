@@ -491,15 +491,16 @@
   }
   .menu-card{
     pointer-events:auto;
-    /* position:relative is REQUIRED so the mobile drawer's
-       position:absolute anchors to the card (not to .menu-wrap). */
     position:relative;
     display:flex;align-items:stretch;
     background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border:1px solid var(--card-border);border-radius:14px;
     color:#fff;
-    /* Removed overflow:hidden so the drawer can extend visibly.
-       The drawer's own max-width transition handles slide-clip. */
+    /* overflow:hidden so child elements (gear button, drawer, action buttons)
+       respect the card's rounded corners. Without this, the gear's sharp
+       rectangle painted past the card's rounded top-left corner. The
+       portaled preset menu lives on document.body so it's unaffected. */
+    overflow:hidden;
   }
   /* The drawer is the only piece that needs overflow:hidden for its
      slide animation. Constrain there, not on the whole card. */
@@ -627,10 +628,9 @@
   .settings-toggle > span:not(.settings-icon):not(.toggle-icon){display:none;}
   .settings-toggle .toggle-icon{display:none;}
   .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.06);}
-  body[data-adjust="open"] .settings-toggle{
-    background:var(--accent);color:#fff;
-  }
-  body[data-adjust="open"] .settings-icon{color:#fff;}
+  /* (Removed duplicate body[data-adjust="open"] .settings-toggle rule that
+     was overriding the tone-down at line ~604 with full-green background.
+     The earlier rule with rgba(255,255,255,.08) wins now.) */
 
   /* .adjust-panel — legacy class kept for any inner sections inside the
      drawer that referenced it. The drawer itself handles open/close via
