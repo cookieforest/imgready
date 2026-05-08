@@ -412,6 +412,39 @@ async function processOne(file, fmt, settings){
     return await c.convertToBlob({ type: 'image/gif' });
   }
 
+  if (fmt === 'ico') {
+    /* ICO encoder: PNG-in-ICO container. Modern Windows, browsers, and
+       favicon parsers all accept PNG payloads inside ICO files (the
+       legacy BMP-in-ICO format is much larger and less browser-friendly).
+       Layout:
+         6-byte ICONDIR header
+         16-byte ICONDIRENTRY (one image)
+         <png data>
+       For larger-than-256 dimensions, the byte fields wrap to 0 (= "256+"
+       per the ICO spec). Most users want small favicons; if they really
+       want a 1024×1024 ICO, our Resize section already lets them set it. */
+    const pngBlob = await c.convertToBlob({ type: 'image/png' });
+    const pngBuf = new Uint8Array(await pngBlob.arrayBuffer());
+    const totalLen = 6 + 16 + pngBuf.length;
+    const out = new Uint8Array(totalLen);
+    const dv = new DataView(out.buffer);
+    /* ICONDIR */
+    dv.setUint16(0, 0, true);   // reserved
+    dv.setUint16(2, 1, true);   // type 1 = icon
+    dv.setUint16(4, 1, true);   // 1 image
+    /* ICONDIRENTRY */
+    out[6] = w >= 256 ? 0 : w;  // width (0 byte = 256)
+    out[7] = h >= 256 ? 0 : h;  // height
+    out[8] = 0;                 // colors in palette (0 for true-color)
+    out[9] = 0;                 // reserved
+    dv.setUint16(10, 1, true);  // color planes
+    dv.setUint16(12, 32, true); // bits per pixel
+    dv.setUint32(14, pngBuf.length, true);  // image size
+    dv.setUint32(18, 22, true); // offset to image (6+16)
+    out.set(pngBuf, 22);
+    return new Blob([out], { type: 'image/x-icon' });
+  }
+
   throw new Error('Unsupported output format: ' + fmt);
 }
 
