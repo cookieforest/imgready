@@ -195,6 +195,18 @@
     .window-drop-overlay .wd-title{font-size:1.2rem;}
   }
 
+  /* Reject toast — file-rejection feedback. Bottom-center, dark, fades. */
+  .reject-toast{
+    position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(8px);
+    background:rgba(20,20,20,.95);color:#fff;
+    padding:10px 16px;border-radius:8px;
+    font-size:.82rem;font-weight:500;
+    box-shadow:0 4px 16px rgba(0,0,0,.4);
+    pointer-events:none;z-index:1100;
+    opacity:0;transition:opacity .2s ease,transform .2s ease;
+  }
+  .reject-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
   /* Big-batch confirm modal */
   .bigbatch-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,.6);
@@ -1166,7 +1178,7 @@
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button>Auto</button><button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button></div></div>
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
-          <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
+          <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
           <div class="resize-mode-toggle" role="tablist" aria-label="Resize unit">
             <button type="button" class="rmt-btn active" data-mode="dim" role="tab" aria-selected="true">Pixels</button>
@@ -1213,7 +1225,7 @@
     </div>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
-    <div class="center-status" id="centerStatus" hidden>
+    <div class="center-status" id="centerStatus" hidden aria-live="polite">
       <div class="cs-spinner" aria-hidden="true"></div>
       <div class="cs-stage" id="csStage">Decoding…</div>
       <div class="cs-name" id="csName"></div>
@@ -1306,7 +1318,7 @@
            in the drawer behind the gear so the bar reads cleaner. -->
       <div class="bb-core">
         <span class="bb-section-label" style="margin-right:2px;">Quality</span>
-        <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div>
+        <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div>
       </div>
       <div class="adjust-panel" hidden></div>
       <div class="actions">
@@ -1370,29 +1382,12 @@ function init(){
   const fi = document.getElementById('fileInput') || document.getElementById('dzFileInput');
   if (fi) fi.addEventListener('change', onFiles);
   document.getElementById('moreInput').addEventListener('change', onFiles);
-  document.addEventListener('dragover', e => { e.preventDefault(); });
-  document.addEventListener('drop', e => {
-    e.preventDefault();
-    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-      addFilesFromList(e.dataTransfer.files);
-    }
-  });
-  /* Paste support */
-  document.addEventListener('paste', e => {
-    const items = e.clipboardData && e.clipboardData.items;
-    if (!items) return;
-    const files = [];
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf('image') !== -1) {
-        const f = items[i].getAsFile();
-        if (f) files.push(f);
-      }
-    }
-    if (files.length) addFilesFromList(files);
-  });
-
-  const obs = new MutationObserver(updateMenuHeight);
-  obs.observe(document.body, {attributes:true, attributeFilter:['data-adjust','data-state']});
+  /* Note: paste/drop/dragover listeners + MutationObserver for menu-h are
+     wired by the PROD blocks further down (they handle big-batch confirm,
+     the full-window drop overlay, and animation-frame menu-h updates).
+     The duplicates that used to live here were causing every paste + drop
+     to fire twice, double-adding files. Listeners now register exactly
+     once and do the right thing for all states. */
   window.addEventListener('resize', updateMenuHeight);
 }
 
@@ -1404,11 +1399,19 @@ function onFiles(e){
 }
 function addFilesFromList(fileList){
   const fresh = [];
+  let totalSeen = 0;
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList[i];
+    totalSeen++;
     if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name)) continue;
     const url = URL.createObjectURL(file);
     fresh.push({ file, url, name: file.name });
+  }
+  /* Feedback when ALL files were rejected (user dropped non-images).
+     Without this the drop appeared to silently no-op. */
+  if (totalSeen > 0 && fresh.length === 0) {
+    showRejectedToast(totalSeen);
+    return;
   }
   if (!fresh.length) return;
   FILES.push(...fresh);
@@ -1757,6 +1760,24 @@ function encodeFile(idx, overrideFmt){
   p.finally(() => { ENCODE.inflight.delete(inflightKey); });
   return p;
 }
+/* Lightweight toast for non-image rejection feedback. Auto-fades after 3s. */
+let _rejectedToastEl = null;
+function showRejectedToast(count){
+  if (!_rejectedToastEl) {
+    _rejectedToastEl = document.createElement('div');
+    _rejectedToastEl.className = 'reject-toast';
+    document.body.appendChild(_rejectedToastEl);
+  }
+  _rejectedToastEl.textContent = count === 1
+    ? "That file isn't an image."
+    : `None of those ${count} files looked like images.`;
+  _rejectedToastEl.classList.add('show');
+  if (_rejectedToastEl._t) clearTimeout(_rejectedToastEl._t);
+  _rejectedToastEl._t = setTimeout(() => {
+    _rejectedToastEl && _rejectedToastEl.classList.remove('show');
+  }, 3000);
+}
+
 function fmtSize(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
 function setMetaCorners(beforeFile, encoded){
   /* Pull cached dimensions from the FILES entry if available — populated
@@ -2472,6 +2493,9 @@ async function piShare(){
   const ext = enc.format || 'jpg';
   const file = new File([enc.blob], `${base}_imgready.${ext}`, { type: enc.blob.type });
   const shareBtn = document.querySelector('#piActions .pi-icon[title="Share this"]');
+  /* shareBtn may be null if the pi-actions overlay was removed mid-flow
+     (e.g., user clicked Clear All while share was awaiting). piConfirm
+     already null-checks btn but we'd rather not call it at all. */
   if (navigator.canShare && navigator.canShare({ files:[file] })) {
     try {
       await navigator.share({ files:[file], title: 'imgready' });
@@ -2560,10 +2584,15 @@ function piDelete(){
   const f = FILES[idx];
   if (!f) return;
   try { URL.revokeObjectURL(f.url); } catch(_){}
-  /* drop the encoded cache entry too; reindex remaining entries */
+  /* Drop encoded + multi-output bundles for this idx, then reindex
+     remaining entries below. allEncoded is a parallel sidecar that also
+     needs reindexing (was missed before this fix). */
   const e = ENCODE.encoded.get(idx);
   if (e) { try { URL.revokeObjectURL(e.url); } catch(_){} }
   ENCODE.encoded.delete(idx);
+  const bundle = ENCODE.allEncoded.get(idx);
+  if (bundle) { bundle.forEach(b => { try { URL.revokeObjectURL(b.url); } catch(_){} }); }
+  ENCODE.allEncoded.delete(idx);
   /* shift down indices > idx */
   const newMap = new Map();
   ENCODE.encoded.forEach((v, k) => { if (k > idx) newMap.set(k - 1, v); else newMap.set(k, v); });
@@ -2572,6 +2601,13 @@ function piDelete(){
   buildThumbs();
   if (FILES.length === 0) { setState('empty'); return; }
   if (CFLOW.selected >= FILES.length) CFLOW.selected = FILES.length - 1;
+  if (CFLOW.selected < 0) CFLOW.selected = 0;
+  /* If we deleted the last file, transition to empty state instead of
+     leaving the workspace stuck with a stale CFLOW.selected. */
+  if (FILES.length === 0) {
+    setState('empty');
+    return;
+  }
   document.body.dataset.piActions = 'closed';
   if (FILES.length === 1) document.body.dataset.state = 'solo';
   else document.body.dataset.state = 'multi';
