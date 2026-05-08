@@ -110,7 +110,9 @@
   .image-canvas{
     position:absolute;
     top:0;left:0;right:0;
-    bottom:calc(var(--menu-h, 80px) + 172px);
+    /* Stack from viewport bottom: bar (--menu-h) + 36px filename gap +
+       160 cover-flow + 6 gap = (--menu-h)+202 */
+    bottom:calc(var(--menu-h, 80px) + 202px);
   }
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -155,17 +157,15 @@
   .image-canvas:not(.has-after) .compare-handle,
   .image-canvas:not(.has-after) .compare-meta.r{display:none;}
 
-  /* Filename label — small text below the active cover-flow thumb. The
-     previous top-center ribbon crowded the Before/After meta cards on
-     narrow viewports and obscured part of the image at the top. Below
-     the centered thumb, the filename naturally answers "which file is
-     this?" right next to the thumb that visually represents it. */
+  /* Filename label — sits BELOW the cover-flow strip, just above the
+     bar. The previous position above the strip read as a header for the
+     image (wrong eyeline) and crowded the Before meta on narrow viewports.
+     Tucking it below the strip ties the label to the active thumb that
+     points at it from above. */
   .filename-ribbon{
     position:absolute;
-    /* Sits just under the bottom edge of the cover-flow strip, centered.
-       Cover-flow is at bottom:96px height:160px on desktop, height:120px
-       on mobile — the label hugs the bottom of the strip area. */
-    bottom:74px;left:50%;transform:translateX(-50%);
+    bottom:calc(var(--menu-h, 80px) + 8px);
+    left:50%;transform:translateX(-50%);
     background:transparent;border:none;
     color:rgba(255,255,255,.7);
     font-size:.7rem;font-weight:500;letter-spacing:.01em;
@@ -311,9 +311,11 @@
   /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
   .cover-flow{
     position:absolute;
-    /* Cover-flow sits ABOVE the bottom toolbar (bar at bottom:14px ~62px tall).
-       Total bottom offset: bar(62) + gap(20) = 82px. */
-    bottom:96px;left:0;right:0;
+    /* Cover-flow sits above the bar with a gap that holds the filename.
+       Stack from viewport bottom: bar (var --menu-h) → 6px gap → filename
+       (~22px) → 6px gap → cover-flow. Total ~34px above bar before the
+       cover-flow starts. */
+    bottom:calc(var(--menu-h, 80px) + 36px);left:0;right:0;
     height:160px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
@@ -509,19 +511,15 @@
   .bb-drawer{
     display:flex;align-items:center;
     max-width:0;overflow:hidden;
-    border-right:1px solid transparent;
+    border-left:1px solid transparent;
     transition:max-width .32s cubic-bezier(.22,1,.36,1),
-               border-right-color .2s ease,
+               border-left-color .2s ease,
                padding .25s ease;
     padding:0;
   }
   body[data-adjust="open"] .bb-drawer{
-    /* Wide enough to hold: Format label + 5 pills + divider + Resize
-       (label + input + presets trigger) + divider + Privacy switch.
-       Was 520px which clipped the format pills into a vertical stack. */
-    max-width:780px;
-    padding:0 4px;
-    border-right-color:rgba(255,255,255,.12);
+    max-width:780px;padding:0 4px;
+    border-left-color:rgba(255,255,255,.12);
   }
   .bb-drawer-inner{
     display:flex;align-items:center;gap:14px;
@@ -586,15 +584,30 @@
     padding:0 12px;
     color:rgba(255,255,255,.78);font-family:inherit;
     cursor:pointer;border-radius:0;
-    /* Vertical divider on desktop horizontal bar; suppressed on mobile
-       column layout where it would look like a misplaced underline. */
-    border-right:1px solid rgba(255,255,255,.08);
+    /* No right-divider — drawer now sits to the gear's right and provides
+       its own border-left when open. Keeps the visual clean both states. */
+  }
+  body[data-adjust="open"] .settings-toggle{
+    background:var(--accent);color:#fff;
   }
   @media(max-width:767px){
     .settings-toggle{
-      border-right:none;border-bottom:1px solid rgba(255,255,255,.08);
-      align-self:auto;padding:8px 12px;
+      align-self:stretch;padding:10px 12px;width:100%;
+      justify-content:flex-start;gap:10px;
+      /* On mobile (column flex), gear is the TOP row of the bar. Border
+         along its bottom acts as the divider from the drawer below. */
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
+    .settings-toggle::after{
+      /* Affordance text — "Settings" hint visible only on mobile so the
+         user knows the gear opens a panel. Hidden on desktop since the
+         drawer slides out visibly when clicked. */
+      content:"Settings";
+      font-size:.72rem;font-weight:600;letter-spacing:.04em;
+      text-transform:uppercase;color:rgba(255,255,255,.65);
+      margin-left:auto;
+    }
+    body[data-adjust="open"] .settings-toggle::after{color:#fff;content:"Close";}
   }
   .settings-toggle > span:not(.settings-icon):not(.toggle-icon){display:none;}
   .settings-toggle .toggle-icon{display:none;}
@@ -820,19 +833,16 @@
   @media(max-width:767px){
     :root{--thumb-big:110px;--thumb-small:55px;--action-w:auto;}
     .cover-flow{
-      bottom:calc(var(--menu-h,170px) + 6px);
+      bottom:calc(var(--menu-h,80px) + 32px);
       left:0;right:0;
       height:120px;
     }
-    /* Mobile image-canvas: cover-flow is 120px tall here (vs 160 on desktop).
-       --menu-h includes the drawer when open. */
     .image-canvas{
-      bottom:calc(var(--menu-h, 100px) + 132px);
+      bottom:calc(var(--menu-h, 100px) + 154px);
     }
     .filename-ribbon{
-      /* Mobile cover-flow is shorter (120px vs 160px), so the filename
-         label needs a smaller bottom offset to hug the strip. */
-      bottom:calc(var(--menu-h,170px) - 50px);
+      /* Mobile filename — same below-cover-flow placement, smaller font */
+      bottom:calc(var(--menu-h,80px) + 8px);
       font-size:.66rem;max-width:80vw;
     }
     /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
@@ -840,25 +850,19 @@
        strip drawer" pattern works on desktop but is too wide for
        narrow viewports; mobile just stacks the rows. */
     .menu-wrap{
-      /* Edge-to-edge on mobile: no padding, no horizontal inset. The bar
-         sits flush against both viewport edges and the bottom edge. */
-      left:0;right:0;bottom:0;padding:0;
-      /* justify-content:center inherited from desktop must NOT collapse
-         the menu-card to content-width here — make wrap a normal block
-         flow so the card fills the viewport. */
+      /* Mobile bar with small inset like the Before/After meta cards.
+         Not edge-to-edge — small breathing room from viewport edges. */
+      left:0;right:0;bottom:0;
+      padding:0 8px 8px;
       display:block;
     }
     .menu-card{
-      /* Full-width fill — was content-width because of the parent's flex
-         centering on desktop. Block layout + width:100% forces fill. */
       width:100%;
       flex-wrap:wrap;flex-direction:column;align-items:stretch;
-      padding:6px;gap:6px;
-      /* Match the meta cards' rounded-top look (rest of UI uses 8-14px).
-         Only the TOP corners are rounded since the bar hugs the bottom
-         edge of the viewport. */
-      border-radius:14px 14px 0 0;
-      border-left:none;border-right:none;border-bottom:none;
+      padding:0;gap:0;
+      /* All four corners rounded since the card now sits with padding
+         around it instead of flush to the viewport edge. */
+      border-radius:14px;
     }
     /* Drawer becomes a top row (above the core), full-width, vertical
        stack of sections. No horizontal slide-out — just show/hide block. */
@@ -1144,10 +1148,11 @@
 
   <div class="menu-wrap" id="menuWrap">
     <div class="menu-card">
-      <!-- Drawer slides OUT from the left of the gear when toggled. Per
-           user feedback, the FORMAT pills moved inside the drawer too —
-           the always-visible core now only shows the most-tweaked
-           controls (quality slider) plus batch actions. -->
+      <!-- Gear FIRST so it visually anchors the "drawer pull". The drawer
+           sits next to the gear (right on desktop, below on mobile) and
+           extends INTO the bar when opened, pushing core+actions further
+           away from the gear. Reads as "gear pulls out the strip". -->
+      <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
       <div class="bb-drawer" aria-hidden="true">
         <div class="bb-drawer-inner">
           <div class="bb-section">
@@ -1177,7 +1182,6 @@
         </div>
       </div>
       <!-- Gear: drawer-pull (always visible) -->
-      <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
       <!-- Core (always visible): Quality slider only. Format selection lives
            in the drawer behind the gear so the bar reads cleaner. -->
       <div class="bb-core">
