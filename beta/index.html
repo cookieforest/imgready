@@ -146,6 +146,13 @@
     z-index:2;
   }
   .cflow-thumb.encoding .thumb-progress{display:flex;}
+  /* "queued, not yet encoding" — softer overlay so the user can tell the
+     thumb is scheduled to be processed but isn't actively cooking yet. */
+  .cflow-thumb.queued .thumb-progress{display:flex;background:rgba(0,0,0,.22);}
+  .cflow-thumb.queued .thumb-progress::after{
+    border:2px solid rgba(255,255,255,.18);border-top-color:rgba(255,255,255,.55);
+    animation-duration:1.4s;
+  }
   .cflow-thumb .thumb-progress::after{
     content:"";width:18px;height:18px;border-radius:50%;
     border:2px solid rgba(255,255,255,.25);border-top-color:#fff;
@@ -762,6 +769,9 @@ function addFilesFromList(fileList){
   document.body.dataset.state = 'multi';
   /* wireZoom is idempotent (data-zoomWired guard) so calling on every drop is safe */
   if (typeof wireZoom === 'function') wireZoom();
+  /* Kick off the background encode queue. The selected file is encoded
+     first (via syncMainImage's call path) and the rest queue behind it. */
+  if (typeof enqueueAll === 'function') setTimeout(enqueueAll, 60);
   if (FILES.length === fresh.length) CFLOW.selected = 0;
   CFLOW.drift = 0;
   layoutCoverFlow();
@@ -861,6 +871,9 @@ const ENCODE = {
   pending: {},                  // id -> {resolve, reject, idx, filename}
   encoded: new Map(),           // file index -> { blob, url, size, format }
   inflight: new Map(),          // file index -> Promise<Blob>  (encode-in-flight)
+  queue: [],                    // background queue of indices to encode
+  queueRunning: false,          // single-flight guard for processQueue()
+  gen: 0,                       // bumps every invalidateEncoded — stale results dropped
 };
 function getWorker(){
   if (!ENCODE.worker) {
@@ -1119,6 +1132,9 @@ async function syncMainImage(force){
   resetZoom();
   /* Update the Before meta (always known immediately from the file blob) */
   setMetaCorners(f.file, null);
+  /* Priority lever: if this idx is in the background queue but not yet
+     started, jump it to the head so the next worker slot is ours. */
+  if (typeof bumpToFront === 'function') bumpToFront(idx);
   /* Cached encoded result wins — render compare immediately, no spinner */
   const cached = ENCODE.encoded.get(idx);
   if (cached) {
@@ -1173,12 +1189,91 @@ async function syncMainImage(force){
   }
 }
 
-/* When settings change: invalidate cache + re-render the focused image */
+/* ===== Background encode queue =====
+   Drops on N files? We start encoding ALL of them right away (one at a
+   time — the worker is single-threaded). When the user clicks a thumb
+   that hasn't finished yet, we bumpToFront the selected idx so the next
+   slot the worker grabs is the one the user is staring at. The currently
+   in-flight encode can't be cancelled mid-flight, but it'll finish in
+   under a second for typical photos and the bumped idx is next. */
+function enqueueAll(){
+  for (let i = 0; i < FILES.length; i++) {
+    if (ENCODE.encoded.has(i)) continue;
+    if (ENCODE.inflight.has(i)) continue;
+    if (ENCODE.queue.indexOf(i) !== -1) continue;
+    ENCODE.queue.push(i);
+    /* Mark the thumb so the user can see "in line" vs "actively encoding" */
+    const t = CFLOW.thumbs[i];
+    if (t) t.classList.add('queued');
+  }
+  processQueue();
+}
+async function processQueue(){
+  if (ENCODE.queueRunning) return;
+  ENCODE.queueRunning = true;
+  try {
+    while (ENCODE.queue.length > 0) {
+      /* Skip indices that completed since they were enqueued (e.g. user
+         hit them via syncMainImage and the result already landed). */
+      const idx = ENCODE.queue.shift();
+      if (idx == null) continue;
+      /* About to encode — drop the queued badge; encodeFile will set the
+         .encoding badge itself. */
+      const t = CFLOW.thumbs[idx];
+      if (t) t.classList.remove('queued');
+      if (ENCODE.encoded.has(idx)) continue;
+      const myGen = ENCODE.gen;
+      try {
+        const blob = await encodeFile(idx);
+        /* Settings changed mid-encode? Discard the stale blob — fresh
+           re-encodes will queue from the new gen. */
+        if (myGen !== ENCODE.gen) continue;
+        const url = URL.createObjectURL(blob);
+        const fmt = ((blob.type||'').split('/')[1] || 'img').replace('jpeg','jpg');
+        ENCODE.encoded.set(idx, { blob, url, size: blob.size, format: fmt });
+        /* If this completes for the currently displayed thumb, refresh the
+           canvas so the user sees the After image without a manual click. */
+        if (CFLOW.selected === idx && typeof syncMainImage === 'function') {
+          syncMainImage(true);
+        }
+      } catch (e) {
+        if (myGen === ENCODE.gen) console.warn('[queue encode failed]', idx, e && e.message || e);
+      }
+    }
+  } finally {
+    ENCODE.queueRunning = false;
+  }
+}
+/* bumpToFront — the priority lever. When user selects an unencoded idx,
+   move it to the head of the queue. Doesn't preempt the currently
+   in-flight encode (worker can't cancel) but ensures it's next in line. */
+function bumpToFront(idx){
+  if (ENCODE.encoded.has(idx)) return;       /* already done */
+  if (ENCODE.inflight.has(idx)) return;      /* already encoding */
+  const pos = ENCODE.queue.indexOf(idx);
+  if (pos >= 0) ENCODE.queue.splice(pos, 1);
+  ENCODE.queue.unshift(idx);
+  processQueue();
+}
+
+/* When settings change: invalidate cache + re-render the focused image
+   + restart the background queue with the new settings.
+
+   The generation counter (ENCODE.gen) is the trick that makes mid-flight
+   encodes safe — the queue worker discards any blob whose gen doesn't
+   match. Without it, an in-flight encode using the OLD quality would
+   land in encoded after we've cleared the cache, leaving us with a
+   single stale result that mismatches every other thumb. */
 function invalidateEncoded(){
+  ENCODE.gen++;
   ENCODE.encoded.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} });
   ENCODE.encoded.clear();
+  ENCODE.queue.length = 0;
   CFLOW.prevSelected = -1;
+  /* Re-render the focused image first (it'll bump itself to the front of
+     the queue inside syncMainImage), then enqueue the rest. */
   syncMainImage(true);
+  enqueueAll();
 }
 
 /* ===== UX-E: scroll/pinch zoom + drag pan on the main canvas =====
