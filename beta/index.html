@@ -1500,7 +1500,12 @@ function openPiActions(){
 }
 function resetPiTimer(){
   if (piTimer) clearTimeout(piTimer);
-  piTimer = setTimeout(() => { document.body.dataset.piActions = 'closed'; }, 3000);
+  piTimer = setTimeout(() => {
+    /* Don't close while a confirm is in flight — piConfirm will restart
+       this timer when the confirm fades. */
+    if (document.body.dataset.piConfirm === 'on') return;
+    document.body.dataset.piActions = 'closed';
+  }, 3000);
 }
 /* Delegated hover: any pointer movement over an active thumb opens pi-actions
    and refreshes the timer. Uses pointerover for reliable bubbling. */
@@ -1645,6 +1650,7 @@ function onWheel(e){
 /* Tiny tooltip confirmation that pops above a pi-icon button after a
    successful action. Mirrors stable's per-card "Copied!" feedback so the
    user has explicit confirmation the click registered. */
+const PI_CONFIRM_MS = 1800;  /* 1.8s — long enough to register, short enough not to feel lazy */
 function piConfirm(btn, message){
   if (!btn) return;
   /* Tooltip (the explicit verb) */
@@ -1666,10 +1672,22 @@ function piConfirm(btn, message){
     btn.appendChild(check);
   }
   btn.classList.add('confirmed');
+  /* Force pi-actions overlay to stay OPEN while the confirm is showing.
+     Without this, the 3s hover timer can close the overlay mid-confirm
+     (especially if user hovered for a bit before clicking) — they'd see
+     a flash of green and then nothing. */
+  document.body.dataset.piActions = 'open';
+  document.body.dataset.piConfirm = 'on';
+  /* Cancel any in-flight pi-actions auto-close while we're confirming */
+  if (typeof piTimer !== 'undefined' && piTimer) clearTimeout(piTimer);
   if (btn._confirmTimer) clearTimeout(btn._confirmTimer);
   btn._confirmTimer = setTimeout(() => {
     btn.classList.remove('confirmed');
-  }, 1200);
+    document.body.dataset.piConfirm = '';
+    /* After confirm fades, restart the normal hover-close timer so the
+       overlay still goes away if the user has moved on. */
+    if (typeof resetPiTimer === 'function') resetPiTimer();
+  }, PI_CONFIRM_MS);
 }
 
 /* piCopy: copy the encoded blob of the focused image to the clipboard. We
