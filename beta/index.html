@@ -170,6 +170,63 @@
     filter:brightness(.55);
   }
 
+  /* ---------- UX pass 3: stable-fullscreen feature parity ---------- */
+
+  /* Zoom-level chip — appears in the top corner during a zoom interaction
+     and auto-fades 1.2s after the user stops scrolling/pinching. Without
+     this, the wheel-zoom we shipped is invisible affordance — users can't
+     tell if anything happened or how far in they are. Mirrors stable's
+     fsZoomLevel chip. */
+  .zoom-chip{
+    position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    background:var(--card-bg);border:1px solid var(--card-border);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:#fff;font-size:.78rem;font-weight:700;letter-spacing:.02em;
+    padding:5px 12px;border-radius:8px;
+    pointer-events:none;z-index:7;
+    opacity:0;transition:opacity .18s ease;
+  }
+  .zoom-chip.show{opacity:1;}
+
+  /* Output-larger warning — when the encoded result is BIGGER than the
+     original (rare: PNG-of-photo to JPG-100, or AVIF on a small icon),
+     the savings text should read as warning, not celebration. Stable
+     uses .bad on .fs-lbl-savings with a red color; we mirror that. */
+  .compare-meta .pct.bad{color:#ff8b8b;}
+
+  /* Encoding pulse bar — for large files (>5MB) the spinner alone reads
+     as "stalled". A thin bar that creeps to 95% on a time-estimate gives
+     the encode a heartbeat. The fill animates via JS in showCenterStatus. */
+  .center-status .cs-bar{
+    width:200px;height:3px;border-radius:3px;
+    background:rgba(255,255,255,.14);overflow:hidden;
+    margin-top:2px;display:none;
+  }
+  .center-status[data-bar="on"] .cs-bar{display:block;}
+  .center-status .cs-bar-fill{
+    height:100%;background:var(--accent);width:0%;
+    transition:width .25s ease;
+  }
+
+  /* Live size + spinner inline next to the quality slider — closes the
+     "did anything just happen?" gap during re-encodes. The spinner
+     replaces the size text while encoding, so the eye-line is the same. */
+  .quality-row .qr-size{
+    font-size:.7rem;color:var(--muted);font-weight:600;
+    min-width:54px;text-align:right;font-variant-numeric:tabular-nums;
+  }
+  .quality-row .qr-spinner{
+    display:none;width:12px;height:12px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.18);border-top-color:var(--accent);
+    animation:csSpin .8s linear infinite;margin-left:4px;
+  }
+  body[data-encoding="on"] .quality-row .qr-spinner{display:inline-block;}
+  body[data-encoding="on"] .quality-row .qr-size{opacity:.5;}
+
+  /* Click-anywhere on the compare canvas snaps the divider — make the
+     cursor obviously interactive over the canvas (when not zoomed). */
+  body[data-state="multi"] .stage.multi .image-canvas:not(.zoomed) .compare-zoom{cursor:col-resize;}
+
   /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
   .cover-flow{
     position:absolute;
@@ -505,7 +562,7 @@
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button>Auto</button><button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button></div></div>
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
-          <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span></div></div>
+          <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
           <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
           <input type="number" class="adjust-input" placeholder="e.g. 1200" style="margin-top:4px;"></div>
@@ -538,7 +595,12 @@
       <div class="cs-spinner" aria-hidden="true"></div>
       <div class="cs-stage" id="csStage">Decoding…</div>
       <div class="cs-name" id="csName"></div>
+      <!-- Pulse bar: only enabled for files >5MB (data-bar="on" toggle).
+           Fill animates on a time estimate based on input size + format. -->
+      <div class="cs-bar" aria-hidden="true"><div class="cs-bar-fill" id="csBarFill"></div></div>
     </div>
+    <!-- Zoom-level chip — only visible during/after zoom changes -->
+    <div class="zoom-chip" id="zoomChip" aria-hidden="true">100%</div>
   </div>
 
   <div class="cover-flow" id="coverFlow">
@@ -546,8 +608,9 @@
       <!-- thumbs injected by JS -->
       <div class="pi-actions" id="piActions">
         <button class="pi-icon" title="Share this" onclick="event.stopPropagation();piShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+        <button class="pi-icon" title="Copy to clipboard" onclick="event.stopPropagation();piCopy(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
         <button class="pi-icon" title="Download this" onclick="event.stopPropagation();piDownload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
-        <button class="pi-icon danger" title="Delete this" onclick="event.stopPropagation();piDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+        <button class="pi-icon danger" title="Delete this" onclick="event.stopPropagation();piDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="12" y1="11" x2="12" y2="17"/></svg></button>
       </div>
     </div>
   </div>
@@ -559,7 +622,7 @@
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
-          <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span></div></div>
+          <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size"></span><span class="qr-spinner" aria-hidden="true"></span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
           <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
           <input type="number" class="adjust-input" placeholder="e.g. 1200" style="margin-top:4px;"></div>
@@ -820,7 +883,8 @@ function getWorker(){
 /* Center-canvas loading overlay (replaces corner status). The user asked for
    a prominent middle-of-canvas state because the top-right corner was easy
    to miss and competed with the After meta. */
-function showCenterStatus(stage, filename){
+const CS = { barTimer: null, barEl: null, pct: 0 };
+function showCenterStatus(stage, filename, opts){
   const el = document.getElementById('centerStatus');
   if (!el) return;
   el.hidden = false;
@@ -828,10 +892,42 @@ function showCenterStatus(stage, filename){
   const nameEl  = document.getElementById('csName');
   if (stageEl) stageEl.textContent = stage;
   if (nameEl)  nameEl.textContent  = filename || '';
+  /* Mark the body so settings/toolbar widgets can show their own spinners */
+  document.body.dataset.encoding = 'on';
+  /* Optional pulse bar — only enabled for large inputs (>5MB) where the
+     spinner alone reads as stalled. We creep to 95% on a time estimate so
+     there's always visible motion, then snap to 100% when result lands. */
+  if (opts && opts.bigFile) {
+    el.dataset.bar = 'on';
+    startCsBar(opts.estMs || 4000);
+  } else {
+    el.dataset.bar = '';
+    stopCsBar();
+  }
 }
 function hideCenterStatus(){
   const el = document.getElementById('centerStatus');
   if (el) el.hidden = true;
+  document.body.dataset.encoding = '';
+  stopCsBar();
+}
+function startCsBar(estMs){
+  stopCsBar();
+  const fill = document.getElementById('csBarFill');
+  if (!fill) return;
+  CS.pct = 0; fill.style.width = '0%';
+  /* Linear creep, capped at 95%. Real result lands → setMetaCorners triggers
+     hideCenterStatus → bar resets to 0. */
+  const startedAt = performance.now();
+  CS.barTimer = setInterval(() => {
+    const elapsed = performance.now() - startedAt;
+    const target = Math.min(95, (elapsed / estMs) * 100);
+    CS.pct = target;
+    fill.style.width = target + '%';
+  }, 200);
+}
+function stopCsBar(){
+  if (CS.barTimer) { clearInterval(CS.barTimer); CS.barTimer = null; }
 }
 /* Per-thumb encoding badge: small spinner overlay so users see progress for
    non-selected files in a batch. Toggled by encodeFile / syncMainImage. */
@@ -921,6 +1017,10 @@ function setMetaCorners(beforeFile, encoded){
     const span = beforeMeta.querySelector('span:not(.lbl-title)');
     if (span) span.textContent = `${fmtSize(beforeFile.size)} · ${(beforeFile.type.split('/')[1]||'IMG').toUpperCase()}`;
   }
+  /* Live size readout in the toolbar — mirrors what After meta says, but
+     keeps the user's eye on the slider while they're tuning quality. */
+  const qrSize = document.getElementById('qrSize');
+  if (qrSize) qrSize.textContent = encoded ? fmtSize(encoded.size) : '';
   const afterMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.r');
   if (afterMeta) {
     const sizeSpan = afterMeta.querySelector('span:not(.lbl-title):not(.pct):not(.batch-row)');
@@ -929,7 +1029,15 @@ function setMetaCorners(beforeFile, encoded){
     if (encoded) {
       if (sizeSpan) sizeSpan.textContent = `${fmtSize(encoded.size)} · ${(encoded.format||'').toUpperCase()}`;
       const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
-      if (pctSpan) { pctSpan.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`; pctSpan.style.display = ''; }
+      if (pctSpan) {
+        pctSpan.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
+        /* .bad turns the savings text red when the output is BIGGER than the
+           input. Without this, "12% larger" reads visually like a positive,
+           which is misleading. Stable uses the same .bad class on its
+           .fs-lbl-savings span. */
+        pctSpan.classList.toggle('bad', pct < 0);
+        pctSpan.style.display = '';
+      }
       let totalBefore = 0, totalAfter = 0, count = 0;
       FILES.forEach((f, i) => {
         const e = ENCODE.encoded.get(i);
@@ -939,7 +1047,7 @@ function setMetaCorners(beforeFile, encoded){
       else if (batchRow) batchRow.style.display = 'none';
     } else {
       if (sizeSpan) sizeSpan.textContent = 'Encoding…';
-      if (pctSpan) pctSpan.style.display = 'none';
+      if (pctSpan) { pctSpan.style.display = 'none'; pctSpan.classList.remove('bad'); }
       if (batchRow) batchRow.style.display = 'none';
     }
   }
@@ -993,7 +1101,13 @@ async function syncMainImage(force){
   after.style.backgroundImage = 'none';
   after.style.backgroundColor = '#000';
   setHasAfter(false);
-  showCenterStatus('Decoding…', f.name);
+  /* Pulse bar opt-in for >5MB files — small files don't need it, the bar
+     visual would appear and disappear in <1s and feel jittery. */
+  const big = f.file.size > 5 * 1024 * 1024;
+  /* Rough time estimate: WebP/JPG/PNG ~ 60 MB/s, AVIF ~ 8 MB/s. Doesn't have
+     to be precise — it just paces the bar visually. */
+  const estMs = Math.max(1500, Math.round(f.file.size / (8 * 1024 * 1024) * 1000));
+  showCenterStatus('Decoding…', f.name, { bigFile: big, estMs });
   markThumbEncoding(idx, true);
   try {
     const blob = await encodeFile(idx);
@@ -1041,6 +1155,15 @@ function applyZoom(){
   if (!wrap || !canvas) return;
   wrap.style.transform = `translate(${ZOOM.x}px, ${ZOOM.y}px) scale(${ZOOM.scale})`;
   canvas.classList.toggle('zoomed', ZOOM.scale > 1.001);
+  /* Zoom-level chip — show + auto-fade. Mirrors stable's fsZoomLevel UX so
+     users can tell zoom is actually happening on a wheel scroll. */
+  const chip = document.getElementById('zoomChip');
+  if (chip) {
+    chip.textContent = Math.round(ZOOM.scale * 100) + '%';
+    chip.classList.add('show');
+    if (ZOOM._chipTimer) clearTimeout(ZOOM._chipTimer);
+    ZOOM._chipTimer = setTimeout(() => chip.classList.remove('show'), 1200);
+  }
 }
 function resetZoom(){
   ZOOM.scale = 1; ZOOM.x = 0; ZOOM.y = 0;
@@ -1124,13 +1247,63 @@ function wireZoom(){
   canvas.addEventListener('touchend', e => {
     if (e.touches.length < 2) ZOOM.pinchDist = 0;
   });
-  /* Keyboard: + / - / 0 reset (only when not typing) */
+  /* Block right-click on the canvas to prevent users from saving the
+     ORIGINAL image through "Save image as…" instead of using the
+     compressed Download button. Same intent as stable's
+     `oncontextmenu="return false"` on .fs-inner. */
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+  /* Click-anywhere on the canvas to snap the compare divider to that X.
+     Only when (a) we have an after image, (b) zoom is 1x (otherwise the
+     pointer is being used to pan), and (c) the click isn't on the handle,
+     a button, or a meta card. Mirrors stable's whole-canvas slider area. */
+  canvas.addEventListener('click', e => {
+    if (ZOOM.scale > 1.001) return;
+    if (!canvas.classList.contains('has-after')) return;
+    if (e.target.closest('.compare-handle')) return;
+    if (e.target.closest('.compare-meta')) return;
+    if (e.target.closest('.menu-card')) return;
+    if (e.target.closest('button')) return;
+    const after = canvas.querySelector('.compare-after');
+    const handle = canvas.querySelector('.compare-handle');
+    const divider = canvas.querySelector('.compare-divider');
+    if (!after) return;
+    const r = canvas.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100));
+    after.style.clipPath = `inset(0 0 0 ${pct}%)`;
+    if (handle)  handle.style.left  = pct + '%';
+    if (divider) divider.style.left = pct + '%';
+  });
+
+  /* Keyboard:
+     +/-/0 zoom (existing)
+     Arrow Left/Right cycle thumbs (mirrors stable's fs arrow nav)
+     ESC closes the per-image actions overlay if open */
   document.addEventListener('keydown', e => {
     const tag = e.target && e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    if (e.key === '+' || e.key === '=') { setZoomToward(ZOOM.scale + 0.4, window.innerWidth/2, window.innerHeight/2); }
-    else if (e.key === '-' || e.key === '_') { setZoomToward(ZOOM.scale - 0.4, window.innerWidth/2, window.innerHeight/2); }
-    else if (e.key === '0') { resetZoom(); }
+    if (document.body.dataset.state !== 'multi' && document.body.dataset.state !== 'solo') return;
+    if (e.key === '+' || e.key === '=') { e.preventDefault(); setZoomToward(ZOOM.scale + 0.4, window.innerWidth/2, window.innerHeight/2); }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); setZoomToward(ZOOM.scale - 0.4, window.innerWidth/2, window.innerHeight/2); }
+    else if (e.key === '0') { e.preventDefault(); resetZoom(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      /* Cycle thumbs (skip the add-more tile at the end). */
+      const dir = e.key === 'ArrowRight' ? 1 : -1;
+      const thumbCount = (typeof CFLOW !== 'undefined' && CFLOW.thumbs) ? CFLOW.thumbs.length : 0;
+      if (thumbCount <= 1) return;
+      let next = CFLOW.selected + dir;
+      const lastImageIdx = thumbCount - 2; /* -1 is add-more, -2 is last image */
+      if (next < 0) next = lastImageIdx;
+      if (next > lastImageIdx) next = 0;
+      e.preventDefault();
+      if (typeof selectIndex === 'function') selectIndex(next);
+    }
+    else if (e.key === 'Escape') {
+      if (document.body.dataset.piActions === 'open') {
+        document.body.dataset.piActions = 'closed';
+        e.preventDefault();
+      }
+    }
   });
 }
 
@@ -1307,7 +1480,34 @@ function onWheel(e){
 }
 
 /* ===== per-image actions ===== */
-async function piShare(){
+async /* piCopy: copy the encoded blob of the focused image to the clipboard. We
+   prefer the modern Clipboard API with image/* support (Chrome, Edge,
+   recent Safari/Firefox). On unsupported browsers we silently fail back
+   to nothing — this is a nice-to-have, not core. */
+async function piCopy(btn){
+  const idx = CFLOW.selected;
+  const enc = ENCODE.encoded.get(idx);
+  if (!enc || !enc.blob) return;
+  try {
+    if (!navigator.clipboard || !window.ClipboardItem) throw new Error('clipboard api unavailable');
+    /* Some encoded MIMEs (image/avif, image/webp) aren't accepted by the
+       clipboard API on every browser. Convert to PNG when needed. */
+    let blob = enc.blob;
+    if (blob.type !== 'image/png' && blob.type !== 'image/jpeg') {
+      const bmp = await createImageBitmap(blob);
+      const c = new OffscreenCanvas(bmp.width, bmp.height);
+      const ctx = c.getContext('2d');
+      ctx.drawImage(bmp, 0, 0);
+      blob = await c.convertToBlob({ type: 'image/png' });
+    }
+    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+    /* Tiny visual confirmation: dim the icon for 600ms so the click felt registered. */
+    if (btn) { btn.style.opacity = '.5'; setTimeout(() => { btn.style.opacity = ''; }, 600); }
+  } catch (err) {
+    console.warn('[beta piCopy] failed', err && err.message || err);
+  }
+}
+function piShare(){
   const idx = CFLOW.selected;
   const f = FILES[idx];
   if (!f) return;
