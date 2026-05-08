@@ -452,20 +452,32 @@
      research. Matches stable's fs-editor pattern + Lightroom/Photoshop
      bottom-toolbar convention. The previous corner card overlapped the
      cover-flow when many thumbs were shown. */
+  /* Bottom toolbar wrapper. Note: NO transform on .menu-wrap — a transform
+     here would create a fixed-position containing block, breaking the
+     preset menu (which uses position:fixed with JS-set viewport coords).
+     Centering is done by flex justify-content on a full-width wrapper. */
   .menu-wrap{
     position:absolute;
-    left:50%;bottom:14px;transform:translateX(-50%);
-    display:flex;align-items:stretch;
+    left:0;right:0;bottom:14px;
+    display:flex;align-items:stretch;justify-content:center;
+    padding:0 14px;
     pointer-events:none;z-index:7;
-    max-width:calc(100vw - 28px);
   }
   .menu-card{
     pointer-events:auto;
+    /* position:relative is REQUIRED so the mobile drawer's
+       position:absolute anchors to the card (not to .menu-wrap). */
+    position:relative;
     display:flex;align-items:stretch;
     background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border:1px solid var(--card-border);border-radius:14px;
-    overflow:hidden;color:#fff;
+    color:#fff;
+    /* Removed overflow:hidden so the drawer can extend visibly.
+       The drawer's own max-width transition handles slide-clip. */
   }
+  /* The drawer is the only piece that needs overflow:hidden for its
+     slide animation. Constrain there, not on the whole card. */
+  .bb-drawer{overflow:hidden;}
   /* Settings drawer — slides out leftward FROM the gear like a strip of
      film. The drawer holds the secondary controls (Resize + Privacy)
      that the user visits less often than format/quality. Width animates
@@ -547,13 +559,18 @@
     pointer-events:auto;background:transparent;border:0;
     display:flex;align-items:center;justify-content:center;
     width:auto;align-self:stretch;
-    /* Padding matches bb-core's 8px vertical so the gear fills the bar
-       height vertically. Was using fixed height:30px which left 8px
-       empty above and below in the 46px-tall bar. */
     padding:0 12px;
     color:rgba(255,255,255,.78);font-family:inherit;
     cursor:pointer;border-radius:0;
+    /* Vertical divider on desktop horizontal bar; suppressed on mobile
+       column layout where it would look like a misplaced underline. */
     border-right:1px solid rgba(255,255,255,.08);
+  }
+  @media(max-width:767px){
+    .settings-toggle{
+      border-right:none;border-bottom:1px solid rgba(255,255,255,.08);
+      align-self:auto;padding:8px 12px;
+    }
   }
   .settings-toggle > span:not(.settings-icon):not(.toggle-icon){display:none;}
   .settings-toggle .toggle-icon{display:none;}
@@ -721,7 +738,8 @@
     /* Default off-screen so unopened menus don't intercept focus or layout */
     left:-9999px;
   }
-  .resize-presets.open .resize-presets-menu{
+  .resize-presets.open .resize-presets-menu,
+  .resize-presets-menu.open{
     visibility:visible;opacity:1;pointer-events:auto;
     transform:translateX(-50%) translateY(0);
     transition:opacity .14s ease,transform .14s ease,visibility 0s linear 0s;
@@ -793,8 +811,8 @@
        strip drawer" pattern works on desktop but is too wide for
        narrow viewports; mobile just stacks the rows. */
     .menu-wrap{
-      left:8px;right:8px;bottom:8px;
-      transform:none;max-width:calc(100vw - 16px);
+      left:0;right:0;bottom:8px;
+      padding:0 8px;
     }
     .menu-card{
       flex-wrap:wrap;flex-direction:column;align-items:stretch;
@@ -802,24 +820,26 @@
     }
     /* Drawer becomes a top row (above the core), full-width, vertical
        stack of sections. No horizontal slide-out — just show/hide block. */
+    /* Mobile drawer — overlays above the bar. Anchored to .menu-card
+       (which is position:relative). bottom:100% means the drawer's
+       bottom edge sits at the TOP of the menu-card. */
     .bb-drawer{
-      /* OVERLAY above the bar instead of expanding it. The menu-card stays
-         at a fixed height, so the cover-flow position (driven by --menu-h)
-         doesn't shift when the user toggles settings. */
       position:absolute;
-      left:0;right:0;bottom:100%;
+      left:-1px;right:-1px;bottom:calc(100% - 1px);
       max-width:none;width:auto;
+      /* Vertical-slide animation: max-height 0 → 320px on open. The
+         desktop max-width animation is overridden here. */
       max-height:0;overflow:hidden;
       background:var(--card-bg);
       border:1px solid var(--card-border);
       border-bottom:none;
       border-radius:14px 14px 0 0;
       backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-      transition:max-height .26s ease,opacity .2s ease,padding .25s ease;
-      padding:0;opacity:0;
+      transition:max-height .26s cubic-bezier(.22,1,.36,1),opacity .2s ease;
+      opacity:0;
     }
     body[data-adjust="open"] .bb-drawer{
-      max-height:240px;padding:8px 4px;opacity:1;
+      max-height:320px;opacity:1;
     }
     .bb-drawer-inner{
       /* Mobile: stack the Format / Resize / Privacy SECTIONS vertically
@@ -2469,18 +2489,29 @@ function attachSettingsListeners(){
         '</div>';
       const trig = presets.querySelector('.resize-presets-trigger');
       const menu = presets.querySelector('.resize-presets-menu');
-      trig.addEventListener('click', e => {
-        e.stopPropagation();
-        const willOpen = !presets.classList.contains('open');
-        presets.classList.toggle('open');
-        /* Position the menu via fixed coordinates on open so it isn't
-           clipped by the drawer's overflow:hidden. Recomputed every open
-           in case the trigger moved (resize, scroll). */
-        if (willOpen) {
+      /* Portal the menu to <body> on first use. This guarantees no
+         ancestor transform/overflow context can interfere with the
+         menu's position:fixed coordinates. The .open class still lives
+         on .resize-presets (the trigger's container), but we mirror
+         it onto the menu so the CSS visibility rule still matches. */
+      function portalMenu(){
+        if (menu.parentNode !== document.body) document.body.appendChild(menu);
+      }
+      function syncOpen(){
+        const isOpen = presets.classList.contains('open');
+        menu.classList.toggle('open', isOpen);
+        if (isOpen) {
+          portalMenu();
           const r = trig.getBoundingClientRect();
           menu.style.left = (r.left + r.width / 2) + 'px';
           menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+          menu.style.top = 'auto';
         }
+      }
+      trig.addEventListener('click', e => {
+        e.stopPropagation();
+        presets.classList.toggle('open');
+        syncOpen();
       });
       menu.querySelectorAll('button').forEach(b => {
         b.addEventListener('click', e => {
@@ -2498,7 +2529,12 @@ function attachSettingsListeners(){
     window._presetsOutsideClick = true;
     document.addEventListener('click', e => {
       document.querySelectorAll('.resize-presets.open').forEach(p => {
-        if (!p.contains(e.target)) p.classList.remove('open');
+        if (!p.contains(e.target)) {
+          p.classList.remove('open');
+          /* Also remove .open from the portaled menu (it lives on body now). */
+          const m = document.querySelector('.resize-presets-menu.open');
+          if (m && !m.contains(e.target)) m.classList.remove('open');
+        }
       });
     });
   }
