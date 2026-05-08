@@ -546,10 +546,14 @@
   .settings-toggle{
     pointer-events:auto;background:transparent;border:0;
     display:flex;align-items:center;justify-content:center;
-    width:var(--bb-btn-h);height:var(--bb-btn-h);
+    width:auto;align-self:stretch;
+    /* Padding matches bb-core's 8px vertical so the gear fills the bar
+       height vertically. Was using fixed height:30px which left 8px
+       empty above and below in the 46px-tall bar. */
+    padding:0 12px;
     color:rgba(255,255,255,.78);font-family:inherit;
-    cursor:pointer;padding:0;border-radius:6px;
-    margin:0 4px;
+    cursor:pointer;border-radius:0;
+    border-right:1px solid rgba(255,255,255,.08);
   }
   .settings-toggle > span:not(.settings-icon):not(.toggle-icon){display:none;}
   .settings-toggle .toggle-icon{display:none;}
@@ -699,20 +703,28 @@
      the popover when it tried to open above the trigger. JS computes the
      fixed position from the trigger's getBoundingClientRect on open. */
   .resize-presets-menu{
+    /* Position FIXED so the drawer's overflow:hidden can't clip the
+       popover. Always painted (display:flex) but hidden via visibility +
+       opacity so the transition works reliably — display:none → flex
+       in the same frame skips the transition and was leaving the menu
+       invisible on first open. */
     position:fixed;
-    display:none;flex-direction:column;min-width:88px;
+    display:flex;flex-direction:column;min-width:88px;
     background:var(--card-bg);
     border:1px solid var(--card-border);border-radius:8px;
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     box-shadow:0 6px 24px rgba(0,0,0,.5);
     padding:4px;z-index:9999;
-    opacity:0;pointer-events:none;
-    transition:opacity .14s ease,transform .14s ease;
+    visibility:hidden;opacity:0;pointer-events:none;
+    transition:opacity .14s ease,transform .14s ease,visibility 0s linear .14s;
     transform:translateX(-50%) translateY(4px);
+    /* Default off-screen so unopened menus don't intercept focus or layout */
+    left:-9999px;
   }
   .resize-presets.open .resize-presets-menu{
-    display:flex;opacity:1;pointer-events:auto;
+    visibility:visible;opacity:1;pointer-events:auto;
     transform:translateX(-50%) translateY(0);
+    transition:opacity .14s ease,transform .14s ease,visibility 0s linear 0s;
   }
   .resize-presets-menu button{
     background:transparent;border:none;color:rgba(255,255,255,.85);
@@ -815,13 +827,29 @@
       flex-direction:column;gap:10px;width:100%;
       padding:6px 10px 8px;white-space:normal;
     }
-    /* Mobile sections: keep label INLINE with the control row (horizontal),
-       not wrapped onto its own line. The previous flex-wrap rule made
-       Format pills stack vertically, which is what the user reported.
-       Pills handle their own overflow via .adjust-pills' horizontal
-       scroll, so the section never needs to wrap. */
-    .bb-drawer-inner .bb-section{flex-wrap:nowrap;width:100%;}
-    .bb-divider{display:none;}
+    /* Mobile sections: stack LABEL above the control row. With 5 format
+       pills + a label inline, the row was getting cramped on 380px
+       viewports. Putting the label on its own line gives the controls
+       full row width. Format pills stay horizontal (they handle their
+       own scroll). */
+    .bb-drawer-inner .bb-section{
+      flex-wrap:nowrap;width:100%;
+      flex-direction:column;align-items:flex-start;gap:6px;
+    }
+    .bb-drawer-inner .bb-section > *:not(.bb-section-label){
+      width:100%;
+    }
+    /* Resize-input + presets sit side-by-side instead of stacking */
+    .bb-drawer-inner .resize-input-wrap{flex:1;}
+    /* Section dividers are horizontal lines between sections on desktop;
+       on mobile the drawer stacks sections vertically so the dividers
+       become irrelevant noise. Replaced by section gap + bb-section-label
+       acting as a visual section header. */
+    .bb-drawer-inner .bb-divider{display:none;}
+    /* Subtle separator below each mobile section instead of vertical dividers */
+    .bb-drawer-inner .bb-section + .bb-section{
+      padding-top:8px;border-top:1px solid rgba(255,255,255,.08);
+    }
     /* Core row: gear + format pills + quality slider on one line.
        Format pills allow horizontal scroll if needed. */
     .bb-core{
