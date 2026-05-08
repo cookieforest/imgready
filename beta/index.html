@@ -213,8 +213,11 @@
      replaces the size text while encoding, so the eye-line is the same. */
   .quality-row .qr-size{
     font-size:.7rem;color:var(--muted);font-weight:600;
-    min-width:54px;text-align:right;font-variant-numeric:tabular-nums;
+    text-align:right;font-variant-numeric:tabular-nums;
+    /* Empty span collapses to 0 — only takes width when there's a size to
+       show. Otherwise it leaves a phantom gap on the right of the slider. */
   }
+  .quality-row .qr-size:empty{display:none;}
   .quality-row .qr-spinner{
     display:none;width:12px;height:12px;border-radius:50%;
     border:2px solid rgba(255,255,255,.18);border-top-color:var(--accent);
@@ -329,6 +332,24 @@
   .pi-icon:hover{background:rgba(50,50,50,.95);transform:translateY(-2px);}
   .pi-icon.danger:hover{background:rgba(160,60,60,.92);border-color:rgba(220,160,160,.5);}
   .pi-icon svg{width:16px;height:16px;}
+  /* Click-confirmation tooltip: pops above the button for 1.2s after a
+     successful action ("Copied!", "Shared", "Downloaded"). Without this,
+     the user has no signal that the click did anything. */
+  .pi-icon{position:relative;}
+  .pi-icon .pi-toast{
+    position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);
+    background:#fff;color:#111;font-size:.7rem;font-weight:700;letter-spacing:.02em;
+    padding:4px 9px;border-radius:6px;white-space:nowrap;
+    opacity:0;pointer-events:none;
+    transition:opacity .14s ease,transform .14s ease;
+    box-shadow:0 4px 12px rgba(0,0,0,.32);
+    z-index:11;
+  }
+  .pi-icon .pi-toast::after{
+    content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:5px solid transparent;border-top-color:#fff;
+  }
+  .pi-icon.confirmed .pi-toast{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* ---------- bottom-right action card ---------- */
   .menu-wrap{
@@ -836,8 +857,9 @@ function layoutCoverFlow(){
 const ENCODE = {
   worker: null,
   pendingId: 0,
-  pending: {},          // id -> {resolve, reject}
-  encoded: new Map(),   // file index -> { blob, url, size, format }
+  pending: {},                  // id -> {resolve, reject, idx, filename}
+  encoded: new Map(),           // file index -> { blob, url, size, format }
+  inflight: new Map(),          // file index -> Promise<Blob>  (encode-in-flight)
 };
 function getWorker(){
   if (!ENCODE.worker) {
@@ -984,6 +1006,10 @@ function getActiveSettings(){
 function encodeFile(idx){
   const f = FILES[idx];
   if (!f) return Promise.reject(new Error('no file'));
+  /* Reuse an in-flight encode for the same idx — prevents the "swipe away,
+     swipe back" double-trigger where the user re-selects a thumb that's
+     still encoding and we'd otherwise post a second message to the worker. */
+  if (ENCODE.inflight.has(idx)) return ENCODE.inflight.get(idx);
   const { fmt, settings } = getActiveSettings();
   const realFmt = fmt === 'auto' ? pickAutoFormat(f.file) : fmt;
   settings.mime = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif' }[realFmt] || settings.mime;
@@ -991,7 +1017,7 @@ function encodeFile(idx){
   /* Mark this thumb as encoding so it shows a per-thumb spinner overlay.
      Cleared in syncMainImage's success/failure branches. */
   markThumbEncoding(idx, true);
-  return new Promise((resolve, reject) => {
+  const p = new Promise((resolve, reject) => {
     const entry = { resolve, reject, format: realFmt, filename: f.name, idx };
     /* 60s safety timeout: if the worker stalls (rare, but observed in
        practice) the UI isn't stuck on "Encoding…" forever. */
@@ -1009,6 +1035,11 @@ function encodeFile(idx){
       reject(e);
     }
   });
+  /* Track in-flight per idx so swipe-back gets the SAME promise, not a new
+     encode. Clear on settle (success or failure) regardless of outcome. */
+  ENCODE.inflight.set(idx, p);
+  p.finally(() => { ENCODE.inflight.delete(idx); });
+  return p;
 }
 function fmtSize(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
 function setMetaCorners(beforeFile, encoded){
@@ -1107,7 +1138,15 @@ async function syncMainImage(force){
   /* Rough time estimate: WebP/JPG/PNG ~ 60 MB/s, AVIF ~ 8 MB/s. Doesn't have
      to be precise — it just paces the bar visually. */
   const estMs = Math.max(1500, Math.round(f.file.size / (8 * 1024 * 1024) * 1000));
-  showCenterStatus('Decoding…', f.name, { bigFile: big, estMs });
+  /* If this idx already has an encode in flight (user swiped away then back),
+     show the spinner without resetting the pulse-bar timer — feels less
+     jittery than restarting the bar from 0. */
+  const alreadyInflight = ENCODE.inflight.has(idx);
+  if (alreadyInflight) {
+    showCenterStatus('Encoding…', f.name, { bigFile: false });
+  } else {
+    showCenterStatus('Decoding…', f.name, { bigFile: big, estMs });
+  }
   markThumbEncoding(idx, true);
   try {
     const blob = await encodeFile(idx);
@@ -1253,27 +1292,10 @@ function wireZoom(){
      `oncontextmenu="return false"` on .fs-inner. */
   canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-  /* Click-anywhere on the canvas to snap the compare divider to that X.
-     Only when (a) we have an after image, (b) zoom is 1x (otherwise the
-     pointer is being used to pan), and (c) the click isn't on the handle,
-     a button, or a meta card. Mirrors stable's whole-canvas slider area. */
-  canvas.addEventListener('click', e => {
-    if (ZOOM.scale > 1.001) return;
-    if (!canvas.classList.contains('has-after')) return;
-    if (e.target.closest('.compare-handle')) return;
-    if (e.target.closest('.compare-meta')) return;
-    if (e.target.closest('.menu-card')) return;
-    if (e.target.closest('button')) return;
-    const after = canvas.querySelector('.compare-after');
-    const handle = canvas.querySelector('.compare-handle');
-    const divider = canvas.querySelector('.compare-divider');
-    if (!after) return;
-    const r = canvas.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100));
-    after.style.clipPath = `inset(0 0 0 ${pct}%)`;
-    if (handle)  handle.style.left  = pct + '%';
-    if (divider) divider.style.left = pct + '%';
-  });
+  /* Click-anywhere divider snap — handled inside wireSlider's pointerdown
+     instead of a separate click handler. The pointerdown approach lets the
+     user keep dragging from the snap point without releasing the mouse,
+     which a click-only handler can't do. */
 
   /* Keyboard:
      +/-/0 zoom (existing)
@@ -1480,7 +1502,26 @@ function onWheel(e){
 }
 
 /* ===== per-image actions ===== */
-async /* piCopy: copy the encoded blob of the focused image to the clipboard. We
+async /* Tiny tooltip confirmation that pops above a pi-icon button after a
+   successful action. Mirrors stable's per-card "Copied!" feedback so the
+   user has explicit confirmation the click registered. */
+function piConfirm(btn, message){
+  if (!btn) return;
+  let toast = btn.querySelector('.pi-toast');
+  if (!toast) {
+    toast = document.createElement('span');
+    toast.className = 'pi-toast';
+    btn.appendChild(toast);
+  }
+  toast.textContent = message;
+  btn.classList.add('confirmed');
+  if (btn._confirmTimer) clearTimeout(btn._confirmTimer);
+  btn._confirmTimer = setTimeout(() => {
+    btn.classList.remove('confirmed');
+  }, 1200);
+}
+
+/* piCopy: copy the encoded blob of the focused image to the clipboard. We
    prefer the modern Clipboard API with image/* support (Chrome, Edge,
    recent Safari/Firefox). On unsupported browsers we silently fail back
    to nothing — this is a nice-to-have, not core. */
@@ -1501,8 +1542,7 @@ async function piCopy(btn){
       blob = await c.convertToBlob({ type: 'image/png' });
     }
     await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-    /* Tiny visual confirmation: dim the icon for 600ms so the click felt registered. */
-    if (btn) { btn.style.opacity = '.5'; setTimeout(() => { btn.style.opacity = ''; }, 600); }
+    piConfirm(btn, 'Copied!');
   } catch (err) {
     console.warn('[beta piCopy] failed', err && err.message || err);
   }
@@ -1523,8 +1563,14 @@ async function piShare(){
   const ext = enc.format || 'jpg';
   const file = new File([enc.blob], `${base}_imgready.${ext}`, { type: enc.blob.type });
   if (navigator.canShare && navigator.canShare({ files:[file] })) {
-    try { await navigator.share({ files:[file], title: 'imgready' }); } catch(_){}
-  } else { triggerDownload(enc.url, `${base}_imgready.${ext}`); }
+    try {
+      await navigator.share({ files:[file], title: 'imgready' });
+      piConfirm(document.querySelector('#piActions .pi-icon[title="Share this"]'), 'Shared');
+    } catch(_){ /* user dismissed share sheet — no toast */ }
+  } else {
+    triggerDownload(enc.url, `${base}_imgready.${ext}`);
+    piConfirm(document.querySelector('#piActions .pi-icon[title="Share this"]'), 'Downloaded');
+  }
 }
 async function piDownload(){
   const idx = CFLOW.selected;
@@ -1541,6 +1587,7 @@ async function piDownload(){
   const base = f.file.name.replace(/\.[^.]+$/, '');
   const ext = enc.format || 'jpg';
   triggerDownload(enc.url, `${base}_imgready.${ext}`);
+  piConfirm(document.querySelector('#piActions .pi-icon[title="Download this"]'), 'Downloaded');
 }
 function triggerDownload(url, filename){
   const a = document.createElement('a');
@@ -1591,13 +1638,42 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     if (handle) handle.style.left = pct + '%';
   }
   let dragging = null;
+  /* Drag starts when pointerdown lands anywhere "compare-able" on the canvas
+     (the handle, the divider, or the empty image area). Click on a control
+     surface (meta cards, menu, buttons) is excluded. Zoom>1 mode treats
+     pointerdown as a pan, so we exclude that too — the .image-canvas:not(.zoomed)
+     check on the cursor in CSS already hints to the user. */
   document.addEventListener('pointerdown', e => {
     const handle = e.target.closest('.compare-handle');
-    if (!handle) return;
-    const canvas = handle.closest('.image-canvas');
+    let canvas;
+    if (handle) {
+      canvas = handle.closest('.image-canvas');
+    } else {
+      const imageCanvas = e.target.closest('.image-canvas');
+      if (!imageCanvas) return;
+      /* Stage must be the active multi state (not the hidden solo placeholder) */
+      const stage = imageCanvas.closest('.stage.multi');
+      if (!stage || getComputedStyle(stage).display === 'none') return;
+      /* Only when an encoded result exists (compare slider visible) */
+      if (!imageCanvas.classList.contains('has-after')) return;
+      /* Skip when zoomed — pointerdown should pan, not snap divider */
+      if (imageCanvas.classList.contains('zoomed')) return;
+      /* Skip clicks on control surfaces */
+      if (e.target.closest('.compare-meta')) return;
+      if (e.target.closest('.menu-card')) return;
+      if (e.target.closest('.cover-flow')) return;
+      if (e.target.closest('.brand-bar')) return;
+      if (e.target.closest('button')) return;
+      canvas = imageCanvas;
+    }
     if (!canvas) return;
     dragging = canvas;
+    /* Snap divider to the pointerdown X immediately, then continuous moves
+       will follow until pointerup. This is the "click-then-drag" behavior
+       the user asked for: clicking teleports, and you can keep dragging
+       without releasing. */
     e.preventDefault();
+    try { canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId); } catch(_){}
     moveFrom(e);
   });
   function moveFrom(e){
@@ -1607,8 +1683,9 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     setSplit(dragging, (cx - rect.left) / rect.width * 100);
   }
   document.addEventListener('pointermove', e => { if (dragging) moveFrom(e); });
-  document.addEventListener('pointerup', () => { dragging = null; });
-  document.addEventListener('pointercancel', () => { dragging = null; });
+  function endDrag(){ dragging = null; }
+  document.addEventListener('pointerup', endDrag);
+  document.addEventListener('pointercancel', endDrag);
 })();
 
 async function ensureAllEncoded(){
