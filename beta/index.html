@@ -80,6 +80,20 @@
   .stage{display:none;position:relative;height:calc(100vh - var(--brand-h));background:#000;overflow:hidden;}
   body[data-state="solo"] .stage.solo{display:block;}
   body[data-state="multi"] .stage.multi{display:block;}
+  /* Bottom-fade overlay — gradient from semi-transparent black at the
+     bottom up to fully transparent ~280px above. Makes the cover-flow
+     filmstrip thumbnails readable when the underlying image is busy
+     (white skies, bright product shots, etc). Positioned above the
+     image-canvas but below the cover-flow (z:6) and menu-card (z:7). */
+  .canvas-fade{
+    position:absolute;left:0;right:0;bottom:0;height:280px;
+    background:linear-gradient(to top,
+      rgba(0,0,0,.55) 0%,
+      rgba(0,0,0,.42) 25%,
+      rgba(0,0,0,.18) 60%,
+      rgba(0,0,0,0) 100%);
+    pointer-events:none;z-index:4;
+  }
   .image-canvas{position:absolute;inset:0;}
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -304,19 +318,19 @@
   }
   .cflow-thumb .thumb-num{font-size:.78rem;line-height:1;}
   .cflow-thumb.active .thumb-num{font-size:1rem;}
-  /* Add-more tile: white-15% bg, thicker black dotted border, black text.
-     Per user spec — affordance reads as "drop a new file here", deliberately
-     differentiated from image thumbs (which have full-color contents). */
+  /* Add-more tile: dark bg, thick white dotted border, white text.
+     Reads as a clear secondary affordance against the dark workspace,
+     and differentiates from image thumbs (which have full-color contents). */
   .cflow-thumb.add-more .thumb-slot{
-    background:rgba(255,255,255,.15);
-    border:3px dotted #000;
-    color:#000;
+    background:rgba(0,0,0,.55);
+    border:3px dotted #fff;
+    color:#fff;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:4px;
     transition:background .15s,border-color .15s,color .15s;
   }
   .cflow-thumb.add-more:hover .thumb-slot{
-    background:rgba(255,255,255,.28);border-color:#000;color:#000;
+    background:rgba(0,0,0,.72);border-color:#fff;color:#fff;
   }
   .cflow-thumb.add-more .add-more-label{
     font-size:.62rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
@@ -434,7 +448,16 @@
     cursor:pointer;text-transform:uppercase;}
   .adjust-pills button.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.4);}
   .quality-row{display:flex;align-items:center;gap:6px;}
-  .quality-row input[type=range]{flex:1;accent-color:var(--accent);height:4px;}
+  .quality-row input[type=range]{
+    flex:1;accent-color:var(--accent);height:4px;
+    /* No browser focus ring on the slider — the green halo Chrome draws
+       around the thumb after focus-visible (e.g. user pressed Shift) was
+       reported as a "green bar below settings". The slider works fine
+       without one. */
+    outline:none;
+  }
+  .quality-row input[type=range]:focus,
+  .quality-row input[type=range]:focus-visible{outline:none;}
   .q-val{color:#fff;font-weight:700;font-size:.7rem;min-width:24px;text-align:center;}
   .adjust-input,.adjust-select{padding:5px 7px;border:1px solid rgba(255,255,255,.18);
     background:rgba(255,255,255,.04);color:#fff;border-radius:5px;font-family:inherit;font-size:.7rem;width:100%;}
@@ -637,6 +660,9 @@
 
 <!-- ============================ MULTI STATE ============================ -->
 <section class="stage multi">
+  <!-- Bottom-fade overlay improves readability of cover-flow thumbnails over
+       busy backgrounds. CSS-driven (.canvas-fade); zero runtime cost. -->
+  <div class="canvas-fade" aria-hidden="true"></div>
   <div class="image-canvas" id="centerImage">
     <!-- Zoom wrapper: cbBefore + cbAfter live inside this so a single transform
          scales/pans the whole compare composition. The compare-after still
