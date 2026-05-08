@@ -342,19 +342,22 @@
      uses .bad on .fs-lbl-savings with a red color; we mirror that. */
   .compare-meta .pct.bad{color:#ff8b8b;}
 
-  /* Encoding pulse bar — for large files (>5MB) the spinner alone reads
-     as "stalled". A thin bar that creeps to 95% on a time-estimate gives
-     the encode a heartbeat. The fill animates via JS in showCenterStatus. */
+  /* Encoding progress bar — replaces the spinning circle as the primary
+     indicator. Shows real done/total progress for batch (>1 file) and a
+     time-estimate creep for single-file encodes. */
   .center-status .cs-bar{
-    width:200px;height:3px;border-radius:3px;
+    width:220px;height:5px;border-radius:3px;
     background:rgba(255,255,255,.14);overflow:hidden;
-    margin-top:2px;display:none;
+    margin-top:6px;display:block;
   }
-  .center-status[data-bar="on"] .cs-bar{display:block;}
   .center-status .cs-bar-fill{
     height:100%;background:var(--accent);width:0%;
     transition:width .25s ease;
   }
+  /* Hide the spinning circle — the horizontal bar is the new primary
+     indicator (per UX feedback: "loading bars not just spinning circles").
+     Keep the element in the DOM for a clean revert path. */
+  .center-status .cs-spinner{display:none;}
 
   /* Live size + spinner inline next to the quality slider — closes the
      "did anything just happen?" gap during re-encodes. The spinner
@@ -1381,6 +1384,16 @@
             </label>
           </div>
           <div class="bb-divider"></div>
+          <!-- Quality lives in the drawer (not the core bar). Most users
+               accept the default; pros open Settings to tweak. Pattern
+               matches TinyPNG / iLoveIMG / Compressor.io / Kraken /
+               ImageOptim — only Squoosh and Optimizilla expose it
+               front-and-center. -->
+          <div class="bb-section">
+            <span class="bb-section-label">Quality</span>
+            <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div>
+          </div>
+          <div class="bb-divider"></div>
           <div class="bb-row-group">
           <div class="bb-section">
             <span class="bb-section-label">Resize</span>
@@ -1434,13 +1447,7 @@
           </div>
         </div>
       </div>
-      <!-- Gear: drawer-pull (always visible) -->
-      <!-- Core (always visible): Quality slider only. Format selection lives
-           in the drawer behind the gear so the bar reads cleaner. -->
-      <div class="bb-core">
-        <span class="bb-section-label" style="margin-right:2px;">Quality</span>
-        <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div>
-      </div>
+      <!-- bb-core removed: Quality slider lives in the drawer now. -->
       <div class="adjust-panel" hidden></div>
       <div class="actions">
         <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
@@ -1738,19 +1745,28 @@ function showCenterStatus(stage, filename, opts){
   el.hidden = false;
   const stageEl = document.getElementById('csStage');
   const nameEl  = document.getElementById('csName');
-  if (stageEl) stageEl.textContent = stage;
-  if (nameEl)  nameEl.textContent  = filename || '';
+  /* Batch counter: when the user dropped >1 file, the stage line reads
+     "Encoding 5/12" so they can see overall progress at a glance. */
+  const total = (typeof FILES !== 'undefined') ? FILES.length : 0;
+  const done  = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.size : 0;
+  const isBatch = total > 1;
+  if (stageEl) {
+    stageEl.textContent = isBatch
+      ? `${stage} ${Math.min(done + 1, total)}/${total}`
+      : stage;
+  }
+  if (nameEl) nameEl.textContent = filename || '';
   /* Mark the body so settings/toolbar widgets can show their own spinners */
   document.body.dataset.encoding = 'on';
-  /* Optional pulse bar — only enabled for large inputs (>5MB) where the
-     spinner alone reads as stalled. We creep to 95% on a time estimate so
-     there's always visible motion, then snap to 100% when result lands. */
-  if (opts && opts.bigFile) {
-    el.dataset.bar = 'on';
-    startCsBar(opts.estMs || 4000);
-  } else {
-    el.dataset.bar = '';
+  /* Always show the horizontal progress bar (replaces the spinning circle).
+     Batch: real progress = done / total. Single file: time-estimate creep. */
+  el.dataset.bar = 'on';
+  if (isBatch && total > 0) {
     stopCsBar();
+    const fill = document.getElementById('csBarFill');
+    if (fill) fill.style.width = ((done / total) * 100) + '%';
+  } else {
+    startCsBar(opts && opts.estMs || 4000);
   }
 }
 function hideCenterStatus(){
