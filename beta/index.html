@@ -232,14 +232,17 @@
      points at it from above. */
   .filename-ribbon{
     position:absolute;
-    /* 14px above the bar — was 8px which looked like it was touching */
     bottom:calc(var(--menu-h, 80px) + 14px);
     left:50%;transform:translateX(-50%);
     background:transparent;border:none;
     color:rgba(255,255,255,.7);
     font-size:.7rem;font-weight:500;letter-spacing:.01em;
     padding:0 12px;
-    max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    /* min(60vw, 480px) ensures very wide screens still cap, and
+       box-sizing:border-box stops padding from blowing past the cap. */
+    max-width:min(60vw, 480px);
+    box-sizing:border-box;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     pointer-events:none;z-index:6;text-align:center;
     text-shadow:0 1px 2px rgba(0,0,0,.5);
   }
@@ -1834,13 +1837,16 @@ function setMetaCorners(beforeFile, encoded){
       }
       const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
       if (pctSpan) {
-        pctSpan.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
-        /* .bad turns the savings text red when the output is BIGGER than the
-           input. Without this, "12% larger" reads visually like a positive,
-           which is misleading. Stable uses the same .bad class on its
-           .fs-lbl-savings span. */
-        pctSpan.classList.toggle('bad', pct < 0);
-        pctSpan.style.display = '';
+        if (Math.abs(pct) < 1) {
+          /* Within ±1% of original — too noisy to call out savings. Hide
+             the savings line entirely (common for ICO which wraps PNG). */
+          pctSpan.style.display = 'none';
+          pctSpan.classList.remove('bad');
+        } else {
+          pctSpan.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
+          pctSpan.classList.toggle('bad', pct < 0);
+          pctSpan.style.display = '';
+        }
       }
       let totalBefore = 0, totalAfter = 0, count = 0;
       FILES.forEach((f, i) => {
@@ -3093,10 +3099,18 @@ document.addEventListener('drop', async e => {
 
 function doClear(){
   document.body.dataset.confirm = 'closed';
-  /* Revoke all blob URLs (originals + encoded) to free memory */
+  /* Revoke all blob URLs across BOTH the primary encoded map and the
+     multi-output sidecar. Without the sidecar revoke, Clear-All in
+     multi-output mode leaked encoded blobs across cycles. Also flush
+     the queue + inflight maps so a stale encode can't repopulate
+     ENCODE.encoded after the user has cleared. */
   FILES.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
   ENCODE.encoded.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} });
+  ENCODE.allEncoded.forEach(m => m.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} }));
   ENCODE.encoded.clear();
+  ENCODE.allEncoded.clear();
+  ENCODE.queue.length = 0;
+  ENCODE.inflight.clear();
   FILES.length = 0;
   CFLOW.thumbs = [];
   CFLOW.selected = 0; CFLOW.drift = 0;
