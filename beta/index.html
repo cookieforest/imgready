@@ -3013,20 +3013,27 @@ function attachSettingsListeners(){
       }
     }
   }
-  /* Crop dropdown — same open/close pattern as resize-presets but doesn't
-     portal (Crop dropdown stays inline; the menu is short enough that
-     drawer overflow:hidden doesn't clip it as long as it opens upward). */
+  /* Crop dropdown — same open/close pattern as resize-presets. Portals
+     the menu to document.body on open because .menu-card has
+     backdrop-filter:blur, which creates a containing block + stacking
+     context for position:fixed descendants. Without portalling, the menu
+     gets anchored to .menu-card (not the viewport) and stacks below
+     siblings like .cover-flow (z:6), making it invisible. */
   const cropDropdown = root.querySelector('.crop-dropdown');
   if (cropDropdown) {
     const trig = cropDropdown.querySelector('.resize-presets-trigger');
     const menu = cropDropdown.querySelector('.crop-menu');
     const labelEl = cropDropdown.querySelector('.crop-current-label');
+    function portalCropMenu(){
+      if (menu.parentNode !== document.body) document.body.appendChild(menu);
+    }
     trig.addEventListener('click', e => {
       e.stopPropagation();
       const willOpen = !cropDropdown.classList.contains('open');
       cropDropdown.classList.toggle('open');
       menu.classList.toggle('open', willOpen);
       if (willOpen) {
+        portalCropMenu();
         const r = trig.getBoundingClientRect();
         menu.style.left = (r.left + r.width / 2) + 'px';
         menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
