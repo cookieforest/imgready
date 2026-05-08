@@ -484,6 +484,55 @@
   .quality-row input[type=range]:focus,
   .quality-row input[type=range]:focus-visible{outline:none;}
   .q-val{color:#fff;font-weight:700;font-size:.7rem;min-width:24px;text-align:center;}
+  /* Resize control — segmented [Pixels | Percent] + numeric input with
+     right-aligned unit suffix. Pattern from Apple Photos export, Lightroom
+     custom size, and Affinity Photo's resize dialog. The native <select>
+     was dropped because (a) browsers can't reliably style the option popup
+     dark, leaving white-on-white text in the dropdown, and (b) the
+     two-step "open menu, pick mode, type value" flow was extra friction
+     for what's a binary choice. */
+  .resize-mode-toggle{
+    display:flex;gap:4px;
+    background:rgba(255,255,255,.06);border-radius:7px;padding:3px;
+    margin-bottom:6px;
+  }
+  .resize-mode-toggle button{
+    flex:1;background:transparent;border:none;color:rgba(255,255,255,.65);
+    font:inherit;font-size:.74rem;font-weight:600;
+    padding:5px 8px;border-radius:5px;cursor:pointer;
+    transition:background .14s ease,color .14s ease;
+  }
+  .resize-mode-toggle button:hover{color:#fff;}
+  .resize-mode-toggle button.active{
+    background:var(--accent);color:#fff;
+  }
+  .resize-input-wrap{
+    position:relative;
+  }
+  .resize-input-wrap input{
+    width:100%;padding:6px 36px 6px 9px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;border-radius:6px;
+    font:inherit;font-size:.85rem;
+    outline:none;
+    -moz-appearance:textfield;
+  }
+  .resize-input-wrap input::-webkit-outer-spin-button,
+  .resize-input-wrap input::-webkit-inner-spin-button{
+    -webkit-appearance:none;margin:0;
+  }
+  .resize-input-wrap input:focus{border-color:var(--accent);}
+  .resize-input-wrap .resize-unit{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    color:rgba(255,255,255,.45);font-size:.74rem;font-weight:600;
+    pointer-events:none;
+  }
+  .resize-orig-hint{
+    font-size:.66rem;color:rgba(255,255,255,.4);
+    margin-top:5px;
+  }
+
   .adjust-input,.adjust-select{padding:5px 7px;border:1px solid rgba(255,255,255,.18);
     background:rgba(255,255,255,.04);color:#fff;border-radius:5px;font-family:inherit;font-size:.7rem;width:100%;}
   .adjust-checkbox{display:flex;align-items:center;gap:6px;font-size:.7rem;color:rgba(255,255,255,.85);cursor:pointer;}
@@ -670,8 +719,15 @@
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
           <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
-          <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
-          <input type="number" class="adjust-input" placeholder="e.g. 1200" style="margin-top:4px;"></div>
+          <div class="resize-mode-toggle" role="tablist" aria-label="Resize unit">
+            <button type="button" class="rmt-btn active" data-mode="dim" role="tab" aria-selected="true">Pixels</button>
+            <button type="button" class="rmt-btn" data-mode="pct" role="tab" aria-selected="false">Percent</button>
+          </div>
+          <div class="resize-input-wrap">
+            <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
+            <span class="resize-unit">px</span>
+          </div>
+          <div class="resize-orig-hint" data-orig></div></div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
           <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata</span></label></div>
       </div>
@@ -733,8 +789,15 @@
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
           <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size"></span><span class="qr-spinner" aria-hidden="true"></span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
-          <select class="adjust-select"><option>Longest side (px)</option><option>Percent (%)</option></select>
-          <input type="number" class="adjust-input" placeholder="e.g. 1200" style="margin-top:4px;"></div>
+          <div class="resize-mode-toggle" role="tablist" aria-label="Resize unit">
+            <button type="button" class="rmt-btn active" data-mode="dim" role="tab" aria-selected="true">Pixels</button>
+            <button type="button" class="rmt-btn" data-mode="pct" role="tab" aria-selected="false">Percent</button>
+          </div>
+          <div class="resize-input-wrap">
+            <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
+            <span class="resize-unit">px</span>
+          </div>
+          <div class="resize-orig-hint" data-orig></div></div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
           <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata</span></label></div>
       </div>
@@ -1081,10 +1144,10 @@ function getActiveSettings(){
   let fmt = formatBtn ? formatBtn.textContent.trim().toLowerCase() : 'auto';
   const qSlider = document.querySelector('body[data-state="multi"] .stage.multi .quality-row input[type=range]');
   const quality = qSlider ? parseInt(qSlider.value)/100 : 0.82;
-  const sizeSel = document.querySelector('body[data-state="multi"] .stage.multi .adjust-row-inline select');
-  const sizeInp = document.querySelector('body[data-state="multi"] .stage.multi .adjust-row-inline input[type=number]');
+  const activeMode = document.querySelector('body[data-state="multi"] .stage.multi .resize-mode-toggle .rmt-btn.active');
+  const sizeInp = document.querySelector('body[data-state="multi"] .stage.multi .resize-input');
   const sizeVal = sizeInp && sizeInp.value ? parseInt(sizeInp.value) : 0;
-  const isPercent = sizeSel && sizeSel.value && sizeSel.value.toLowerCase().includes('percent');
+  const isPercent = activeMode && activeMode.dataset.mode === 'pct';
   const stripExifEl = document.querySelector('body[data-state="multi"] .stage.multi .adjust-checkbox input[type=checkbox]');
   const stripExif = stripExifEl ? stripExifEl.checked : true;
   const MIME = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif' };
@@ -1210,6 +1273,20 @@ async function syncMainImage(force){
     el.textContent = '';
   };
   setBg(before, f.url);
+  /* Show original dimensions in the resize section as a helpful reference.
+     Lazy-decoded once per file via createImageBitmap; cached on the FILES
+     entry so subsequent selects hit the cache. */
+  (async () => {
+    try {
+      if (!f.dims) {
+        const bmp = await createImageBitmap(f.file);
+        f.dims = { w: bmp.width, h: bmp.height };
+        try { bmp.close && bmp.close(); } catch(_){}
+      }
+      const hint = document.querySelector('body[data-state="multi"] .stage.multi .resize-orig-hint');
+      if (hint && f.dims) hint.textContent = `Original: ${f.dims.w} × ${f.dims.h}`;
+    } catch(_){ /* non-fatal */ }
+  })();
   /* Reset zoom on every selection swap so the new image starts at 1x */
   resetZoom();
   /* Update the Before meta (always known immediately from the file blob) */
@@ -2011,11 +2088,39 @@ function attachSettingsListeners(){
     });
     qSlider.addEventListener('change', invalidateEncoded);
   }
-  /* Resize input — re-encode on change */
-  const sizeInp = root.querySelector('.adjust-row-inline input[type=number]');
+  /* Resize input — re-encode on change. Segmented mode buttons swap unit
+     suffix + placeholder + clamp behaviour, then re-encode. */
+  const sizeInp = root.querySelector('.resize-input');
+  const unitEl  = root.querySelector('.resize-unit');
+  const modeBtns = root.querySelectorAll('.resize-mode-toggle .rmt-btn');
+  function syncResizeMode(){
+    const active = root.querySelector('.resize-mode-toggle .rmt-btn.active');
+    const mode = active && active.dataset.mode;
+    if (unitEl) unitEl.textContent = mode === 'pct' ? '%' : 'px';
+    if (sizeInp) {
+      sizeInp.placeholder = mode === 'pct' ? 'e.g. 50' : 'e.g. 1200';
+      if (mode === 'pct') {
+        sizeInp.max = '100';
+        /* Clamp existing pixel value to a valid percent if user is switching */
+        if (sizeInp.value && parseInt(sizeInp.value) > 100) sizeInp.value = '';
+      } else {
+        sizeInp.removeAttribute('max');
+      }
+    }
+  }
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      modeBtns.forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      });
+      syncResizeMode();
+      invalidateEncoded();
+    });
+  });
   if (sizeInp) sizeInp.addEventListener('change', invalidateEncoded);
-  const sizeSel = root.querySelector('.adjust-row-inline select');
-  if (sizeSel) sizeSel.addEventListener('change', invalidateEncoded);
+  /* Initial unit-suffix sync on load */
+  syncResizeMode();
   /* Privacy checkbox */
   const stripCb = root.querySelector('.adjust-checkbox input[type=checkbox]');
   if (stripCb) stripCb.addEventListener('change', invalidateEncoded);
