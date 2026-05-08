@@ -209,7 +209,14 @@
      fullscreen editor; drag pans once zoomed in. */
   .compare-zoom{position:absolute;inset:0;transform-origin:center;
     transition:transform 0s;}
-  .image-canvas{cursor:zoom-in;}
+  .image-canvas{
+    cursor:zoom-in;
+    /* touch-action:none lets pointerdown/move/up fire reliably on touch
+       so the compare-slider drag works on mobile. Without this, the
+       browser's default scroll/pinch handling was swallowing the
+       pointer events before our handlers ran. */
+    touch-action:none;
+  }
   .image-canvas.zoomed{cursor:grab;}
   .image-canvas.zoomed.zoom-dragging{cursor:grabbing;transition:none;}
   /* Disable zoom cursor when the compare handle is the target — we want to
@@ -811,8 +818,11 @@
        strip drawer" pattern works on desktop but is too wide for
        narrow viewports; mobile just stacks the rows. */
     .menu-wrap{
-      left:0;right:0;bottom:8px;
-      padding:0 8px;
+      /* Full-width on mobile per user request — edge-to-edge bar */
+      left:0;right:0;bottom:0;padding:0;
+    }
+    .menu-card{
+      border-radius:0;border-left:none;border-right:none;border-bottom:none;
     }
     .menu-card{
       flex-wrap:wrap;flex-direction:column;align-items:stretch;
@@ -820,26 +830,24 @@
     }
     /* Drawer becomes a top row (above the core), full-width, vertical
        stack of sections. No horizontal slide-out — just show/hide block. */
-    /* Mobile drawer — overlays above the bar. Anchored to .menu-card
-       (which is position:relative). bottom:100% means the drawer's
-       bottom edge sits at the TOP of the menu-card. */
+    /* Mobile drawer INLINE — pushes the menu-card taller when open;
+       the cover-flow + image canvas shift up via --menu-h wiring so
+       the user can keep interacting with both while settings is open. */
     .bb-drawer{
-      position:absolute;
-      left:-1px;right:-1px;bottom:calc(100% - 1px);
-      max-width:none;width:auto;
-      /* Vertical-slide animation: max-height 0 → 320px on open. The
-         desktop max-width animation is overridden here. */
+      position:relative;left:auto;right:auto;bottom:auto;
+      max-width:none;width:100%;
       max-height:0;overflow:hidden;
-      background:var(--card-bg);
-      border:1px solid var(--card-border);
-      border-bottom:none;
-      border-radius:14px 14px 0 0;
-      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-      transition:max-height .26s cubic-bezier(.22,1,.36,1),opacity .2s ease;
-      opacity:0;
+      background:transparent;
+      border:none;border-bottom:1px solid transparent;
+      border-radius:0;
+      transition:max-height .26s cubic-bezier(.22,1,.36,1),
+                 padding .2s ease,opacity .18s ease,
+                 border-bottom-color .2s ease;
+      opacity:0;padding:0;
     }
     body[data-adjust="open"] .bb-drawer{
-      max-height:320px;opacity:1;
+      max-height:280px;opacity:1;padding:8px 0;
+      border-bottom-color:rgba(255,255,255,.12);
     }
     .bb-drawer-inner{
       /* Mobile: stack the Format / Resize / Privacy SECTIONS vertically
@@ -847,20 +855,21 @@
       flex-direction:column;gap:10px;width:100%;
       padding:6px 10px 8px;white-space:normal;
     }
-    /* Mobile sections: stack LABEL above the control row. With 5 format
-       pills + a label inline, the row was getting cramped on 380px
-       viewports. Putting the label on its own line gives the controls
-       full row width. Format pills stay horizontal (they handle their
-       own scroll). */
+    /* Mobile sections: label above controls; controls flow horizontally
+       where possible to reduce vertical space. .bb-row is a horizontal
+       sub-grouping (Resize input + Presets dropdown). */
     .bb-drawer-inner .bb-section{
       flex-wrap:nowrap;width:100%;
-      flex-direction:column;align-items:flex-start;gap:6px;
+      flex-direction:column;align-items:stretch;gap:6px;
     }
-    .bb-drawer-inner .bb-section > *:not(.bb-section-label){
+    .bb-drawer-inner .bb-section > *:not(.bb-section-label):not(.bb-row){
       width:100%;
     }
-    /* Resize-input + presets sit side-by-side instead of stacking */
-    .bb-drawer-inner .resize-input-wrap{flex:1;}
+    .bb-drawer-inner .bb-section .bb-row{
+      display:flex;flex-direction:row;gap:6px;width:100%;align-items:center;
+    }
+    .bb-drawer-inner .bb-section .bb-row .resize-input-wrap{flex:1;}
+    .bb-drawer-inner .bb-section .bb-row .resize-presets{flex:none;}
     /* Section dividers are horizontal lines between sections on desktop;
        on mobile the drawer stacks sections vertically so the dividers
        become irrelevant noise. Replaced by section gap + bb-section-label
@@ -1116,18 +1125,17 @@
           <div class="bb-divider"></div>
           <div class="bb-section">
             <span class="bb-section-label">Resize</span>
-            <!-- Pixels-only resize — Percent removed per user feedback as
-                 universally less common. The mode-toggle markup is
-                 retained as a stub (display:none) so existing JS that
-                 reads .rmt-btn.active doesn't error. -->
             <div class="resize-mode-toggle" hidden>
               <button type="button" class="rmt-btn active" data-mode="dim">Pixels</button>
             </div>
-            <div class="resize-input-wrap">
-              <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
-              <span class="resize-unit">px</span>
+            <!-- input + presets in a .bb-row so on mobile they sit side-by-side -->
+            <div class="bb-row">
+              <div class="resize-input-wrap">
+                <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
+                <span class="resize-unit">px</span>
+              </div>
+              <div class="resize-presets" data-presets></div>
             </div>
-            <div class="resize-presets" data-presets></div>
           </div>
           <div class="bb-divider"></div>
           <div class="bb-section">
@@ -1265,6 +1273,35 @@ function addFilesFromList(fileList){
   CFLOW.prevSelected = -1;
   syncMainImage(true);
 }
+/* Recompute --menu-h whenever drawer toggles or transitions, so the
+   cover-flow + canvas shift up while settings open. Without this the
+   cover-flow stayed pinned at the closed-state position and the drawer
+   covered it. */
+if (typeof window._menuHObserverInstalled === 'undefined') {
+  window._menuHObserverInstalled = true;
+  let _animTicker = null;
+  function _tickMenuH(){
+    if (typeof updateMenuHeight === 'function') updateMenuHeight();
+  }
+  /* On every body data-* change (drawer state, etc), recompute */
+  new MutationObserver(_tickMenuH).observe(document.body, {
+    attributes:true, attributeFilter:['data-adjust','data-state']
+  });
+  /* During drawer transition, tick every animation frame so the
+     cover-flow eases up smoothly with the drawer expansion. */
+  document.addEventListener('transitionrun', e => {
+    if (!e.target.classList || !e.target.classList.contains('bb-drawer')) return;
+    if (_animTicker) cancelAnimationFrame(_animTicker);
+    const loop = () => { _tickMenuH(); _animTicker = requestAnimationFrame(loop); };
+    loop();
+  });
+  document.addEventListener('transitionend', e => {
+    if (!e.target.classList || !e.target.classList.contains('bb-drawer')) return;
+    if (_animTicker) cancelAnimationFrame(_animTicker);
+    _animTicker = null; _tickMenuH();
+  });
+}
+
 function updateMenuHeight(){
   /* Read the active state's menu-card height and expose as --menu-h */
   const card = document.querySelector('body[data-state="multi"] .stage.multi .menu-card')
