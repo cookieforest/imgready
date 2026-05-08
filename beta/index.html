@@ -138,6 +138,21 @@
   .image-canvas:not(.has-after) .compare-handle,
   .image-canvas:not(.has-after) .compare-meta.r{display:none;}
 
+  /* Filename ribbon — small badge centered at the top of the viewer.
+     Sits above the compare meta corners visually; doesn't intercept
+     pointer (so it can't break slider drag near the top of the canvas). */
+  .filename-ribbon{
+    position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    background:var(--card-bg);border:1px solid var(--card-border);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:rgba(255,255,255,.85);
+    font-size:.74rem;font-weight:600;letter-spacing:.01em;
+    padding:5px 12px;border-radius:8px;
+    max-width:50vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    pointer-events:none;z-index:5;
+    opacity:.92;transition:opacity .18s ease;
+  }
+  .filename-ribbon:empty{display:none;}
   /* Center loading overlay — replaces the corner "Encoding..." status with a
      prominent middle-of-canvas state. The corner had two problems: (1) easy
      to miss on big screens, (2) it competed with the After meta box for the
@@ -441,6 +456,13 @@
     border:1px solid var(--card-border);border-radius:var(--card-radius);
     overflow:hidden;color:#fff;width:100%;
   }
+  .settings-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:14px;height:14px;flex:none;color:rgba(255,255,255,.7);
+    transition:transform .18s ease,color .18s ease;
+  }
+  .settings-icon svg{width:100%;height:100%;}
+  .menu-card.open .settings-icon{transform:rotate(60deg);color:var(--accent);}
   .settings-toggle{
     pointer-events:auto;background:transparent;border:0;width:100%;
     display:flex;align-items:center;justify-content:space-between;
@@ -528,6 +550,54 @@
     color:rgba(255,255,255,.45);font-size:.74rem;font-weight:600;
     pointer-events:none;
   }
+  /* Toggle switch — replaces the native checkbox for "Strip metadata".
+     Pattern from iOS / Android settings, Linear, Notion. The
+     <input type="checkbox"> is kept as the actual control (a11y) and
+     hidden via opacity:0; the visual switch is built from the label's
+     pseudo-elements so we get a single click target. */
+  .switch{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    font-size:.78rem;color:rgba(255,255,255,.85);
+  }
+  .switch input{
+    /* Keep the checkbox in the layout for accessibility but visually
+       replace it with the .switch-track + .switch-thumb pseudo. */
+    position:absolute;width:1px;height:1px;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  .switch-track{
+    position:relative;width:30px;height:17px;flex:none;
+    background:rgba(255,255,255,.16);border-radius:999px;
+    transition:background .18s ease;
+  }
+  .switch-track::after{
+    content:"";position:absolute;top:2px;left:2px;
+    width:13px;height:13px;border-radius:50%;background:#fff;
+    transition:transform .18s ease;
+    box-shadow:0 1px 3px rgba(0,0,0,.3);
+  }
+  .switch input:checked + .switch-track{background:var(--accent);}
+  .switch input:checked + .switch-track::after{transform:translateX(13px);}
+  .switch input:focus-visible + .switch-track{
+    box-shadow:0 0 0 2px rgba(122,154,122,.4);
+  }
+
+  .resize-presets{
+    display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;
+  }
+  .resize-presets button{
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.75);font:inherit;font-size:.7rem;
+    padding:3px 8px;border-radius:5px;cursor:pointer;
+    transition:background .14s ease,border-color .14s ease,color .14s ease;
+  }
+  .resize-presets button:hover{
+    background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25);
+  }
+  .resize-presets button.active{
+    background:var(--accent);border-color:var(--accent);color:#fff;
+  }
+
   .resize-orig-hint{
     font-size:.66rem;color:rgba(255,255,255,.4);
     margin-top:5px;
@@ -712,7 +782,7 @@
   </div>
   <div class="menu-wrap">
     <div class="menu-card">
-      <button class="settings-toggle" onclick="toggleAdjust()"><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
+      <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings panel"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
       <div class="adjust-panel">
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button>Auto</button><button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button></div></div>
@@ -727,9 +797,12 @@
             <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
             <span class="resize-unit">px</span>
           </div>
+          <!-- Quick-picks: tap a chip to set value + trigger re-encode.
+               Pixel mode: 1080 / 1920 / 4096 (4K). Percent mode: 50 / 75. -->
+          <div class="resize-presets" data-presets></div>
           <div class="resize-orig-hint" data-orig></div></div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
-          <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata</span></label></div>
+          <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label></div>
       </div>
       <div class="actions">
         <button class="btn btn-primary">Download</button>
@@ -761,6 +834,10 @@
     </div>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
+    <!-- Filename ribbon middle-top — common in Photopea/Lightroom/Photoshop
+         to keep the user oriented while they zoom/compare. Auto-fades when
+         the cursor approaches it (so it doesn't block the image). -->
+    <div class="filename-ribbon" id="filenameRibbon" aria-live="polite"></div>
     <div class="center-status" id="centerStatus" hidden>
       <div class="cs-spinner" aria-hidden="true"></div>
       <div class="cs-stage" id="csStage">Decoding…</div>
@@ -787,7 +864,7 @@
 
   <div class="menu-wrap" id="menuWrap">
     <div class="menu-card">
-      <button class="settings-toggle" onclick="toggleAdjust()"><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
+      <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings panel"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
       <div class="adjust-panel">
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
@@ -802,9 +879,12 @@
             <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
             <span class="resize-unit">px</span>
           </div>
+          <!-- Quick-picks: tap a chip to set value + trigger re-encode.
+               Pixel mode: 1080 / 1920 / 4096 (4K). Percent mode: 50 / 75. -->
+          <div class="resize-presets" data-presets></div>
           <div class="resize-orig-hint" data-orig></div></div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
-          <label class="adjust-checkbox"><input type="checkbox" checked><span>Strip metadata</span></label></div>
+          <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label></div>
       </div>
       <div class="actions">
         <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
@@ -1153,7 +1233,7 @@ function getActiveSettings(){
   const sizeInp = document.querySelector('body[data-state="multi"] .stage.multi .resize-input');
   const sizeVal = sizeInp && sizeInp.value ? parseInt(sizeInp.value) : 0;
   const isPercent = activeMode && activeMode.dataset.mode === 'pct';
-  const stripExifEl = document.querySelector('body[data-state="multi"] .stage.multi .adjust-checkbox input[type=checkbox]');
+  const stripExifEl = document.querySelector('body[data-state="multi"] .stage.multi .switch input[type=checkbox]');
   const stripExif = stripExifEl ? stripExifEl.checked : true;
   const MIME = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif' };
   return {
@@ -1207,10 +1287,17 @@ function encodeFile(idx){
 }
 function fmtSize(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
 function setMetaCorners(beforeFile, encoded){
+  /* Pull cached dimensions from the FILES entry if available — populated
+     in syncMainImage via createImageBitmap. May be undefined for very
+     fresh selects; we just omit the dimensions in that case rather than
+     blocking the meta paint. */
+  const idx = CFLOW.selected;
+  const dims = (FILES[idx] && FILES[idx].dims) ? FILES[idx].dims : null;
+  const dimsStr = dims ? `${dims.w} × ${dims.h} · ` : '';
   const beforeMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.l');
   if (beforeMeta) {
     const span = beforeMeta.querySelector('span:not(.lbl-title)');
-    if (span) span.textContent = `${fmtSize(beforeFile.size)} · ${(beforeFile.type.split('/')[1]||'IMG').toUpperCase()}`;
+    if (span) span.textContent = `${dimsStr}${fmtSize(beforeFile.size)} · ${(beforeFile.type.split('/')[1]||'IMG').toUpperCase()}`;
   }
   /* Live size readout in the toolbar — mirrors what After meta says, but
      keeps the user's eye on the slider while they're tuning quality. */
@@ -1222,7 +1309,11 @@ function setMetaCorners(beforeFile, encoded){
     const pctSpan  = afterMeta.querySelector('.pct');
     const batchRow = afterMeta.querySelector('.batch-row');
     if (encoded) {
-      if (sizeSpan) sizeSpan.textContent = `${fmtSize(encoded.size)} · ${(encoded.format||'').toUpperCase()}`;
+      /* After dimensions: if user resized, the encoded blob has different
+         dims than the original. We don't have those handy without
+         decoding, so just show the original dims (matches Before for
+         sources that weren't resized; close enough for users to read). */
+      if (sizeSpan) sizeSpan.textContent = `${dimsStr}${fmtSize(encoded.size)} · ${(encoded.format||'').toUpperCase()}`;
       const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
       if (pctSpan) {
         pctSpan.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
@@ -1278,6 +1369,10 @@ async function syncMainImage(force){
     el.textContent = '';
   };
   setBg(before, f.url);
+  /* Filename ribbon — top-center reference of which file is currently in
+     the viewer. Updated on every selection swap. */
+  const ribbon = document.getElementById('filenameRibbon');
+  if (ribbon) ribbon.textContent = f.name || '';
   /* Show original dimensions in the resize section as a helpful reference.
      Lazy-decoded once per file via createImageBitmap; cached on the FILES
      entry so subsequent selects hit the cache. */
@@ -2115,11 +2210,27 @@ function attachSettingsListeners(){
       sizeInp.placeholder = mode === 'pct' ? 'e.g. 50' : 'e.g. 1200';
       if (mode === 'pct') {
         sizeInp.max = '100';
-        /* Clamp existing pixel value to a valid percent if user is switching */
         if (sizeInp.value && parseInt(sizeInp.value) > 100) sizeInp.value = '';
       } else {
         sizeInp.removeAttribute('max');
       }
+    }
+    /* Refresh quick-picks for the active mode. Tapping one sets the input
+       value + triggers re-encode immediately; saves typing for common
+       targets (1080/1920/4K and 50%/75%). */
+    const presets = root.querySelector('.resize-presets');
+    if (presets) {
+      const items = mode === 'pct'
+        ? [['50','50%'],['75','75%']]
+        : [['1080','1080'],['1920','1920'],['4096','4K']];
+      presets.innerHTML = items.map(([v,l]) => `<button type="button" data-val="${v}">${l}</button>`).join('');
+      presets.querySelectorAll('button').forEach(b => {
+        b.addEventListener('click', () => {
+          sizeInp.value = b.dataset.val;
+          presets.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+          invalidateEncoded();
+        });
+      });
     }
   }
   modeBtns.forEach(btn => {
@@ -2135,8 +2246,8 @@ function attachSettingsListeners(){
   if (sizeInp) sizeInp.addEventListener('change', invalidateEncoded);
   /* Initial unit-suffix sync on load */
   syncResizeMode();
-  /* Privacy checkbox */
-  const stripCb = root.querySelector('.adjust-checkbox input[type=checkbox]');
+  /* Privacy switch (was checkbox) */
+  const stripCb = root.querySelector('.switch input[type=checkbox]');
   if (stripCb) stripCb.addEventListener('change', invalidateEncoded);
 }
 window.addEventListener('DOMContentLoaded', attachSettingsListeners);
