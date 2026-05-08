@@ -564,11 +564,20 @@
     background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border:1px solid var(--card-border);border-radius:14px;
     color:#fff;
-    /* overflow:hidden so child elements (gear button, drawer, action buttons)
-       respect the card's rounded corners. Without this, the gear's sharp
-       rectangle painted past the card's rounded top-left corner. The
-       portaled preset menu lives on document.body so it's unaffected. */
     overflow:hidden;
+  }
+  /* When the drawer is open, the bar may be wider than the viewport.
+     Wrap to two rows: gear + drawer on top, core + actions on bottom.
+     Keeps everything visible without horizontal scroll. */
+  body[data-adjust="open"] .menu-card{
+    flex-wrap:wrap;
+  }
+  body[data-adjust="open"] .bb-drawer{
+    /* Drawer claims a full row when open so core+actions wrap below. */
+    flex-basis:100%;
+  }
+  body[data-adjust="open"] .settings-toggle{
+    border-bottom:1px solid rgba(255,255,255,.08);
   }
   /* The drawer is the only piece that needs overflow:hidden for its
      slide animation. Constrain there, not on the whole card. */
@@ -587,11 +596,9 @@
     padding:0;
   }
   body[data-adjust="open"] .bb-drawer{
-    /* Bumped from 780→1100 to fit Format + Resize + Crop + Privacy without
-       clipping. Crop adds 6 pills + label (~310px), pushing the previous
-       780 just over the edge. Last-resort horizontal scroll on the inner
-       container catches narrower laptops gracefully. */
-    max-width:1100px;padding:0 4px;
+    /* No max-width — drawer claims its full row via flex-basis:100% above,
+       so it can hold all sections without horizontal clipping. */
+    max-width:none;padding:0 4px;
     border-left-color:rgba(255,255,255,.12);
   }
   .bb-drawer-inner{overflow-x:auto;scrollbar-width:thin;}
@@ -1674,6 +1681,17 @@ function setHasAfter(on){
 /* Backwards-compat shim — keeps any older callers from breaking. The corner
    status path is gone; we now route to the center overlay. */
 function showAfterStatus(text){ showCenterStatus(text, ''); }
+/* Normalize a MIME type string to a short format token used throughout
+   the code (filenames, displays, comparisons). Without this, image/x-icon
+   was rendering as 'x-icon' and showing 'X-ICON' in the After meta. */
+function mimeToFmt(mime){
+  if (!mime) return 'img';
+  const m = mime.toLowerCase();
+  if (m === 'image/x-icon' || m === 'image/vnd.microsoft.icon') return 'ico';
+  if (m === 'image/jpeg') return 'jpg';
+  const part = m.split('/')[1] || 'img';
+  return part;
+}
 function getActiveFormats(){
   /* In single-output mode, returns just the active pill's fmt (or 'auto').
      In multi-output mode, returns every active pill's fmt. */
@@ -1809,7 +1827,10 @@ function setMetaCorners(beforeFile, encoded){
           `${e.format.toUpperCase()} ${fmtSize(e.size)}`).join(' · ');
         if (sizeSpan) sizeSpan.textContent = `${dimsStr}${parts}`;
       } else {
-        if (sizeSpan) sizeSpan.textContent = `${dimsStr}${fmtSize(encoded.size)} · ${(encoded.format||'').toUpperCase()}`;
+        const fmtUpper = (encoded.format||'').toUpperCase();
+        if (sizeSpan) {
+          sizeSpan.textContent = `${dimsStr}${fmtSize(encoded.size)} · ${fmtUpper}`;
+        }
       }
       const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
       if (pctSpan) {
@@ -1891,10 +1912,18 @@ async function syncMainImage(force){
   /* Priority lever: if this idx is in the background queue but not yet
      started, jump it to the head so the next worker slot is ours. */
   if (typeof bumpToFront === 'function') bumpToFront(idx);
-  /* Cached encoded result wins — render compare immediately, no spinner */
+  /* Cached encoded result wins — render compare immediately, no spinner.
+     ICO is a special case: most browsers don't reliably render PNG-in-ICO
+     via CSS background-image, leaving the After image black. Fall back to
+     the original (cbBefore) for the preview; the ICO blob is still used
+     for download. */
   const cached = ENCODE.encoded.get(idx);
   if (cached) {
-    setBg(after, cached.url);
+    if (cached.format === 'ico') {
+      setBg(after, f.url);
+    } else {
+      setBg(after, cached.url);
+    }
     setMetaCorners(f.file, cached);
     setHasAfter(true);
     hideCenterStatus();
@@ -1926,14 +1955,18 @@ async function syncMainImage(force){
        background queue will fill in remaining formats for multi-output. */
     const blob = await encodeFile(idx);
     const url = URL.createObjectURL(blob);
-    const fmtFromMime = ((blob.type || '').split('/')[1] || 'img').replace('jpeg','jpg');
+    const fmtFromMime = mimeToFmt(blob.type);
     const enc = { blob, url, size: blob.size, format: fmtFromMime };
     ENCODE.encoded.set(idx, enc);
     if (!ENCODE.allEncoded.has(idx)) ENCODE.allEncoded.set(idx, new Map());
     ENCODE.allEncoded.get(idx).set(fmtFromMime, enc);
     markThumbEncoding(idx, false);
     if (CFLOW.selected === idx) {
-      setBg(after, enc.url);
+      if (enc.format === 'ico') {
+        setBg(after, f.url);
+      } else {
+        setBg(after, enc.url);
+      }
       setMetaCorners(f.file, enc);
       setHasAfter(true);
       hideCenterStatus();
@@ -1998,7 +2031,7 @@ async function processQueue(){
           catch(e){ console.warn('[queue encode failed]', idx, f, e && e.message || e); continue; }
           if (myGen !== ENCODE.gen) break;
           const url = URL.createObjectURL(blob);
-          const fmt = ((blob.type||'').split('/')[1] || 'img').replace('jpeg','jpg');
+          const fmt = mimeToFmt(blob.type);
           const entry = { blob, url, size: blob.size, format: fmt };
           bundle.set(fmt, entry);
           if (!primary) primary = entry;
@@ -2485,7 +2518,7 @@ async function piShare(){
   if (!enc) {
     try { const blob = await encodeFile(idx);
       const url = URL.createObjectURL(blob);
-      enc = { blob, url, size: blob.size, format: (blob.type||'').split('/')[1]||'img' };
+      enc = { blob, url, size: blob.size, format: mimeToFmt(blob.type) };
       ENCODE.encoded.set(idx, enc);
     } catch(e){ alert('Encode failed: '+e.message); return; }
   }
@@ -2554,7 +2587,7 @@ async function piDownload(){
   if (!enc) {
     try { const blob = await encodeFile(idx);
       const url = URL.createObjectURL(blob);
-      enc = { blob, url, size: blob.size, format: (blob.type||'').split('/')[1]||'img' };
+      enc = { blob, url, size: blob.size, format: mimeToFmt(blob.type) };
       ENCODE.encoded.set(idx, enc);
     } catch(e){ alert('Encode failed: '+e.message); return; }
   }
