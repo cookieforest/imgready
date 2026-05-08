@@ -635,20 +635,54 @@
     box-shadow:0 0 0 2px rgba(122,154,122,.4);
   }
 
+  /* Quick-pick presets — compact dropdown that opens UPWARD (the toolbar
+     lives at the bottom of the viewport, so popovers open above). The
+     previous inline chip row added vertical bulk to the drawer; this
+     pattern keeps the section compact and the chips a single click away. */
   .resize-presets{
-    display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;
+    position:relative;display:inline-block;
   }
-  .resize-presets button{
+  .resize-presets-trigger{
     background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-    color:rgba(255,255,255,.75);font:inherit;font-size:.7rem;
-    padding:3px 8px;border-radius:5px;cursor:pointer;
+    color:rgba(255,255,255,.75);font:inherit;font-size:.7rem;font-weight:600;
+    padding:4px 8px 4px 9px;border-radius:5px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
     transition:background .14s ease,border-color .14s ease,color .14s ease;
   }
-  .resize-presets button:hover{
+  .resize-presets-trigger:hover{
     background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25);
   }
-  .resize-presets button.active{
-    background:var(--accent);border-color:var(--accent);color:#fff;
+  .resize-presets-trigger svg{
+    width:9px;height:9px;opacity:.7;transition:transform .15s ease;
+  }
+  .resize-presets.open .resize-presets-trigger{
+    background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3);
+  }
+  .resize-presets.open .resize-presets-trigger svg{transform:rotate(180deg);}
+  .resize-presets-menu{
+    position:absolute;bottom:calc(100% + 6px);left:50%;
+    transform:translateX(-50%) translateY(4px);
+    display:none;flex-direction:column;min-width:88px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);border-radius:8px;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:0 6px 24px rgba(0,0,0,.5);
+    padding:4px;z-index:12;
+    opacity:0;pointer-events:none;
+    transition:opacity .14s ease,transform .14s ease;
+  }
+  .resize-presets.open .resize-presets-menu{
+    display:flex;opacity:1;pointer-events:auto;
+    transform:translateX(-50%) translateY(0);
+  }
+  .resize-presets-menu button{
+    background:transparent;border:none;color:rgba(255,255,255,.85);
+    font:inherit;font-size:.72rem;font-weight:500;
+    padding:6px 12px;border-radius:5px;cursor:pointer;text-align:left;
+    transition:background .12s ease,color .12s ease;
+  }
+  .resize-presets-menu button:hover{
+    background:var(--accent);color:#fff;
   }
 
   .resize-orig-hint{
@@ -2282,23 +2316,49 @@ function attachSettingsListeners(){
         sizeInp.removeAttribute('max');
       }
     }
-    /* Refresh quick-picks for the active mode. Tapping one sets the input
-       value + triggers re-encode immediately; saves typing for common
-       targets (1080/1920/4K and 50%/75%). */
+    /* Refresh quick-picks for the active mode. Compact dropdown — trigger
+       button shows "Presets ▾", clicking opens a popover with the choices.
+       Saves vertical space in the bottom-bar drawer compared to inline chips.
+       Items: 1080/1920/4K (pixel mode), 50%/75% (percent mode). */
     const presets = root.querySelector('.resize-presets');
     if (presets) {
       const items = mode === 'pct'
         ? [['50','50%'],['75','75%']]
-        : [['1080','1080'],['1920','1920'],['4096','4K']];
-      presets.innerHTML = items.map(([v,l]) => `<button type="button" data-val="${v}">${l}</button>`).join('');
-      presets.querySelectorAll('button').forEach(b => {
-        b.addEventListener('click', () => {
+        : [['1080','1080 px'],['1920','1920 px'],['4096','4K (4096)']];
+      const triggerLabel = mode === 'pct' ? 'Presets' : 'Presets';
+      presets.innerHTML =
+        '<button type="button" class="resize-presets-trigger">' +
+          triggerLabel +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+        '</button>' +
+        '<div class="resize-presets-menu">' +
+          items.map(([v,l]) => `<button type="button" data-val="${v}">${l}</button>`).join('') +
+        '</div>';
+      const trig = presets.querySelector('.resize-presets-trigger');
+      const menu = presets.querySelector('.resize-presets-menu');
+      trig.addEventListener('click', e => {
+        e.stopPropagation();
+        presets.classList.toggle('open');
+      });
+      menu.querySelectorAll('button').forEach(b => {
+        b.addEventListener('click', e => {
+          e.stopPropagation();
           sizeInp.value = b.dataset.val;
-          presets.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+          presets.classList.remove('open');
           invalidateEncoded();
         });
       });
     }
+  }
+  /* Close presets dropdown when clicking outside. Bound once globally —
+     re-binding on every syncResizeMode call would leak listeners. */
+  if (!window._presetsOutsideClick) {
+    window._presetsOutsideClick = true;
+    document.addEventListener('click', e => {
+      document.querySelectorAll('.resize-presets.open').forEach(p => {
+        if (!p.contains(e.target)) p.classList.remove('open');
+      });
+    });
   }
   modeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
