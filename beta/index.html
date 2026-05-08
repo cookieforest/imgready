@@ -138,19 +138,24 @@
   .image-canvas:not(.has-after) .compare-handle,
   .image-canvas:not(.has-after) .compare-meta.r{display:none;}
 
-  /* Filename ribbon — small badge centered at the top of the viewer.
-     Sits above the compare meta corners visually; doesn't intercept
-     pointer (so it can't break slider drag near the top of the canvas). */
+  /* Filename label — small text below the active cover-flow thumb. The
+     previous top-center ribbon crowded the Before/After meta cards on
+     narrow viewports and obscured part of the image at the top. Below
+     the centered thumb, the filename naturally answers "which file is
+     this?" right next to the thumb that visually represents it. */
   .filename-ribbon{
-    position:absolute;top:14px;left:50%;transform:translateX(-50%);
-    background:var(--card-bg);border:1px solid var(--card-border);
-    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-    color:rgba(255,255,255,.85);
-    font-size:.74rem;font-weight:600;letter-spacing:.01em;
-    padding:5px 12px;border-radius:8px;
-    max-width:50vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    pointer-events:none;z-index:5;
-    opacity:.92;transition:opacity .18s ease;
+    position:absolute;
+    /* Sits just under the bottom edge of the cover-flow strip, centered.
+       Cover-flow is at bottom:96px height:160px on desktop, height:120px
+       on mobile — the label hugs the bottom of the strip area. */
+    bottom:74px;left:50%;transform:translateX(-50%);
+    background:transparent;border:none;
+    color:rgba(255,255,255,.7);
+    font-size:.7rem;font-weight:500;letter-spacing:.01em;
+    padding:0 12px;
+    max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    pointer-events:none;z-index:6;text-align:center;
+    text-shadow:0 1px 2px rgba(0,0,0,.5);
   }
   .filename-ribbon:empty{display:none;}
   /* Center loading overlay — replaces the corner "Encoding..." status with a
@@ -727,38 +732,83 @@
   @media(max-width:767px){
     :root{--thumb-big:110px;--thumb-small:55px;--action-w:auto;}
     .cover-flow{
-      bottom:calc(var(--menu-h,80px) + 6px);
+      bottom:calc(var(--menu-h,170px) + 6px);
       left:0;right:0;
       height:120px;
     }
+    .filename-ribbon{
+      /* Mobile cover-flow is shorter (120px vs 160px), so the filename
+         label needs a smaller bottom offset to hug the strip. */
+      bottom:calc(var(--menu-h,170px) - 50px);
+      font-size:.66rem;max-width:80vw;
+    }
+    /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
+       instead of collapsing into overflow chaos. The horizontal "film
+       strip drawer" pattern works on desktop but is too wide for
+       narrow viewports; mobile just stacks the rows. */
     .menu-wrap{
       left:8px;right:8px;bottom:8px;
       transform:none;max-width:calc(100vw - 16px);
     }
-    .menu-card{flex-wrap:wrap;}
-    .bb-core{flex:1;min-width:0;}
-    .bb-core .quality-row{min-width:120px;}
-    /* Mobile actions on a single row */
-    .actions{
-      flex-direction:row;flex-wrap:nowrap;gap:6px;
-      padding:10px 12px max(12px,env(safe-area-inset-bottom,12px));
+    .menu-card{
+      flex-wrap:wrap;flex-direction:column;align-items:stretch;
+      padding:6px;gap:6px;
     }
-    /* Override desktop's width:100% which fights the row flex sizing */
+    /* Drawer becomes a top row (above the core), full-width, vertical
+       stack of sections. No horizontal slide-out — just show/hide block. */
+    .bb-drawer{
+      max-width:none;width:100%;
+      border-right:none;border-bottom:1px solid transparent;
+      transition:max-height .26s ease,opacity .2s ease,padding .25s ease;
+      max-height:0;padding:0;
+    }
+    body[data-adjust="open"] .bb-drawer{
+      max-height:200px;padding:6px 4px 4px;
+      border-bottom-color:rgba(255,255,255,.12);
+    }
+    .bb-drawer-inner{
+      flex-direction:column;gap:8px;width:100%;
+      padding:0 8px;white-space:normal;
+    }
+    .bb-drawer-inner .bb-section{flex-wrap:wrap;}
+    .bb-divider{display:none;}
+    /* Core row: gear + format pills + quality slider on one line.
+       Format pills allow horizontal scroll if needed. */
+    .bb-core{
+      width:100%;flex:1;min-width:0;
+      flex-wrap:wrap;gap:8px;padding:6px 8px;
+    }
+    .bb-core .adjust-pills{
+      flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+      -ms-overflow-style:none;
+    }
+    .bb-core .adjust-pills::-webkit-scrollbar{display:none;}
+    .bb-core .quality-row{min-width:0;flex:1;}
+    /* Settings gear on its own — keep visible at left of core. Border-left
+       was the divider hint on desktop; remove on mobile so it's a clean
+       icon button. */
+    .settings-toggle{border-left:none;padding:6px 8px;}
+    /* Batch actions on a separate row, full-width distribution */
+    .actions{
+      width:100%;
+      flex-direction:row;flex-wrap:nowrap;gap:6px;
+      padding:6px 8px max(8px,env(safe-area-inset-bottom,8px));
+      border-top:1px solid rgba(255,255,255,.08);
+    }
     .actions .btn{
       flex:1;min-width:0;width:auto;
       font-size:.74rem;padding:9px 6px;
-      overflow:hidden;text-overflow:ellipsis;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
     .actions .btn-primary{flex:1.4;}
     .actions .btn-clear{flex:0 0 auto;padding:9px 10px;}
     .actions .lbl-full{display:none;}
     .actions .lbl-short{display:inline;}
-    .compare-meta{font-size:.68rem;padding:6px 9px;}
+    .compare-meta{font-size:.68rem;padding:6px 9px;max-width:42vw;}
     .compare-meta .lbl-title{font-size:.8rem;}
     .state-toggle small{display:none;}
     .brand-bar{padding:0 12px;}
     .pi-icon{width:42px;height:42px;}
-    /* Mobile add-more: icon-only, no label */
     .cflow-thumb.add-more .add-more-label{display:none;}
   }
 
