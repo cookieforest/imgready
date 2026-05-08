@@ -79,6 +79,15 @@
   /* --- stage --- */
   .stage{display:none;position:relative;height:calc(100vh - var(--brand-h));background:#000;overflow:hidden;}
   body[data-state="solo"] .stage.solo{display:block;}
+  /* Solo state has no cover-flow — image-canvas fills below the menu-bar */
+  body[data-state="solo"] .stage.solo .image-canvas{
+    bottom:calc(var(--menu-h, 80px) + 12px);
+  }
+  @media(max-width:767px){
+    body[data-state="solo"] .stage.solo .image-canvas{
+      bottom:calc(var(--menu-h, 100px) + 12px);
+    }
+  }
   body[data-state="multi"] .stage.multi{display:block;}
   /* Bottom-fade overlay — gradient from semi-transparent black at the
      bottom up to fully transparent ~280px above. Makes the cover-flow
@@ -94,7 +103,15 @@
       rgba(0,0,0,0) 100%);
     pointer-events:none;z-index:4;
   }
-  .image-canvas{position:absolute;inset:0;}
+  /* Image canvas top-anchored, with a dynamic bottom that adapts to the
+     drawer state. --menu-h is the bar's measured height (recomputed by
+     MutationObserver during drawer animation). 172px = cover-flow's 160
+     height + 6 gap + 6 cushion on desktop; mobile overrides below. */
+  .image-canvas{
+    position:absolute;
+    top:0;left:0;right:0;
+    bottom:calc(var(--menu-h, 80px) + 172px);
+  }
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
   .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;
@@ -807,6 +824,11 @@
       left:0;right:0;
       height:120px;
     }
+    /* Mobile image-canvas: cover-flow is 120px tall here (vs 160 on desktop).
+       --menu-h includes the drawer when open. */
+    .image-canvas{
+      bottom:calc(var(--menu-h, 100px) + 132px);
+    }
     .filename-ribbon{
       /* Mobile cover-flow is shorter (120px vs 160px), so the filename
          label needs a smaller bottom offset to hug the strip. */
@@ -818,15 +840,25 @@
        strip drawer" pattern works on desktop but is too wide for
        narrow viewports; mobile just stacks the rows. */
     .menu-wrap{
-      /* Full-width on mobile per user request — edge-to-edge bar */
+      /* Edge-to-edge on mobile: no padding, no horizontal inset. The bar
+         sits flush against both viewport edges and the bottom edge. */
       left:0;right:0;bottom:0;padding:0;
+      /* justify-content:center inherited from desktop must NOT collapse
+         the menu-card to content-width here — make wrap a normal block
+         flow so the card fills the viewport. */
+      display:block;
     }
     .menu-card{
-      border-radius:0;border-left:none;border-right:none;border-bottom:none;
-    }
-    .menu-card{
+      /* Full-width fill — was content-width because of the parent's flex
+         centering on desktop. Block layout + width:100% forces fill. */
+      width:100%;
       flex-wrap:wrap;flex-direction:column;align-items:stretch;
       padding:6px;gap:6px;
+      /* Match the meta cards' rounded-top look (rest of UI uses 8-14px).
+         Only the TOP corners are rounded since the bar hugs the bottom
+         edge of the viewport. */
+      border-radius:14px 14px 0 0;
+      border-left:none;border-right:none;border-bottom:none;
     }
     /* Drawer becomes a top row (above the core), full-width, vertical
        stack of sections. No horizontal slide-out — just show/hide block. */
