@@ -226,9 +226,10 @@
   body[data-encoding="on"] .quality-row .qr-spinner{display:inline-block;}
   body[data-encoding="on"] .quality-row .qr-size{opacity:.5;}
 
-  /* Click-anywhere on the compare canvas snaps the divider — make the
-     cursor obviously interactive over the canvas (when not zoomed). */
-  body[data-state="multi"] .stage.multi .image-canvas:not(.zoomed) .compare-zoom{cursor:col-resize;}
+  /* Cursor: regular default over the canvas; the divider follows the
+     mouse on every move so there's no drag affordance to advertise.
+     The .compare-handle keeps its own ew-resize cursor for users who
+     reach for the round handle out of habit. */
 
   /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
   .cover-flow{
@@ -1628,6 +1629,7 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
 
 /* ===== before/after slider drag handler ===== */
 (function wireSlider(){
+  /* setSplit — the only positional write. Mirrors stable's setFsP exactly. */
   function setSplit(canvas, pct){
     pct = Math.max(0, Math.min(100, pct));
     const after = canvas.querySelector('.compare-after');
@@ -1637,55 +1639,42 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     if (divider) divider.style.left = pct + '%';
     if (handle) handle.style.left = pct + '%';
   }
-  let dragging = null;
-  /* Drag starts when pointerdown lands anywhere "compare-able" on the canvas
-     (the handle, the divider, or the empty image area). Click on a control
-     surface (meta cards, menu, buttons) is excluded. Zoom>1 mode treats
-     pointerdown as a pan, so we exclude that too — the .image-canvas:not(.zoomed)
-     check on the cursor in CSS already hints to the user. */
-  document.addEventListener('pointerdown', e => {
-    const handle = e.target.closest('.compare-handle');
-    let canvas;
-    if (handle) {
-      canvas = handle.closest('.image-canvas');
-    } else {
-      const imageCanvas = e.target.closest('.image-canvas');
-      if (!imageCanvas) return;
-      /* Stage must be the active multi state (not the hidden solo placeholder) */
-      const stage = imageCanvas.closest('.stage.multi');
-      if (!stage || getComputedStyle(stage).display === 'none') return;
-      /* Only when an encoded result exists (compare slider visible) */
-      if (!imageCanvas.classList.contains('has-after')) return;
-      /* Skip when zoomed — pointerdown should pan, not snap divider */
-      if (imageCanvas.classList.contains('zoomed')) return;
-      /* Skip clicks on control surfaces */
-      if (e.target.closest('.compare-meta')) return;
-      if (e.target.closest('.menu-card')) return;
-      if (e.target.closest('.cover-flow')) return;
-      if (e.target.closest('.brand-bar')) return;
-      if (e.target.closest('button')) return;
-      canvas = imageCanvas;
-    }
+  /* moveFollow — port of stable's mvFs(). Continuously follows the cursor
+     anywhere over the .image-canvas (in active multi-state, with an
+     encoded after result, and no active zoom). Skip when target is over
+     one of the deadzone overlays — settings card, meta labels, cover-flow,
+     center loader, zoom chip, brand bar, per-image actions, or any
+     button. Same deadzone idea stable's mvFs uses. */
+  function moveFollow(e){
+    const canvas = (e.target && e.target.closest) ? e.target.closest('.image-canvas') : null;
     if (!canvas) return;
-    dragging = canvas;
-    /* Snap divider to the pointerdown X immediately, then continuous moves
-       will follow until pointerup. This is the "click-then-drag" behavior
-       the user asked for: clicking teleports, and you can keep dragging
-       without releasing. */
-    e.preventDefault();
-    try { canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId); } catch(_){}
-    moveFrom(e);
-  });
-  function moveFrom(e){
-    if (!dragging) return;
-    const rect = dragging.getBoundingClientRect();
+    /* Active stage check: the .stage.solo is also in DOM but display:none.
+       getComputedStyle filters it. */
+    const stage = canvas.closest('.stage');
+    if (!stage || getComputedStyle(stage).display === 'none') return;
+    if (!canvas.classList.contains('has-after')) return;
+    if (canvas.classList.contains('zoomed')) return;
+    const t = e.target;
+    if (t && t.closest) {
+      if (t.closest('.compare-meta')) return;
+      if (t.closest('.menu-card')) return;
+      if (t.closest('.cover-flow')) return;
+      if (t.closest('.brand-bar')) return;
+      if (t.closest('.center-status')) return;
+      if (t.closest('.zoom-chip')) return;
+      if (t.closest('.pi-actions')) return;
+      if (t.closest('button')) return;
+    }
+    const rect = canvas.getBoundingClientRect();
     const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-    setSplit(dragging, (cx - rect.left) / rect.width * 100);
+    setSplit(canvas, (cx - rect.left) / rect.width * 100);
   }
-  document.addEventListener('pointermove', e => { if (dragging) moveFrom(e); });
-  function endDrag(){ dragging = null; }
-  document.addEventListener('pointerup', endDrag);
-  document.addEventListener('pointercancel', endDrag);
+  /* Bind once on document. Stable binds to fsInner; we bind to document so
+     we don't have to re-bind every state transition — the deadzone checks
+     ensure we only act when the cursor is genuinely over the canvas. */
+  document.addEventListener('mousemove', moveFollow);
+  document.addEventListener('touchstart', e => { if (e.touches.length === 1) moveFollow(e); }, { passive: true });
+  document.addEventListener('touchmove',  e => { if (e.touches.length === 1) moveFollow(e); }, { passive: true });
 })();
 
 async function ensureAllEncoded(){
