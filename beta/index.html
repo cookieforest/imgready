@@ -2874,71 +2874,78 @@ function attachSettingsListeners(){
     });
     qSlider.addEventListener('change', invalidateEncoded);
   }
-  /* Resize input — re-encode on change. Segmented mode buttons swap unit
-     suffix + placeholder + clamp behaviour, then re-encode. */
-  const sizeInp = root.querySelector('.resize-input');
-  const unitEl  = root.querySelector('.resize-unit');
-  const modeBtns = root.querySelectorAll('.resize-mode-toggle .rmt-btn');
-  function syncResizeMode(){
-    /* Pixels-only mode now (Percent dropped). Keep the function shape so
-       the rest of the wiring is unchanged. */
-    const mode = 'dim';
-    if (unitEl) unitEl.textContent = 'px';
-    if (sizeInp) {
-      sizeInp.placeholder = 'e.g. 1200';
-      sizeInp.removeAttribute('max');
+  /* Resize dropdown — single control with presets + inline custom input.
+     Pattern: trigger button shows current value (or "None"), menu opens
+     upward with preset rows + a custom-input row at the bottom.
+     Selecting None / 1080 / 1920 / 4096 sets data-resize-current and
+     re-encodes immediately. Custom row commits on Enter or Set click.
+     Replaces the old "input + presets dropdown" two-control pattern. */
+  const resizeDropdown = root.querySelector('.resize-dropdown');
+  if (resizeDropdown) {
+    const trig = resizeDropdown.querySelector('.resize-presets-trigger');
+    const menu = resizeDropdown.querySelector('.resize-menu');
+    const labelEl = resizeDropdown.querySelector('.resize-current-label');
+    const customInp = resizeDropdown.querySelector('.resize-custom-input');
+    const customSetBtn = resizeDropdown.querySelector('.resize-custom-set');
+
+    function commitResize(value, label){
+      resizeDropdown.dataset.resizeCurrent = String(value || 0);
+      if (labelEl) labelEl.textContent = label;
+      menu.querySelectorAll('button[data-resize]').forEach(b => {
+        b.classList.toggle('active', String(b.dataset.resize) === String(value));
+      });
+      resizeDropdown.classList.remove('open');
+      menu.classList.remove('open');
+      invalidateEncoded();
     }
-    /* Refresh quick-picks for the active mode. Compact dropdown — trigger
-       button shows "Presets ▾", clicking opens a popover with the choices.
-       Saves vertical space in the bottom-bar drawer compared to inline chips.
-       Items: 1080/1920/4K (pixel mode), 50%/75% (percent mode). */
-    const presets = root.querySelector('.resize-presets');
-    if (presets) {
-      /* Pixels-only presets now */
-      const items = [['1080','1080 px'],['1920','1920 px'],['4096','4K (4096)']];
-      const triggerLabel = 'Presets';
-      presets.innerHTML =
-        '<button type="button" class="resize-presets-trigger">' +
-          triggerLabel +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
-        '</button>' +
-        '<div class="resize-presets-menu">' +
-          items.map(([v,l]) => `<button type="button" data-val="${v}">${l}</button>`).join('') +
-        '</div>';
-      const trig = presets.querySelector('.resize-presets-trigger');
-      const menu = presets.querySelector('.resize-presets-menu');
-      /* Portal the menu to <body> on first use. This guarantees no
-         ancestor transform/overflow context can interfere with the
-         menu's position:fixed coordinates. The .open class still lives
-         on .resize-presets (the trigger's container), but we mirror
-         it onto the menu so the CSS visibility rule still matches. */
-      function portalMenu(){
-        if (menu.parentNode !== document.body) document.body.appendChild(menu);
+
+    function portalResizeMenu(){
+      if (menu.parentNode !== document.body) document.body.appendChild(menu);
+    }
+
+    trig.addEventListener('click', e => {
+      e.stopPropagation();
+      const willOpen = !resizeDropdown.classList.contains('open');
+      resizeDropdown.classList.toggle('open');
+      menu.classList.toggle('open', willOpen);
+      if (willOpen) {
+        portalResizeMenu();
+        const r = trig.getBoundingClientRect();
+        menu.style.left = (r.left + r.width / 2) + 'px';
+        menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+        menu.style.top = 'auto';
       }
-      function syncOpen(){
-        const isOpen = presets.classList.contains('open');
-        menu.classList.toggle('open', isOpen);
-        if (isOpen) {
-          portalMenu();
-          const r = trig.getBoundingClientRect();
-          menu.style.left = (r.left + r.width / 2) + 'px';
-          menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
-          menu.style.top = 'auto';
-        }
-      }
-      trig.addEventListener('click', e => {
+    });
+
+    /* Preset row clicks */
+    menu.querySelectorAll('button[data-resize]').forEach(b => {
+      b.addEventListener('click', e => {
         e.stopPropagation();
-        presets.classList.toggle('open');
-        syncOpen();
+        const v = parseInt(b.dataset.resize, 10) || 0;
+        commitResize(v, b.textContent);
       });
-      menu.querySelectorAll('button').forEach(b => {
-        b.addEventListener('click', e => {
+    });
+
+    /* Custom-input row — clicks inside don't close the menu; commit on
+       Enter or Set click. */
+    if (customInp) {
+      [customInp, customSetBtn].forEach(el => {
+        if (el) el.addEventListener('click', e => e.stopPropagation());
+      });
+      customInp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const v = parseInt(customInp.value, 10);
+          if (v > 0) commitResize(v, v + ' px');
+        }
+      });
+      if (customSetBtn) {
+        customSetBtn.addEventListener('click', e => {
           e.stopPropagation();
-          sizeInp.value = b.dataset.val;
-          presets.classList.remove('open');
-          invalidateEncoded();
+          const v = parseInt(customInp.value, 10);
+          if (v > 0) commitResize(v, v + ' px');
         });
-      });
+      }
     }
   }
   /* Crop dropdown — same open/close pattern as resize-presets but doesn't
@@ -2987,19 +2994,7 @@ function attachSettingsListeners(){
       });
     });
   }
-  modeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      modeBtns.forEach(b => {
-        b.classList.toggle('active', b === btn);
-        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
-      });
-      syncResizeMode();
-      invalidateEncoded();
-    });
-  });
-  if (sizeInp) sizeInp.addEventListener('change', invalidateEncoded);
-  /* Initial unit-suffix sync on load */
-  syncResizeMode();
+  /* (Old mode-toggle + initial sync removed — single dropdown handles state) */
   /* Privacy switch (was checkbox) */
   const stripCb = root.querySelector('.switch input[type=checkbox]');
   if (stripCb) stripCb.addEventListener('change', invalidateEncoded);
