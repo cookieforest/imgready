@@ -1188,18 +1188,27 @@
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
           <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
-          <div class="resize-mode-toggle" role="tablist" aria-label="Resize unit">
-            <button type="button" class="rmt-btn active" data-mode="dim" role="tab" aria-selected="true">Pixels</button>
-            <button type="button" class="rmt-btn" data-mode="pct" role="tab" aria-selected="false">Percent</button>
+          <!-- Solo state is currently unused — kept for backward-compat. -->
+          <div class="resize-mode-toggle" hidden>
+            <button type="button" class="rmt-btn active" data-mode="dim">Pixels</button>
           </div>
-          <div class="resize-input-wrap">
-            <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
-            <span class="resize-unit">px</span>
+          <div class="resize-presets resize-dropdown" data-resize-current="0">
+            <button type="button" class="resize-presets-trigger">
+              <span class="resize-current-label">None</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="resize-presets-menu resize-menu">
+              <button type="button" data-resize="0" class="active">None</button>
+              <button type="button" data-resize="1080">1080 px</button>
+              <button type="button" data-resize="1920">1920 px</button>
+              <button type="button" data-resize="4096">4K (4096)</button>
+              <div class="resize-custom-row">
+                <input type="number" class="resize-custom-input" min="1" placeholder="Custom px" inputmode="numeric">
+                <button type="button" class="resize-custom-set" tabindex="-1">Set</button>
+              </div>
+            </div>
           </div>
-          <!-- Quick-picks: tap a chip to set value + trigger re-encode.
-               Pixel mode: 1080 / 1920 / 4096 (4K). Percent mode: 50 / 75. -->
-          <div class="resize-presets" data-presets></div>
-          <div class="resize-orig-hint" data-orig></div></div>
+          <div class="resize-orig-hint"></div></div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
           <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label></div>
       </div>
@@ -1290,17 +1299,30 @@
           <div class="bb-divider"></div>
           <div class="bb-section">
             <span class="bb-section-label">Resize</span>
+            <!-- Stub kept for any JS that reads .rmt-btn.active — pixel-only mode. -->
             <div class="resize-mode-toggle" hidden>
               <button type="button" class="rmt-btn active" data-mode="dim">Pixels</button>
             </div>
-            <!-- input + presets in a .bb-row so on mobile they sit side-by-side -->
-            <div class="bb-row">
-              <div class="resize-input-wrap">
-                <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
-                <span class="resize-unit">px</span>
+            <!-- Single dropdown: trigger shows current value, menu opens upward
+                 with preset rows + an inline Custom input row at the bottom.
+                 Default "None" = no resize (full original dimensions). -->
+            <div class="resize-presets resize-dropdown" data-resize-current="0">
+              <button type="button" class="resize-presets-trigger" data-resize-trigger>
+                <span class="resize-current-label">None</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="resize-presets-menu resize-menu">
+                <button type="button" data-resize="0" class="active">None</button>
+                <button type="button" data-resize="1080">1080 px</button>
+                <button type="button" data-resize="1920">1920 px</button>
+                <button type="button" data-resize="4096">4K (4096)</button>
+                <div class="resize-custom-row">
+                  <input type="number" class="resize-custom-input" min="1" placeholder="Custom px" inputmode="numeric">
+                  <button type="button" class="resize-custom-set" tabindex="-1">Set</button>
+                </div>
               </div>
-              <div class="resize-presets" data-presets></div>
             </div>
+            <div class="resize-orig-hint" data-orig></div>
           </div>
           <div class="bb-divider"></div>
           <div class="bb-section">
