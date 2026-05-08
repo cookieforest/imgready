@@ -371,8 +371,11 @@
     border:2px solid rgba(255,255,255,.18);border-top-color:var(--accent);
     animation:csSpin .8s linear infinite;margin-left:4px;
   }
-  body[data-encoding="on"] .quality-row .qr-spinner{display:inline-block;}
-  body[data-encoding="on"] .quality-row .qr-size{opacity:.5;}
+  /* Quality-slider spinner only fires when the user adjusts the slider —
+     other settings changes (format, resize, crop) don't trigger the
+     spinner since it's specifically attached to the slider's eyeline. */
+  body[data-quality-encoding="on"] .quality-row .qr-spinner{display:inline-block;}
+  body[data-quality-encoding="on"] .quality-row .qr-size{opacity:.5;}
 
   /* Click-and-drag affordance: col-resize cursor over the compare canvas
      when the slider is interactive (has-after + not zoomed). When zoomed,
@@ -889,14 +892,19 @@
     padding:4px;z-index:9999;
     visibility:hidden;opacity:0;pointer-events:none;
     transition:opacity .14s ease,transform .14s ease,visibility 0s linear .14s;
-    transform:translateX(-50%) translateY(4px);
+    /* Menu's left edge anchors to the trigger's left edge (set via JS). No
+       horizontal centering — that caused mobile clipping when the trigger
+       sat near the viewport's left edge (translateX(-50%) pulled the menu
+       half-off-screen). JS additionally right-clamps to prevent overflow
+       on the right side. */
+    transform:translateX(0) translateY(4px);
     /* Default off-screen so unopened menus don't intercept focus or layout */
     left:-9999px;
   }
   .resize-presets.open .resize-presets-menu,
   .resize-presets-menu.open{
     visibility:visible;opacity:1;pointer-events:auto;
-    transform:translateX(-50%) translateY(0);
+    transform:translateX(0) translateY(0);
     transition:opacity .14s ease,transform .14s ease,visibility 0s linear 0s;
   }
   .resize-presets-menu button{
@@ -1131,11 +1139,11 @@
     }
     .actions .btn{
       flex:1;min-width:0;width:auto;
-      font-size:.74rem;padding:9px 6px;
+      font-size:.78rem;padding:12px 8px;
       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
     .actions .btn-primary{flex:1.4;}
-    .actions .btn-clear{flex:0 0 auto;padding:9px 10px;}
+    .actions .btn-clear{flex:0 0 auto;padding:12px 12px;}
     .actions .lbl-full{display:none;}
     .actions .lbl-short{display:inline;}
     .compare-meta{font-size:.68rem;padding:6px 9px;max-width:42vw;}
@@ -1749,6 +1757,9 @@ function hideCenterStatus(){
   const el = document.getElementById('centerStatus');
   if (el) el.hidden = true;
   document.body.dataset.encoding = '';
+  /* Clear the quality-driven flag too — once the encode result lands,
+     the qr-spinner should disappear regardless of what triggered it. */
+  document.body.dataset.qualityEncoding = '';
   stopCsBar();
 }
 function startCsBar(estMs){
@@ -2969,7 +2980,12 @@ function attachSettingsListeners(){
         if (el.textContent.startsWith('Quality')) el.textContent = `Quality · ${v}`;
       });
     });
-    qSlider.addEventListener('change', invalidateEncoded);
+    qSlider.addEventListener('change', () => {
+      /* Mark this re-encode as quality-driven so the qr-spinner shows
+         next to the slider (and only here, not on format/resize). */
+      document.body.dataset.qualityEncoding = 'on';
+      invalidateEncoded();
+    });
   }
   /* Mutex helper for the resize/crop preset dropdowns. Called from each
      trigger's click handler before opening, so only one popover is ever
@@ -3029,7 +3045,12 @@ function attachSettingsListeners(){
       if (willOpen) {
         portalResizeMenu();
         const r = trig.getBoundingClientRect();
-        menu.style.left = (r.left + r.width / 2) + 'px';
+        /* Left-align menu's left edge with the trigger's left edge,
+           then right-clamp so a near-right-edge trigger doesn't push
+           the menu off-screen. 8px viewport gutter on either side. */
+        const menuW = menu.offsetWidth || 100;
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
+        menu.style.left = left + 'px';
         menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
         menu.style.top = 'auto';
       }
@@ -3091,7 +3112,12 @@ function attachSettingsListeners(){
       if (willOpen) {
         portalCropMenu();
         const r = trig.getBoundingClientRect();
-        menu.style.left = (r.left + r.width / 2) + 'px';
+        /* Left-align menu's left edge with the trigger's left edge,
+           then right-clamp so a near-right-edge trigger doesn't push
+           the menu off-screen. 8px viewport gutter on either side. */
+        const menuW = menu.offsetWidth || 100;
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
+        menu.style.left = left + 'px';
         menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
         menu.style.top = 'auto';
       }
