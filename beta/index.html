@@ -1625,7 +1625,7 @@ async function ensureAllEncoded(){
     } catch(e){ console.warn('encode failed for', i, e); }
   }
 }
-async async function downloadAll(){
+async function downloadAll(){
   await ensureAllEncoded();
   for (let i = 0; i < FILES.length; i++) {
     const f = FILES[i]; const enc = ENCODE.encoded.get(i);
@@ -1636,7 +1636,7 @@ async async function downloadAll(){
     await new Promise(r => setTimeout(r, 80));
   }
 }
-async async function shareAll(){
+async function shareAll(){
   await ensureAllEncoded();
   const files = [];
   for (let i = 0; i < FILES.length; i++) {
