@@ -86,19 +86,20 @@
   .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;
     background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(0,0,0,.18);
     transform:translateX(-1px);pointer-events:none;z-index:3;}
+  /* Slider handle — visual match for stable's .fs-handle (44x44, white,
+     gray double-arrow, dramatic drop shadow). The one deviation from
+     stable: pointer-events stays auto (stable uses none) so the handle
+     remains a grabbable target when zoomed in. With pointer-events:none,
+     zoom>1 would steal the click for pan — defeating click-and-drag. */
   .compare-handle{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    width:36px;height:36px;border-radius:50%;background:#fff;
-    box-shadow:0 1px 4px rgba(0,0,0,.25);
+    width:44px;height:44px;border-radius:50%;background:#fff;
+    box-shadow:0 3px 16px rgba(0,0,0,.5);
     display:flex;align-items:center;justify-content:center;
-    cursor:ew-resize;color:var(--text);z-index:4;
-    /* No button semantics — div with explicit pointer cursor. Outline none
-       so keyboard focus doesn't draw a button-style ring. */
+    cursor:ew-resize;z-index:5;
     outline:none;-webkit-tap-highlight-color:transparent;
-    /* Pointer-events stays auto — the handle is the dedicated grab target
-       for slider drag, especially at zoom>1 where the surrounding canvas
-       is owned by the zoom-pan handler. */
     pointer-events:auto;
+    user-select:none;-webkit-user-select:none;
   }
   .compare-meta{position:absolute;top:14px;background:var(--card-bg);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
@@ -645,7 +646,7 @@
       <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">photo-1.jpg</div></div>
     </div>
     <div class="compare-divider"></div>
-    <div class="compare-handle" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg></div>
+    <div class="compare-handle" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
     <div class="center-status" id="centerStatus" hidden>
