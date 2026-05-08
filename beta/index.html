@@ -110,9 +110,8 @@
   .image-canvas{
     position:absolute;
     top:0;left:0;right:0;
-    /* Stack from viewport bottom: bar (--menu-h) + 36px filename gap +
-       160 cover-flow + 6 gap = (--menu-h)+202 */
-    bottom:calc(var(--menu-h, 80px) + 202px);
+    /* Stack: bar (--menu-h) + 42px filename gap + 160 cover-flow + 6 gap = +208 */
+    bottom:calc(var(--menu-h, 80px) + 208px);
   }
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -164,7 +163,8 @@
      points at it from above. */
   .filename-ribbon{
     position:absolute;
-    bottom:calc(var(--menu-h, 80px) + 8px);
+    /* 14px above the bar — was 8px which looked like it was touching */
+    bottom:calc(var(--menu-h, 80px) + 14px);
     left:50%;transform:translateX(-50%);
     background:transparent;border:none;
     color:rgba(255,255,255,.7);
@@ -311,11 +311,10 @@
   /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
   .cover-flow{
     position:absolute;
-    /* Cover-flow sits above the bar with a gap that holds the filename.
-       Stack from viewport bottom: bar (var --menu-h) → 6px gap → filename
-       (~22px) → 6px gap → cover-flow. Total ~34px above bar before the
-       cover-flow starts. */
-    bottom:calc(var(--menu-h, 80px) + 36px);left:0;right:0;
+    /* Cover-flow above the bar with a gap that holds the filename.
+       Stack from viewport bottom: bar (var --menu-h) → 14px gap → filename
+       (~16px) → 12px gap → cover-flow. Total ~42px above bar. */
+    bottom:calc(var(--menu-h, 80px) + 42px);left:0;right:0;
     height:160px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
@@ -848,16 +847,17 @@
   @media(max-width:767px){
     :root{--thumb-big:110px;--thumb-small:55px;--action-w:auto;}
     .cover-flow{
-      bottom:calc(var(--menu-h,80px) + 32px);
+      bottom:calc(var(--menu-h,80px) + 38px);
       left:0;right:0;
       height:120px;
     }
     .image-canvas{
-      bottom:calc(var(--menu-h, 100px) + 154px);
+      bottom:calc(var(--menu-h, 100px) + 160px);
     }
     .filename-ribbon{
-      /* Mobile filename — same below-cover-flow placement, smaller font */
-      bottom:calc(var(--menu-h,80px) + 8px);
+      /* Mobile filename — same below-cover-flow placement, smaller font.
+         14px above bar matches desktop padding. */
+      bottom:calc(var(--menu-h,80px) + 14px);
       font-size:.66rem;max-width:80vw;
     }
     /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
