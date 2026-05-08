@@ -86,10 +86,20 @@
   .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;
     background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(0,0,0,.18);
     transform:translateX(-1px);pointer-events:none;z-index:3;}
-  .compare-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  .compare-handle{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     width:36px;height:36px;border-radius:50%;background:#fff;
-    box-shadow:0 1px 4px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;
-    cursor:ew-resize;color:var(--text);z-index:4;}
+    box-shadow:0 1px 4px rgba(0,0,0,.25);
+    display:flex;align-items:center;justify-content:center;
+    cursor:ew-resize;color:var(--text);z-index:4;
+    /* No button semantics — div with explicit pointer cursor. Outline none
+       so keyboard focus doesn't draw a button-style ring. */
+    outline:none;-webkit-tap-highlight-color:transparent;
+    /* Pointer-events stays auto — the handle is the dedicated grab target
+       for slider drag, especially at zoom>1 where the surrounding canvas
+       is owned by the zoom-pan handler. */
+    pointer-events:auto;
+  }
   .compare-meta{position:absolute;top:14px;background:var(--card-bg);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     color:#fff;padding:8px 12px;border-radius:8px;
@@ -169,7 +179,7 @@
   .image-canvas.zoomed.zoom-dragging{cursor:grabbing;transition:none;}
   /* Disable zoom cursor when the compare handle is the target — we want to
      drag the slider, not start a zoom. */
-  .compare-handle{cursor:ew-resize !important;}
+  /* compare-handle cursor handled in main rule above */
 
   /* When the After image isn't available yet, the canvas should feel
      pre-encode: dimmer and with a quiet pulse so it reads as "working". */
@@ -635,7 +645,7 @@
       <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">photo-1.jpg</div></div>
     </div>
     <div class="compare-divider"></div>
-    <button class="compare-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg></button>
+    <div class="compare-handle" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 18 15 12 9 6" transform="translate(8 0)"/></svg></div>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
     <div class="center-status" id="centerStatus" hidden>
@@ -1367,11 +1377,17 @@ function wireZoom(){
     if (ZOOM.scale > 1) resetZoom();
     else setZoomToward(2.5, e.clientX, e.clientY);
   });
-  /* drag-to-pan when zoomed in (pointer events; ignore handle drags) */
+  /* drag-to-pan when zoomed in. Skip if the user grabbed the slider
+     handle — that gesture belongs to wireSlider regardless of zoom level. */
   canvas.addEventListener('pointerdown', e => {
     if (ZOOM.scale <= 1) return;
     if (e.target.closest('.compare-handle')) return;
     if (e.target.closest('.menu-card')) return;
+    if (e.target.closest('.compare-meta')) return;
+    if (e.target.closest('.cover-flow')) return;
+    if (e.target.closest('.brand-bar')) return;
+    if (e.target.closest('.pi-actions')) return;
+    if (e.target.closest('button')) return;
     ZOOM.dragging = true;
     ZOOM.lastX = e.clientX; ZOOM.lastY = e.clientY;
     canvas.classList.add('zoom-dragging');
@@ -1665,17 +1681,22 @@ async function piCopy(btn){
   if (!enc || !enc.blob) return;
   try {
     if (!navigator.clipboard || !window.ClipboardItem) throw new Error('clipboard api unavailable');
-    /* Some encoded MIMEs (image/avif, image/webp) aren't accepted by the
-       clipboard API on every browser. Convert to PNG when needed. */
-    let blob = enc.blob;
-    if (blob.type !== 'image/png' && blob.type !== 'image/jpeg') {
-      const bmp = await createImageBitmap(blob);
-      const c = new OffscreenCanvas(bmp.width, bmp.height);
-      const ctx = c.getContext('2d');
-      ctx.drawImage(bmp, 0, 0);
-      blob = await c.convertToBlob({ type: 'image/png' });
-    }
-    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+    /* Pass a Promise<Blob> directly to ClipboardItem. The browser holds the
+       user-gesture context while the conversion runs, so Safari/Chrome don't
+       reject the write with "Document is not focused". Awaiting the
+       conversion FIRST and then writing is the version that fails — by then
+       the gesture is consumed. */
+    const wantPng = enc.blob.type !== 'image/png' && enc.blob.type !== 'image/jpeg';
+    const finalType = wantPng ? 'image/png' : enc.blob.type;
+    const blobPromise = wantPng
+      ? createImageBitmap(enc.blob).then(bmp => {
+          const c = new OffscreenCanvas(bmp.width, bmp.height);
+          const ctx = c.getContext('2d');
+          ctx.drawImage(bmp, 0, 0);
+          return c.convertToBlob({ type: 'image/png' });
+        })
+      : Promise.resolve(enc.blob);
+    await navigator.clipboard.write([new ClipboardItem({ [finalType]: blobPromise })]);
     piConfirm(btn, 'Copied!');
   } catch (err) {
     console.warn('[beta piCopy] failed', err && err.message || err);
@@ -1799,9 +1820,7 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
               t.closest('button'));
   }
   document.addEventListener('pointerdown', e => {
-    /* Find the candidate canvas. The handle counts as a slider grab even
-       though it visually sits on top of the slider — clicking it must
-       drag the slider, not be treated as a deadzone. */
+    /* Find the candidate canvas. */
     const handle = e.target.closest && e.target.closest('.compare-handle');
     const ic = e.target.closest && e.target.closest('.image-canvas');
     const canvas = handle ? handle.closest('.image-canvas') : ic;
@@ -1809,15 +1828,15 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     const stage = canvas.closest('.stage');
     if (!stage || getComputedStyle(stage).display === 'none') return;
     if (!canvas.classList.contains('has-after')) return;
-    /* Zoom panning owns the pointer when zoomed in. */
-    if (canvas.classList.contains('zoomed')) return;
-    /* Deadzones — skip when grabbing UI. The .compare-handle bypasses
-       the deadzone check above. */
+    /* HANDLE-grab works at any zoom level. The handle is the dedicated
+       slider thumb — grabbing it always means "drag the slider", never
+       "start zoom pan". Body-grab only works at zoom=1; at zoom>1 the
+       surrounding canvas belongs to zoom-pan. */
+    if (canvas.classList.contains('zoomed') && !handle) return;
+    /* Deadzones — only matter for body-grab; the handle is its own thing. */
     if (!handle && inDeadzone(e.target)) return;
     dragging = canvas;
     canvas.classList.add('slider-dragging');
-    /* Snap divider to the press point immediately, then drag updates as
-       the user moves. Releasing leaves the divider where dragged. */
     e.preventDefault();
     moveFrom(e);
     try { canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId); } catch(_){}
