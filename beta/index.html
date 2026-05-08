@@ -569,19 +569,11 @@
     color:#fff;
     overflow:hidden;
   }
-  /* When the drawer is open, the bar may be wider than the viewport.
-     Wrap to two rows: gear + drawer on top, core + actions on bottom.
-     Keeps everything visible without horizontal scroll. */
-  body[data-adjust="open"] .menu-card{
-    flex-wrap:wrap;
-  }
-  body[data-adjust="open"] .bb-drawer{
-    /* Drawer claims a full row when open so core+actions wrap below. */
-    flex-basis:100%;
-  }
-  body[data-adjust="open"] .settings-toggle{
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
+  /* Single-row bar even when drawer is open (per user spec). The Crop
+     section now uses a dropdown trigger instead of 6 inline pills, which
+     reclaims ~200px and lets everything fit horizontally on typical
+     desktop viewports. Mobile retains the column stack via the
+     @media(max-width:767px) block lower in the stylesheet. */
   /* The drawer is the only piece that needs overflow:hidden for its
      slide animation. Constrain there, not on the whole card. */
   .bb-drawer{overflow:hidden;}
@@ -1313,13 +1305,19 @@
           <div class="bb-divider"></div>
           <div class="bb-section">
             <span class="bb-section-label">Crop</span>
-            <div class="adjust-pills crop-pills">
-              <button type="button" class="active" data-crop="none">None</button>
-              <button type="button" data-crop="1:1">1:1</button>
-              <button type="button" data-crop="4:3">4:3</button>
-              <button type="button" data-crop="3:4">3:4</button>
-              <button type="button" data-crop="16:9">16:9</button>
-              <button type="button" data-crop="9:16">9:16</button>
+            <div class="resize-presets crop-dropdown" data-crop-current="none">
+              <button type="button" class="resize-presets-trigger" data-crop-trigger>
+                <span class="crop-current-label">None</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="resize-presets-menu crop-menu">
+                <button type="button" data-crop="none" class="active">None</button>
+                <button type="button" data-crop="1:1">1:1</button>
+                <button type="button" data-crop="4:3">4:3</button>
+                <button type="button" data-crop="3:4">3:4</button>
+                <button type="button" data-crop="16:9">16:9</button>
+                <button type="button" data-crop="9:16">9:16</button>
+              </div>
             </div>
           </div>
           <div class="bb-divider"></div>
@@ -1732,11 +1730,11 @@ function getActiveSettings(){
   const stripExifEl = document.querySelector('body[data-state="multi"] .stage.multi .switch input[type=checkbox]');
   const stripExif = stripExifEl ? stripExifEl.checked : true;
   const MIME = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif', ico:'image/x-icon' };
-  /* Crop: read the active chip in .crop-pills and pass through.
-     Worker maps 'none' → null (no crop), all other strings to ratio numbers
-     via its CROP_RATIOS constant. */
-  const cropBtn = document.querySelector('body[data-state="multi"] .stage.multi .crop-pills button.active');
-  const crop = cropBtn ? cropBtn.dataset.crop : 'none';
+  /* Crop: read the dropdown's currently-selected ratio. Worker maps
+     'none' → null (no crop), other strings to ratio numbers via its
+     CROP_RATIOS constant. */
+  const cropDropdown = document.querySelector('body[data-state="multi"] .stage.multi .crop-dropdown');
+  const crop = (cropDropdown && cropDropdown.dataset.cropCurrent) || 'none';
   return {
     fmt,
     settings: {
@@ -2943,15 +2941,46 @@ function attachSettingsListeners(){
       });
     }
   }
-  /* Close presets dropdown when clicking outside. Bound once globally —
-     re-binding on every syncResizeMode call would leak listeners. */
+  /* Crop dropdown — same open/close pattern as resize-presets but doesn't
+     portal (Crop dropdown stays inline; the menu is short enough that
+     drawer overflow:hidden doesn't clip it as long as it opens upward). */
+  const cropDropdown = root.querySelector('.crop-dropdown');
+  if (cropDropdown) {
+    const trig = cropDropdown.querySelector('.resize-presets-trigger');
+    const menu = cropDropdown.querySelector('.crop-menu');
+    const labelEl = cropDropdown.querySelector('.crop-current-label');
+    trig.addEventListener('click', e => {
+      e.stopPropagation();
+      const willOpen = !cropDropdown.classList.contains('open');
+      cropDropdown.classList.toggle('open');
+      menu.classList.toggle('open', willOpen);
+      if (willOpen) {
+        const r = trig.getBoundingClientRect();
+        menu.style.left = (r.left + r.width / 2) + 'px';
+        menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+        menu.style.top = 'auto';
+      }
+    });
+    menu.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        const val = b.dataset.crop;
+        cropDropdown.dataset.cropCurrent = val;
+        if (labelEl) labelEl.textContent = b.textContent;
+        menu.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+        cropDropdown.classList.remove('open');
+        menu.classList.remove('open');
+        invalidateEncoded();
+      });
+    });
+  }
+  /* Close presets/crop dropdowns when clicking outside. Bound once globally. */
   if (!window._presetsOutsideClick) {
     window._presetsOutsideClick = true;
     document.addEventListener('click', e => {
       document.querySelectorAll('.resize-presets.open').forEach(p => {
         if (!p.contains(e.target)) {
           p.classList.remove('open');
-          /* Also remove .open from the portaled menu (it lives on body now). */
           const m = document.querySelector('.resize-presets-menu.open');
           if (m && !m.contains(e.target)) m.classList.remove('open');
         }
