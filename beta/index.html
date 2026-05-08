@@ -2465,7 +2465,23 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     if (!dragging) return;
     const rect = dragging.getBoundingClientRect();
     const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-    setSplit(dragging, (cx - rect.left) / rect.width * 100);
+    /* Screen-space pct of the pointer along the canvas */
+    const screenPct = (cx - rect.left) / rect.width * 100;
+    /* The compare-zoom wrapper has transform: translate(panX,panY) scale(z)
+       with transform-origin:center. So a LOCAL point at percent p maps to
+       SCREEN percent: 50 + (p - 50) * z + (panX / canvasW * 100).
+       Inverting that gives the local pct from the pointer's screen pct.
+       The clip-path / divider / handle all live inside compare-zoom and
+       use LOCAL pct, so we must feed setSplit the local value — not the
+       raw screen pct that my old code used. */
+    const z = (typeof ZOOM !== 'undefined' && ZOOM.scale) || 1;
+    const panPct = (typeof ZOOM !== 'undefined' && ZOOM.x)
+      ? (ZOOM.x / rect.width) * 100
+      : 0;
+    let localPct = (screenPct - 50 - panPct) / z + 50;
+    if (localPct < 0) localPct = 0;
+    if (localPct > 100) localPct = 100;
+    setSplit(dragging, localPct);
   }
   document.addEventListener('pointermove', e => { if (dragging) moveFrom(e); });
   function endDrag(){
