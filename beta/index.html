@@ -892,11 +892,13 @@ function getWorker(){
         console.warn('[beta encode error]', m.message);
         entry.reject(new Error(m.message));
       } else if (m.type === 'progress') {
-        /* Show stage text in the centered loading overlay — first encode
-           includes WASM download (~250KB) so progress feedback matters most
-           here. We pull the filename from the entry so the user can see
-           which file is currently cooking when batches are in flight. */
-        if (entry.filename) {
+        /* Center overlay is reserved for the SELECTED thumb's encode. If a
+           background-queue encode for a different thumb is sending progress
+           events, we ignore them in the center overlay (the per-thumb
+           spinner on that thumb already conveys "this one is cooking").
+           Otherwise the overlay would flash for every queue item even
+           after the selected image's compare is fully rendered. */
+        if (entry.filename && entry.idx === CFLOW.selected) {
           showCenterStatus(m.stage === 'decoding' ? 'Decoding…' : 'Encoding…', entry.filename);
         }
       }
@@ -1231,12 +1233,17 @@ async function processQueue(){
         const url = URL.createObjectURL(blob);
         const fmt = ((blob.type||'').split('/')[1] || 'img').replace('jpeg','jpg');
         ENCODE.encoded.set(idx, { blob, url, size: blob.size, format: fmt });
+        /* Clear the per-thumb encoding badge — encodeFile set it; without
+           this, the spinner would persist on background-queue thumbs even
+           after their encode landed. */
+        markThumbEncoding(idx, false);
         /* If this completes for the currently displayed thumb, refresh the
            canvas so the user sees the After image without a manual click. */
         if (CFLOW.selected === idx && typeof syncMainImage === 'function') {
           syncMainImage(true);
         }
       } catch (e) {
+        markThumbEncoding(idx, false);
         if (myGen === ENCODE.gen) console.warn('[queue encode failed]', idx, e && e.message || e);
       }
     }
