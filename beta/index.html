@@ -156,6 +156,45 @@
   .image-canvas:not(.has-after) .compare-handle,
   .image-canvas:not(.has-after) .compare-meta.r{display:none;}
 
+  /* Drop-anywhere overlay — overrides production CSS to match user spec:
+     dashed border spans the full viewport (inset from edges), all text
+     white, no inner card chrome. The production version drew a small
+     bordered card in the center; this is a full-page treatment. */
+  .window-drop-overlay{
+    background:rgba(0,0,0,.45) !important;
+  }
+  .window-drop-overlay::before{
+    content:'';
+    position:absolute;inset:20px;
+    border:3px dashed rgba(255,255,255,.7);
+    border-radius:14px;
+    pointer-events:none;
+  }
+  .window-drop-overlay .wd-card{
+    position:relative;z-index:1;
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+    color:#fff !important;
+    padding:0 !important;
+    max-width:420px;
+  }
+  .window-drop-overlay .wd-card svg{
+    color:#fff;display:block;margin:0 auto 16px;
+    width:56px;height:56px;
+  }
+  .window-drop-overlay .wd-title{
+    color:#fff !important;font-size:1.5rem;font-weight:700;
+    margin-bottom:6px;letter-spacing:-.3px;
+  }
+  .window-drop-overlay .wd-sub{
+    color:rgba(255,255,255,.85) !important;font-size:.9rem;
+  }
+  @media(max-width:600px){
+    .window-drop-overlay::before{inset:14px;}
+    .window-drop-overlay .wd-title{font-size:1.2rem;}
+  }
+
   /* Big-batch confirm modal */
   .bigbatch-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,.6);
