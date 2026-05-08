@@ -495,22 +495,36 @@
     font-size:.62rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);
   }
-  /* Core (always-visible) — gear, format pills, quality slider */
+  /* Toolbar baseline — every interactive element targets this height so
+     the bar reads as one cohesive control surface, not a parade of
+     mismatched chips. Format pills, presets dropdown, mode toggle,
+     batch buttons, and the gear all align. */
+  :root{--bb-btn-h:30px;}
   .bb-core{
-    display:flex;align-items:center;gap:14px;
+    display:flex;align-items:center;gap:10px;
     padding:8px 12px;
   }
-  .bb-core .adjust-pills{flex-wrap:nowrap;}
   .bb-core .quality-row{min-width:170px;}
+  /* Quality slider container should be the same height as the buttons */
+  .bb-core .quality-row,
+  .bb-drawer-inner .resize-mode-toggle,
+  .bb-drawer-inner .resize-input-wrap,
+  .bb-drawer-inner .resize-presets,
+  .bb-drawer-inner .switch{
+    height:var(--bb-btn-h);
+  }
   .bb-divider{
     width:1px;background:rgba(255,255,255,.12);align-self:stretch;
     margin:6px 0;
   }
   /* Batch actions (right edge of bar) */
   .menu-card > .actions{
-    padding:8px 10px;
-    flex-direction:row;
-    gap:6px;
+    padding:8px 10px;flex-direction:row;gap:6px;align-items:center;
+  }
+  .menu-card > .actions .btn{
+    height:var(--bb-btn-h);padding:0 12px;
+    display:inline-flex;align-items:center;
+    font-size:.72rem;
   }
   .settings-icon{
     display:inline-flex;align-items:center;justify-content:center;
@@ -527,17 +541,19 @@
      gives keyboard/screen-reader access. */
   .settings-toggle{
     pointer-events:auto;background:transparent;border:0;
-    display:flex;align-items:center;justify-content:center;gap:6px;
-    color:rgba(255,255,255,.78);font-family:inherit;font-size:.74rem;font-weight:600;
-    cursor:pointer;padding:8px 10px;letter-spacing:.04em;text-transform:uppercase;
-    border-left:1px solid rgba(255,255,255,.08);
+    display:flex;align-items:center;justify-content:center;
+    width:var(--bb-btn-h);height:var(--bb-btn-h);
+    color:rgba(255,255,255,.78);font-family:inherit;
+    cursor:pointer;padding:0;border-radius:6px;
+    margin:0 4px;
   }
   .settings-toggle > span:not(.settings-icon):not(.toggle-icon){display:none;}
   .settings-toggle .toggle-icon{display:none;}
-  .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.04);}
+  .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.06);}
   body[data-adjust="open"] .settings-toggle{
-    background:rgba(255,255,255,.06);color:#fff;
+    background:var(--accent);color:#fff;
   }
+  body[data-adjust="open"] .settings-icon{color:#fff;}
 
   /* .adjust-panel — legacy class kept for any inner sections inside the
      drawer that referenced it. The drawer itself handles open/close via
@@ -547,11 +563,22 @@
   .adjust-section:last-child{margin-bottom:0;}
   .adjust-label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:6px;}
-  .adjust-pills{display:flex;flex-wrap:wrap;gap:4px;}
-  .adjust-pills button{padding:5px 8px;border:1px solid rgba(255,255,255,.18);background:transparent;
-    border-radius:5px;color:rgba(255,255,255,.7);font-family:inherit;font-size:.66rem;font-weight:600;
-    cursor:pointer;text-transform:uppercase;}
-  .adjust-pills button.active{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.4);}
+  .adjust-pills{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+  .adjust-pills button{
+    height:var(--bb-btn-h);padding:0 10px;
+    border:1px solid rgba(255,255,255,.18);background:transparent;
+    border-radius:6px;color:rgba(255,255,255,.7);
+    font-family:inherit;font-size:.7rem;font-weight:600;
+    cursor:pointer;text-transform:uppercase;letter-spacing:.02em;
+    display:inline-flex;align-items:center;
+    transition:background .14s ease,border-color .14s ease,color .14s ease;
+  }
+  .adjust-pills button:hover{
+    background:rgba(255,255,255,.08);color:#fff;
+  }
+  .adjust-pills button.active{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+  }
   .quality-row{display:flex;align-items:center;gap:6px;}
   .quality-row input[type=range]{
     flex:1;accent-color:var(--accent);height:4px;
@@ -571,30 +598,19 @@
      dark, leaving white-on-white text in the dropdown, and (b) the
      two-step "open menu, pick mode, type value" flow was extra friction
      for what's a binary choice. */
-  .resize-mode-toggle{
-    display:flex;gap:4px;
-    background:rgba(255,255,255,.06);border-radius:7px;padding:3px;
-    margin-bottom:6px;
-  }
-  .resize-mode-toggle button{
-    flex:1;background:transparent;border:none;color:rgba(255,255,255,.65);
-    font:inherit;font-size:.74rem;font-weight:600;
-    padding:5px 8px;border-radius:5px;cursor:pointer;
-    transition:background .14s ease,color .14s ease;
-  }
-  .resize-mode-toggle button:hover{color:#fff;}
-  .resize-mode-toggle button.active{
-    background:var(--accent);color:#fff;
-  }
+  /* Resize-mode-toggle (Pixels|Percent) — REMOVED per user feedback in
+     favor of pixels-only. Selectors kept stub-only so any leftover query
+     in JS doesn't error. */
+  .resize-mode-toggle{display:none;}
   .resize-input-wrap{
     position:relative;
   }
   .resize-input-wrap input{
-    width:100%;padding:6px 36px 6px 9px;
+    width:100%;height:var(--bb-btn-h);padding:0 36px 0 10px;
     background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.18);
     color:#fff;border-radius:6px;
-    font:inherit;font-size:.85rem;
+    font:inherit;font-size:.78rem;
     outline:none;
     -moz-appearance:textfield;
   }
@@ -648,10 +664,11 @@
     position:relative;display:inline-block;
   }
   .resize-presets-trigger{
-    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-    color:rgba(255,255,255,.75);font:inherit;font-size:.7rem;font-weight:600;
-    padding:4px 8px 4px 9px;border-radius:5px;cursor:pointer;
-    display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+    height:var(--bb-btn-h);
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);
+    color:rgba(255,255,255,.75);font:inherit;font-size:.72rem;font-weight:600;
+    padding:0 10px;border-radius:6px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
     transition:background .14s ease,border-color .14s ease,color .14s ease;
   }
   .resize-presets-trigger:hover{
@@ -664,17 +681,21 @@
     background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3);
   }
   .resize-presets.open .resize-presets-trigger svg{transform:rotate(180deg);}
+  /* Position FIXED instead of absolute — the .bb-drawer parent has
+     overflow:hidden (needed for the slide animation), which was clipping
+     the popover when it tried to open above the trigger. JS computes the
+     fixed position from the trigger's getBoundingClientRect on open. */
   .resize-presets-menu{
-    position:absolute;bottom:calc(100% + 6px);left:50%;
-    transform:translateX(-50%) translateY(4px);
+    position:fixed;
     display:none;flex-direction:column;min-width:88px;
     background:var(--card-bg);
     border:1px solid var(--card-border);border-radius:8px;
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     box-shadow:0 6px 24px rgba(0,0,0,.5);
-    padding:4px;z-index:12;
+    padding:4px;z-index:9999;
     opacity:0;pointer-events:none;
     transition:opacity .14s ease,transform .14s ease;
+    transform:translateX(-50%) translateY(4px);
   }
   .resize-presets.open .resize-presets-menu{
     display:flex;opacity:1;pointer-events:auto;
@@ -757,14 +778,23 @@
     /* Drawer becomes a top row (above the core), full-width, vertical
        stack of sections. No horizontal slide-out — just show/hide block. */
     .bb-drawer{
-      max-width:none;width:100%;
-      border-right:none;border-bottom:1px solid transparent;
+      /* OVERLAY above the bar instead of expanding it. The menu-card stays
+         at a fixed height, so the cover-flow position (driven by --menu-h)
+         doesn't shift when the user toggles settings. */
+      position:absolute;
+      left:0;right:0;bottom:100%;
+      max-width:none;width:auto;
+      max-height:0;overflow:hidden;
+      background:var(--card-bg);
+      border:1px solid var(--card-border);
+      border-bottom:none;
+      border-radius:14px 14px 0 0;
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
       transition:max-height .26s ease,opacity .2s ease,padding .25s ease;
-      max-height:0;padding:0;
+      padding:0;opacity:0;
     }
     body[data-adjust="open"] .bb-drawer{
-      max-height:200px;padding:6px 4px 4px;
-      border-bottom-color:rgba(255,255,255,.12);
+      max-height:240px;padding:8px 4px;opacity:1;
     }
     .bb-drawer-inner{
       flex-direction:column;gap:8px;width:100%;
@@ -1005,15 +1035,25 @@
 
   <div class="menu-wrap" id="menuWrap">
     <div class="menu-card">
-      <!-- Drawer slides OUT from the left of the gear when toggled; holds
-           secondary controls (Resize + Privacy). The "film strip" pull. -->
+      <!-- Drawer slides OUT from the left of the gear when toggled. Per
+           user feedback, the FORMAT pills moved inside the drawer too —
+           the always-visible core now only shows the most-tweaked
+           controls (quality slider) plus batch actions. -->
       <div class="bb-drawer" aria-hidden="true">
         <div class="bb-drawer-inner">
           <div class="bb-section">
+            <span class="bb-section-label">Format</span>
+            <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div>
+          </div>
+          <div class="bb-divider"></div>
+          <div class="bb-section">
             <span class="bb-section-label">Resize</span>
-            <div class="resize-mode-toggle" role="tablist" aria-label="Resize unit">
-              <button type="button" class="rmt-btn active" data-mode="dim" role="tab" aria-selected="true">Pixels</button>
-              <button type="button" class="rmt-btn" data-mode="pct" role="tab" aria-selected="false">Percent</button>
+            <!-- Pixels-only resize — Percent removed per user feedback as
+                 universally less common. The mode-toggle markup is
+                 retained as a stub (display:none) so existing JS that
+                 reads .rmt-btn.active doesn't error. -->
+            <div class="resize-mode-toggle" hidden>
+              <button type="button" class="rmt-btn active" data-mode="dim">Pixels</button>
             </div>
             <div class="resize-input-wrap">
               <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
@@ -1030,10 +1070,10 @@
       </div>
       <!-- Gear: drawer-pull (always visible) -->
       <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
-      <!-- Core (always visible): Format pills + Quality slider -->
+      <!-- Core (always visible): Quality slider only. Format selection lives
+           in the drawer behind the gear so the bar reads cleaner. -->
       <div class="bb-core">
-        <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div>
-        <div class="bb-divider"></div>
+        <span class="bb-section-label" style="margin-right:2px;">Quality</span>
         <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div>
       </div>
       <div class="adjust-panel" hidden></div>
@@ -2354,17 +2394,13 @@ function attachSettingsListeners(){
   const unitEl  = root.querySelector('.resize-unit');
   const modeBtns = root.querySelectorAll('.resize-mode-toggle .rmt-btn');
   function syncResizeMode(){
-    const active = root.querySelector('.resize-mode-toggle .rmt-btn.active');
-    const mode = active && active.dataset.mode;
-    if (unitEl) unitEl.textContent = mode === 'pct' ? '%' : 'px';
+    /* Pixels-only mode now (Percent dropped). Keep the function shape so
+       the rest of the wiring is unchanged. */
+    const mode = 'dim';
+    if (unitEl) unitEl.textContent = 'px';
     if (sizeInp) {
-      sizeInp.placeholder = mode === 'pct' ? 'e.g. 50' : 'e.g. 1200';
-      if (mode === 'pct') {
-        sizeInp.max = '100';
-        if (sizeInp.value && parseInt(sizeInp.value) > 100) sizeInp.value = '';
-      } else {
-        sizeInp.removeAttribute('max');
-      }
+      sizeInp.placeholder = 'e.g. 1200';
+      sizeInp.removeAttribute('max');
     }
     /* Refresh quick-picks for the active mode. Compact dropdown — trigger
        button shows "Presets ▾", clicking opens a popover with the choices.
@@ -2372,10 +2408,9 @@ function attachSettingsListeners(){
        Items: 1080/1920/4K (pixel mode), 50%/75% (percent mode). */
     const presets = root.querySelector('.resize-presets');
     if (presets) {
-      const items = mode === 'pct'
-        ? [['50','50%'],['75','75%']]
-        : [['1080','1080 px'],['1920','1920 px'],['4096','4K (4096)']];
-      const triggerLabel = mode === 'pct' ? 'Presets' : 'Presets';
+      /* Pixels-only presets now */
+      const items = [['1080','1080 px'],['1920','1920 px'],['4096','4K (4096)']];
+      const triggerLabel = 'Presets';
       presets.innerHTML =
         '<button type="button" class="resize-presets-trigger">' +
           triggerLabel +
@@ -2388,7 +2423,16 @@ function attachSettingsListeners(){
       const menu = presets.querySelector('.resize-presets-menu');
       trig.addEventListener('click', e => {
         e.stopPropagation();
+        const willOpen = !presets.classList.contains('open');
         presets.classList.toggle('open');
+        /* Position the menu via fixed coordinates on open so it isn't
+           clipped by the drawer's overflow:hidden. Recomputed every open
+           in case the trigger moved (resize, scroll). */
+        if (willOpen) {
+          const r = trig.getBoundingClientRect();
+          menu.style.left = (r.left + r.width / 2) + 'px';
+          menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+        }
       });
       menu.querySelectorAll('button').forEach(b => {
         b.addEventListener('click', e => {
