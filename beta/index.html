@@ -637,13 +637,19 @@
   }
 
   /* .bb-row — horizontal sub-grouping inside a section. Used for Resize
-     where input + presets dropdown sit side-by-side. The desktop default
-     was missing flex display, so children stacked vertically. */
+     where input + presets dropdown sit side-by-side. */
   .bb-row{
     display:flex;flex-direction:row;align-items:center;gap:6px;
   }
-  .bb-row .resize-input-wrap{flex:1;min-width:0;}
+  /* Cap the resize input width on desktop so it visually balances with
+     the Presets trigger button next to it. Was flex:1 which stretched
+     the input way wider than the dropdown beside it, looking lopsided.
+     Mobile keeps flex:1 so the input fills the row. */
+  .bb-row .resize-input-wrap{flex:none;width:110px;min-width:0;}
   .bb-row .resize-presets{flex:none;}
+  @media(max-width:767px){
+    .bb-row .resize-input-wrap{flex:1;width:auto;}
+  }
 
   /* Toolbar baseline — every interactive element targets this height so
      the bar reads as one cohesive control surface, not a parade of
@@ -1308,7 +1314,7 @@
           <div class="bb-section">
             <span class="bb-section-label">Crop</span>
             <div class="adjust-pills crop-pills">
-              <button type="button" class="active" data-crop="none">Free</button>
+              <button type="button" class="active" data-crop="none">None</button>
               <button type="button" data-crop="1:1">1:1</button>
               <button type="button" data-crop="4:3">4:3</button>
               <button type="button" data-crop="3:4">3:4</button>
