@@ -282,10 +282,10 @@
   /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
   .cover-flow{
     position:absolute;
-    /* full-width so the centered thumb sits at viewport center;
-       the action card overlays the right portion */
-    bottom:14px;left:0;right:0;
-    height:170px;
+    /* Cover-flow sits ABOVE the bottom toolbar (bar at bottom:14px ~62px tall).
+       Total bottom offset: bar(62) + gap(20) = 82px. */
+    bottom:96px;left:0;right:0;
+    height:160px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
     /* overflow:visible so the per-image action icons (which sit ABOVE the
@@ -443,18 +443,69 @@
   .pi-icon.confirmed .pi-toast{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* ---------- bottom-right action card ---------- */
+  /* Bottom toolbar — moved from right corner to bottom-center per UX
+     research. Matches stable's fs-editor pattern + Lightroom/Photoshop
+     bottom-toolbar convention. The previous corner card overlapped the
+     cover-flow when many thumbs were shown. */
   .menu-wrap{
     position:absolute;
-    right:14px;bottom:14px;
-    width:var(--action-w);
-    display:flex;flex-direction:column;
+    left:50%;bottom:14px;transform:translateX(-50%);
+    display:flex;align-items:stretch;
     pointer-events:none;z-index:7;
+    max-width:calc(100vw - 28px);
   }
   .menu-card{
     pointer-events:auto;
+    display:flex;align-items:stretch;
     background:var(--card-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border:1px solid var(--card-border);border-radius:var(--card-radius);
-    overflow:hidden;color:#fff;width:100%;
+    border:1px solid var(--card-border);border-radius:14px;
+    overflow:hidden;color:#fff;
+  }
+  /* Settings drawer — slides out leftward FROM the gear like a strip of
+     film. The drawer holds the secondary controls (Resize + Privacy)
+     that the user visits less often than format/quality. Width animates
+     0→auto via max-width transition. */
+  .bb-drawer{
+    display:flex;align-items:center;
+    max-width:0;overflow:hidden;
+    border-right:1px solid transparent;
+    transition:max-width .32s cubic-bezier(.22,1,.36,1),
+               border-right-color .2s ease,
+               padding .25s ease;
+    padding:0;
+  }
+  body[data-adjust="open"] .bb-drawer{
+    max-width:520px;
+    padding:0 4px;
+    border-right-color:rgba(255,255,255,.12);
+  }
+  .bb-drawer-inner{
+    display:flex;align-items:center;gap:14px;
+    padding:8px 12px;white-space:nowrap;
+  }
+  .bb-section{
+    display:flex;align-items:center;gap:8px;
+  }
+  .bb-section-label{
+    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);
+  }
+  /* Core (always-visible) — gear, format pills, quality slider */
+  .bb-core{
+    display:flex;align-items:center;gap:14px;
+    padding:8px 12px;
+  }
+  .bb-core .adjust-pills{flex-wrap:nowrap;}
+  .bb-core .quality-row{min-width:170px;}
+  .bb-divider{
+    width:1px;background:rgba(255,255,255,.12);align-self:stretch;
+    margin:6px 0;
+  }
+  /* Batch actions (right edge of bar) */
+  .menu-card > .actions{
+    padding:8px 10px;
+    flex-direction:row;
+    gap:6px;
   }
   .settings-icon{
     display:inline-flex;align-items:center;justify-content:center;
@@ -462,29 +513,31 @@
     transition:transform .18s ease,color .18s ease;
   }
   .settings-icon svg{width:100%;height:100%;}
-  .menu-card.open .settings-icon{transform:rotate(60deg);color:var(--accent);}
+  .menu-card.open .settings-icon,
+  body[data-adjust="open"] .settings-icon{transform:rotate(90deg);color:var(--accent);}
+  /* Gear button — vertical "tab" anchored between drawer and core. Acts
+     as the drawer-pull: clicking rotates the gear and slides the drawer
+     out from its left edge. The text label is hidden in the bottom-bar
+     layout (icon-only, like stable's fs editor); the title attribute
+     gives keyboard/screen-reader access. */
   .settings-toggle{
-    pointer-events:auto;background:transparent;border:0;width:100%;
-    display:flex;align-items:center;justify-content:space-between;
+    pointer-events:auto;background:transparent;border:0;
+    display:flex;align-items:center;justify-content:center;gap:6px;
     color:rgba(255,255,255,.78);font-family:inherit;font-size:.74rem;font-weight:600;
-    cursor:pointer;padding:11px 14px;letter-spacing:.04em;text-transform:uppercase;
-    border-bottom:1px solid rgba(255,255,255,.10);
+    cursor:pointer;padding:8px 10px;letter-spacing:.04em;text-transform:uppercase;
+    border-left:1px solid rgba(255,255,255,.08);
   }
+  .settings-toggle > span:not(.settings-icon):not(.toggle-icon){display:none;}
+  .settings-toggle .toggle-icon{display:none;}
   .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.04);}
-  .settings-toggle .toggle-icon{
-    width:18px;height:18px;
-    display:inline-flex;align-items:center;justify-content:center;
-    color:rgba(255,255,255,.7);font-weight:700;font-size:1.1rem;
-    line-height:1;transition:color .15s;
+  body[data-adjust="open"] .settings-toggle{
+    background:rgba(255,255,255,.06);color:#fff;
   }
-  .settings-toggle .toggle-icon::before{content:"+";}
-  body[data-adjust="open"] .settings-toggle .toggle-icon::before{content:"−";}
-  body[data-adjust="open"] .settings-toggle .toggle-icon{color:#fff;}
-  body[data-adjust="open"] .settings-toggle{color:#fff;}
-  body[data-adjust="closed"] .settings-toggle{border-bottom-color:rgba(255,255,255,.06);}
 
-  .adjust-panel{display:none;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.10);}
-  body[data-adjust="open"] .adjust-panel{display:block;}
+  /* .adjust-panel — legacy class kept for any inner sections inside the
+     drawer that referenced it. The drawer itself handles open/close via
+     max-width on .bb-drawer (parent), so no display toggle is needed here. */
+  .adjust-panel{display:contents;}
   .adjust-section{margin-bottom:12px;}
   .adjust-section:last-child{margin-bottom:0;}
   .adjust-label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;
@@ -640,13 +693,17 @@
   @media(max-width:767px){
     :root{--thumb-big:110px;--thumb-small:55px;--action-w:auto;}
     .cover-flow{
-      /* Sit just above the menu card. Bottom value is updated by JS so the
-         strip stays ~6px above whatever the menu's current height is. */
-      bottom:calc(var(--menu-h,100px) + 6px);
+      bottom:calc(var(--menu-h,80px) + 6px);
       left:0;right:0;
-      height:130px;
+      height:120px;
     }
-    .menu-wrap{left:8px;right:8px;bottom:8px;width:auto;}
+    .menu-wrap{
+      left:8px;right:8px;bottom:8px;
+      transform:none;max-width:calc(100vw - 16px);
+    }
+    .menu-card{flex-wrap:wrap;}
+    .bb-core{flex:1;min-width:0;}
+    .bb-core .quality-row{min-width:120px;}
     /* Mobile actions on a single row */
     .actions{
       flex-direction:row;flex-wrap:nowrap;gap:6px;
@@ -864,28 +921,38 @@
 
   <div class="menu-wrap" id="menuWrap">
     <div class="menu-card">
-      <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings panel"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
-      <div class="adjust-panel">
-        <div class="adjust-section"><span class="adjust-label">Format</span>
-          <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
-        <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
-          <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size"></span><span class="qr-spinner" aria-hidden="true"></span></div></div>
-        <div class="adjust-section"><span class="adjust-label">Resize</span>
-          <div class="resize-mode-toggle" role="tablist" aria-label="Resize unit">
-            <button type="button" class="rmt-btn active" data-mode="dim" role="tab" aria-selected="true">Pixels</button>
-            <button type="button" class="rmt-btn" data-mode="pct" role="tab" aria-selected="false">Percent</button>
+      <!-- Drawer slides OUT from the left of the gear when toggled; holds
+           secondary controls (Resize + Privacy). The "film strip" pull. -->
+      <div class="bb-drawer" aria-hidden="true">
+        <div class="bb-drawer-inner">
+          <div class="bb-section">
+            <span class="bb-section-label">Resize</span>
+            <div class="resize-mode-toggle" role="tablist" aria-label="Resize unit">
+              <button type="button" class="rmt-btn active" data-mode="dim" role="tab" aria-selected="true">Pixels</button>
+              <button type="button" class="rmt-btn" data-mode="pct" role="tab" aria-selected="false">Percent</button>
+            </div>
+            <div class="resize-input-wrap">
+              <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
+              <span class="resize-unit">px</span>
+            </div>
+            <div class="resize-presets" data-presets></div>
           </div>
-          <div class="resize-input-wrap">
-            <input type="number" class="adjust-input resize-input" min="1" placeholder="e.g. 1200" inputmode="numeric">
-            <span class="resize-unit">px</span>
+          <div class="bb-divider"></div>
+          <div class="bb-section">
+            <span class="bb-section-label">Privacy</span>
+            <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label>
           </div>
-          <!-- Quick-picks: tap a chip to set value + trigger re-encode.
-               Pixel mode: 1080 / 1920 / 4096 (4K). Percent mode: 50 / 75. -->
-          <div class="resize-presets" data-presets></div>
-          <div class="resize-orig-hint" data-orig></div></div>
-        <div class="adjust-section"><span class="adjust-label">Privacy</span>
-          <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label></div>
+        </div>
       </div>
+      <!-- Gear: drawer-pull (always visible) -->
+      <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
+      <!-- Core (always visible): Format pills + Quality slider -->
+      <div class="bb-core">
+        <div class="adjust-pills"><button class="active">Auto</button><button>WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div>
+        <div class="bb-divider"></div>
+        <div class="quality-row"><input type="range" min="10" max="100" value="82"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div>
+      </div>
+      <div class="adjust-panel" hidden></div>
       <div class="actions">
         <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
         <button class="btn" onclick="shareAll()"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
