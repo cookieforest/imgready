@@ -1700,25 +1700,29 @@ async function piCopy(btn){
   if (!enc || !enc.blob) return;
   try {
     if (!navigator.clipboard || !window.ClipboardItem) throw new Error('clipboard api unavailable');
-    /* Pass a Promise<Blob> directly to ClipboardItem. The browser holds the
-       user-gesture context while the conversion runs, so Safari/Chrome don't
-       reject the write with "Document is not focused". Awaiting the
-       conversion FIRST and then writing is the version that fails — by then
-       the gesture is consumed. */
-    const wantPng = enc.blob.type !== 'image/png' && enc.blob.type !== 'image/jpeg';
-    const finalType = wantPng ? 'image/png' : enc.blob.type;
-    const blobPromise = wantPng
-      ? createImageBitmap(enc.blob).then(bmp => {
+    /* Browser clipboard image support is image/png only (universally —
+       Chrome rejects image/jpeg, Safari only accepts image/png, Firefox
+       same). Always convert to PNG regardless of source. The Promise<Blob>
+       form preserves the user-gesture context across the async conversion. */
+    const blobPromise = enc.blob.type === 'image/png'
+      ? Promise.resolve(enc.blob)
+      : createImageBitmap(enc.blob).then(bmp => {
           const c = new OffscreenCanvas(bmp.width, bmp.height);
           const ctx = c.getContext('2d');
+          /* JPEG-style background fill so transparent PNG sources don't
+             come out with checkerboard background after the copy. */
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, bmp.width, bmp.height);
           ctx.drawImage(bmp, 0, 0);
           return c.convertToBlob({ type: 'image/png' });
-        })
-      : Promise.resolve(enc.blob);
-    await navigator.clipboard.write([new ClipboardItem({ [finalType]: blobPromise })]);
+        });
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blobPromise })]);
     piConfirm(btn, 'Copied!');
   } catch (err) {
     console.warn('[beta piCopy] failed', err && err.message || err);
+    /* Surface the failure so the user knows to try again — silent failure
+       was the original bug report. */
+    piConfirm(btn, 'Copy failed');
   }
 }
 async function piShare(){
@@ -1736,14 +1740,26 @@ async function piShare(){
   const base = f.file.name.replace(/\.[^.]+$/, '');
   const ext = enc.format || 'jpg';
   const file = new File([enc.blob], `${base}_imgready.${ext}`, { type: enc.blob.type });
+  const shareBtn = document.querySelector('#piActions .pi-icon[title="Share this"]');
   if (navigator.canShare && navigator.canShare({ files:[file] })) {
     try {
       await navigator.share({ files:[file], title: 'imgready' });
-      piConfirm(document.querySelector('#piActions .pi-icon[title="Share this"]'), 'Shared');
-    } catch(_){ /* user dismissed share sheet — no toast */ }
+      piConfirm(shareBtn, 'Shared');
+    } catch(err){
+      /* AbortError = user dismissed share sheet (no toast). Other errors =
+         actual failure (toast). Distinguishing prevents the green check
+         from showing when the user explicitly cancelled. */
+      if (err && err.name !== 'AbortError') {
+        console.warn('[beta piShare] failed', err && err.message || err);
+        piConfirm(shareBtn, 'Share failed');
+      }
+    }
   } else {
+    /* Web Share unsupported (most desktop browsers) — fall back to a plain
+       download. Use the Share button to confirm because that's the button
+       the user clicked. */
     triggerDownload(enc.url, `${base}_imgready.${ext}`);
-    piConfirm(document.querySelector('#piActions .pi-icon[title="Share this"]'), 'Downloaded');
+    piConfirm(shareBtn, 'Downloaded');
   }
 }
 async function piDownload(){
