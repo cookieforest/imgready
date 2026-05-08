@@ -524,6 +524,7 @@
   .bb-drawer-inner{
     display:flex;align-items:center;gap:14px;
     padding:8px 12px;white-space:nowrap;
+    background:transparent;
   }
   .bb-section{
     display:flex;align-items:center;gap:8px;
@@ -533,6 +534,15 @@
     text-transform:uppercase;color:rgba(255,255,255,.55);
     flex:none;white-space:nowrap;
   }
+  /* .bb-row — horizontal sub-grouping inside a section. Used for Resize
+     where input + presets dropdown sit side-by-side. The desktop default
+     was missing flex display, so children stacked vertically. */
+  .bb-row{
+    display:flex;flex-direction:row;align-items:center;gap:6px;
+  }
+  .bb-row .resize-input-wrap{flex:1;min-width:0;}
+  .bb-row .resize-presets{flex:none;}
+
   /* Toolbar baseline — every interactive element targets this height so
      the bar reads as one cohesive control surface, not a parade of
      mismatched chips. Format pills, presets dropdown, mode toggle,
@@ -587,9 +597,14 @@
     /* No right-divider — drawer now sits to the gear's right and provides
        its own border-left when open. Keeps the visual clean both states. */
   }
+  /* Gear "open" indicator — subtle bg tint instead of full green so the
+     drawer + gear visually read as one continuous panel, not two cards.
+     The icon rotation + (mobile) Close-text label are the explicit
+     state cues. */
   body[data-adjust="open"] .settings-toggle{
-    background:var(--accent);color:#fff;
+    background:rgba(255,255,255,.08);color:#fff;
   }
+  body[data-adjust="open"] .settings-icon{color:var(--accent);}
   @media(max-width:767px){
     .settings-toggle{
       align-self:stretch;padding:10px 12px;width:100%;
@@ -1118,10 +1133,6 @@
     </div>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
-    <!-- Filename ribbon middle-top — common in Photopea/Lightroom/Photoshop
-         to keep the user oriented while they zoom/compare. Auto-fades when
-         the cursor approaches it (so it doesn't block the image). -->
-    <div class="filename-ribbon" id="filenameRibbon" aria-live="polite"></div>
     <div class="center-status" id="centerStatus" hidden>
       <div class="cs-spinner" aria-hidden="true"></div>
       <div class="cs-stage" id="csStage">Decoding…</div>
@@ -1145,6 +1156,11 @@
       </div>
     </div>
   </div>
+  <!-- Filename ribbon — sibling of image-canvas (NOT a child) so
+       its bottom:var(--menu-h)+8 is relative to the stage, not to the
+       image-canvas which has its own constrained bottom. The previous
+       child placement made the filename render INSIDE the canvas area. -->
+  <div class="filename-ribbon" id="filenameRibbon" aria-live="polite"></div>
 
   <div class="menu-wrap" id="menuWrap">
     <div class="menu-card">
