@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5a7a5a">
+<meta name="color-scheme" content="light dark">
+<title>imgready — Free Image Optimizer, Compressor & Resizer</title>
+<meta name="description" content="Compress, resize and convert images online for free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
+<meta property="og:title" content="imgready — Free Image Optimizer, Compressor & Resizer">
+<meta property="og:description" content="Compress, resize and convert any image free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
+<meta property="og:image" content="https://imgready.app/demo.webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="795">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://imgready.app/">
+<meta property="og:site_name" content="imgready">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="imgready — Free Image Optimizer, Compressor & Resizer">
+<meta name="twitter:description" content="Compress, resize and convert any image — free, private, in-browser. HEIC, TIFF, WebP, AVIF and more.">
+<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<link rel="canonical" href="https://imgready.app/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+
+<!-- Google AdSense loader (deferred for FCP). Sequenced so the script tag
+     never competes with first paint:
+       1. Synchronously install interaction listeners (pointer/key/touch/
+          scroll) — first real input fires the load immediately.
+       2. After window.onload (i.e. the page's initial paint + layout has
+          settled), schedule a requestIdleCallback to load AdSense, with a
+          1.5s extra hold-off as a floor so even on a "page is already idle
+          at load" browser we don't pile AdSense onto the same RAF as the
+          last layout pass. setTimeout fallback for browsers without RIC.
+     Without the load-event gate, RIC's timeout argument is a *cap*, not a
+     *minimum* — Chrome happily fired the callback at 254 ms (mid-HTML-parse)
+     on a fast connection, which defeated the entire deferral. Now the
+     earliest AdSense can fetch is post-load + 1.5 s, which empirically
+     leaves FCP/LCP/TTI uncontested. The `_adsenseLoading` guard prevents
+     double-injection if multiple triggers fire concurrently. -->
+<script>
+(function(){
+  if(window._adsenseLoading)return;
+  function loadAdsense(){
+    if(window._adsenseLoading)return;
+    window._adsenseLoading=true;
+    var s=document.createElement('script');
+    s.async=true;
+    s.crossOrigin='anonymous';
+    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
+    document.head.appendChild(s);
+  }
+  var triggers=['pointerdown','keydown','touchstart','scroll'];
+  function onInteract(){
+    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
+    loadAdsense();
+  }
+  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
+  function scheduleAfterIdle(){
+    /* 1.5s floor before RIC schedule. Empirically keeps AdSense out of the
+       FCP critical path even on fast connections where RIC fires almost
+       immediately after registration. */
+    setTimeout(function(){
+      if('requestIdleCallback' in window){
+        requestIdleCallback(loadAdsense,{timeout:3000});
+      } else {
+        setTimeout(loadAdsense,1500);
+      }
+    },1500);
+  }
+  if(document.readyState==='complete'){
+    scheduleAfterIdle();
+  } else {
+    window.addEventListener('load',scheduleAfterIdle,{once:true});
+  }
+})();
+</script>
+
+<!-- Structured data: WebApplication + FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://imgready.app/#app",
+      "name": "imgready",
+      "description": "Free browser-based image compressor, converter and resizer. Supports HEIC, TIFF, WebP, AVIF, PNG, JPG, GIF and more. Files are processed locally in your browser and never uploaded.",
+      "url": "https://imgready.app/",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any (web browser)",
+      "browserRequirements": "Requires HTML5 Canvas and WebAssembly support.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Compress JPG, PNG, WebP, HEIC, TIFF",
+        "Convert between WebP, AVIF, PNG, JPG, GIF",
+        "Resize and crop with platform presets",
+        "Batch processing and ZIP download",
+        "Live quality editor with before/after compare",
+        "100% in-browser — files never uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://imgready.app/#faq",
+      "mainEntity": [
+        { "@type": "Question", "name": "Are my images uploaded?", "acceptedAnswer": { "@type": "Answer", "text": "No. Encoding runs in your browser. To verify, open DevTools and watch the Network tab while dropping a file — no requests carry image data." } },
+        { "@type": "Question", "name": "What is the difference between WebP and AVIF?", "acceptedAnswer": { "@type": "Answer", "text": "Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly. imgready uses WebAssembly encoders for both so every device gets identical output regardless of browser." } },
+        { "@type": "Question", "name": "How big a batch can I drop in?", "acceptedAnswer": { "@type": "Answer", "text": "The soft cap is 200 files with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop. There's no hard limit because there's no server queue, only your computer's RAM." } },
+        { "@type": "Question", "name": "Is there a file-size cap?", "acceptedAnswer": { "@type": "Answer", "text": "No. Drop a 100 MB TIFF if you have one. imgready has no caps because there's no server to bill for storage. The only constraint is your browser's available memory." } },
+        { "@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Open Settings, pick a platform preset or type a longest-side dimension, then choose your output format and hit Process. Crop ratios and EXIF stripping are in the same panel." } },
+        { "@type": "Question", "name": "What if a file fails to convert?", "acceptedAnswer": { "@type": "Answer", "text": "Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support. You'll see a card-level error with a Retry button. Re-saving the file in any image editor usually fixes it." } },
+        { "@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF on phones is slower; smaller batches (30 to 50) are recommended on mobile." } },
+        { "@type": "Question", "name": "Is imgready free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free with no caps. The site runs on Google AdSense ads (your image data is never sent to ad partners) and voluntary Ko-fi contributions. There is also a paid SDK for developers who want to embed imgready in their own products without the attribution badge." } }
+      ]
+    }
+  ]
+}
+</script>
+<!-- JSZip is lazy-loaded on demand (in downloadAll's ZIP fallback path).
+     Saves ~95 KB from first paint for the majority of users who use the
+     folder picker instead. See ensureJSZip() further down. -->
+
+<!--
+  jsquash imports — loads WebP and AVIF WASM encoders for the main
+  thread (used in solo/preview mode and as a fallback path on iOS
+  Safari, whose native canvas WebP encoder has a known quality bug).
+  Self-hosted from /vendor/jsquash/ — same bytes as the @jsquash/webp
+  and @jsquash/avif npm packages, bundled by esbuild. Removes the
+  third-party esm.sh dependency. The WASM sidecar files
+  (webp_enc.wasm, avif_enc.wasm) live alongside the .mjs bundles
+  and resolve via `new URL('xyz.wasm', import.meta.url)` at runtime.
+  We store the encode functions on window so the non-module main
+  IIFE script (loaded after this) can call them.
+-->
+<script type="module">
+import { encode as webpEncode } from '/vendor/jsquash/webp.mjs';
+window._jsquashWebpEncode = webpEncode;
+window._jsquashWebpReady = true;
+window.dispatchEvent(new Event('jsquash-webp-ready'));
+</script>
+<script type="module">
+import { encode as avifEncode } from '/vendor/jsquash/avif.mjs';
+window._jsquashAvifEncode = avifEncode;
+window._jsquashAvifReady = true;
+window.dispatchEvent(new Event('jsquash-avif-ready'));
+</script>
+<!--
+  UPNG.js — PNG quantization (lossy PNG-8) and encoding.
+  Requires pako (zlib) loaded first. Both MIT licensed.
+  When quality < 100: quantizes to fewer colors (PNG-8), 40-70% smaller.
+  When quality = 100: lossless via canvas.toBlob (no quantization).
+-->
+<!-- pako + UPNG: deferred so they don't block first paint. They're only
+     needed in the main-thread fallback path (PNG quantization in solo-mode
+     live preview); the worker pool loads its own copies via importScripts. -->
+<!-- crossorigin=anonymous is required: without it the script tag fetches no-cors,
+     and the SW caches an opaque response that the encoding worker's
+     importScripts() can't reuse, forcing every PNG encode to fall back to the
+     main thread.
+     Self-hosted from /vendor/ rather than cdnjs to remove the third-party SPOF
+     and make the import worker-loadable without CORS gymnastics. SRI hashes
+     pin the bytes so a future cache-poisoning attack on our own origin would
+     still fail to load. Update the integrity hash if you ever re-pull. -->
+<script defer crossorigin="anonymous" integrity="sha384-rNlaE5fs9dGIjmxWDALQh/RBAaGRYT5ChrzHo6tRfgrZ36iRFAiquP5g41Jsv+0j" src="/vendor/pako.min.js"></script>
+<script defer crossorigin="anonymous" integrity="sha384-ZL3zm2yr6WhKklr+limPN2KaWCW0x8rd9QIg3jabcFyrF6wB/h7VgythzrDTAI2O" src="/vendor/UPNG.min.js"></script>
+
+<link rel="stylesheet" href="/app.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"imgready \u2014 Free Image Optimizer, Compressor & Resizer","description":"Compress, resize and convert images online for free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser \u2014 your files never leave your device.","url":"https://imgready.app/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"imgready","url":"https://imgready.app/","logo":"https://imgready.app/favicon.svg","description":"Free in-browser image compressor, converter, and resizer. Your files never leave your device.","sameAs":[],"contactPoint":{"@type":"ContactPoint","contactType":"customer support","url":"https://imgready.app/support/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"imgready","url":"https://imgready.app/","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://imgready.app/?q={search_term_string}"},"query-input":"required name=search_term_string"}}</script>
+</head>
+<body>
+<a class="skip-link" href="#dropzone">Skip to image dropzone</a>
+<div class="app">
+
+  <nav class="topnav" aria-label="Primary">
+    <a class="brand" href="/">img<span>ready</span></a>
+    <!-- Hamburger trigger — visible only on mobile via CSS. Toggles the
+         .nav-links container's `.open` class so the menu drops down
+         beneath the nav. Desktop hides this button entirely. -->
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleNavMenu()" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="4" y1="7" x2="20" y2="7"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="17" x2="20" y2="17"/>
+      </svg>
+    </button>
+    <!-- All nav links live inside .nav-links. On desktop the wrapper is
+         display:contents so children act as direct nav children and the
+         existing horizontal layout is preserved. On mobile the wrapper
+         becomes a real dropdown panel beneath the nav. -->
+    <div class="nav-links" id="navMenu">
+      <span class="nav-sep" aria-hidden="true">|</span>
+      <a class="nav-link" href="/compress/">Compress</a>
+      <a class="nav-link" href="/heic-to-jpg/">HEIC</a>
+      <a class="nav-link" href="/resize/">Resize</a>
+      <a class="nav-link" href="/webp-converter/">Convert</a>
+      <a class="nav-link" href="/why/">Why</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <span class="nav-grow">
+        <a class="nav-link" href="/about/">About</a>
+        <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      </span>
+    </div>
+  </nav>
+
+  <!-- SETTINGS TRIGGER — full-width pill right above the dropzone, on
+       both mobile and desktop. The label calls out what's inside so power
+       users self-identify ("custom output, quality, resize") rather than
+       relying on the generic word "Settings." Click expands the panel
+       directly below; the dropzone is just below the panel either way. -->
+  <button class="settings-trigger" id="advToggle" onclick="toggleAdvanced()" aria-expanded="false" aria-controls="advPanel">
+    <span class="settings-trigger-arrow" aria-hidden="true">&#9654;</span>
+    <span class="settings-trigger-label">Output settings</span>
+  </button>
+
+  <!-- FINE-TUNE PANEL -->
+  <div class="advanced-panel" id="advPanel">
+    <div class="adv-group adv-cluster-output">
+      <label>Output</label>
+      <div class="format-row">
+        <div class="format-toggle" id="formatToggle">
+          <button id="btnAuto" class="active" onclick="selectFormat('auto')" title="Keep the input format. HEIC, TIFF, BMP become JPG; SVG becomes PNG.">Auto</button>
+          <button id="btnWebp" onclick="selectFormat('webp')">WebP</button>
+          <button id="btnAvif" onclick="selectFormat('avif')">AVIF</button>
+          <button id="btnPng" onclick="selectFormat('png')">PNG</button>
+          <button id="btnJpg" onclick="selectFormat('jpg')">JPG</button>
+          <button id="btnGif" onclick="selectFormat('gif')">GIF</button>
+          <button id="btnIco" onclick="selectFormat('ico')" title="Multi-resolution Windows icon — for favicons and desktop icons">ICO</button>
+        </div>
+        <!-- Multi-format toggle hidden — niche developer feature for HTML
+             <picture> output, no measurable user demand surfaced in the
+             usage research. Kept in source so we can re-enable in one
+             line if the data ever justifies it.
+        <div class="multi-output-wrap" id="multiOutputWrap">
+          <span class="mo-label">Multi-format</span>
+          <span class="mo-count" id="moCount">1</span>
+          <label class="toggle-switch" id="multiToggleSwitch" title="Output every format at once (for HTML <picture> markup)">
+            <input type="checkbox" id="multiOutputCheck" onchange="handleMultiOutputToggle()" aria-label="Output every format at once">
+            <span class="toggle-track"></span>
+            <span class="toggle-knob"></span>
+          </label>
+        </div>
+        -->
+      </div>
+      <span class="adv-hint" id="fmtTagline"></span>
+    </div>
+    <!-- Live Photo extraction toggle — opt-in feature for users who know
+         their HEIC files contain a 3-second video and want it as MP4.
+         Default OFF: matches the dominant user expectation (HEIC → JPG,
+         video silently dropped, like CloudConvert/FreeConvert). When ON,
+         imgready detects Live Photos via the HEIF parser and outputs
+         both the still and the embedded MOV (re-wrapped as MP4) on the
+         same card. The toggle is always visible regardless of selected
+         output format — Live Photo detection is input-driven not
+         output-driven, and the user might select WebP for the still
+         while still wanting the video. */
+    <div class="adv-group adv-group-livephoto">
+      <label class="toggle-pill">
+        <input type="checkbox" id="livePhotoExtract" onchange="onLivePhotoToggle(this.checked)">
+        Save Live Photo videos as MP4
+      </label>
+      <span class="adv-hint">iPhone Live Photos store a 3-second video alongside the still — turn this on to get both files.</span>
+    </div>
+    <!-- ICO size-set selector — only visible when format = ico (CSS rule
+         body.fmt-ico .adv-group-ico { display: block }). Three presets
+         cover 99% of cases; "Custom" expands to individual checkboxes.
+         The default is the favicon set (16/32/48), which is what most
+         users dropping a PNG to convert to .ico actually need. -->
+    <div class="adv-group adv-group-ico" id="adv-group-ico">
+      <label>Icon size set</label>
+      <select id="icoSizeSet" onchange="applyIcoSizeSet(this.value)">
+        <option value="favicon">Favicon (16, 32, 48)</option>
+        <option value="windows">Full Windows Icon (16, 32, 48, 64, 128, 256)</option>
+        <option value="custom">Custom — pick sizes</option>
+      </select>
+      <div class="ico-size-checks" id="icoSizeChecks">
+        <label><input type="checkbox" data-size="16" checked> 16</label>
+        <label><input type="checkbox" data-size="32" checked> 32</label>
+        <label><input type="checkbox" data-size="48" checked> 48</label>
+        <label><input type="checkbox" data-size="64"> 64</label>
+        <label><input type="checkbox" data-size="128"> 128</label>
+        <label><input type="checkbox" data-size="256"> 256</label>
+      </div>
+      <span class="adv-hint">Sizes larger than your source are skipped (avoids upscaling).</span>
+    </div>
+    <div class="adv-group adv-cluster-shape">
+      <label>Preset</label>
+      <select id="presetSelect" onchange="applyPreset(this.value)">
+        <option value="custom">Custom (no preset)</option>
+        <option value="ig-post">Instagram Post (1080 px · 1:1)</option>
+        <option value="ig-story">Instagram Story (1080 px · 9:16)</option>
+        <option value="yt-thumb">YouTube Thumbnail (1280 px · 16:9)</option>
+        <option value="twitter">Twitter / X Post (1200 px · 16:9)</option>
+        <option value="email">Email Safe (600 px · no crop)</option>
+      </select>
+      <span class="adv-hint">Pre-fills resize and crop. Override below.</span>
+    </div>
+    <div class="adv-group" id="qualityGroup">
+      <label>Quality</label>
+      <div class="row"><input type="range" id="qualitySlider" min="30" max="100" value="82" oninput="onQualityInput(this.value)"><span class="val-badge" id="qVal">82</span></div>
+      <span class="adv-hint" id="qualityHint">Great quality with significant file size savings.</span>
+    </div>
+    <!-- Crop section hidden — peer compression tools (TinyPNG, Squoosh,
+         Compressor.io) don't ship crop in their compress flow; it's a
+         separate product category. No usage signal in our traffic to
+         justify keeping it. Source preserved for one-line revival.
+    <div class="adv-group">
+      <label>Crop</label>
+      <div class="format-toggle" id="cropToggle">
+        <button class="active" onclick="setCropRatio('none')">None</button>
+        <button onclick="setCropRatio('1:1')">1:1</button>
+        <button onclick="setCropRatio('4:3')">4:3</button>
+        <button onclick="setCropRatio('3:4')">3:4</button>
+        <button onclick="setCropRatio('16:9')">16:9</button>
+        <button onclick="setCropRatio('9:16')">9:16</button>
+      </div>
+      <span class="adv-hint">Center-crops to this shape.</span>
+    </div>
+    -->
+    <div class="adv-group adv-group-resize">
+      <label>Resize</label>
+      <div class="resize-mode-row">
+        <select id="resizeMode" class="resize-mode-select" onchange="setResizeMode(this.value)" aria-label="Resize mode">
+          <option value="dim" selected>Longest side (px)</option>
+          <option value="pct">Percent (%)</option>
+        </select>
+        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
+      </div>
+      <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
+    </div>
+    <!-- Metadata strip hidden — defaulted to ON via the checkbox initial
+         state, which is the right behaviour for privacy regardless of
+         whether the user touches it. Most users never want EXIF preserved;
+         the rare ones who do can have the toggle revealed back from source.
+    <div class="adv-group">
+      <label>Metadata</label>
+      <label class="toggle-pill"><input type="checkbox" id="stripExif" checked> Remove location and camera data</label>
+      <span class="adv-hint">Strips GPS coordinates, device info and other embedded EXIF.</span>
+    </div>
+    -->
+  </div>
+
+  <!-- DROPZONE -->
+  <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
+    <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files to compress">
+    <span class="dz-icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </span>
+    <h2>Drop your images here</h2>
+    <p>or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
+         TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
+         in the same eye-line as the action, so first-time visitors don't
+         have to scroll to know what makes this different. Hidden in the
+         compact "Add more images" mode (body.has-images) since returning
+         users don't need re-reassurance mid-batch. -->
+    <div class="dz-trust" aria-hidden="false">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Stays on your device — never uploaded</span>
+    </div>
+    <div class="paste-hint">Tip: paste from clipboard works too.</div>
+  </div>
+
+  <!-- HERO — moved below the dropzone so the action surface comes first.
+       Hidden via CSS when body.has-images so returning users mid-batch
+       aren't reading marketing copy between their dropzone and their
+       cards. The h1 still anchors the page for SEO + first-time visitors
+       who scroll-read before acting. -->
+  <header class="hero-below">
+    <h1 class="brand-h1">
+      The image tool that <span class="brand-ready">never uploads.</span>
+      <span class="sr-tagline">imgready — Free in-browser image compressor, converter and resizer.</span>
+    </h1>
+    <p>Compress, convert and resize photos right in your browser. Free. No accounts. No file size limits.</p>
+  </header>
+
+  <!-- (Saved status moved into the compact dropzone bar — see #dzSaved
+       inside #dropzone above. The big banner here was replaced because
+       it took its own row of vertical real estate for what's really a
+       quiet stat reading; tucking it next to "Add more images" is
+       calmer and frees the hero zone. The savedStatus element is kept
+       in the DOM for backward compatibility with any code that still
+       targets it, but hidden via CSS.) -->
+  <div class="saved-status saved-status-legacy" id="savedStatus" aria-live="polite" hidden></div>
+
+  <!-- ACTION BAR
+       In pending state: Process button is the only action visible.
+       In all-done state: the .action-cluster (Share/Copy/Download) is
+       the primary block, with Reprocess as a quiet text-link affordance
+       AFTER it. The cluster wraps as a unit so the three buttons never
+       split across visual rows the way they did pre-cleanup. -->
+  <div class="action-bar" id="actionBar" style="display:none">
+    <div class="action-left" id="actionLeft">
+      <button class="btn btn-primary" id="processBtn" onclick="processAll()">Process All</button>
+      <!-- Action triplet: Share / Copy / Download. Wrapped in
+           .action-cluster so they wrap together as a single visual unit
+           when the action bar narrows. Mirrors the per-card row. Each
+           button is feature-gated independently — Share on Web Share
+           API support, Copy on single-result mode + clipboard support. -->
+      <div class="action-cluster" id="actionCluster">
+        <button class="btn btn-share" id="shareAllBtn" style="display:none" onclick="shareAll()" aria-label="Share all results via your device">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span class="btn-share-label">Share all</span>
+        </button>
+        <button class="btn btn-dl" id="dlAllBtn" style="display:none" onclick="downloadAll()">Download all</button>
+      </div>
+      <!-- Reprocess sits AFTER the cluster as a quiet text-link
+           affordance — not visually competitive with the action
+           triplet. Only shown when allDone (see recompute). -->
+      <button class="btn btn-link" id="reprocessBtn" style="display:none" onclick="reprocessAll()" title="Discard existing results and re-encode every image with the current settings">or reprocess all</button>
+    </div>
+    <span class="charge-preview" id="chargePreview"></span>
+    <!-- Saved-pill + Clear All grouped so they can sit on the same row and
+         span full container width on mobile (justify-content:space-between),
+         while still flowing inline on desktop. The wrapper is the unit of
+         layout, not the two children separately. -->
+    <div class="action-meta">
+      <span class="savings-pill" id="savingsPill" aria-live="polite"><span aria-hidden="true">↓</span> <span class="savings-num" id="savingsNum">0 KB</span> saved<span class="savings-context" id="savingsContext"></span></span>
+      <button class="btn btn-ghost" id="clearBtn" onclick="clearAllClick()">Clear All</button>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progWrap">
+    <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    <div class="progress-label" id="progLabel">Processing...</div>
+  </div>
+
+  <!-- TIP NUDGE (shown after first batch) -->
+  <div class="nudge-banner" id="nudgeBanner">
+    <span class="nudge-heart">♥</span>
+    <span class="nudge-text" id="nudgeText"></span>
+    <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">&#x2715;</button>
+  </div>
+
+  <!-- INSTALL PROMPT — surfaced only after the user's first successful run -->
+  <div class="install-banner" id="installBanner" role="status">
+    <div class="ib-title">Quick access tip</div>
+    <div class="ib-desc">Bookmark imgready for one-click access — <strong>Ctrl+D</strong> <span style="color:var(--muted);">(⌘D on Mac)</span></div>
+    <div class="ib-row">
+      <button class="ib-dismiss" onclick="dismissInstall()" style="margin-left:auto;">Got it</button>
+    </div>
+  </div>
+
+  <!-- CARD GRID — the "no images yet" empty-state element used to live
+       here, but it was redundant with the dropzone above (which already
+       *is* the empty-state CTA). Removed for cleaner page rhythm. -->
+  <div class="grid" id="grid"></div>
+
+  <!-- CONTENT SECTION -->
+  <div class="content-section">
+
+    <h2>What imgready does</h2>
+    <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use — WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Use a platform preset. Live-edit quality with the fullscreen compare editor.</p>
+    <p>Encoding runs in your browser. The <a href="/why/">thinking behind it</a> goes deeper into what that means for speed and file-size limits.</p>
+
+    <h3>Supported formats</h3>
+    <table class="format-table"><tr><th>Format</th><th>Best for</th><th>Compression</th></tr><tr><td><strong>WebP</strong></td><td>Modern web — blogs, e-commerce</td><td>25–35% smaller than JPEG</td></tr><tr><td><strong>AVIF</strong></td><td>Maximum compression, photos</td><td>Up to 50% smaller than JPEG</td></tr><tr><td><strong>JPEG / JPG</strong></td><td>Universal compatibility</td><td>Lossy, works everywhere</td></tr><tr><td><strong>PNG</strong></td><td>Screenshots, graphics, transparency</td><td>Lossless at 100, lossy PNG-8 below</td></tr><tr><td><strong>GIF</strong></td><td>Simple animations, flat colour</td><td>Limited to 256 colours</td></tr></table>
+
+    <h3>Common use cases</h3>
+    <p>imgready is designed for the everyday image work that doesn't deserve a separate app. A few of the things it gets used for:</p>
+    <ul class="use-cases">
+      <li><strong>iPhone photos for Windows colleagues.</strong> Drop a HEIC, get a JPG back. No app install, no email back-and-forth about &quot;why won't this open&quot;.</li>
+      <li><strong>Hero images for blog posts.</strong> Resize a 5&nbsp;MB phone photo to 1600&nbsp;px wide WebP under 200&nbsp;KB. Pages load faster, Lighthouse score climbs, no CDN cost.</li>
+      <li><strong>Shopify or Etsy product photography.</strong> Drop a folder of 50 photos, set a platform preset, hit Process All, download a single ZIP. Aspect ratios stay correct.</li>
+      <li><strong>EXIF stripping before sharing.</strong> Phone photos carry GPS coordinates by default. imgready strips them invisibly before you post — no extra step, no extra tool.</li>
+    </ul>
+
+    <!-- Demo block lives down here so it doesn't compete with the user's
+         actual results when they're working. New visitors who scroll past
+         the body copy still see the proof; people mid-batch don't get a
+         second-image slider distracting from their own cards. -->
+    <div class="demo-wrap" id="demoWrap">
+      <div class="demo-header">
+        <span class="demo-title">See the difference — slide to compare</span>
+        <div class="demo-stats" id="demoStats"></div>
+      </div>
+      <div class="demo-slider" id="demoSlider" oncontextmenu="return false">
+        <div class="demo-loading" id="demoLoading"><div class="spin"></div><span>Generating demo...</span></div>
+      </div>
+    </div>
+
+    <h3>How it actually works</h3>
+    <p>When you drop a file, imgready runs the same WebAssembly encoders Squoosh ships — but locally, on your machine. <strong>HEIC and HEIF</strong> decode through libheif (the C++ library Apple uses). <strong>WebP and AVIF</strong> encode with jsquash, Google's reference encoders ported to WebAssembly. <strong>PNG</strong> compression uses OxiPNG and UPNG for size, the browser's canvas for lossless. Resizing and cropping run on the HTML5 canvas API. None of this requires a server because none of it needs one — your machine has the compute.</p>
+
+    <h3>Frequently asked</h3>
+    <details class="faq-item"><summary>Are my images uploaded?</summary><p>No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file — no requests carry image data.</p></details>
+    <details class="faq-item"><summary>What's the difference between WebP and AVIF?</summary><p>Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly. imgready uses WebAssembly encoders for both so every device gets identical output regardless of browser. The <a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG guide</a> covers when to pick which.</p></details>
+    <details class="faq-item"><summary>How big a batch can I drop in?</summary><p>The soft cap is 200 files, with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop. On older devices or phones, smaller batches (50–100) are safer. There's no hard limit because there's no server queue — only your computer's RAM.</p></details>
+    <details class="faq-item"><summary>Is there a file-size cap?</summary><p>No. Drop a 100&nbsp;MB TIFF if you have one. imgready has no caps because there's no server to bill for storage. The only constraint is your browser's available memory, which on a typical machine is several gigabytes — enough for any normal photo or scan.</p></details>
+    <details class="faq-item"><summary>Can I resize and compress at the same time?</summary><p>Yes. Open Settings, pick a platform preset (Instagram, YouTube, Twitter/X, email-safe) or type a longest-side dimension, then choose your output format and hit Process. Crop ratios and EXIF stripping are in the same panel. The resize and compression both happen in the same pass — no double-encoding.</p></details>
+    <details class="faq-item"><summary>What if the file fails to convert?</summary><p>Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level &quot;Couldn't read this file&quot; error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue.</p></details>
+    <details class="faq-item"><summary>Does imgready work on iPhone or iPad?</summary><p>Yes — imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30–50 files at a time).</p></details>
+    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes — completely, with no caps. The site runs on Google AdSense ads (your image data is never sent to ad partners) and voluntary Ko-fi contributions. There's also a paid SDK for developers who want to embed imgready into their own products without the attribution badge — that's on the <a href="/developers/">developers page</a>.</p></details>
+
+    <p class="content-foot">Ads on this page never see your image data. <a href="/privacy/">Privacy policy</a> · <a href="/terms/">Terms</a> · <a href="/why/">Why we built it</a></p>
+  </div>
+
+  <!-- Keyboard shortcut hint button (subtle, bottom-right of viewport) -->
+  <button class="kbd-help" id="kbdHelpBtn" onclick="toggleKbdHelp()" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">⌨</button>
+  <div class="kbd-popover" id="kbdPopover" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <h3>Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>P</kbd></td><td>Process all</td></tr>
+      <tr><td><kbd>D</kbd></td><td>Download all</td></tr>
+      <tr><td><kbd>/</kbd></td><td>Focus dropzone</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close current dialog</td></tr>
+      <tr><td><kbd>← →</kbd></td><td>Cycle formats in compare view</td></tr>
+      <tr><td><kbd>Ctrl+V</kbd></td><td>Paste image from clipboard</td></tr>
+    </table>
+  </div>
+
+  <footer class="site-footer">
+    <div style="font-weight:700;color:var(--text2);">imgready</div>
+    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a><a href="/support/">♥ Support</a>
+    </div>
+    <div style="margin-top:4px;">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div style="margin-top:8px;">
+      <a href="#" id="themeBtn" onclick="event.preventDefault();toggleTheme()">Night mode</a>
+      <span style="color:var(--border);margin:0 4px">|</span>
+      <a href="#" onclick="event.preventDefault();window.openCmpSettings&&window.openCmpSettings()">Cookie &amp; ad settings</a>
+      <span style="color:var(--border);margin:0 4px">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
+    </div>
+    <div style="margin-top:6px;font-size:.78rem;">
+      <a href="/beta/" style="color:var(--accent);font-weight:600;">Try the beta design →</a>
+      <span style="color:var(--muted);"> &nbsp;preview of the redesigned tool</span>
+    </div>
+    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- TOAST -->
+<div class="loader-toast" id="libToast"><div class="spin"></div><span id="libToastMsg">Decoding...</span></div>
+
+<!-- UNDO REMOVAL TOAST — appears for 5s after removing an image -->
+<div class="undo-toast" id="undoToast" role="status" aria-live="polite">
+  <span id="undoToastMsg">Image removed</span>
+  <button class="undo-toast-btn" onclick="undoRemove()" aria-label="Undo removal">Undo</button>
+  <button class="undo-toast-x" onclick="dismissUndoToast()" aria-label="Dismiss">&#x2715;</button>
+</div>
+
+<!-- FULLSCREEN COMPARE MODAL -->
+<div class="fs-modal" id="fsModal" role="dialog" aria-modal="true" aria-label="Compare original and result">
+  <div class="fs-inner" id="fsInner" oncontextmenu="return false">
+    <div class="fs-zoom-wrap" id="fsZoom">
+      <img class="fs-before" id="fsBefore" alt="original">
+    </div>
+    <div class="fs-clip" id="fsClip">
+      <div class="fs-zoom-after" id="fsZoomAfter">
+        <img class="fs-after" id="fsAfter" alt="optimized">
+      </div>
+    </div>
+    <div class="fs-divider" id="fsDiv"></div>
+    <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
+    <!-- Stacked label structure:
+           Row 1 (.fs-lbl-title)   — large title: "Before" / "After"
+           Row 2 (.fs-lbl-info)    — size · format
+           Row 3 (.fs-lbl-savings) — savings %, AFTER label only
+         The After side adds a dedicated savings row (the win); the
+         Before side stops at the info row since there's nothing to
+         celebrate. Both labels populated by JS in showFsResult and
+         feReEncode; defaults below are just initial placeholders. -->
+    <div class="fs-lbl l" id="fsLblBefore">
+      <span class="fs-lbl-title">Before</span>
+      <span class="fs-lbl-info"></span>
+    </div>
+    <div class="fs-lbl r" id="fsLblAfter">
+      <span class="fs-lbl-title">After</span>
+      <span class="fs-lbl-info"></span>
+      <span class="fs-lbl-savings"></span>
+    </div>
+    <!-- Visible only while the modal is in preview-only mode (solo drop
+         hasn't finished encoding yet). Small files get a pulsing dot;
+         files >5 MB get a thin progress bar driven by a time estimate
+         based on input size + target format, capped at 95% until the
+         actual result lands. The bar gives multi-second AVIF encodes a
+         visual heartbeat instead of a stalled-looking pause. -->
+    <div class="fs-encoding-pulse" id="fsEncodingPulse" aria-live="polite">
+      <span class="fs-pulse-dot"></span>
+      <span class="fs-pulse-text" id="fsPulseText">Encoding…</span>
+      <span class="fs-pulse-bar" id="fsPulseBar"><span class="fs-pulse-bar-fill" id="fsPulseBarFill"></span></span>
+    </div>
+    <div class="fs-zoom-level" id="fsZoomLevel">100%</div>
+    <div class="fs-editor" id="fsEditor">
+      <!-- Toolbar split into two logical groups so the row no longer
+           overflows when the size readout, slider, format pills, and
+           three action buttons all fight for one line.
+             .fe-tuning  — left:  format pills · slider · size readout
+             .fe-actions — right: Share / Copy / Download
+           On wide viewports the two groups sit side-by-side with the
+           tuning group taking the available space and the actions
+           group anchored right. On narrow viewports they wrap onto
+           two rows, tuning on top, actions below. -->
+      <div class="fs-editor-inner">
+        <div class="fe-tuning">
+          <div class="fe-fmt" id="feFmt"></div>
+          <!-- "Quality" label sits BEFORE the slider so the row reads
+               naturally left-to-right: "Quality [slider] 82". The label
+               is the slider's purpose, the live number is the slider's
+               state. The result size used to live to the right but is
+               redundant with the top fsLblAfter, so it's gone. The
+               hidden feSize element is preserved purely so any legacy
+               JS that still writes to it doesn't error. -->
+          <span class="fe-q-label">Quality</span>
+          <div class="fe-q">
+            <input type="range" id="feQSlider" min="10" max="100" value="82">
+            <span class="fe-q-val" id="feQVal">82</span>
+          </div>
+          <div class="fe-spinner" id="feSpinner"></div>
+          <span class="fe-size" id="feSize" hidden></span>
+        </div>
+        <div class="fe-actions">
+          <!-- Apply button removed — the live slider auto-commits each settle.
+               What you see in the modal is what's saved on the card. -->
+          <!-- Share / Copy / Download triplet, mirroring the per-card
+               action row. Share is feature-gated (only renders when
+               navigator.canShare with files is supported). Download
+               stays the visually primary one to match the cards. -->
+          <button class="fe-dl fe-action fe-action-ghost" id="feShareBtn" onclick="feLiveShare()" title="Share" style="display:none" aria-label="Share current result">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span class="fe-action-label">Share</span>
+          </button>
+          <button class="fe-dl fe-action fe-action-ghost" id="feCopyBtn" onclick="feLiveCopy(this)" title="Copy to clipboard" aria-label="Copy current result to clipboard">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span class="fe-action-label">Copy</span>
+          </button>
+          <button class="fe-dl" id="feDlBtn" onclick="feLiveDl()">Download</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="fs-close" onclick="closeFullscreen()" aria-label="Close fullscreen comparison">&#x2715;</button>
+</div>
+
+<!-- TIP JAR MODAL -->
+<div class="sup-modal-overlay" id="supModalOverlay" onclick="if(event.target===this)closeSupModal()" role="dialog" aria-modal="true" aria-labelledby="supModalTitle">
+  <div class="sup-modal">
+    <button class="sup-modal-close" onclick="closeSupModal()" aria-label="Close support dialog">&#x2715;</button>
+    <div id="supDefaultState">
+      <h2 id="supModalTitle">Support imgready</h2>
+      <p class="sup-desc">imgready is free and always will be. It's built and maintained by one person. If it saved you time, a small contribution helps keep it running and improving.</p>
+      <a class="sup-kofi-btn" href="https://ko-fi.com/imgready" target="_blank" rel="noopener">☕ Buy me a coffee</a>
+      <p class="sup-already">Thank you for using imgready ♥</p>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js" defer></script>
+
+<!-- ============================================================
+     SERVICE WORKER + INSTALL PROMPT
+     Registered after the main app boots so it never delays first paint.
+     We deliberately don't auto-prompt — the install pill only appears
+     after the user has finished their first batch (they've earned the
+     understanding that "install" means "this same thing, but offline").
+     ============================================================ -->
+<script>
+(function(){
+  'use strict';
+
+  /* ---- 1. Register Service Worker (silent, non-blocking) ---- */
+  if ('serviceWorker' in navigator) {
+    /* Wait for the page to settle so SW install doesn't fight first paint */
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function(err){ console.warn('[imgready] SW register failed:', err); });
+    });
+  }
+
+  /* ---- 2. Capture beforeinstallprompt for our custom UX ---- */
+  var deferredInstall = null;
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    /* Stop Chrome's default mini-infobar; we'll surface our own moment. */
+    e.preventDefault();
+    deferredInstall = e;
+  });
+
+  window.addEventListener('appinstalled', function(){
+    deferredInstall = null;
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_installed', '1'); } catch(_){}
+  });
+
+  /* ---- 3. Banner helpers ---- */
+  function isStandalone(){
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.navigator.standalone === true) return true;  /* iOS Safari */
+    return false;
+  }
+
+  function dismissedRecently(){
+    try {
+      var v = localStorage.getItem('imgready_install_dismissed');
+      if (!v) return false;
+      var ts = parseInt(v, 10);
+      if (!ts) return false;
+      /* Re-show after 30 days — long enough to not nag, short enough to catch users who changed their mind */
+      return (Date.now() - ts) < 30 * 24 * 60 * 60 * 1000;
+    } catch(_) { return false; }
+  }
+
+  /* Public hook called by maybeShowNudge after a successful batch.
+     We piggyback on that signal rather than counting things ourselves —
+     the nudge already encodes "user completed something meaningful". */
+  window.maybeShowInstallPrompt = function(){
+    if (!deferredInstall) return;          /* no event captured (already installed, unsupported, etc.) */
+    if (isStandalone()) return;             /* already running as installed PWA */
+    try { if (localStorage.getItem('imgready_installed') === '1') return; } catch(_){}
+    if (dismissedRecently()) return;
+    /* Show the bookmark/install hint banner. The banner is dismissable via
+       the "Got it" button, which calls window.dismissInstall (defined below). */
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.add('show');
+  };
+
+  /* Dismiss handler wired to the banner's "Got it" button. Records the
+     dismissal time so we don't re-show for 30 days (see dismissedRecently). */
+  window.dismissInstall = function(){
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
+  };
+})();
+</script>
+</body>
+</html>
