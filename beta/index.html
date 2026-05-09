@@ -8,6 +8,12 @@
      stable homepage look. Beta's inline <style> below overrides only when
      in solo/multi state (the dark workspace) via :root variables scoped
      to body[data-state]. -->
+<!-- PWA + theme parity with stable: manifest enables install-to-homescreen,
+     theme-color tints the mobile address bar, apple-touch-icon for iOS. -->
+<meta name="theme-color" content="#5a7a5a">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/app.css">
 <style>
   :root{
@@ -1345,9 +1351,25 @@
     <details class="faq-item"><summary>How big a batch can I drop in?</summary><p>The soft cap is 200 files, with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop.</p></details>
     <details class="faq-item"><summary>Is there a file-size cap?</summary><p>No. Drop a 100&nbsp;MB TIFF if you have one. imgready has no caps because there's no server to bill for storage.</p></details>
     <details class="faq-item"><summary>Can I resize and compress at the same time?</summary><p>Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass — no double-encoding.</p></details>
+    <details class="faq-item"><summary>What if the file fails to convert?</summary><p>Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level &quot;Couldn't read this file&quot; error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue.</p></details>
+    <details class="faq-item"><summary>Does imgready work on iPhone or iPad?</summary><p>Yes — imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30–50 files at a time).</p></details>
     <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes — completely, with no caps. The site runs on Google AdSense ads (your image data is never sent to ad partners) and voluntary Ko-fi contributions.</p></details>
 
     <p class="content-foot">Ads on this page never see your image data. <a href="/privacy/">Privacy policy</a> · <a href="/terms/">Terms</a> · <a href="/why/">Why we built it</a></p>
+  </div>
+
+  <!-- Keyboard shortcut hint button (subtle, bottom-right of viewport).
+       Mirrors stable's kbd-help; the toggle + Esc handler are wired
+       below in the script tag. -->
+  <button class="kbd-help" id="kbdHelpBtn" onclick="toggleKbdHelp()" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">⌨</button>
+  <div class="kbd-popover" id="kbdPopover" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <h3>Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>D</kbd></td><td>Download all</td></tr>
+      <tr><td><kbd>/</kbd></td><td>Focus dropzone</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close current dialog</td></tr>
+      <tr><td><kbd>Ctrl+V</kbd></td><td>Paste image from clipboard</td></tr>
+    </table>
   </div>
 
     <footer class="site-footer">
@@ -1818,6 +1840,17 @@ function getWorker(){
         delete ENCODE.pending[m.id];
         if (entry.timer) clearTimeout(entry.timer);
         entry.resolve(m.blob);
+        /* Refresh the After-meta batch totals as each background-queue
+           encode completes. Without this, the "↓ X MB · N files total"
+           line stays stuck at the count when the user first dropped (or
+           the HTML placeholder) until they manually select another thumb. */
+        try {
+          const sel = (typeof CFLOW !== 'undefined') ? CFLOW.selected : -1;
+          if (sel >= 0 && typeof FILES !== 'undefined' && FILES[sel] && typeof setMetaCorners === 'function') {
+            const selEnc = ENCODE.encoded.get(sel);
+            if (selEnc) setMetaCorners(FILES[sel].file, selEnc);
+          }
+        } catch(_){}
       } else if (m.type === 'error') {
         delete ENCODE.pending[m.id];
         if (entry.timer) clearTimeout(entry.timer);
@@ -3040,6 +3073,51 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
   document.addEventListener('pointercancel', endDrag);
 })();
 
+/* Keyboard shortcut popover toggle. Esc closes it. '/' focuses dropzone.
+   'D' triggers download-all when in multi state. */
+function toggleKbdHelp(){
+  const pop = document.getElementById('kbdPopover');
+  if (!pop) return;
+  pop.classList.toggle('show');
+}
+window.toggleKbdHelp = toggleKbdHelp;
+document.addEventListener('keydown', e => {
+  /* Skip when the user is typing in an input/textarea or content-editable. */
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  if (e.key === 'Escape') {
+    const pop = document.getElementById('kbdPopover');
+    if (pop && pop.classList.contains('show')) { pop.classList.remove('show'); e.preventDefault(); return; }
+    /* Also close confirm modal if open */
+    if (document.body.dataset.confirm === 'open' && typeof cancelConfirm === 'function') {
+      cancelConfirm(); e.preventDefault(); return;
+    }
+    /* Also close big-batch modal */
+    if (document.body.dataset.bigbatch === 'open' && typeof cancelBigBatch === 'function') {
+      cancelBigBatch(); e.preventDefault(); return;
+    }
+  }
+  if (e.key === '/') {
+    const dz = document.getElementById('dropzone');
+    if (dz) { dz.focus(); e.preventDefault(); }
+  }
+  if ((e.key === 'd' || e.key === 'D') && document.body.dataset.state === 'multi') {
+    if (typeof downloadAll === 'function') { downloadAll(); e.preventDefault(); }
+  }
+});
+/* Footer link stubs: stable's app.js provides toggleTheme + openCmpSettings.
+   Beta doesn't load app.js, so wire minimal versions so the footer links
+   don't error out on click. Theme-toggle flips a class on body that the
+   landing CSS can use to swap to dark; CMP settings shows a brief notice. */
+window.toggleTheme = window.toggleTheme || function(){
+  document.body.classList.toggle('dark-mode');
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = document.body.classList.contains('dark-mode') ? 'Day mode' : 'Night mode';
+};
+window.openCmpSettings = window.openCmpSettings || function(){
+  alert('Cookie & ad consent settings will appear here when the CMP is active. For now, see /privacy/ to manage your choices.');
+};
+
 /* Panda demo init: fetch demo-original.png, encode via canvas.toBlob
    to webp@60, render before/after compare slider with drag handler.
    Lives in the empty state only. Lightweight (no worker, no JSZip). */
@@ -3164,6 +3242,36 @@ async function ensureAllEncoded(){
 }
 async function downloadAll(){
   await ensureAllEncoded();
+  /* Multi-output: bundle every (file × format) combination into a single
+     zip via JSZip. Without this, users with multi-output enabled would
+     only get the PRIMARY format per file — the other formats they
+     selected would be invisible at the global download. */
+  if (MULTI_OUT.enabled) {
+    const JSZipMod = window.JSZip || (await loadJSZip());
+    if (JSZipMod) {
+      const zip = new JSZipMod();
+      let added = 0;
+      for (let i = 0; i < FILES.length; i++) {
+        const f = FILES[i];
+        const bundle = ENCODE.allEncoded.get(i);
+        if (!f || !bundle || !bundle.size) continue;
+        const base = f.file.name.replace(/\.[^.]+$/, '');
+        bundle.forEach(e => {
+          if (e && e.blob) { zip.file(`${base}_imgready.${e.format}`, e.blob); added++; }
+        });
+      }
+      if (added > 0) {
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(blob);
+        const stamp = new Date().toISOString().slice(0,10);
+        triggerDownload(url, `imgready-${stamp}.zip`);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return;
+      }
+    }
+    /* JSZip unavailable — fall through to per-file individual downloads. */
+  }
+  /* Single-format path (or multi-out fallback) */
   for (let i = 0; i < FILES.length; i++) {
     const f = FILES[i]; const enc = ENCODE.encoded.get(i);
     if (!f || !enc) continue;
