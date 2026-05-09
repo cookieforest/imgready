@@ -619,16 +619,6 @@
     display:flex;align-items:center;gap:14px;
     padding:8px 12px;white-space:nowrap;
     background:transparent;
-    /* Content fades in only after the drawer slide-out is mostly complete.
-       Eliminates any "white-bar" flash from controls clip-revealing during
-       the max-width animation (e.g. the slider thumb's bright fill at
-       certain animation moments). 220ms delay covers the 320ms slide so
-       the user sees the bar slide out, then content gently appear. */
-    opacity:0;
-    transition:opacity .14s ease .22s;
-  }
-  body[data-adjust="open"] .bb-drawer-inner{
-    opacity:1;
   }
   .bb-section{
     display:flex;align-items:center;gap:8px;
