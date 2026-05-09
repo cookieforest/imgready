@@ -619,6 +619,16 @@
     display:flex;align-items:center;gap:14px;
     padding:8px 12px;white-space:nowrap;
     background:transparent;
+    /* Content fades in only after the drawer slide-out is mostly complete.
+       Eliminates any "white-bar" flash from controls clip-revealing during
+       the max-width animation (e.g. the slider thumb's bright fill at
+       certain animation moments). 220ms delay covers the 320ms slide so
+       the user sees the bar slide out, then content gently appear. */
+    opacity:0;
+    transition:opacity .14s ease .22s;
+  }
+  body[data-adjust="open"] .bb-drawer-inner{
+    opacity:1;
   }
   .bb-section{
     display:flex;align-items:center;gap:8px;
@@ -807,39 +817,44 @@
   }
   .quality-row input[type=range]:focus,
   .quality-row input[type=range]:focus-visible{outline:none;}
-  /* Webkit (Chrome / Safari / Edge / iOS Safari / Android Chrome) */
+  /* Webkit (Chrome / Safari / Edge / iOS Safari / Android Chrome).
+     IMPORTANT: every visible slider surface uses the ACCENT palette (or a
+     near-black mix), never pure white. White surfaces would flash visibly
+     during the drawer slide-out animation as the slider clip-revealed
+     pixel-by-pixel — even at 14px the thumb's #fff fill read as a small
+     white bar mid-animation. */
   .quality-row input[type=range]::-webkit-slider-runnable-track{
     height:4px;border-radius:2px;
     background:linear-gradient(to right,
       var(--accent) 0%,
       var(--accent) var(--pct),
-      rgba(255,255,255,.16) var(--pct),
-      rgba(255,255,255,.16) 100%);
+      rgba(255,255,255,.06) var(--pct),
+      rgba(255,255,255,.06) 100%);
   }
   .quality-row input[type=range]::-webkit-slider-thumb{
     -webkit-appearance:none;appearance:none;
-    width:14px;height:14px;
-    background:#fff;
+    width:12px;height:12px;
+    background:var(--accent);
     border-radius:50%;
-    border:2px solid var(--accent);
-    margin-top:-5px;
+    border:1px solid var(--accent-strong);
+    margin-top:-4px;
     cursor:pointer;
     box-shadow:0 1px 2px rgba(0,0,0,.4);
   }
   /* Firefox */
   .quality-row input[type=range]::-moz-range-track{
     height:4px;border-radius:2px;
-    background:rgba(255,255,255,.16);
+    background:rgba(255,255,255,.06);
   }
   .quality-row input[type=range]::-moz-range-progress{
     height:4px;border-radius:2px;
     background:var(--accent);
   }
   .quality-row input[type=range]::-moz-range-thumb{
-    width:14px;height:14px;
-    background:#fff;
+    width:12px;height:12px;
+    background:var(--accent);
     border-radius:50%;
-    border:2px solid var(--accent);
+    border:1px solid var(--accent-strong);
     cursor:pointer;
     box-shadow:0 1px 2px rgba(0,0,0,.4);
   }
