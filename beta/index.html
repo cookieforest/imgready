@@ -3065,21 +3065,28 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
       if (divider) divider.style.left = pct + '%';
       if (handle) handle.style.left = pct + '%';
     }
-    /* Fetch demo-original.png — the larger source the stable page uses
-       so the savings number is meaningful. */
-    fetch('/demo-original.png').then(r => {
-      if (!r.ok) throw new Error('demo source unavailable');
-      return r.blob();
-    }).then(origBlob => {
-      const origSize = origBlob.size;
-      const beforeUrl = URL.createObjectURL(origBlob);
-      before.src = beforeUrl;
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        const cv = document.createElement('canvas');
-        cv.width = img.naturalWidth; cv.height = img.naturalHeight;
-        cv.getContext('2d').drawImage(img, 0, 0);
+    /* Use /demo.webp (the panda) as the source. We decode it via Image(),
+       draw to a canvas, then encode the canvas to PNG (the "Original" stat
+       — what the same panda would weigh as a flat PNG) and to WebP@60
+       (the "imgready" stat). Same panda visible on both sides; the savings
+       number is "how much smaller WebP is than PNG of the same panda". */
+    const srcImg = new Image();
+    srcImg.crossOrigin = 'anonymous';
+    srcImg.onload = () => {
+      const cv = document.createElement('canvas');
+      cv.width = srcImg.naturalWidth; cv.height = srcImg.naturalHeight;
+      cv.getContext('2d').drawImage(srcImg, 0, 0);
+      /* Encode as PNG (the "before" / "original" stat). PNG is lossless
+         so this is the apples-to-apples size comparison. */
+      cv.toBlob(pngBlob => {
+        if (!pngBlob) {
+          if (loading) loading.innerHTML = 'Demo unavailable';
+          return;
+        }
+        const pngSize = pngBlob.size;
+        const beforeUrl = URL.createObjectURL(pngBlob);
+        before.src = beforeUrl;
+        /* Encode again as WebP @ quality 60 (the "after" / "imgready" stat). */
         cv.toBlob(afterBlob => {
           if (!afterBlob) {
             if (loading) loading.innerHTML = 'Demo unavailable';
@@ -3087,6 +3094,7 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
           }
           const afterUrl = URL.createObjectURL(afterBlob);
           after.src = afterUrl;
+          const origSize = pngSize;
           const pct = Math.round((1 - afterBlob.size / origSize) * 100);
           if (stats) {
             stats.innerHTML =
@@ -3113,13 +3121,10 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
           slider.addEventListener('pointerup', () => dragging = false);
           slider.addEventListener('pointercancel', () => dragging = false);
         }, 'image/webp', 0.60);
-      };
-      img.onerror = () => { if (loading) loading.innerHTML = 'Demo unavailable'; };
-      img.src = beforeUrl;
-    }).catch(err => {
-      console.warn('[demo init failed]', err);
-      if (loading) loading.innerHTML = 'Demo unavailable';
-    });
+      }, 'image/png');
+    };
+    srcImg.onerror = () => { if (loading) loading.innerHTML = 'Demo unavailable'; };
+    srcImg.src = '/demo.webp';
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start, { once: true });
