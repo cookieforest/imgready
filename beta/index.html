@@ -348,16 +348,18 @@
   .center-status .cs-bar{
     width:220px;height:5px;border-radius:3px;
     background:rgba(255,255,255,.14);overflow:hidden;
-    margin-top:6px;display:block;
+    margin-top:6px;display:none;
   }
   .center-status .cs-bar-fill{
     height:100%;background:var(--accent);width:0%;
     transition:width .25s ease;
   }
-  /* Hide the spinning circle — the horizontal bar is the new primary
-     indicator (per UX feedback: "loading bars not just spinning circles").
-     Keep the element in the DOM for a clean revert path. */
-  .center-status .cs-spinner{display:none;}
+  /* Spinner-first, bar-after-500ms. Encodes that finish in <500ms only
+     ever show the spinner (avoids the bar flashing "stuck at 0%"); slow
+     encodes promote to the bar so the user sees real progress. The
+     swap is driven by JS adding [data-bar="on"] after the threshold. */
+  .center-status[data-bar="on"] .cs-bar{display:block;}
+  .center-status[data-bar="on"] .cs-spinner{display:none;}
 
   /* Live size + spinner inline next to the quality slider — closes the
      "did anything just happen?" gap during re-encodes. The spinner
@@ -590,6 +592,12 @@
   .bb-drawer{
     display:flex;align-items:center;
     max-width:0;overflow:hidden;
+    /* Lock height so the bar doesn't jump when opening. Closed-state
+       drawer-inner content was rendering at ~56px (horizontal scrollbar
+       reserve); opened state was 46px — this 10px delta caused a vertical
+       "jump" that made the slide-out animation feel broken. 46px = 30
+       (var(--bb-btn-h)) + 16 (8+8 vertical padding inside bb-drawer-inner). */
+    height:46px;
     border-left:1px solid transparent;
     transition:max-width .32s cubic-bezier(.22,1,.36,1),
                border-left-color .2s ease,
@@ -597,9 +605,11 @@
     padding:0;
   }
   body[data-adjust="open"] .bb-drawer{
-    /* No max-width — drawer claims its full row via flex-basis:100% above,
-       so it can hold all sections without horizontal clipping. */
-    max-width:none;padding:0 4px;
+    /* Finite max-width so the open transition actually animates. Browsers
+       can't transition between 0 and `none` (intrinsic) — needs a length
+       value. 1400px clamps cleanly via the inner content's intrinsic
+       size when the bar is narrower. */
+    max-width:1400px;padding:0 4px;
     border-left-color:rgba(255,255,255,.12);
   }
   .bb-drawer-inner{overflow-x:auto;scrollbar-width:thin;}
@@ -1758,16 +1768,25 @@ function showCenterStatus(stage, filename, opts){
   if (nameEl) nameEl.textContent = filename || '';
   /* Mark the body so settings/toolbar widgets can show their own spinners */
   document.body.dataset.encoding = 'on';
-  /* Always show the horizontal progress bar (replaces the spinning circle).
-     Batch: real progress = done / total. Single file: time-estimate creep. */
-  el.dataset.bar = 'on';
-  if (isBatch && total > 0) {
-    stopCsBar();
-    const fill = document.getElementById('csBarFill');
-    if (fill) fill.style.width = ((done / total) * 100) + '%';
-  } else {
-    startCsBar(opts && opts.estMs || 4000);
-  }
+  /* Spinner-first, bar-after-500ms. The bar only shows for encodes that
+     actually take a perceptible amount of time — fast (<500ms) encodes
+     keep the spinner only, so the user doesn't see a bar flash from 0%
+     to gone. 500ms threshold is the standard "feels responsive vs. feels
+     slow" cutoff (Microsoft Fluent guidance). */
+  el.dataset.bar = '';
+  if (CS.barShowTimer) clearTimeout(CS.barShowTimer);
+  CS.barShowTimer = setTimeout(() => {
+    el.dataset.bar = 'on';
+    const total2 = (typeof FILES !== 'undefined') ? FILES.length : 0;
+    const done2  = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.size : 0;
+    if (total2 > 1) {
+      stopCsBar();
+      const fill = document.getElementById('csBarFill');
+      if (fill) fill.style.width = ((done2 / total2) * 100) + '%';
+    } else {
+      startCsBar(opts && opts.estMs || 4000);
+    }
+  }, 500);
 }
 function hideCenterStatus(){
   const el = document.getElementById('centerStatus');
@@ -1776,6 +1795,9 @@ function hideCenterStatus(){
   /* Clear the quality-driven flag too — once the encode result lands,
      the qr-spinner should disappear regardless of what triggered it. */
   document.body.dataset.qualityEncoding = '';
+  /* Cancel the deferred bar so a fast encode never flashes its bar. */
+  if (CS.barShowTimer) { clearTimeout(CS.barShowTimer); CS.barShowTimer = null; }
+  if (el) el.dataset.bar = '';
   stopCsBar();
 }
 function startCsBar(estMs){
@@ -2236,6 +2258,12 @@ function applyZoom(){
   if (!wrap || !canvas) return;
   wrap.style.transform = `translate(${ZOOM.x}px, ${ZOOM.y}px) scale(${ZOOM.scale})`;
   canvas.classList.toggle('zoomed', ZOOM.scale > 1.001);
+  /* Slider stays at its SCREEN x while pan/zoom changes the image under
+     it. refreshSliderFromZoom recomputes the LOCAL pct that keeps the
+     divider visually anchored where the user dragged it. */
+  if (typeof window.refreshSliderFromZoom === 'function') {
+    window.refreshSliderFromZoom();
+  }
   /* Counter-scale the handle and divider so they stay visually consistent
      size regardless of parent zoom. They're inside .compare-zoom (so they
      translate with the image), but we don't want a 6x zoom to render a
@@ -2815,6 +2843,24 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     if (divider) divider.style.left = pct + '%';
     if (handle) handle.style.left = pct + '%';
   }
+  /* The slider's canonical position is its on-SCREEN x percent. Pan/zoom
+     changes recompute the LOCAL pct (what setSplit needs) so the divider
+     stays anchored to the same SCREEN x while the user pans. Lets the
+     user pan the image to find an area of interest and use the slider as
+     a fixed gauge — pan and slider are independent gestures. */
+  window.SLIDER = window.SLIDER || { screenPct: 50 };
+  window.refreshSliderFromZoom = function(){
+    const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
+    if (!canvas || !canvas.classList.contains('has-after')) return;
+    const r = canvas.getBoundingClientRect();
+    if (!r.width) return;
+    const z = (typeof ZOOM !== 'undefined' && ZOOM.scale) || 1;
+    const panPct = (typeof ZOOM !== 'undefined' && ZOOM.x)
+      ? (ZOOM.x / r.width) * 100 : 0;
+    /* Inverse of: screenPct = 50 + (localPct - 50) * z + panPct */
+    const localPct = (window.SLIDER.screenPct - 50 - panPct) / z + 50;
+    setSplit(canvas, localPct);
+  };
   let dragging = null;
   function inDeadzone(t){
     if (!t || !t.closest) return false;
@@ -2853,7 +2899,16 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     if (!dragging) return;
     const rect = dragging.getBoundingClientRect();
     const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-    /* Screen-space pct of the pointer along the canvas */
+    /* Screen-space pct is the canonical slider position. Stored on
+       window.SLIDER so applyZoom() can recompute local pct without
+       touching the slider's screen anchor. */
+    let screenPctNew = (cx - rect.left) / rect.width * 100;
+    if (screenPctNew < 0) screenPctNew = 0;
+    if (screenPctNew > 100) screenPctNew = 100;
+    window.SLIDER.screenPct = screenPctNew;
+    window.refreshSliderFromZoom();
+    return;
+    /* (Legacy direct-set path below, kept commented for reference) */
     const screenPct = (cx - rect.left) / rect.width * 100;
     /* The compare-zoom wrapper has transform: translate(panX,panY) scale(z)
        with transform-origin:center. So a LOCAL point at percent p maps to
