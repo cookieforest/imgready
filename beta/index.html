@@ -1312,6 +1312,30 @@
       <li><strong>EXIF stripping before sharing.</strong> Phone photos carry GPS coordinates by default. imgready strips them invisibly before you post — no extra step, no extra tool.</li>
     </ul>
 
+    <!-- Panda demo: shows a before/after compression slider so first-time
+         visitors can SEE the result without dropping a file. Mirrors the
+         stable home page's demo-wrap; CSS lives in /app.css (loaded above);
+         JS init at end of beta script. -->
+    <div class="demo-wrap" id="demoWrap">
+      <div class="demo-header">
+        <span class="demo-title">See the difference — slide to compare</span>
+        <div class="demo-stats" id="demoStats"></div>
+      </div>
+      <div class="demo-slider" id="demoSlider" oncontextmenu="return false">
+        <div class="demo-zoom-wrap">
+          <img id="demoAfter" alt="After compression">
+          <div class="demo-clip" id="demoClip">
+            <img id="demoBefore" alt="Original">
+          </div>
+        </div>
+        <div class="demo-divider" id="demoDivider"></div>
+        <div class="demo-handle">↔</div>
+        <div class="demo-lbl l">ORIGINAL</div>
+        <div class="demo-lbl r">IMGREADY</div>
+        <div class="demo-loading" id="demoLoading"><div class="spin"></div><span>Generating demo…</span></div>
+      </div>
+    </div>
+
     <h3>How it actually works</h3>
     <p>When you drop a file, imgready runs the same WebAssembly encoders Squoosh ships — but locally, on your machine. <strong>HEIC and HEIF</strong> decode through libheif (the C++ library Apple uses). <strong>WebP and AVIF</strong> encode with jsquash, Google's reference encoders ported to WebAssembly. <strong>PNG</strong> compression uses OxiPNG and UPNG for size, the browser's canvas for lossless. Resizing and cropping run on the HTML5 canvas API. None of this requires a server because none of it needs one — your machine has the compute.</p>
 
@@ -3014,6 +3038,94 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
   }
   document.addEventListener('pointerup', endDrag);
   document.addEventListener('pointercancel', endDrag);
+})();
+
+/* Panda demo init: fetch demo-original.png, encode via canvas.toBlob
+   to webp@60, render before/after compare slider with drag handler.
+   Lives in the empty state only. Lightweight (no worker, no JSZip). */
+(function initPandaDemo(){
+  /* Wait for DOM ready so the demo elements exist. */
+  function start(){
+    const slider = document.getElementById('demoSlider');
+    const stats  = document.getElementById('demoStats');
+    const loading= document.getElementById('demoLoading');
+    const before = document.getElementById('demoBefore');
+    const after  = document.getElementById('demoAfter');
+    const clip   = document.getElementById('demoClip');
+    const divider= document.getElementById('demoDivider');
+    const handle = slider && slider.querySelector('.demo-handle');
+    if (!slider || !before || !after) return;
+    /* Hide ornament until ready. */
+    [divider, handle].forEach(el => { if (el) el.style.display = 'none'; });
+    slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = 'none');
+    function fmtSizeDemo(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
+    function setSplit(pct){
+      pct = Math.max(0, Math.min(100, pct));
+      if (clip) clip.style.clipPath = `inset(0 0 0 ${pct}%)`;
+      if (divider) divider.style.left = pct + '%';
+      if (handle) handle.style.left = pct + '%';
+    }
+    /* Fetch demo-original.png — the larger source the stable page uses
+       so the savings number is meaningful. */
+    fetch('/demo-original.png').then(r => {
+      if (!r.ok) throw new Error('demo source unavailable');
+      return r.blob();
+    }).then(origBlob => {
+      const origSize = origBlob.size;
+      const beforeUrl = URL.createObjectURL(origBlob);
+      before.src = beforeUrl;
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const cv = document.createElement('canvas');
+        cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+        cv.getContext('2d').drawImage(img, 0, 0);
+        cv.toBlob(afterBlob => {
+          if (!afterBlob) {
+            if (loading) loading.innerHTML = 'Demo unavailable';
+            return;
+          }
+          const afterUrl = URL.createObjectURL(afterBlob);
+          after.src = afterUrl;
+          const pct = Math.round((1 - afterBlob.size / origSize) * 100);
+          if (stats) {
+            stats.innerHTML =
+              `<span class="demo-stat"><span class="label">Original PNG:</span><span class="value">${fmtSizeDemo(origSize)}</span></span>` +
+              `<span class="demo-stat"><span class="label">imgready WebP:</span><span class="value">${fmtSizeDemo(afterBlob.size)}</span></span>` +
+              `<span class="demo-stat"><span class="saving">${pct}% smaller</span></span>`;
+          }
+          if (loading) loading.style.display = 'none';
+          [divider, handle].forEach(el => { if (el) el.style.display = ''; });
+          slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = '');
+          setSplit(50);
+          /* Drag handler. Pointer-based for mouse + touch. */
+          let dragging = false;
+          const updatePos = e => {
+            const r = slider.getBoundingClientRect();
+            const x = (e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)) - r.left;
+            setSplit(x / r.width * 100);
+          };
+          slider.addEventListener('pointerdown', e => {
+            dragging = true; updatePos(e); e.preventDefault();
+            try { slider.setPointerCapture && slider.setPointerCapture(e.pointerId); } catch(_){}
+          });
+          slider.addEventListener('pointermove', e => { if (dragging) updatePos(e); });
+          slider.addEventListener('pointerup', () => dragging = false);
+          slider.addEventListener('pointercancel', () => dragging = false);
+        }, 'image/webp', 0.60);
+      };
+      img.onerror = () => { if (loading) loading.innerHTML = 'Demo unavailable'; };
+      img.src = beforeUrl;
+    }).catch(err => {
+      console.warn('[demo init failed]', err);
+      if (loading) loading.innerHTML = 'Demo unavailable';
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
 })();
 
 /* Mobile info-card tap-to-expand. compare-meta's pointer-events are
