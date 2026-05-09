@@ -364,6 +364,13 @@
   /* Live size + spinner inline next to the quality slider — closes the
      "did anything just happen?" gap during re-encodes. The spinner
      replaces the size text while encoding, so the eye-line is the same. */
+  /* Range input default UA background is white in some browsers
+     (Safari, older Chrome). It flashes briefly during the drawer
+     slide-out animation as the input clip-reveals from 0px wide.
+     Forcing transparent kills the flash without affecting the slider's
+     own track/thumb styling (handled separately via accent-color +
+     -webkit-slider-thumb rules). */
+  .quality-row input[type=range]{background:transparent;}
   .quality-row .qr-size{
     font-size:.7rem;color:var(--muted);font-weight:600;
     text-align:right;font-variant-numeric:tabular-nums;
@@ -1058,6 +1065,12 @@
     .bb-drawer{
       position:relative;left:auto;right:auto;bottom:auto;
       max-width:none;width:100%;
+      /* Desktop locks drawer height:46px to prevent the row's vertical
+         jump. On mobile the drawer is a stacked column above the bar
+         (max-height transition 0 → 280px) — so we explicitly undo the
+         desktop height lock here. Without this, the mobile drawer was
+         clamped to 46px and content got cut off. */
+      height:auto;
       max-height:0;overflow:hidden;
       background:transparent;
       border:none;border-bottom:1px solid transparent;
