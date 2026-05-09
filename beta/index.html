@@ -609,6 +609,24 @@
                border-left-color .2s ease,
                padding .25s ease;
     padding:0;
+    /* CRITICAL: opaque background on the drawer itself — kills the
+       white-flash bug.
+       Root cause: .menu-card (parent) has backdrop-filter:blur(12px).
+       Per Mozilla / Maxime Lafarie / SitePoint research, backdrop-filter
+       does NOT render during CSS transitions — the filtered region paints
+       with the browser default (white) until the animation completes.
+       During the drawer's max-width transition, the menu-card's filter
+       region recalculates each frame and leaks the white default in the
+       newly-revealed strip.
+       Fix: drawer paints its own opaque bg so the menu-card's filter
+       glitch is hidden behind it. translateZ(0) forces an isolated GPU
+       compositor layer so the drawer's rendering is independent of the
+       parent's backdrop-filter. */
+    background:#1a1a1a;
+    transform:translateZ(0);
+    -webkit-backface-visibility:hidden;
+    backface-visibility:hidden;
+    will-change:max-width;
   }
   body[data-adjust="open"] .bb-drawer{
     /* Finite max-width so the open transition actually animates. Browsers
@@ -1128,7 +1146,12 @@
          clamped to 46px and content got cut off. */
       height:auto;
       max-height:0;overflow:hidden;
-      background:transparent;
+      /* Same backdrop-filter-flash fix as desktop: opaque bg + GPU layer
+         so menu-card's parent filter doesn't leak white during the
+         max-height transition. */
+      background:#1a1a1a;
+      transform:translateZ(0);
+      will-change:max-height;
       border:none;border-bottom:1px solid transparent;
       border-radius:0;
       transition:max-height .26s cubic-bezier(.22,1,.36,1),
