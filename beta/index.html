@@ -785,24 +785,64 @@
     background:var(--accent);color:#fff;border-color:var(--accent);
   }
   .quality-row{display:flex;align-items:center;gap:6px;}
+  /* Quality slider — hand-styled.
+     Why: relying on `accent-color` + the UA-painted track (a) flashed
+     a light gray "white bar" during drawer slide-out as the track
+     revealed pixel-by-pixel, and (b) on mobile the green fill simply
+     didn't render in some browsers/builds. Switching to appearance:none
+     + custom pseudos gives us a fully predictable surface: dark track,
+     accent-filled portion via CSS gradient, custom round thumb. The
+     `--p` custom property is the slider's current value (10-100)
+     updated from the input event handler — drives the gradient stop.
+     Works identically on Chrome/Safari/Firefox/iOS/Android. */
   .quality-row input[type=range]{
-    flex:1;accent-color:var(--accent);height:4px;
-    /* No browser focus ring on the slider — the green halo Chrome draws
-       around the thumb after focus-visible (e.g. user pressed Shift) was
-       reported as a "green bar below settings". The slider works fine
-       without one. */
-    outline:none;
-    /* Kill the white default UA fill — was causing a brief white flash
-       during the drawer slide-out animation as the input clip-revealed
-       from 0px wide. Transparent + appearance:none lets the surrounding
-       drawer surface show through. !important because Chrome's UA
-       stylesheet paints range inputs with a white background that beats
-       author rules of equal specificity. */
+    --p:82;
+    --pct:calc((var(--p) - 10) / 0.9 * 1%);
+    flex:1;
+    height:18px;
+    cursor:pointer;
     background:transparent !important;
+    outline:none;border:none;margin:0;padding:0;
     -webkit-appearance:none;appearance:none;
   }
   .quality-row input[type=range]:focus,
   .quality-row input[type=range]:focus-visible{outline:none;}
+  /* Webkit (Chrome / Safari / Edge / iOS Safari / Android Chrome) */
+  .quality-row input[type=range]::-webkit-slider-runnable-track{
+    height:4px;border-radius:2px;
+    background:linear-gradient(to right,
+      var(--accent) 0%,
+      var(--accent) var(--pct),
+      rgba(255,255,255,.16) var(--pct),
+      rgba(255,255,255,.16) 100%);
+  }
+  .quality-row input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:14px;height:14px;
+    background:#fff;
+    border-radius:50%;
+    border:2px solid var(--accent);
+    margin-top:-5px;
+    cursor:pointer;
+    box-shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+  /* Firefox */
+  .quality-row input[type=range]::-moz-range-track{
+    height:4px;border-radius:2px;
+    background:rgba(255,255,255,.16);
+  }
+  .quality-row input[type=range]::-moz-range-progress{
+    height:4px;border-radius:2px;
+    background:var(--accent);
+  }
+  .quality-row input[type=range]::-moz-range-thumb{
+    width:14px;height:14px;
+    background:#fff;
+    border-radius:50%;
+    border:2px solid var(--accent);
+    cursor:pointer;
+    box-shadow:0 1px 2px rgba(0,0,0,.4);
+  }
   .q-val{color:#fff;font-weight:700;font-size:.7rem;min-width:24px;text-align:center;}
   /* Resize control — segmented [Pixels | Percent] + numeric input with
      right-aligned unit suffix. Pattern from Apple Photos export, Lightroom
@@ -1024,7 +1064,11 @@
 
   /* ---------- mobile ---------- */
   @media(max-width:767px){
-    :root{--thumb-big:110px;--thumb-small:55px;--action-w:auto;}
+    /* Smaller cover-flow thumbnails on mobile — frees vertical space
+       for the compare canvas (the actual reason users come to the page).
+       80/42 still keeps the active thumb tappable (>=44px after scale
+       up of small thumbs) without dominating the screen. */
+    :root{--thumb-big:80px;--thumb-small:42px;--action-w:auto;}
     .cover-flow{
       bottom:calc(var(--menu-h,80px) + 38px);
       left:0;right:0;
@@ -1173,8 +1217,26 @@
     .actions .btn-clear{flex:0 0 auto;padding:12px 12px;}
     .actions .lbl-full{display:none;}
     .actions .lbl-short{display:inline;}
-    .compare-meta{font-size:.68rem;padding:6px 9px;max-width:42vw;}
-    .compare-meta .lbl-title{font-size:.8rem;}
+    /* Collapsed by default on mobile — only the "Before" / "After" title
+       and the savings % chip are visible. Tap a card to expand and reveal
+       the dims/KB/format details. Tap again to collapse. Saves precious
+       horizontal real estate on the canvas while keeping savings glanceable. */
+    .compare-meta{
+      font-size:.68rem;padding:5px 8px;max-width:42vw;
+      pointer-events:auto;cursor:pointer;
+    }
+    .compare-meta .lbl-title{font-size:.78rem;}
+    /* Hide every span that isn't the title or savings % when collapsed */
+    .compare-meta:not(.expanded) > span:not(.lbl-title):not(.pct){
+      display:none;
+    }
+    /* Subtle "tap to expand" cue: chevron after title */
+    .compare-meta:not(.expanded) .lbl-title::after{
+      content:" \203A";opacity:.5;font-weight:600;
+    }
+    .compare-meta.expanded .lbl-title::after{
+      content:" \2715";opacity:.5;font-weight:600;font-size:.7rem;
+    }
     .state-toggle small{display:none;}
     .brand-bar{padding:0 12px;}
     .pi-icon{width:42px;height:42px;}
@@ -2949,6 +3011,21 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
   document.addEventListener('pointercancel', endDrag);
 })();
 
+/* Mobile info-card tap-to-expand. compare-meta's pointer-events are
+   `none` on desktop so they don't intercept slider drags. On mobile we
+   override to `auto` (in CSS) and toggle .expanded on tap. The handler
+   no-ops above 767px so desktop is unaffected. */
+(function wireMobileMetaToggle(){
+  document.addEventListener('click', e => {
+    if (window.innerWidth > 767) return;
+    const card = e.target.closest && e.target.closest('.compare-meta');
+    if (!card) return;
+    const stage = card.closest('.stage');
+    if (!stage || getComputedStyle(stage).display === 'none') return;
+    card.classList.toggle('expanded');
+    e.stopPropagation();
+  }, true);
+})();
 async function ensureAllEncoded(){
   /* Ensure every file has an encoded blob; encode in parallel-with-cap */
   const missing = [];
@@ -3055,8 +3132,13 @@ function attachSettingsListeners(){
   /* Quality slider — re-encode on release (input is too chatty) */
   const qSlider = root.querySelector('.quality-row input[type=range]');
   if (qSlider) {
+    /* Sync the --p custom property with the slider's current value so
+       the hand-styled track gradient knows where to stop. Initialize
+       once on attach, then update on every input event. */
+    qSlider.style.setProperty('--p', qSlider.value);
     qSlider.addEventListener('input', () => {
       const v = parseInt(qSlider.value);
+      qSlider.style.setProperty('--p', v);
       const lbl = root.querySelector('.quality-row + .adjust-hint, .adjust-section .adjust-label');
       const valSpan = root.querySelector('.q-val'); if (valSpan) valSpan.textContent = String(v);
       const labelEl = root.querySelector('.adjust-section .adjust-label');
