@@ -630,6 +630,20 @@
     clip-path:inset(0 0 0 0);
     -webkit-clip-path:inset(0 0 0 0);
   }
+  /* prefers-reduced-motion: drop the clip-path interpolation entirely so
+     the drawer just snaps open/closed. Some browsers with reduced-motion
+     hold the clip-path at the FROM value rather than jumping to TO,
+     which would leave the drawer invisible after open. Setting clip-path
+     to `none` (no clipping) on both states avoids that trap. */
+  @media (prefers-reduced-motion: reduce){
+    .bb-drawer{
+      clip-path:none;-webkit-clip-path:none;
+      transition:none;
+    }
+    body[data-adjust="open"] .bb-drawer{
+      clip-path:none;-webkit-clip-path:none;
+    }
+  }
   .bb-drawer-inner{overflow-x:auto;scrollbar-width:thin;}
   .bb-drawer-inner::-webkit-scrollbar{height:6px;}
   .bb-drawer-inner::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
@@ -1154,6 +1168,16 @@
       border-bottom-color:rgba(255,255,255,.12);
       clip-path:inset(0 0 0 0);
       -webkit-clip-path:inset(0 0 0 0);
+    }
+    /* Reduced-motion: drop clip-path on mobile too. */
+    @media (prefers-reduced-motion: reduce){
+      .bb-drawer{
+        clip-path:none;-webkit-clip-path:none;
+        transition:none;
+      }
+      body[data-adjust="open"] .bb-drawer{
+        clip-path:none;-webkit-clip-path:none;
+      }
     }
     .bb-drawer-inner{
       /* Mobile: stack the Format / Resize / Privacy SECTIONS vertically
