@@ -116,7 +116,7 @@
     --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
-    --thumb-big:150px;--thumb-small:70px;--stride:120px;
+    --thumb-big:75px;--thumb-small:35px;--stride:60px;
     --action-w:240px;
   }
   body[data-state="solo"],body[data-state="multi"]{
@@ -210,8 +210,9 @@
   .image-canvas{
     position:absolute;
     top:0;left:0;right:0;
-    /* Stack: bar (--menu-h) + 42px filename gap + 160 cover-flow + 6 gap = +208 */
-    bottom:calc(var(--menu-h, 80px) + 208px);
+    /* Stack: bar (--menu-h) + 42px filename gap + 80 cover-flow + 6 gap = +128.
+       Smaller thumbs (50% reduction) free up ~80px for the canvas. */
+    bottom:calc(var(--menu-h, 80px) + 128px);
   }
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -495,7 +496,7 @@
        Stack from viewport bottom: bar (var --menu-h) → 14px gap → filename
        (~16px) → 12px gap → cover-flow. Total ~42px above bar. */
     bottom:calc(var(--menu-h, 80px) + 42px);left:0;right:0;
-    height:160px;
+    height:80px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
     /* overflow:visible so the per-image action icons (which sit ABOVE the
@@ -1199,14 +1200,14 @@
        for the compare canvas (the actual reason users come to the page).
        80/42 still keeps the active thumb tappable (>=44px after scale
        up of small thumbs) without dominating the screen. */
-    :root{--thumb-big:80px;--thumb-small:42px;--action-w:auto;}
+    :root{--thumb-big:40px;--thumb-small:21px;--action-w:auto;}
     .cover-flow{
       bottom:calc(var(--menu-h,80px) + 38px);
       left:0;right:0;
-      height:120px;
+      height:60px;
     }
     .image-canvas{
-      bottom:calc(var(--menu-h, 100px) + 160px);
+      bottom:calc(var(--menu-h, 100px) + 100px);
     }
     .filename-ribbon{
       /* Mobile filename — same below-cover-flow placement, smaller font.
@@ -1901,7 +1902,8 @@ function buildThumbs(){
         <line x1="12" y1="5" x2="12" y2="19"/>
         <line x1="5" y1="12" x2="19" y2="12"/>
       </svg>
-      <span class="add-more-label">Add more</span>
+      <!-- Add more label removed: thumbnails are 50% smaller now;
+               the + icon alone reads clearly without the text. -->
     </div>`;
   addMore.addEventListener('click', () => document.getElementById('moreInput').click());
   track.insertBefore(addMore, document.getElementById('piActions'));
