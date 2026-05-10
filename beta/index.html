@@ -721,6 +721,76 @@
     border-color:rgba(255,255,255,.25);
     color:#fff;
   }
+  /* Info card — top of the right panel. Always visible when files are
+     loaded; mirrors the compare-meta corners but lives in the panel for
+     primary readability. */
+  .panel-info-card{
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:10px;
+    padding:14px 16px;
+    display:flex;flex-direction:column;
+    gap:8px;
+  }
+  .panel-filename{
+    font-size:.86rem;font-weight:700;color:#fff;
+    letter-spacing:-.01em;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .panel-info-row{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;
+  }
+  .panel-info-label{
+    font-size:.66rem;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);
+  }
+  .panel-info-value{
+    font-size:.74rem;color:rgba(255,255,255,.92);font-weight:600;
+    font-variant-numeric:tabular-nums;text-align:right;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .panel-info-savings{
+    font-size:.86rem;font-weight:700;color:#bfe6bf;
+    letter-spacing:.01em;text-align:right;
+    margin-top:2px;
+  }
+  .panel-info-savings:empty{display:none;}
+  .panel-info-savings.bad{color:#ff8b8b;}
+
+  /* Settings disclosure — <details> wrapping the existing settings
+     sections. Closed by default; user clicks to expand. */
+  .settings-disclosure{
+    border-top:1px solid rgba(255,255,255,.08);
+    padding-top:14px;
+    margin-top:4px;
+  }
+  .settings-disclosure-summary{
+    display:flex;align-items:center;gap:8px;
+    cursor:pointer;
+    padding:6px 0;
+    list-style:none;
+    color:rgba(255,255,255,.85);
+    font-size:.78rem;font-weight:700;
+    letter-spacing:.05em;text-transform:uppercase;
+    user-select:none;
+  }
+  .settings-disclosure-summary::-webkit-details-marker{display:none;}
+  .settings-disclosure-summary::marker{display:none;content:'';}
+  .settings-disclosure-icon{flex:none;opacity:.6;}
+  .settings-disclosure-chevron{
+    flex:none;margin-left:auto;opacity:.5;
+    transition:transform .2s ease;
+  }
+  .settings-disclosure[open] .settings-disclosure-chevron{
+    transform:rotate(180deg);
+  }
+  .settings-disclosure[open] > div{
+    margin-top:14px;
+    display:flex;flex-direction:column;
+    gap:18px;
+  }
+
   /* DESKTOP: settings drawer is a right-side sidebar (Stage 1 refactor).
      Why: the bottom-bar slide-out hit saturation. Adding target-size
      mode, lossless toggle, advanced codec controls, etc. requires
@@ -740,25 +810,32 @@
     transition:transform .28s cubic-bezier(.22,1,.36,1);
     overflow:hidden;
   }
-  body[data-adjust="open"] .bb-drawer{
+  /* Open via either:
+     - data-adjust="open" (user toggled open), OR
+     - data-state in (multi/solo) on desktop (panel auto-opens when files
+       are loaded, so the info card is visible immediately).
+     The user can still hide the panel via the gear button to maximize
+     canvas — closing sets data-adjust="closed", which suppresses the
+     auto-open via the [data-adjust="closed"] negation below. */
+  body[data-adjust="open"] .bb-drawer,
+  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .bb-drawer,
+  body[data-state="solo"]:not([data-adjust="closed-by-user"]) .bb-drawer{
     transform:translateX(0);
   }
-  /* When the panel is open, push the image canvas + cover-flow inward
-     so the user can still see/interact with their image. 320px panel
-     width matches .bb-drawer width. */
-  body[data-state="multi"][data-adjust="open"] .stage.multi .image-canvas,
-  body[data-state="multi"][data-adjust="open"] .stage.multi .canvas-fade,
-  body[data-state="multi"][data-adjust="open"] .stage.multi .cover-flow,
-  body[data-state="multi"][data-adjust="open"] .stage.multi .filename-ribbon{
+  /* Push canvas + thumbs to make room for the panel whenever it's open. */
+  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .image-canvas,
+  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .canvas-fade,
+  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .cover-flow,
+  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .filename-ribbon{
     right:320px;
     transition:right .28s cubic-bezier(.22,1,.36,1);
   }
   @media (prefers-reduced-motion: reduce){
     .bb-drawer{transition:none;}
-    body[data-state="multi"][data-adjust="open"] .stage.multi .image-canvas,
-    body[data-state="multi"][data-adjust="open"] .stage.multi .canvas-fade,
-    body[data-state="multi"][data-adjust="open"] .stage.multi .cover-flow,
-    body[data-state="multi"][data-adjust="open"] .stage.multi .filename-ribbon{
+    body[data-state="multi"] .stage.multi .image-canvas,
+    body[data-state="multi"] .stage.multi .canvas-fade,
+    body[data-state="multi"] .stage.multi .cover-flow,
+    body[data-state="multi"] .stage.multi .filename-ribbon{
       transition:none;
     }
   }
@@ -1687,6 +1764,31 @@
           </button>
         </div>
         <div class="bb-drawer-inner">
+          <!-- Info card (auto-shown when file loaded) — mirrors the
+               compare-meta values so the user can read them in the
+               panel without scrolling on the canvas. -->
+          <div class="panel-info-card" id="panelInfoCard">
+            <div class="panel-filename" id="panelFilename">—</div>
+            <div class="panel-info-row">
+              <span class="panel-info-label">Before</span>
+              <span class="panel-info-value" id="panelBeforeMeta">—</span>
+            </div>
+            <div class="panel-info-row">
+              <span class="panel-info-label">After</span>
+              <span class="panel-info-value" id="panelAfterMeta">—</span>
+            </div>
+            <div class="panel-info-savings" id="panelSavings"></div>
+          </div>
+
+          <!-- Settings live inside a <details> that's collapsed by
+               default. The user wanted info visible up front and
+               settings tucked away until clicked. -->
+          <details class="settings-disclosure" id="settingsDisclosure">
+            <summary class="settings-disclosure-summary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="settings-disclosure-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>Settings</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="settings-disclosure-chevron"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
           <div class="bb-section">
             <span class="bb-section-label">Format</span>
             <div class="adjust-pills" id="formatPills">
@@ -1765,6 +1867,7 @@
             <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label>
           </div>
           </div>
+          </details>
         </div>
       </div>
       <!-- bb-core removed: Quality slider lives in the drawer now. -->
@@ -1799,7 +1902,22 @@ function setState(s){
   if(s==='multi') requestAnimationFrame(layoutCoverFlow);
 }
 function toggleAdjust(){
-  document.body.dataset.adjust = document.body.dataset.adjust==='open' ? 'closed' : 'open';
+  /* New 2-panel logic: panel auto-opens on multi/solo state. The gear
+     toggle now flips between an explicit "open" and "closed-by-user"
+     so the user can collapse the panel for a full-bleed canvas view.
+     Default (data-adjust="closed") still means "use auto-open behavior
+     based on state". */
+  const cur = document.body.dataset.adjust;
+  const state = document.body.dataset.state;
+  const autoOpenStates = ['multi','solo'];
+  const isAutoOpenContext = autoOpenStates.includes(state);
+  if (isAutoOpenContext) {
+    /* When in a state where panel is auto-shown, gear collapses it. */
+    document.body.dataset.adjust = (cur === 'closed-by-user') ? 'open' : 'closed-by-user';
+  } else {
+    /* Empty state — gear opens a manual look at settings. */
+    document.body.dataset.adjust = (cur === 'open') ? 'closed' : 'open';
+  }
 }
 
 /* ===== beta: file-based thumb data ===== */
@@ -2332,6 +2450,36 @@ function setMetaCorners(beforeFile, encoded){
       if (sizeSpan) sizeSpan.textContent = 'Encoding…';
       if (pctSpan) { pctSpan.style.display = 'none'; pctSpan.classList.remove('bad'); }
       if (batchRow) batchRow.style.display = 'none';
+    }
+  }
+  /* Mirror the meta values into the right-panel info card. The panel is
+     auto-open in multi/solo states and is the primary readability surface
+     for these stats — corner cards on canvas remain as a quick-glance
+     fallback. */
+  const pFilename = document.getElementById('panelFilename');
+  const pBefore   = document.getElementById('panelBeforeMeta');
+  const pAfter    = document.getElementById('panelAfterMeta');
+  const pSavings  = document.getElementById('panelSavings');
+  if (pFilename && FILES[idx]) pFilename.textContent = FILES[idx].file.name || FILES[idx].name || '—';
+  if (pBefore) pBefore.textContent = `${dimsStr}${fmtSize(beforeFile.size)} · ${(beforeFile.type.split('/')[1]||'IMG').toUpperCase()}`;
+  if (pAfter) {
+    if (encoded) {
+      pAfter.textContent = `${dimsStr}${fmtSize(encoded.size)} · ${(encoded.format||'').toUpperCase()}`;
+    } else {
+      pAfter.textContent = 'Encoding…';
+    }
+  }
+  if (pSavings) {
+    if (encoded) {
+      const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
+      if (Math.abs(pct) < 1) {
+        pSavings.textContent = ''; pSavings.classList.remove('bad');
+      } else {
+        pSavings.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
+        pSavings.classList.toggle('bad', pct < 0);
+      }
+    } else {
+      pSavings.textContent = ''; pSavings.classList.remove('bad');
     }
   }
 }
