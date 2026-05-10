@@ -1194,6 +1194,59 @@
   .confirm-actions{display:flex;gap:10px;justify-content:flex-end;}
   .confirm-actions .btn{width:auto;}
 
+
+
+  /* LIQUID GLASS TOP-CHROME (solo/multi) */
+  .top-chrome{display:none;}
+  body[data-state="solo"] .top-chrome,
+  body[data-state="multi"] .top-chrome{
+    display:flex;align-items:center;justify-content:space-between;
+    position:fixed;top:12px;left:50%;transform:translateX(-50%);
+    width:calc(100% - 24px);max-width:920px;
+    padding:10px 20px;
+    background:rgba(20,20,20,.55);
+    backdrop-filter:blur(22px) saturate(180%);
+    -webkit-backdrop-filter:blur(22px) saturate(180%);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:18px;
+    box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+    z-index:50;pointer-events:auto;gap:14px;
+  }
+  .top-chrome .tc-section{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;}
+  .top-chrome .tc-before{align-items:flex-start;text-align:left;}
+  .top-chrome .tc-brand{align-items:center;text-align:center;flex:0 0 auto;min-width:160px;}
+  .top-chrome .tc-after{align-items:flex-end;text-align:right;}
+  .top-chrome .tc-label{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);line-height:1;margin-bottom:1px;}
+  .top-chrome .tc-value{font-size:.74rem;font-weight:600;color:rgba(255,255,255,.92);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .top-chrome .tc-pct{font-size:.66rem;color:#bfe6bf;font-weight:700;margin-top:1px;line-height:1;}
+  .top-chrome .tc-pct.bad{color:#ff8b8b;}
+  .top-chrome .tc-pct:empty{display:none;}
+  .top-chrome .tc-brand-name{font-size:.98rem;font-weight:700;color:rgba(255,255,255,.95);letter-spacing:-.01em;text-decoration:none;line-height:1;}
+  .top-chrome .tc-brand-name .g{color:var(--accent);}
+  .top-chrome .tc-stats{font-size:.62rem;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;letter-spacing:.02em;margin-top:3px;}
+  body[data-state="solo"] .brand-bar,body[data-state="multi"] .brand-bar{display:none;}
+  body[data-state="solo"] .stage,body[data-state="multi"] .stage{height:100vh;}
+  body[data-state="solo"] .stage.solo .image-canvas,body[data-state="multi"] .stage.multi .image-canvas{top:0;left:0;right:0;bottom:0;}
+  body[data-state="solo"] .stage.solo .compare-meta,body[data-state="multi"] .stage.multi .compare-meta{display:none;}
+  body[data-state="multi"] .cover-flow{
+    background:rgba(20,20,20,.55);
+    backdrop-filter:blur(22px) saturate(180%);
+    -webkit-backdrop-filter:blur(22px) saturate(180%);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    box-shadow:0 8px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+    left:24px;right:24px;
+  }
+  body[data-state="multi"] .menu-wrap{left:24px;right:24px;bottom:18px;}
+  body[data-state="multi"] .menu-card{
+    background:rgba(20,20,20,.55) !important;
+    backdrop-filter:blur(22px) saturate(180%);
+    -webkit-backdrop-filter:blur(22px) saturate(180%);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:16px;
+    box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+  }
+
   /* ---------- mobile ---------- */
   @media(max-width:767px){
     /* Smaller cover-flow thumbnails on mobile — frees vertical space
@@ -1371,6 +1424,16 @@
       pointer-events:auto;cursor:pointer;
     }
     .compare-meta .lbl-title{font-size:.78rem;}
+    body[data-state="solo"] .top-chrome,body[data-state="multi"] .top-chrome{top:8px;width:calc(100% - 16px);padding:8px 12px;gap:8px;border-radius:14px;}
+    .top-chrome .tc-brand{min-width:auto;}
+    .top-chrome .tc-brand-name{font-size:.86rem;}
+    .top-chrome .tc-stats{font-size:.58rem;}
+    .top-chrome .tc-label{font-size:.54rem;}
+    .top-chrome .tc-value{font-size:.66rem;}
+    .top-chrome .tc-pct{font-size:.6rem;}
+    body[data-state="multi"] .cover-flow{left:8px;right:8px;border-radius:14px;}
+    body[data-state="multi"] .menu-wrap{left:8px;right:8px;bottom:8px;}
+    body[data-state="multi"] .menu-card{border-radius:14px;}
     /* Hide every span that isn't the title or savings % when collapsed */
     .compare-meta:not(.expanded) > span:not(.lbl-title):not(.pct){
       display:none;
@@ -1399,10 +1462,14 @@
 
 <div class="brand-bar">
   <a href="/" class="brand">img<span class="g">ready</span></a>
-  <span class="beta-badge" style="display:none">BETA</span>
   <div class="brand-spacer"></div>
-  <!-- "Back to stable app" link removed: beta IS the stable app now (cutover complete). -->
 </div>
+
+<header class="top-chrome" aria-label="Workspace info">
+  <div class="tc-section tc-before"><span class="tc-label">Before</span><span class="tc-value" id="tcBefore">--</span></div>
+  <div class="tc-section tc-brand"><a href="/" class="tc-brand-name">img<span class="g">ready</span></a><span class="tc-stats" id="tcStats">--</span></div>
+  <div class="tc-section tc-after"><span class="tc-label">After</span><span class="tc-value" id="tcAfter">--</span><span class="tc-pct" id="tcPct"></span></div>
+</header>
 
 <section class="beta-empty">
   <div class="app">
@@ -2285,6 +2352,31 @@ function setMetaCorners(beforeFile, encoded){
       if (pctSpan) { pctSpan.style.display = 'none'; pctSpan.classList.remove('bad'); }
       if (batchRow) batchRow.style.display = 'none';
     }
+  }
+  /* Sync floating top-chrome */
+  const tcB = document.getElementById('tcBefore');
+  const tcA = document.getElementById('tcAfter');
+  const tcP = document.getElementById('tcPct');
+  const tcS = document.getElementById('tcStats');
+  if (tcB) tcB.textContent = dimsStr + fmtSize(beforeFile.size) + ' \u00b7 ' + (beforeFile.type.split('/')[1]||'IMG').toUpperCase();
+  if (tcA) {
+    if (encoded) { tcA.textContent = dimsStr + fmtSize(encoded.size) + ' \u00b7 ' + (encoded.format||'').toUpperCase(); }
+    else { tcA.textContent = 'Encoding\u2026'; }
+  }
+  if (tcP) {
+    if (encoded) {
+      const pctNow = Math.round((1 - encoded.size/beforeFile.size) * 100);
+      if (Math.abs(pctNow) < 1) { tcP.textContent = ''; tcP.classList.remove('bad'); }
+      else { tcP.textContent = Math.abs(pctNow) + '% ' + (pctNow >= 0 ? 'smaller' : 'larger'); tcP.classList.toggle('bad', pctNow < 0); }
+    } else { tcP.textContent = ''; }
+  }
+  if (tcS) {
+    let tB2 = 0, tA2 = 0;
+    FILES.forEach((ff, ii) => { const ee = ENCODE.encoded.get(ii); if (ee) { tB2 += ff.file.size; tA2 += ee.size; } });
+    const total = FILES.length;
+    const fileWord = total === 1 ? '1 file' : (total + ' files');
+    if (tB2 > tA2 && tB2 > 0) { tcS.textContent = fmtSize(tB2 - tA2) + ' saved \u00b7 ' + fileWord; }
+    else { tcS.textContent = fileWord; }
   }
 }
 
