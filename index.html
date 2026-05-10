@@ -1196,17 +1196,19 @@
 
 
 
-  /* LIQUID GLASS TOP-CHROME (solo/multi) — single-row, flush at top */
+  /* TOP-CHROME — flat single-row liquid glass, flush at viewport top.
+     Structure: ONE flex row containing all spans inline. Three "zones"
+     (left/mid/right) are produced by two flex spacers, not nested
+     flexboxes. That guarantees nothing stacks vertically. */
   .top-chrome{display:none;}
   body[data-state="solo"] .top-chrome,
   body[data-state="multi"] .top-chrome{
-    display:flex;align-items:center;justify-content:space-between;
+    display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;
     position:fixed;top:0;left:50%;transform:translateX(-50%);
     width:50vw;min-width:480px;max-width:720px;
-    /* Flush against viewport top — no top padding/margin. Slim vertical
-       padding keeps the bar compact; horizontal gives content breathing
-       room. Rounded ONLY on bottom corners since top is glued to edge. */
-    padding:7px 18px;
+    /* Zero top padding — content sits at the literal top edge. */
+    padding:0 18px;
+    min-height:30px;
     background:rgba(20,20,20,.55);
     backdrop-filter:blur(11px) saturate(180%);
     -webkit-backdrop-filter:blur(11px) saturate(180%);
@@ -1214,52 +1216,51 @@
     border-top:none;
     border-radius:0 0 14px 14px;
     box-shadow:0 4px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
-    z-index:50;pointer-events:auto;gap:14px;
+    z-index:50;pointer-events:auto;
+    gap:8px;white-space:nowrap;
+    line-height:1;
   }
-  /* Three sections — Before | Brand | After. Each section's content
-     stays on a single inline row (flex-direction:row + nowrap). */
+  /* Sections are inline flex too — purely so that internal spans align
+     with center alignment and gap. NEVER column-direction. */
   .top-chrome .tc-section{
-    display:flex;align-items:center;flex-direction:row;
-    gap:6px;
-    flex:1;min-width:0;
-    flex-wrap:nowrap;
-    white-space:nowrap;
+    display:inline-flex;align-items:center;flex-direction:row;
+    flex-wrap:nowrap;white-space:nowrap;
+    gap:6px;flex:none;line-height:1;
   }
-  .top-chrome .tc-before{justify-content:flex-start;}
-  .top-chrome .tc-brand{justify-content:center;flex:0 1 auto;}
-  .top-chrome .tc-after{justify-content:flex-end;}
+  .top-chrome .tc-before{margin-right:auto;}
+  .top-chrome .tc-after{margin-left:auto;}
+  .top-chrome .tc-brand{}
   .top-chrome .tc-label{
     font-size:.58rem;font-weight:700;letter-spacing:.1em;
     text-transform:uppercase;color:rgba(255,255,255,.45);
     flex:none;
   }
   .top-chrome .tc-value{
-    font-size:.74rem;font-weight:600;color:rgba(255,255,255,.92);
+    font-size:.72rem;font-weight:600;color:rgba(255,255,255,.92);
     font-variant-numeric:tabular-nums;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    min-width:0;
+    white-space:nowrap;
+    flex:none;
   }
   .top-chrome .tc-pct{
     font-size:.66rem;color:#bfe6bf;font-weight:700;
-    flex:none;line-height:1;
+    flex:none;
   }
   .top-chrome .tc-pct.bad{color:#ff8b8b;}
   .top-chrome .tc-pct:empty{display:none;}
   .top-chrome .tc-brand-name{
-    font-size:.96rem;font-weight:700;color:rgba(255,255,255,.95);
-    letter-spacing:-.01em;text-decoration:none;line-height:1;
+    font-size:.92rem;font-weight:700;color:rgba(255,255,255,.95);
+    letter-spacing:-.01em;text-decoration:none;
     flex:none;
   }
   .top-chrome .tc-brand-name .g{color:var(--accent);}
   .top-chrome .tc-stats{
-    font-size:.66rem;color:rgba(255,255,255,.55);
+    font-size:.64rem;color:rgba(255,255,255,.55);
     font-variant-numeric:tabular-nums;
     flex:none;
   }
-  /* Subtle separator dot between brand and stats */
-  .top-chrome .tc-brand .tc-stats::before{
-    content:"\00b7";color:rgba(255,255,255,.3);
-    margin-right:6px;
+  /* Subtle middle-dot before stats so brand reads as "imgready · 4.2MB saved · 12 files" */
+  .top-chrome .tc-stats::before{
+    content:"\00b7";color:rgba(255,255,255,.3);margin-right:6px;
   }
   body[data-state="solo"] .brand-bar,body[data-state="multi"] .brand-bar{display:none;}
   body[data-state="solo"] .stage,body[data-state="multi"] .stage{height:100vh;}
@@ -1455,13 +1456,12 @@
     }
     .compare-meta .lbl-title{font-size:.78rem;}
     body[data-state="solo"] .top-chrome,body[data-state="multi"] .top-chrome{
-      /* Mobile keeps full width (50vw is too narrow at <= 767px) but
-         retains the flush-top + bottom-rounded silhouette. */
+      /* Mobile: full width, flush top, zero vertical padding. */
       top:0;left:0;right:0;transform:none;
       width:100%;min-width:auto;max-width:none;
-      padding:6px 10px;gap:6px;
-      border-left:none;border-right:none;
-      border-radius:0;
+      padding:0 10px;
+      min-height:28px;gap:6px;
+      border-left:none;border-right:none;border-radius:0;
     }
     .top-chrome .tc-brand-name{font-size:.84rem;}
     .top-chrome .tc-stats{font-size:.58rem;}
