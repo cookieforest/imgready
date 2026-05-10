@@ -1196,19 +1196,17 @@
 
 
 
-  /* TOP-CHROME — flat single-row liquid glass, flush at viewport top.
-     Structure: ONE flex row containing all spans inline. Three "zones"
-     (left/mid/right) are produced by two flex spacers, not nested
-     flexboxes. That guarantees nothing stacks vertically. */
+  /* TOP-CHROME — 2-row liquid glass, flush at viewport top.
+     Outer flex is row (3 sections side by side). Each section is
+     flex-COLUMN with 2 rows: label/brand on top, value(s) on bottom. */
   .top-chrome{display:none;}
   body[data-state="solo"] .top-chrome,
   body[data-state="multi"] .top-chrome{
-    display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;
-    position:fixed;top:0;left:50%;transform:translateX(-50%);
-    width:50vw;min-width:480px;max-width:720px;
-    /* Zero top padding — content sits at the literal top edge. */
-    padding:0 18px;
-    min-height:30px;
+    display:flex;flex-direction:row;align-items:center;
+    position:fixed;top:0 !important;left:50%;transform:translateX(-50%);
+    width:50vw;min-width:540px;max-width:780px;
+    /* Zero top padding — content sits at the literal top edge */
+    padding:6px 18px 8px;
     background:rgba(20,20,20,.55);
     backdrop-filter:blur(11px) saturate(180%);
     -webkit-backdrop-filter:blur(11px) saturate(180%);
@@ -1217,51 +1215,53 @@
     border-radius:0 0 14px 14px;
     box-shadow:0 4px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
     z-index:50;pointer-events:auto;
-    gap:8px;white-space:nowrap;
-    line-height:1;
+    gap:14px;
+    line-height:1.15;
   }
-  /* Sections are inline flex too — purely so that internal spans align
-     with center alignment and gap. NEVER column-direction. */
+  /* Sections are flex-column: row 1 = label/brand, row 2 = value(s) */
   .top-chrome .tc-section{
-    display:inline-flex;align-items:center;flex-direction:row;
-    flex-wrap:nowrap;white-space:nowrap;
-    gap:6px;flex:none;line-height:1;
+    display:flex;flex-direction:column;
+    gap:3px;
+    flex:1;min-width:0;
+    white-space:nowrap;
   }
-  .top-chrome .tc-before{margin-right:auto;}
-  .top-chrome .tc-after{margin-left:auto;}
-  .top-chrome .tc-brand{}
+  .top-chrome .tc-before{align-items:flex-start;text-align:left;}
+  .top-chrome .tc-brand{align-items:center;text-align:center;flex:0 0 auto;}
+  .top-chrome .tc-after{align-items:flex-end;text-align:right;}
   .top-chrome .tc-label{
-    font-size:.58rem;font-weight:700;letter-spacing:.1em;
+    font-size:.56rem;font-weight:700;letter-spacing:.12em;
     text-transform:uppercase;color:rgba(255,255,255,.45);
-    flex:none;
+    line-height:1;
   }
   .top-chrome .tc-value{
     font-size:.72rem;font-weight:600;color:rgba(255,255,255,.92);
     font-variant-numeric:tabular-nums;
-    white-space:nowrap;
-    flex:none;
+    line-height:1;
   }
   .top-chrome .tc-pct{
-    font-size:.66rem;color:#bfe6bf;font-weight:700;
-    flex:none;
+    font-size:.7rem;color:#bfe6bf;font-weight:700;
+    line-height:1;margin-left:6px;
   }
   .top-chrome .tc-pct.bad{color:#ff8b8b;}
   .top-chrome .tc-pct:empty{display:none;}
+  /* After-section row 2: wraps value + pct inline so they share a row */
+  .top-chrome .tc-after-line2{
+    display:inline-flex;align-items:baseline;gap:6px;
+  }
   .top-chrome .tc-brand-name{
-    font-size:.92rem;font-weight:700;color:rgba(255,255,255,.95);
-    letter-spacing:-.01em;text-decoration:none;
-    flex:none;
+    font-size:.94rem;font-weight:700;color:rgba(255,255,255,.95);
+    letter-spacing:-.01em;text-decoration:none;line-height:1;
   }
   .top-chrome .tc-brand-name .g{color:var(--accent);}
   .top-chrome .tc-stats{
-    font-size:.64rem;color:rgba(255,255,255,.55);
-    font-variant-numeric:tabular-nums;
-    flex:none;
+    font-size:.66rem;color:rgba(255,255,255,.55);
+    font-variant-numeric:tabular-nums;line-height:1;
   }
-  /* Subtle middle-dot before stats so brand reads as "imgready · 4.2MB saved · 12 files" */
-  .top-chrome .tc-stats::before{
-    content:"\00b7";color:rgba(255,255,255,.3);margin-right:6px;
-  }
+  /* Body reset — kill the default 8px margin that produces the gap above
+     the chrome. Scoped to workspace states to leave landing untouched. */
+  body[data-state="solo"],body[data-state="multi"]{margin:0;padding:0;}
+  body[data-state="solo"] .brand-bar,
+  body[data-state="multi"] .brand-bar{display:none !important;}
   body[data-state="solo"] .brand-bar,body[data-state="multi"] .brand-bar{display:none;}
   body[data-state="solo"] .stage,body[data-state="multi"] .stage{height:100vh;}
   body[data-state="solo"] .stage.solo .image-canvas,body[data-state="multi"] .stage.multi .image-canvas{top:0;left:0;right:0;bottom:0;}
@@ -1456,13 +1456,17 @@
     }
     .compare-meta .lbl-title{font-size:.78rem;}
     body[data-state="solo"] .top-chrome,body[data-state="multi"] .top-chrome{
-      /* Mobile: full width, flush top, zero vertical padding. */
       top:0;left:0;right:0;transform:none;
       width:100%;min-width:auto;max-width:none;
-      padding:0 10px;
-      min-height:28px;gap:6px;
+      padding:5px 10px 7px;gap:8px;
       border-left:none;border-right:none;border-radius:0;
     }
+    .top-chrome .tc-section{gap:2px;}
+    .top-chrome .tc-label{font-size:.52rem;}
+    .top-chrome .tc-value{font-size:.64rem;}
+    .top-chrome .tc-brand-name{font-size:.84rem;}
+    .top-chrome .tc-stats{font-size:.58rem;}
+    .top-chrome .tc-pct{font-size:.6rem;}
     .top-chrome .tc-brand-name{font-size:.84rem;}
     .top-chrome .tc-stats{font-size:.58rem;}
     .top-chrome .tc-label{font-size:.54rem;}
@@ -1503,9 +1507,21 @@
 </div>
 
 <header class="top-chrome" aria-label="Workspace info">
-  <div class="tc-section tc-before"><span class="tc-label">Before</span><span class="tc-value" id="tcBefore">--</span></div>
-  <div class="tc-section tc-brand"><a href="/" class="tc-brand-name">img<span class="g">ready</span></a><span class="tc-stats" id="tcStats">--</span></div>
-  <div class="tc-section tc-after"><span class="tc-label">After</span><span class="tc-value" id="tcAfter">--</span><span class="tc-pct" id="tcPct"></span></div>
+  <div class="tc-section tc-before">
+    <span class="tc-label">Before</span>
+    <span class="tc-value" id="tcBefore">—</span>
+  </div>
+  <div class="tc-section tc-brand">
+    <a href="/" class="tc-brand-name">img<span class="g">ready</span></a>
+    <span class="tc-stats" id="tcStats">—</span>
+  </div>
+  <div class="tc-section tc-after">
+    <span class="tc-label">After</span>
+    <span class="tc-after-line2">
+      <span class="tc-value" id="tcAfter">—</span>
+      <span class="tc-pct" id="tcPct"></span>
+    </span>
+  </div>
 </header>
 
 <section class="beta-empty">
