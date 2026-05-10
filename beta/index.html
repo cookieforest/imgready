@@ -506,131 +506,6 @@
   }
   .cover-flow.dragging{cursor:grabbing;}
   body[data-state="solo"] .cover-flow{display:none;}
-
-  /* ===== RIGHT-PANEL LIST MODE =====================================
-     When the right panel is open in multi state on desktop, the
-     cover-flow becomes a VERTICAL LIST INSIDE the panel instead of a
-     horizontal carousel below the canvas. The DOM stays the same —
-     cover-flow element gets repositioned via fixed positioning to
-     land inside the panel's reserved 320px column. Each .cflow-thumb
-     resets from its JS-set absolute carousel position to a normal
-     flow row (overrides via !important so layoutCoverFlow doesn't
-     win). Mobile @media restores the horizontal carousel below. */
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cover-flow{
-    position:fixed !important;
-    top:200px !important;
-    bottom:96px !important;
-    right:0 !important;
-    left:auto !important;
-    width:320px !important;
-    max-width:90vw;
-    height:auto !important;
-    flex-direction:column !important;
-    align-items:stretch !important;
-    justify-content:flex-start !important;
-    gap:6px;
-    padding:8px 16px !important;
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-    background:transparent;
-    z-index:31;
-    cursor:default;
-  }
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cover-flow .cflow-track{
-    /* Track was used to anchor carousel positioning. In list mode it's
-       not needed — collapse it so it doesn't take space. */
-    position:static !important;
-    width:auto !important;height:auto !important;
-    display:contents;
-  }
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cflow-thumb{
-    position:relative !important;
-    left:auto !important;top:auto !important;
-    transform:none !important;
-    width:100% !important;
-    height:auto !important;
-    aspect-ratio:auto !important;
-    min-height:60px;
-    display:flex !important;
-    align-items:center;
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:8px;
-    padding:6px 8px !important;
-    gap:10px;
-    flex:none !important;
-    margin:0 !important;
-    cursor:pointer;
-    transition:background .14s ease,border-color .14s ease;
-  }
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cflow-thumb:hover{
-    background:rgba(255,255,255,.07);
-    border-color:rgba(255,255,255,.12);
-  }
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cflow-thumb.active{
-    background:rgba(255,255,255,.12);
-    border-color:rgba(255,255,255,.22);
-  }
-  /* Thumb image becomes a small fixed-size square at the left of each row */
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cflow-thumb > img,
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cflow-thumb > div:not(.thumb-progress){
-    width:48px !important;
-    height:48px !important;
-    aspect-ratio:1/1;
-    flex:none;
-    object-fit:cover;
-    border-radius:5px;
-    background-size:cover !important;
-    background-position:center !important;
-  }
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cflow-thumb .thumb-progress{
-    width:48px !important;height:48px !important;
-    inset:auto !important;
-    border-radius:5px;
-  }
-  /* "Add more" tile gets a label so the row reads as a list item */
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .cflow-thumb.add-more::after{
-    content:"Add more files";
-    font-size:.72rem;color:rgba(255,255,255,.7);
-    align-self:center;
-  }
-  /* Hide canvas-fade overlay (it was a fade beneath the cover-flow) */
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .canvas-fade{
-    display:none;
-  }
-  /* Canvas takes full vertical space (no cover-flow at the bottom anymore) */
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .image-canvas{
-    bottom:14px !important;
-  }
-  /* Filename ribbon (it was below cover-flow) — hide on desktop, info
-     card in panel duplicates it */
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .filename-ribbon{
-    display:none;
-  }
-  /* Mobile cancels all panel-list rules — restores horizontal carousel */
-  @media(max-width:767px){
-    body[data-state="multi"] .cover-flow{
-      position:absolute !important;
-      top:auto !important;left:0 !important;right:0 !important;
-      bottom:calc(var(--menu-h,80px) + 38px) !important;
-      width:auto !important;max-width:none !important;
-      height:120px !important;
-      flex-direction:row !important;
-      overflow:visible !important;
-      padding:0 !important;
-    }
-    body[data-state="multi"] .cflow-thumb{
-      position:absolute !important;
-      width:var(--thumb-small) !important;
-      height:var(--thumb-small) !important;
-      aspect-ratio:1/1 !important;
-      min-height:0 !important;
-      display:block !important;
-      padding:0 !important;
-      border-radius:6px !important;
-    }
-    body[data-state="multi"] .stage.multi .canvas-fade{display:block !important;}
-  }
   .cflow-track{position:absolute;left:50%;top:50%;width:0;height:0;}
   .cflow-thumb{
     position:absolute;left:0;top:0;
@@ -820,172 +695,64 @@
      film. The drawer holds the secondary controls (Resize + Privacy)
      that the user visits less often than format/quality. Width animates
      0→auto via max-width transition. */
-  /* Sidebar header — title + close X. Sticky at top of the panel so
-     the user can always close even after scrolling deep into Advanced. */
-  .bb-drawer-header{
-    flex:none;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 20px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-    background:rgba(255,255,255,.02);
-  }
-  .bb-drawer-title{
-    font-size:.78rem;font-weight:700;letter-spacing:.08em;
-    text-transform:uppercase;color:rgba(255,255,255,.85);
-  }
-  .bb-drawer-close{
-    width:30px;height:30px;
-    display:flex;align-items:center;justify-content:center;
-    background:transparent;border:1px solid rgba(255,255,255,.14);
-    color:rgba(255,255,255,.7);
-    border-radius:6px;cursor:pointer;
-    transition:background .14s ease,border-color .14s ease,color .14s ease;
-  }
-  .bb-drawer-close:hover{
-    background:rgba(255,255,255,.08);
-    border-color:rgba(255,255,255,.25);
-    color:#fff;
-  }
-  /* Info card — top of the right panel. Always visible when files are
-     loaded; mirrors the compare-meta corners but lives in the panel for
-     primary readability. */
-  .panel-info-card{
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:10px;
-    padding:14px 16px;
-    display:flex;flex-direction:column;
-    gap:8px;
-  }
-  .panel-filename{
-    font-size:.86rem;font-weight:700;color:#fff;
-    letter-spacing:-.01em;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  }
-  .panel-info-row{
-    display:flex;align-items:center;justify-content:space-between;
-    gap:10px;
-  }
-  .panel-info-label{
-    font-size:.66rem;font-weight:700;letter-spacing:.08em;
-    text-transform:uppercase;color:rgba(255,255,255,.55);
-  }
-  .panel-info-value{
-    font-size:.74rem;color:rgba(255,255,255,.92);font-weight:600;
-    font-variant-numeric:tabular-nums;text-align:right;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  }
-  .panel-info-savings{
-    font-size:.86rem;font-weight:700;color:#bfe6bf;
-    letter-spacing:.01em;text-align:right;
-    margin-top:2px;
-  }
-  .panel-info-savings:empty{display:none;}
-  .panel-info-savings.bad{color:#ff8b8b;}
-
-  /* Settings disclosure — <details> wrapping the existing settings
-     sections. Closed by default; user clicks to expand. */
-  .settings-disclosure{
-    border-top:1px solid rgba(255,255,255,.08);
-    padding-top:14px;
-    margin-top:4px;
-  }
-  .settings-disclosure-summary{
-    display:flex;align-items:center;gap:8px;
-    cursor:pointer;
-    padding:6px 0;
-    list-style:none;
-    color:rgba(255,255,255,.85);
-    font-size:.78rem;font-weight:700;
-    letter-spacing:.05em;text-transform:uppercase;
-    user-select:none;
-  }
-  .settings-disclosure-summary::-webkit-details-marker{display:none;}
-  .settings-disclosure-summary::marker{display:none;content:'';}
-  .settings-disclosure-icon{flex:none;opacity:.6;}
-  .settings-disclosure-chevron{
-    flex:none;margin-left:auto;opacity:.5;
-    transition:transform .2s ease;
-  }
-  .settings-disclosure[open] .settings-disclosure-chevron{
-    transform:rotate(180deg);
-  }
-  .settings-disclosure[open] > div{
-    margin-top:14px;
-    display:flex;flex-direction:column;
-    gap:18px;
-  }
-
-  /* DESKTOP: settings drawer is a right-side sidebar (Stage 1 refactor).
-     Why: the bottom-bar slide-out hit saturation. Adding target-size
-     mode, lossless toggle, advanced codec controls, etc. requires
-     vertical scroll real estate. Pattern matches Squoosh / Photopea /
-     desktop image editors. translateX is GPU-composited so no layout
-     reflow, no backdrop-filter rendering bugs. Mobile @media block
-     overrides this back to a bottom drawer. */
   .bb-drawer{
-    position:fixed;top:0;right:0;bottom:0;
-    width:320px;max-width:90vw;
-    display:flex;flex-direction:column;
+    display:flex;align-items:center;
+    /* Two-stage open: max-width snaps INSTANTLY (layout shifts the
+       actions immediately), and clip-path animates the visual reveal.
+       This avoids transitioning ANY layout property — clip-path is a
+       paint-time operation that composites smoothly without triggering
+       backdrop-filter or size-recalc rendering bugs. */
+    max-width:0;overflow:hidden;
+    height:46px;
+    border-left:1px solid transparent;
+    padding:0;
     background:#1a1a1a;
-    border-left:1px solid var(--card-border);
-    box-shadow:-8px 0 32px rgba(0,0,0,.4);
-    z-index:30;
-    transform:translateX(100%);
-    transition:transform .28s cubic-bezier(.22,1,.36,1);
-    overflow:hidden;
+    /* Visual reveal via clip-path: starts fully clipped from the right,
+       animates open to fully visible. */
+    clip-path:inset(0 100% 0 0);
+    -webkit-clip-path:inset(0 100% 0 0);
+    transition:clip-path .32s cubic-bezier(.22,1,.36,1),
+               -webkit-clip-path .32s cubic-bezier(.22,1,.36,1),
+               border-left-color .2s ease,
+               padding .25s ease;
   }
-  /* Open via either:
-     - data-adjust="open" (user toggled open), OR
-     - data-state in (multi/solo) on desktop (panel auto-opens when files
-       are loaded, so the info card is visible immediately).
-     The user can still hide the panel via the gear button to maximize
-     canvas — closing sets data-adjust="closed", which suppresses the
-     auto-open via the [data-adjust="closed"] negation below. */
-  body[data-adjust="open"] .bb-drawer,
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .bb-drawer,
-  body[data-state="solo"]:not([data-adjust="closed-by-user"]) .bb-drawer{
-    transform:translateX(0);
+  body[data-adjust="open"] .bb-drawer{
+    /* max-width snaps to allocate layout space; clip-path animates the
+       visual reveal from inset(0 100% 0 0) to inset(0 0 0 0). */
+    max-width:1400px;padding:0 4px;
+    border-left-color:rgba(255,255,255,.12);
+    clip-path:inset(0 0 0 0);
+    -webkit-clip-path:inset(0 0 0 0);
   }
-  /* Push canvas + thumbs to make room for the panel whenever it's open. */
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .image-canvas,
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .canvas-fade,
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .cover-flow,
-  body[data-state="multi"]:not([data-adjust="closed-by-user"]) .stage.multi .filename-ribbon{
-    right:320px;
-    transition:right .28s cubic-bezier(.22,1,.36,1);
-  }
+  /* prefers-reduced-motion: drop the clip-path interpolation entirely so
+     the drawer just snaps open/closed. Some browsers with reduced-motion
+     hold the clip-path at the FROM value rather than jumping to TO,
+     which would leave the drawer invisible after open. Setting clip-path
+     to `none` (no clipping) on both states avoids that trap. */
   @media (prefers-reduced-motion: reduce){
-    .bb-drawer{transition:none;}
-    body[data-state="multi"] .stage.multi .image-canvas,
-    body[data-state="multi"] .stage.multi .canvas-fade,
-    body[data-state="multi"] .stage.multi .cover-flow,
-    body[data-state="multi"] .stage.multi .filename-ribbon{
+    .bb-drawer{
+      clip-path:none;-webkit-clip-path:none;
       transition:none;
     }
+    body[data-adjust="open"] .bb-drawer{
+      clip-path:none;-webkit-clip-path:none;
+    }
   }
+  .bb-drawer-inner{overflow-x:auto;scrollbar-width:thin;}
+  .bb-drawer-inner::-webkit-scrollbar{height:6px;}
+  .bb-drawer-inner::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
   .bb-drawer-inner{
-    display:flex;flex-direction:column;
-    gap:18px;
-    padding:24px 20px;
-    overflow-y:auto;overflow-x:hidden;
-    flex:1;min-height:0;
-    scrollbar-width:thin;
-    scrollbar-color:rgba(255,255,255,.15) transparent;
+    display:flex;align-items:center;gap:14px;
+    padding:8px 12px;white-space:nowrap;
     background:transparent;
   }
-  .bb-drawer-inner::-webkit-scrollbar{width:6px;}
-  .bb-drawer-inner::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
   .bb-section{
-    display:flex;flex-direction:column;
-    align-items:stretch;
-    gap:8px;
+    display:flex;align-items:center;gap:8px;
   }
   .bb-section-label{
-    font-size:.66rem;font-weight:700;letter-spacing:.08em;
+    font-size:.62rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);
     flex:none;white-space:nowrap;
-    margin-bottom:2px;
   }
   /* Desktop: row-group wrapper is invisible to layout — its 3 bb-section
      children participate directly in bb-drawer-inner's flex. The wrapper
@@ -1472,36 +1239,23 @@
        the cover-flow + image canvas shift up via --menu-h wiring so
        the user can keep interacting with both while settings is open. */
     .bb-drawer{
-      position:relative;top:auto;left:auto;right:auto;bottom:auto;
-      width:100%;max-width:none;
+      position:relative;left:auto;right:auto;bottom:auto;
+      max-width:none;width:100%;
       height:auto;
       max-height:0;overflow:hidden;
       background:#1a1a1a;
       border:none;border-bottom:1px solid transparent;
       border-radius:0;
-      box-shadow:none;
-      /* Mobile cancels the desktop sidebar transform — uses bottom-drawer
-         max-height + clip-path bottom-reveal instead. */
-      transform:none;
+      /* Mobile drawer: clip-path reveal from bottom-clipped to fully
+         visible. max-height snaps so the bar grows in height; clip-path
+         is the smooth visual. */
       clip-path:inset(0 0 100% 0);
       -webkit-clip-path:inset(0 0 100% 0);
-      transition:max-height .26s cubic-bezier(.22,1,.36,1),
-                 clip-path .26s cubic-bezier(.22,1,.36,1),
+      transition:clip-path .26s cubic-bezier(.22,1,.36,1),
                  -webkit-clip-path .26s cubic-bezier(.22,1,.36,1),
                  padding .2s ease,opacity .18s ease,
                  border-bottom-color .2s ease;
       opacity:0;padding:0;
-      flex-direction:column;
-      z-index:auto;
-    }
-    /* Hide sidebar header on mobile — bottom drawer doesn't need it. */
-    .bb-drawer-header{display:none;}
-    /* Mobile cancels the canvas push (drawer is a bottom slot, not a side panel) */
-    body[data-state="multi"][data-adjust="open"] .stage.multi .image-canvas,
-    body[data-state="multi"][data-adjust="open"] .stage.multi .canvas-fade,
-    body[data-state="multi"][data-adjust="open"] .stage.multi .cover-flow,
-    body[data-state="multi"][data-adjust="open"] .stage.multi .filename-ribbon{
-      right:auto !important;
     }
     body[data-adjust="open"] .bb-drawer{
       max-height:280px;opacity:1;padding:8px 0;
@@ -1882,38 +1636,7 @@
            away from the gear. Reads as "gear pulls out the strip". -->
       <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
       <div class="bb-drawer" aria-hidden="true">
-        <div class="bb-drawer-header">
-          <span class="bb-drawer-title">Settings</span>
-          <button class="bb-drawer-close" onclick="toggleAdjust()" aria-label="Close settings panel">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
         <div class="bb-drawer-inner">
-          <!-- Info card (auto-shown when file loaded) — mirrors the
-               compare-meta values so the user can read them in the
-               panel without scrolling on the canvas. -->
-          <div class="panel-info-card" id="panelInfoCard">
-            <div class="panel-filename" id="panelFilename">—</div>
-            <div class="panel-info-row">
-              <span class="panel-info-label">Before</span>
-              <span class="panel-info-value" id="panelBeforeMeta">—</span>
-            </div>
-            <div class="panel-info-row">
-              <span class="panel-info-label">After</span>
-              <span class="panel-info-value" id="panelAfterMeta">—</span>
-            </div>
-            <div class="panel-info-savings" id="panelSavings"></div>
-          </div>
-
-          <!-- Settings live inside a <details> that's collapsed by
-               default. The user wanted info visible up front and
-               settings tucked away until clicked. -->
-          <details class="settings-disclosure" id="settingsDisclosure">
-            <summary class="settings-disclosure-summary">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="settings-disclosure-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              <span>Settings</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="settings-disclosure-chevron"><polyline points="6 9 12 15 18 9"/></svg>
-            </summary>
           <div class="bb-section">
             <span class="bb-section-label">Format</span>
             <div class="adjust-pills" id="formatPills">
@@ -1992,7 +1715,6 @@
             <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label>
           </div>
           </div>
-          </details>
         </div>
       </div>
       <!-- bb-core removed: Quality slider lives in the drawer now. -->
@@ -2027,22 +1749,7 @@ function setState(s){
   if(s==='multi') requestAnimationFrame(layoutCoverFlow);
 }
 function toggleAdjust(){
-  /* New 2-panel logic: panel auto-opens on multi/solo state. The gear
-     toggle now flips between an explicit "open" and "closed-by-user"
-     so the user can collapse the panel for a full-bleed canvas view.
-     Default (data-adjust="closed") still means "use auto-open behavior
-     based on state". */
-  const cur = document.body.dataset.adjust;
-  const state = document.body.dataset.state;
-  const autoOpenStates = ['multi','solo'];
-  const isAutoOpenContext = autoOpenStates.includes(state);
-  if (isAutoOpenContext) {
-    /* When in a state where panel is auto-shown, gear collapses it. */
-    document.body.dataset.adjust = (cur === 'closed-by-user') ? 'open' : 'closed-by-user';
-  } else {
-    /* Empty state — gear opens a manual look at settings. */
-    document.body.dataset.adjust = (cur === 'open') ? 'closed' : 'open';
-  }
+  document.body.dataset.adjust = document.body.dataset.adjust==='open' ? 'closed' : 'open';
 }
 
 /* ===== beta: file-based thumb data ===== */
@@ -2575,36 +2282,6 @@ function setMetaCorners(beforeFile, encoded){
       if (sizeSpan) sizeSpan.textContent = 'Encoding…';
       if (pctSpan) { pctSpan.style.display = 'none'; pctSpan.classList.remove('bad'); }
       if (batchRow) batchRow.style.display = 'none';
-    }
-  }
-  /* Mirror the meta values into the right-panel info card. The panel is
-     auto-open in multi/solo states and is the primary readability surface
-     for these stats — corner cards on canvas remain as a quick-glance
-     fallback. */
-  const pFilename = document.getElementById('panelFilename');
-  const pBefore   = document.getElementById('panelBeforeMeta');
-  const pAfter    = document.getElementById('panelAfterMeta');
-  const pSavings  = document.getElementById('panelSavings');
-  if (pFilename && FILES[idx]) pFilename.textContent = FILES[idx].file.name || FILES[idx].name || '—';
-  if (pBefore) pBefore.textContent = `${dimsStr}${fmtSize(beforeFile.size)} · ${(beforeFile.type.split('/')[1]||'IMG').toUpperCase()}`;
-  if (pAfter) {
-    if (encoded) {
-      pAfter.textContent = `${dimsStr}${fmtSize(encoded.size)} · ${(encoded.format||'').toUpperCase()}`;
-    } else {
-      pAfter.textContent = 'Encoding…';
-    }
-  }
-  if (pSavings) {
-    if (encoded) {
-      const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
-      if (Math.abs(pct) < 1) {
-        pSavings.textContent = ''; pSavings.classList.remove('bad');
-      } else {
-        pSavings.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
-        pSavings.classList.toggle('bad', pct < 0);
-      }
-    } else {
-      pSavings.textContent = ''; pSavings.classList.remove('bad');
     }
   }
 }
