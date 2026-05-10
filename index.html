@@ -333,7 +333,7 @@
      points at it from above. */
   .filename-ribbon{
     position:absolute;
-    bottom:calc(var(--menu-h, 80px) + 14px);
+    bottom:calc(var(--menu-h, 80px) + 26px);
     left:50%;transform:translateX(-50%);
     background:transparent;border:none;
     color:rgba(255,255,255,.7);
@@ -1201,23 +1201,29 @@
   body[data-state="solo"] .top-chrome,
   body[data-state="multi"] .top-chrome{
     display:flex;align-items:center;justify-content:space-between;
-    position:fixed;top:0;left:0;right:0;
-    width:100%;
-    padding:10px 22px;
+    position:fixed;top:0;left:50%;transform:translateX(-50%);
+    width:50vw;min-width:480px;max-width:720px;
+    /* Flush against viewport top — no top padding/margin. Slim vertical
+       padding keeps the bar compact; horizontal gives content breathing
+       room. Rounded ONLY on bottom corners since top is glued to edge. */
+    padding:7px 18px;
     background:rgba(20,20,20,.55);
-    /* Subtle blur (half of previous) */
     backdrop-filter:blur(11px) saturate(180%);
     -webkit-backdrop-filter:blur(11px) saturate(180%);
-    border:none;border-bottom:1px solid rgba(255,255,255,.10);
-    border-radius:0;
+    border:1px solid rgba(255,255,255,.10);
+    border-top:none;
+    border-radius:0 0 14px 14px;
     box-shadow:0 4px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
-    z-index:50;pointer-events:auto;gap:12px;
+    z-index:50;pointer-events:auto;gap:14px;
   }
-  /* Single-row layout — each section's content lives in one inline row */
+  /* Three sections — Before | Brand | After. Each section's content
+     stays on a single inline row (flex-direction:row + nowrap). */
   .top-chrome .tc-section{
     display:flex;align-items:center;flex-direction:row;
-    gap:8px;
+    gap:6px;
     flex:1;min-width:0;
+    flex-wrap:nowrap;
+    white-space:nowrap;
   }
   .top-chrome .tc-before{justify-content:flex-start;}
   .top-chrome .tc-brand{justify-content:center;flex:0 1 auto;}
@@ -1449,7 +1455,13 @@
     }
     .compare-meta .lbl-title{font-size:.78rem;}
     body[data-state="solo"] .top-chrome,body[data-state="multi"] .top-chrome{
-      top:0;width:100%;padding:7px 12px;gap:8px;border-radius:0;
+      /* Mobile keeps full width (50vw is too narrow at <= 767px) but
+         retains the flush-top + bottom-rounded silhouette. */
+      top:0;left:0;right:0;transform:none;
+      width:100%;min-width:auto;max-width:none;
+      padding:6px 10px;gap:6px;
+      border-left:none;border-right:none;
+      border-radius:0;
     }
     .top-chrome .tc-brand-name{font-size:.84rem;}
     .top-chrome .tc-stats{font-size:.58rem;}
