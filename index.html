@@ -1334,14 +1334,26 @@
     border-color:var(--accent);
     color:#fff;
   }
-  /* Rotating microcopy under the dropzone */
+  /* Static microcopy under the dropzone */
   .dz-microcopy{
     font-size:.74rem;color:var(--muted);
     text-align:center;
     margin-top:12px;
-    opacity:1;
-    transition:opacity .25s ease;
     min-height:1em;
+  }
+  /* Headline verb rotation — the looping last word in
+     "Get your image [ready]". Accent color so it reads as the live
+     element; fade transition handled in JS for cycle smoothness. */
+  .dz-loop{
+    color:var(--accent);
+    display:inline-block;
+    opacity:1;
+    transition:opacity .22s ease;
+    /* Reserve enough width to avoid horizontal jitter on word swap. */
+    min-width:6.5ch;text-align:left;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .dz-loop{transition:none;}
   }
 
   /* ===== WORKSPACE FORMAT DROPDOWN ======================================
@@ -1680,8 +1692,11 @@
     <span class="dz-icon" aria-hidden="true">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
-    <h2>Drop your images here</h2>
-    <p>or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <h2>
+      Get your image <span class="dz-loop" id="dzLoop" aria-hidden="true">ready</span>
+      <span class="sr-only">Get your image ready, compressed, converted, resized, or optimized.</span>
+    </h2>
+    <p>Drop or click to browse &mdash; JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
@@ -1711,9 +1726,9 @@
       <button type="button" data-out-fmt="ico">ICO</button>
     </div>
   </div>
-  <!-- Rotating microcopy: surfaces use-case breadth without splitting the
-       tool into separate URLs. Cycles every 4s with fade. -->
-  <div class="dz-microcopy" id="dzMicrocopy">Convert HEIC to JPG · 200 files at a time · No upload · Free</div>
+  <!-- Static microcopy: short, punchy USP triplet that doesn't repeat
+       the trust line inside the dropzone. -->
+  <div class="dz-microcopy" id="dzMicrocopy">Free. No uploads. No limits.</div>
 
     <header class="hero-below">
     <h1 class="brand-h1">
@@ -3895,24 +3910,34 @@ if (!window._navMenuOutsideClick) {
     setOutFormat(btn.dataset.outFmt);
   });
 
-  /* 3. Microcopy rotation */
-  const microLines = [
-    'Convert HEIC to JPG · 200 files at a time · No upload · Free',
-    'Compress JPG · Strip EXIF · Resize for Instagram',
-    'WebP & AVIF · Browser-native · Pixel-perfect quality'
-  ];
-  let mIdx = 0;
-  function rotateMicrocopy(){
-    const el = document.getElementById('dzMicrocopy');
-    if (!el) return;
-    mIdx = (mIdx + 1) % microLines.length;
-    el.style.opacity = '0';
-    setTimeout(() => {
-      el.textContent = microLines[mIdx];
-      el.style.opacity = '1';
-    }, 250);
+  /* 3. Headline verb rotation — cycles the last word in
+     "Get your image [ready]" to reveal capability breadth without a
+     feature wall. "ready" is the brand anchor and the first word; the
+     loop then sells the verbs. Skipped entirely under reduced-motion. */
+  const loopWords = ['ready', 'compressed', 'converted', 'resized', 'optimized'];
+  let lIdx = 0;
+  const loopEl = document.getElementById('dzLoop');
+  const prefersReducedMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (loopEl && !prefersReducedMotion) {
+    /* Pause while the dropzone is being interacted with — a moving word
+       next to a drop target is mildly distracting. */
+    let paused = false;
+    const dz = document.getElementById('dropzone');
+    if (dz) {
+      dz.addEventListener('mouseenter', () => { paused = true; });
+      dz.addEventListener('mouseleave', () => { paused = false; });
+    }
+    setInterval(() => {
+      if (paused) return;
+      lIdx = (lIdx + 1) % loopWords.length;
+      loopEl.style.opacity = '0';
+      setTimeout(() => {
+        loopEl.textContent = loopWords[lIdx];
+        loopEl.style.opacity = '1';
+      }, 220);
+    }, 2400);
   }
-  setInterval(rotateMicrocopy, 4500);
 
   /* 4. Workspace format dropdown — open/close + click options.
      Critical: must portal the menu to document.body on open. The menu
