@@ -171,37 +171,18 @@
   body[data-state="empty"] .brand-bar{position:sticky;top:0;background:var(--bg);}
 
   /* ===== LEGACY TOP-NAV (empty state only) ============================
-     The minimal .brand-bar is fine for transient appearances but the
-     empty state is where users decide whether to stay. Bring back the
-     full nav from the production homepage: brand + menu links + mobile
-     hamburger. /app.css already provides nav styling (.topnav, .nav-link,
-     .nav-hamburger, .nav-links dropdown); we just gate it by state.
-
-     Order of overrides matters: this <style> block runs AFTER
-     <link rel="stylesheet" href="/app.css">, so equal-specificity rules
-     here win. */
+     Markup is the v10 production homepage nav verbatim, nested inside
+     <section class="beta-empty"><div class="app"> so the .app container
+     supplies the max-width / centered gutter / horizontal padding
+     identical to legacy. All visual styling (.topnav padding/margin,
+     .brand 22px desktop & 42px mobile, .nav-link, .nav-hamburger)
+     comes from /app.css unchanged — we only override visibility scope. */
   .legacy-nav{display:none;}
-  body[data-state="empty"] .legacy-nav{
-    display:flex;
-    padding:18px 24px;
-    margin-bottom:0;
-  }
+  body[data-state="empty"] .legacy-nav{display:flex;}
   /* Skip the minimal .brand-bar on empty state — legacy-nav has its
      own brand. Workspace states (solo/multi) already hide .brand-bar
-     via the existing rule lower in this stylesheet, so we don't need
-     to touch them. */
+     via the existing rule lower in this stylesheet. */
   body[data-state="empty"] .brand-bar{display:none;}
-  /* BIG brand per user request — production /app.css sets the desktop
-     brand to 22px, which reads as a footer line item more than an
-     identity. Bump it for the empty state so the logo carries weight. */
-  body[data-state="empty"] .legacy-nav .brand{
-    font-size:34px;letter-spacing:-1.2px;line-height:1;
-  }
-  /* Mobile already has /app.css's 42px override for .topnav .brand
-     under @media(max-width:760px), so we don't add a duplicate here. */
-  @media(max-width:480px){
-    body[data-state="empty"] .legacy-nav{padding:14px 14px;}
-  }
   body[data-state="solo"] .beta-empty,
   body[data-state="multi"] .beta-empty{display:none;}
   /* Beta does NOT override .dropzone / .dz-icon / .dz-title / .dz-sub / .dz-trust —
@@ -1643,39 +1624,6 @@
   <div class="brand-spacer"></div>
 </div>
 
-<!-- Legacy top-nav — restored on empty state per user request.
-     /app.css already styles .topnav / .nav-links / .nav-hamburger
-     (desktop horizontal row, mobile collapsing dropdown) so we just
-     need the markup; the .legacy-nav class is the scoping hook that
-     keeps the nav hidden once the user enters the workspace (solo /
-     multi), where .top-chrome takes over instead. -->
-<nav class="topnav legacy-nav" aria-label="Primary">
-  <a class="brand" href="/">img<span>ready</span></a>
-  <button class="nav-hamburger" id="navHamburger" type="button"
-          onclick="toggleNavMenu()" aria-expanded="false"
-          aria-controls="navMenu" aria-label="Toggle navigation menu">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" aria-hidden="true">
-      <line x1="4" y1="7" x2="20" y2="7"/>
-      <line x1="4" y1="12" x2="20" y2="12"/>
-      <line x1="4" y1="17" x2="20" y2="17"/>
-    </svg>
-  </button>
-  <div class="nav-links" id="navMenu">
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/compress/">Compress</a>
-    <a class="nav-link" href="/heic-to-jpg/">HEIC</a>
-    <a class="nav-link" href="/resize/">Resize</a>
-    <a class="nav-link" href="/webp-converter/">Convert</a>
-    <a class="nav-link" href="/why/">Why</a>
-    <a class="nav-link" href="/developers/">Developers</a>
-    <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
-    </span>
-  </div>
-</nav>
-
 <header class="top-chrome" aria-label="Workspace info">
   <div class="tc-section tc-before">
     <span class="tc-label">Before</span>
@@ -1696,6 +1644,37 @@
 
 <section class="beta-empty">
   <div class="app">
+    <!-- Legacy v10 top-nav — first child of .app, identical structure
+         to the production homepage. /app.css owns every visual property
+         (.topnav layout, .brand 22px/42px, .nav-link colors, mobile
+         hamburger dropdown). The .legacy-nav class only exists as a
+         scope hook to hide the nav on workspace (solo/multi) states. -->
+    <nav class="topnav legacy-nav" aria-label="Primary">
+      <a class="brand" href="/">img<span>ready</span></a>
+      <button class="nav-hamburger" id="navHamburger" type="button"
+              onclick="toggleNavMenu()" aria-expanded="false"
+              aria-controls="navMenu" aria-label="Toggle navigation menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="7" x2="20" y2="7"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="17" x2="20" y2="17"/>
+        </svg>
+      </button>
+      <div class="nav-links" id="navMenu">
+        <span class="nav-sep" aria-hidden="true">|</span>
+        <a class="nav-link" href="/compress/">Compress</a>
+        <a class="nav-link" href="/heic-to-jpg/">HEIC</a>
+        <a class="nav-link" href="/resize/">Resize</a>
+        <a class="nav-link" href="/webp-converter/">Convert</a>
+        <a class="nav-link" href="/why/">Why</a>
+        <a class="nav-link" href="/developers/">Developers</a>
+        <span class="nav-grow">
+          <a class="nav-link" href="/about/">About</a>
+          <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+        </span>
+      </div>
+    </nav>
     <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
     <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files to compress">
     <span class="dz-icon" aria-hidden="true">
