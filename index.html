@@ -1362,6 +1362,18 @@
     font-size:1.6rem;font-weight:700;letter-spacing:-.3px;
     line-height:1.2;
   }
+  /* Trust line — the strongest copy in the product (privacy wedge).
+     /app.css ships it at .74rem caption-level; bump in the empty
+     state where the user is about to drop a file and needs the
+     reassurance prominent. Post-drop the trust line is hidden via
+     body.has-images so we only need to override empty state. */
+  body[data-state="empty"] .dropzone .dz-trust{
+    font-size:.88rem;font-weight:700;
+    margin-top:14px;
+  }
+  body[data-state="empty"] .dropzone .dz-trust svg{
+    width:16px;height:16px;opacity:1;
+  }
   /* Headline verb rotation — Bionic Julia pattern.
      https://bionicjulia.com/blog/creating-react-component-fades-changing-words
 
