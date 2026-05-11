@@ -1341,37 +1341,57 @@
     margin-top:6px;
     min-height:1em;
   }
+  /* Visually-hidden text for screen readers. Standard a11y idiom: the
+     element is removed from the visual flow but kept in the accessibility
+     tree, so assistive tech reads the full unrotated phrase exactly once
+     instead of every word swap. /app.css doesn't ship this class, so we
+     define it inline. */
+  .sr-only{
+    position:absolute !important;
+    width:1px;height:1px;
+    padding:0;margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;border:0;
+  }
+  /* H2 weight bump for the empty state — /app.css defaults to 1.25rem
+     weight 600 which reads thin as the primary hook. Bump size & weight
+     on the empty state only; the post-drop "Add more" mode keeps the
+     compact 0.92rem treatment from /app.css. */
+  body[data-state="empty"] .dropzone h2{
+    font-size:1.6rem;font-weight:700;letter-spacing:-.3px;
+    line-height:1.2;
+  }
   /* Headline verb rotation — vertical mask + slide-up.
      A fixed-height window with overflow:hidden shows exactly one word;
      a translated track underneath holds every word stacked one-per-line.
-     JS bumps translateY by -100% per tick to advance, with a snap-back
-     trick at the wrap (duplicate of word 0 at the end so the slide
-     direction is always consistent). */
+     Translation MUST be in em units (not %) — a % translateY uses the
+     translated element's own height, and the track is N words tall, so
+     -100% would shift the whole stack off-screen. -1em moves by one
+     line of text, which is what we actually want. */
   .dz-loop{
     color:var(--accent);
     display:inline-block;
     overflow:hidden;
-    vertical-align:bottom;
-    /* Height MUST match a single line of the H2 so only one word peeks
-       through the mask. Matches the H2's line-height (1.15). */
-    height:1.15em;
-    line-height:1.15em;
+    vertical-align:baseline;
+    height:1em;
+    line-height:1;
     /* Reserve width so the H2 doesn't jitter horizontally on swap. */
     min-width:8ch;text-align:left;
-    position:relative;vertical-align:bottom;
+    position:relative;
   }
   .dz-loop-track{
-    display:flex;flex-direction:column;
+    display:block;
     transition:transform .55s cubic-bezier(.22,1,.36,1);
     will-change:transform;
   }
-  /* When the track wraps to index 0, we snap back without a visible
-     reverse-scroll. JS toggles .no-tx for one frame around the snap. */
+  /* Snap-back without visible reverse-scroll at wrap. JS toggles
+     .no-tx for one frame around the snap to index 0. */
   .dz-loop-track.no-tx{transition:none;}
   .dz-loop-track > span{
     display:block;
-    line-height:1.15em;
-    height:1.15em;
+    height:1em;
+    line-height:1;
     white-space:nowrap;
   }
   @media (prefers-reduced-motion: reduce){
@@ -1731,7 +1751,7 @@
       </span>
       <span class="sr-only">Get your image compressed, converted, resized, optimized, or ready.</span>
     </h2>
-    <p>Drop or click to browse &mdash; JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <p>Drop, click, or paste &mdash; JPG, PNG, HEIC, WebP, AVIF and more</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
@@ -1742,7 +1762,6 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <span>Stays on your device — never uploaded</span>
     </div>
-    <div class="paste-hint">Tip: paste from clipboard works too.</div>
     <!-- USP triplet inside the dropzone (no longer orphaned below).
          Three short punches: payment, accounts, limits. Doesn't repeat
          the trust line's privacy claim — that's its own beat. -->
@@ -3972,7 +3991,9 @@ if (!window._navMenuOutsideClick) {
     function tick(){
       if (paused) { setTimeout(tick, 400); return; }
       lIdx += 1;
-      track.style.transform = 'translateY(' + (-lIdx * 100) + '%)';
+      /* em-based translation: each word is exactly 1em tall, so shifting
+         by -lIdx em reveals word lIdx through the 1em window. */
+      track.style.transform = 'translateY(-' + lIdx + 'em)';
       setTimeout(() => {
         if (lIdx === loopWords.length) {
           /* We landed on the wrap-duplicate (visually identical to word
@@ -3980,7 +4001,7 @@ if (!window._navMenuOutsideClick) {
              so the user never sees the reverse-scroll. */
           track.classList.add('no-tx');
           lIdx = 0;
-          track.style.transform = 'translateY(0%)';
+          track.style.transform = 'translateY(0)';
           /* Force reflow so the no-tx state is committed BEFORE we
              re-enable transitions for the next tick. */
           void track.offsetHeight;
@@ -3989,6 +4010,9 @@ if (!window._navMenuOutsideClick) {
         setTimeout(tick, dwell[lIdx]);
       }, SLIDE_MS);
     }
+    /* Initial transform set explicitly so the first tick has a clean
+       baseline (some browsers don't transition from an unset value). */
+    track.style.transform = 'translateY(0)';
     setTimeout(tick, dwell[0]);
   }
 
