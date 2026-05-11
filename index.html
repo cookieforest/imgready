@@ -1357,10 +1357,16 @@
   /* H2 weight bump for the empty state — /app.css defaults to 1.25rem
      weight 600 which reads thin as the primary hook. Bump size & weight
      on the empty state only; the post-drop "Add more" mode keeps the
-     compact 0.92rem treatment from /app.css. */
+     compact 0.92rem treatment from /app.css.
+     line-height:1 (instead of 1.2) so the masked .dz-loop's internal
+     baseline aligns with the surrounding text baseline. Mismatched
+     line-heights inside an inline-block with overflow:hidden drift
+     the inner baseline ~5px upward. Padding compensates for the tight
+     line-height visually. */
   body[data-state="empty"] .dropzone h2{
     font-size:1.6rem;font-weight:700;letter-spacing:-.3px;
-    line-height:1.2;
+    line-height:1;
+    padding:.12em 0;
   }
   /* Headline verb rotation — vertical mask + slide-up.
      A fixed-height window with overflow:hidden shows exactly one word;
@@ -3980,16 +3986,12 @@ if (!window._navMenuOutsideClick) {
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (track && !prefersReducedMotion) {
     let lIdx = 0;
-    let paused = false;
-    const dz = document.getElementById('dropzone');
-    if (dz) {
-      /* Pause rotation while user is actively interacting with the
-         dropzone — motion next to a drop target is distracting. */
-      dz.addEventListener('mouseenter', () => { paused = true; });
-      dz.addEventListener('mouseleave', () => { paused = false; });
-    }
+    /* No hover-pause — the previous mouseenter handler froze the
+       rotation any time the cursor was anywhere over the dropzone,
+       which is the biggest target on the empty state. The motion is
+       far enough from the drop target that "distraction" was a
+       non-issue; users want to see the loop. */
     function tick(){
-      if (paused) { setTimeout(tick, 400); return; }
       lIdx += 1;
       /* em-based translation: each word is exactly 1em tall, so shifting
          by -lIdx em reveals word lIdx through the 1em window. */
