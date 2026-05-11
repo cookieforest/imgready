@@ -1354,54 +1354,50 @@
     clip:rect(0,0,0,0);
     white-space:nowrap;border:0;
   }
-  /* H2 weight bump for the empty state — /app.css defaults to 1.25rem
-     weight 600 which reads thin as the primary hook. Bump size & weight
-     on the empty state only; the post-drop "Add more" mode keeps the
-     compact 0.92rem treatment from /app.css.
-     line-height:1 (instead of 1.2) so the masked .dz-loop's internal
-     baseline aligns with the surrounding text baseline. Mismatched
-     line-heights inside an inline-block with overflow:hidden drift
-     the inner baseline ~5px upward. Padding compensates for the tight
-     line-height visually. */
+  /* H2 size/weight bump for the empty state. /app.css defaults to
+     1.25rem / weight 600 / -.2px, which reads thin as the primary hook.
+     Line-height stays at the normal 1.2 — the .dz-loop is now a plain
+     inline-block with no overflow:hidden, so its baseline naturally
+     aligns with the surrounding text. */
   body[data-state="empty"] .dropzone h2{
     font-size:1.6rem;font-weight:700;letter-spacing:-.3px;
-    line-height:1;
-    padding:.12em 0;
+    line-height:1.2;
   }
-  /* Headline verb rotation — vertical mask + slide-up.
-     A fixed-height window with overflow:hidden shows exactly one word;
-     a translated track underneath holds every word stacked one-per-line.
-     Translation MUST be in em units (not %) — a % translateY uses the
-     translated element's own height, and the track is N words tall, so
-     -100% would shift the whole stack off-screen. -1em moves by one
-     line of text, which is what we actually want. */
+  /* Headline verb rotation — opacity + transform fade-slide.
+     Industry-standard pattern (Vercel, Linear, Stripe). The element
+     is a normal inline-block span; we never use overflow:hidden, so
+     CSS baseline math stays clean. Two transient classes drive the
+     animation:
+       .is-out  — leaving word: fades down and 0.3em up
+       .entering — incoming word: fades from 0.3em below + 0
+     The 'entering' animation is a forward-only @keyframes so it runs
+     once on class-add without needing a separate "remove the class"
+     step to trigger the back-transition (a common pitfall). */
   .dz-loop{
     color:var(--accent);
     display:inline-block;
-    overflow:hidden;
-    vertical-align:baseline;
-    height:1em;
-    line-height:1;
-    /* Reserve width so the H2 doesn't jitter horizontally on swap. */
-    min-width:8ch;text-align:left;
-    position:relative;
+    /* Reserve width so the H2 doesn't jitter horizontally on swap.
+       Widest word is "compressed" at ~10ch; min-width covers the loop. */
+    min-width:10ch;text-align:left;
+    /* The default (no class) state — visible, neutral. */
+    transition:opacity .25s ease, transform .35s cubic-bezier(.22,1,.36,1);
   }
-  .dz-loop-track{
-    display:block;
-    transition:transform .55s cubic-bezier(.22,1,.36,1);
-    will-change:transform;
+  .dz-loop.is-out{
+    opacity:0;
+    transform:translateY(-.3em);
   }
-  /* Snap-back without visible reverse-scroll at wrap. JS toggles
-     .no-tx for one frame around the snap to index 0. */
-  .dz-loop-track.no-tx{transition:none;}
-  .dz-loop-track > span{
-    display:block;
-    height:1em;
-    line-height:1;
-    white-space:nowrap;
+  @keyframes dzLoopIn{
+    from{opacity:0;transform:translateY(.3em);}
+    to  {opacity:1;transform:translateY(0);}
   }
+  .dz-loop.entering{
+    animation:dzLoopIn .35s cubic-bezier(.22,1,.36,1) both;
+  }
+  /* Reduced motion: still ROTATE (the JS unconditionally swaps text),
+     just skip the transition + animation so the swap is instant. */
   @media (prefers-reduced-motion: reduce){
-    .dz-loop-track{transition:none;}
+    .dz-loop{transition:none;}
+    .dz-loop.entering{animation:none;}
   }
 
   /* ===== WORKSPACE FORMAT DROPDOWN ======================================
@@ -1741,20 +1737,7 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
     <h2>
-      Get your image
-      <span class="dz-loop" aria-hidden="true">
-        <span class="dz-loop-track" id="dzLoopTrack">
-          <span>compressed</span>
-          <span>converted</span>
-          <span>resized</span>
-          <span>optimized</span>
-          <span>ready</span>
-          <!-- Duplicate of the first word: lets the track translate one
-               full step past the last real word for a smooth slide, then
-               we snap back to index 0 with transitions disabled. -->
-          <span>compressed</span>
-        </span>
-      </span>
+      Get your image <span class="dz-loop" id="dzLoop" aria-hidden="true">compressed</span>
       <span class="sr-only">Get your image compressed, converted, resized, optimized, or ready.</span>
     </h2>
     <p>Drop, click, or paste &mdash; JPG, PNG, HEIC, WebP, AVIF and more</p>
@@ -3972,49 +3955,38 @@ if (!window._navMenuOutsideClick) {
     setOutFormat(btn.dataset.outFmt);
   });
 
-  /* 3. Headline verb rotation — vertical slide-up. Order ranked by
+  /* 3. Headline verb rotation — opacity + transform. Order ranked by
      impact: compressed first (most common use case), ready last + 2x
-     dwell so the brand word lingers. Snap-back via .no-tx when the
-     wrap-duplicate at index N is hit, so the loop reads forward-only.
-     Skipped under prefers-reduced-motion. */
+     dwell so the brand word lingers. Runs unconditionally — under
+     prefers-reduced-motion the CSS drops the transition so the swap
+     is instant, but the text still rotates. */
   const loopWords = ['compressed', 'converted', 'resized', 'optimized', 'ready'];
-  /* Per-word dwell — how long each word stays visible before sliding. */
+  /* Per-word dwell — how long each word stays visible before swapping. */
   const dwell = [1600, 1600, 1600, 1600, 3200];
-  const SLIDE_MS = 550;
-  const track = document.getElementById('dzLoopTrack');
-  const prefersReducedMotion = window.matchMedia &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (track && !prefersReducedMotion) {
+  /* Fade-out duration — must match the .25s opacity transition in CSS. */
+  const FADE_OUT_MS = 250;
+  const loopEl = document.getElementById('dzLoop');
+  if (loopEl) {
     let lIdx = 0;
-    /* No hover-pause — the previous mouseenter handler froze the
-       rotation any time the cursor was anywhere over the dropzone,
-       which is the biggest target on the empty state. The motion is
-       far enough from the drop target that "distraction" was a
-       non-issue; users want to see the loop. */
     function tick(){
-      lIdx += 1;
-      /* em-based translation: each word is exactly 1em tall, so shifting
-         by -lIdx em reveals word lIdx through the 1em window. */
-      track.style.transform = 'translateY(-' + lIdx + 'em)';
+      /* Phase 1: fade current word out (+up). */
+      loopEl.classList.add('is-out');
       setTimeout(() => {
-        if (lIdx === loopWords.length) {
-          /* We landed on the wrap-duplicate (visually identical to word
-             0). Snap the track back to translateY(0) without animation
-             so the user never sees the reverse-scroll. */
-          track.classList.add('no-tx');
-          lIdx = 0;
-          track.style.transform = 'translateY(0)';
-          /* Force reflow so the no-tx state is committed BEFORE we
-             re-enable transitions for the next tick. */
-          void track.offsetHeight;
-          track.classList.remove('no-tx');
-        }
+        /* Phase 2: swap text + run the incoming keyframe animation. */
+        lIdx = (lIdx + 1) % loopWords.length;
+        loopEl.textContent = loopWords[lIdx];
+        loopEl.classList.remove('is-out');
+        loopEl.classList.add('entering');
+        /* Phase 3: clean up the entering class after its animation
+           settles. Slightly longer than the .35s keyframe so we don't
+           clip the final frame. */
+        setTimeout(() => loopEl.classList.remove('entering'), 380);
+        /* Schedule next tick based on the new (now-current) word's
+           dwell — "ready" lingers 3.2s; others 1.6s. */
         setTimeout(tick, dwell[lIdx]);
-      }, SLIDE_MS);
+      }, FADE_OUT_MS);
     }
-    /* Initial transform set explicitly so the first tick has a clean
-       baseline (some browsers don't transition from an unset value). */
-    track.style.transform = 'translateY(0)';
+    /* First tick after the initial word's dwell. */
     setTimeout(tick, dwell[0]);
   }
 
