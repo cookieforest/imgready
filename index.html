@@ -1363,33 +1363,30 @@
     font-size:1.6rem;font-weight:700;letter-spacing:-.3px;
     line-height:1.2;
   }
-  /* Headline verb rotation — single-class toggle.
-     Neutral (no class): opacity 1, translateY(0) — fully visible.
-     .is-fading: opacity 0, translateY(-.3em) — invisible + up.
+  /* Headline verb rotation — Bionic Julia pattern.
+     https://bionicjulia.com/blog/creating-react-component-fades-changing-words
 
-     JS adds .is-fading (word fades + slides UP to leave),
-     swaps textContent while opacity is 0 (invisible swap),
-     removes .is-fading (word transitions BACK to neutral —
-     fades + slides DOWN to arrive).
-
-     One transition, two phases, no race with browser batching.
-     500ms duration so the fade is clearly perceptible. */
+     Two persistent classes that get toggled, with the transition
+     declaration on EACH class (not on the base element). The proven
+     reliable pattern across browsers — single-class toggles where the
+     transition lives only on the base can sometimes skip the
+     animation, hence the duplication. */
   .dz-loop{
     color:var(--accent);
     display:inline-block;
     min-width:10ch;text-align:left;
-    transition:opacity .5s ease, transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .dz-loop.is-in{
     opacity:1;
-    transform:translateY(0);
+    transition:opacity .5s ease;
   }
-  .dz-loop.is-fading{
+  .dz-loop.is-out{
     opacity:0;
-    transform:translateY(-.3em);
+    transition:opacity .5s ease;
   }
-  /* Reduced motion: rotation still runs (JS swaps text), just no
-     visible transition — the swap is instant. */
+  /* Reduced motion: skip the transition; text still rotates. */
   @media (prefers-reduced-motion: reduce){
-    .dz-loop{transition:none;}
+    .dz-loop.is-in, .dz-loop.is-out{transition:none;}
   }
 
   /* ===== WORKSPACE FORMAT DROPDOWN ======================================
@@ -1729,7 +1726,7 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
     <h2>
-      Get your image <span class="dz-loop" id="dzLoop" aria-hidden="true">compressed</span>
+      Get your image <span class="dz-loop is-in" id="dzLoop" aria-hidden="true">compressed</span>
       <span class="sr-only">Get your image compressed, converted, resized, optimized, or ready.</span>
     </h2>
     <p>Drop, click, or paste &mdash; JPG, PNG, HEIC, WebP, AVIF and more</p>
@@ -3947,34 +3944,38 @@ if (!window._navMenuOutsideClick) {
     setOutFormat(btn.dataset.outFmt);
   });
 
-  /* 3. Headline verb rotation — single-class toggle.
-     Phase 1: add .is-fading → fade out + slide up (transition)
-     Phase 2 (after fade): swap textContent (invisible because opacity 0)
-     Phase 3: remove .is-fading → transition back to neutral (fade in + slide down)
+  /* 3. Headline verb rotation — Bionic Julia pattern verbatim
+     (https://bionicjulia.com/blog/creating-react-component-fades-changing-words),
+     adapted to vanilla JS + per-word dwell.
 
-     Reliable across browsers because there's only one transition
-     direction and no intermediate "instant-snap" frame to fight the
-     style-batching collapse. */
+     State machine:
+       visible (.is-in) -> fade out -> swap text (invisible) -> fade in (.is-in) -> ...
+
+     Toggle uses classList.replace so the new class brings its own
+     transition rule (vs. single-class toggle which can fail to fire). */
   const loopWords = ['compressed', 'converted', 'resized', 'optimized', 'ready'];
-  /* Per-word dwell — visible time before the next swap. */
+  /* Per-word dwell — visible time before the next fade-out. */
   const dwell = [1600, 1600, 1600, 1600, 3200];
-  /* Fade duration — must match the CSS .5s opacity transition. */
+  /* Must match the CSS .5s opacity transition. */
   const FADE_MS = 500;
   const loopEl = document.getElementById('dzLoop');
   if (loopEl) {
     let lIdx = 0;
-    function tick(){
-      loopEl.classList.add('is-fading');
-      setTimeout(() => {
-        lIdx = (lIdx + 1) % loopWords.length;
-        loopEl.textContent = loopWords[lIdx];
-        loopEl.classList.remove('is-fading');
-        /* Schedule next tick = fade-in time + dwell for the new word. */
-        setTimeout(tick, FADE_MS + dwell[lIdx]);
-      }, FADE_MS);
+    function fadeOut(){
+      loopEl.classList.replace('is-in', 'is-out');
+      setTimeout(fadeIn, FADE_MS);
     }
-    /* First tick after the initial word's dwell. */
-    setTimeout(tick, dwell[0]);
+    function fadeIn(){
+      /* Swap text while opacity is 0 — invisible to the user. */
+      lIdx = (lIdx + 1) % loopWords.length;
+      loopEl.textContent = loopWords[lIdx];
+      loopEl.classList.replace('is-out', 'is-in');
+      /* Wait the dwell for this word, then start the next fade-out. */
+      setTimeout(fadeOut, dwell[lIdx]);
+    }
+    /* Start: word 0 is already visible (HTML has .is-in). After its
+       dwell, begin the first fade-out. */
+    setTimeout(fadeOut, dwell[0]);
   }
 
   /* 4. Workspace format dropdown — open/close + click options.
