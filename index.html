@@ -2362,8 +2362,38 @@ function getWorker(){
 /* Center-canvas loading overlay (replaces corner status). The user asked for
    a prominent middle-of-canvas state because the top-right corner was easy
    to miss and competed with the After meta. */
-const CS = { barTimer: null, barEl: null, pct: 0 };
+const CS = { barTimer: null, barEl: null, pct: 0,
+              /* Global defer state — when CS.deferred is true, ANY caller
+                 of showCenterStatus is silently suppressed. The timer
+                 auto-fires at the end of the defer window and shows the
+                 overlay iff the selected idx is still encoding.
+                 This is the ONE place every loader-flash source goes
+                 through: worker progress events, syncMainImage, and any
+                 other code paths that try to surface "Encoding…". */
+              deferred: false, deferTimer: null };
+function deferCenterStatus(ms){
+  CS.deferred = true;
+  if (CS.deferTimer) clearTimeout(CS.deferTimer);
+  CS.deferTimer = setTimeout(() => {
+    CS.deferTimer = null;
+    CS.deferred = false;
+    /* End of defer window. If the selected idx is STILL not encoded,
+       the encode is genuinely slow — show the loader now. */
+    const idx = (typeof CFLOW !== 'undefined') ? CFLOW.selected : -1;
+    if (idx >= 0 && idx < (FILES ? FILES.length : 0) &&
+        ENCODE && ENCODE.encoded && !ENCODE.encoded.has(idx)) {
+      const f = FILES[idx];
+      showCenterStatus('Encoding…', (f && f.name) || '', { bigFile: false });
+    }
+  }, ms);
+}
+function clearDeferCenterStatus(){
+  CS.deferred = false;
+  if (CS.deferTimer) { clearTimeout(CS.deferTimer); CS.deferTimer = null; }
+}
 function showCenterStatus(stage, filename, opts){
+  /* Global suppression for fast re-encodes — see deferCenterStatus(). */
+  if (CS.deferred) return;
   const el = document.getElementById('centerStatus');
   if (!el) return;
   el.hidden = false;
@@ -2403,6 +2433,9 @@ function showCenterStatus(stage, filename, opts){
   }, 500);
 }
 function hideCenterStatus(){
+  /* Tear down the defer window — if encode finished inside the 1000ms
+     suppression, the timer never gets to fire (and never paints). */
+  clearDeferCenterStatus();
   const el = document.getElementById('centerStatus');
   if (el) el.hidden = true;
   document.body.dataset.encoding = '';
@@ -2717,8 +2750,12 @@ async function syncMainImage(force, opts){
      But re-encodes (preserveView) keep the user's current zoom + pan so
      A/B detail comparison doesn't require re-zooming each tweak. */
   if (!preserveView) resetZoom();
-  /* Update the Before meta (always known immediately from the file blob) */
-  setMetaCorners(f.file, null);
+  /* Update the Before meta (always known immediately from the file blob).
+     Under preserveView, keep the old After meta on screen — the cached
+     path below (or the success branch) will overwrite it cleanly when
+     the new encode lands. Flashing "Encoding…" into the After meta
+     mid-re-encode looks just as bad as the canvas flashing black. */
+  if (!preserveView) setMetaCorners(f.file, null);
   /* Priority lever: if this idx is in the background queue but not yet
      started, jump it to the head so the next worker slot is ours. */
   if (typeof bumpToFront === 'function') bumpToFront(idx);
@@ -2740,13 +2777,15 @@ async function syncMainImage(force, opts){
     markThumbEncoding(idx, false);
     return;
   }
-  /* Pre-encode UI state — split by preserveView:
-       - Selection swap (default): clear the After bg + show the center
-         loader immediately. User needs feedback that work has started.
-       - Re-encode (preserveView): keep the old After image up, defer
-         the center loader by 1000ms so fast encodes don't flash a
-         status overlay just to tear it down a frame later. */
-  let __deferredLoaderTimer = null;
+  /* Pre-encode UI state. Two paths:
+       - Selection swap (default): clear After bg + show center loader
+         immediately. User needs feedback that work has started for a
+         different image.
+       - Re-encode (preserveView): keep the old After image visible. The
+         CS.deferred gate (set by invalidateEncoded → deferCenterStatus)
+         suppresses every showCenterStatus call for the first 1000ms,
+         catching worker progress events too, so fast re-encodes never
+         flash a status overlay at all. */
   if (!preserveView) {
     after.style.backgroundImage = 'none';
     after.style.backgroundColor = '#000';
@@ -2759,16 +2798,6 @@ async function syncMainImage(force, opts){
     } else {
       showCenterStatus('Decoding…', f.name, { bigFile: big, estMs });
     }
-  } else {
-    /* preserveView path — old image stays visible. Only show the loader
-       if encode is STILL running after 1000ms (slow path: AVIF, big
-       file, etc). Sub-second re-encodes show no loader at all. */
-    __deferredLoaderTimer = setTimeout(() => {
-      __deferredLoaderTimer = null;
-      if (CFLOW.selected === idx && !ENCODE.encoded.has(idx)) {
-        showCenterStatus('Encoding…', f.name, { bigFile: false });
-      }
-    }, 1000);
   }
   markThumbEncoding(idx, true);
   try {
@@ -2782,9 +2811,6 @@ async function syncMainImage(force, opts){
     if (!ENCODE.allEncoded.has(idx)) ENCODE.allEncoded.set(idx, new Map());
     ENCODE.allEncoded.get(idx).set(fmtFromMime, enc);
     markThumbEncoding(idx, false);
-    /* Cancel the deferred loader (if encode finished in <1000ms it never
-       got a chance to fire — kill the timer before it paints). */
-    if (__deferredLoaderTimer) { clearTimeout(__deferredLoaderTimer); __deferredLoaderTimer = null; }
     if (CFLOW.selected === idx) {
       if (enc.format === 'ico') {
         setBg(after, f.url);
@@ -2806,7 +2832,9 @@ async function syncMainImage(force, opts){
   } catch (err) {
     console.warn('[beta encode failed]', err);
     markThumbEncoding(idx, false);
-    if (__deferredLoaderTimer) { clearTimeout(__deferredLoaderTimer); __deferredLoaderTimer = null; }
+    /* Tear down the suppression so the failure overlay can paint
+       immediately even if we\'re still inside the 1000ms defer window. */
+    clearDeferCenterStatus();
     /* Show the failure inline in the centered overlay so user knows it
        didn't hang — much more visible than the corner toast was. Under
        preserveView the canvas still shows the OLD image; the overlay
@@ -2878,7 +2906,11 @@ async function processQueue(){
         }
         markThumbEncoding(idx, false);
         if (CFLOW.selected === idx && typeof syncMainImage === 'function') {
-          syncMainImage(true);
+          /* preserveView: this is an *update* of the currently-displayed
+             image, not a selection swap. Don't reset zoom; don't blank
+             the meta. The cached path inside syncMainImage will simply
+             setBg(after, enc.url) and refresh the After meta. */
+          syncMainImage(true, { preserveView: true });
         }
       } catch (e) {
         markThumbEncoding(idx, false);
@@ -2925,8 +2957,12 @@ function invalidateEncoded(){
   ENCODE.allEncoded.clear();
   ENCODE.queue.length = 0;
   CFLOW.prevSelected = -1;
-  /* preserveView=true: don't reset zoom, keep the old After image up,
-     defer the loading indicator by 1000ms. */
+  /* Suppress the center loader for 1000ms — every showCenterStatus call
+     (worker progress, syncMainImage, processQueue) is gated. Sub-second
+     re-encodes will never flash; only genuinely slow ones surface the
+     overlay after the window expires. */
+  deferCenterStatus(1000);
+  /* preserveView=true: don't reset zoom, keep the old After image up. */
   syncMainImage(true, { preserveView: true });
   enqueueAll();
 }
