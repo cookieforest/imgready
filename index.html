@@ -1900,14 +1900,18 @@
     <div class="compare-zoom" id="compareZoom">
       <div class="mock-image large compare-before" id="cbBefore" style="background:linear-gradient(135deg,#446644,#8aba8a)">photo-1.jpg</div>
       <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">photo-1.jpg</div></div>
-      <!-- Divider + handle live INSIDE compare-zoom so they receive the
-           same scale/translate as cbBefore/cbAfter. Without this, the clip
-           edge moved with the zoom transform but the divider stayed at
-           canvas-50%, producing two visible lines at different screen
-           positions while zoomed. -->
+      <!-- Divider lives INSIDE compare-zoom because it must align with
+           the clip-path edge of compare-after, which IS scaled/translated
+           by the zoom transform. -->
       <div class="compare-divider"></div>
-      <div class="compare-handle" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     </div>
+    <!-- Handle lives OUTSIDE compare-zoom: it should stay at the
+         viewport's vertical center regardless of zoom, so it must not
+         inherit the wrapper's transform. Horizontal position binds to
+         SLIDER.screenPct (the on-screen anchor the user dragged to);
+         the divider tracks the LOCAL pct so it lines up with the
+         clipped boundary in zoomed space. -->
+    <div class="compare-handle" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
     <div class="center-status" id="centerStatus" hidden aria-live="polite">
@@ -2486,11 +2490,22 @@ function getActiveSettings(){
   let fmt = (fmtDropdown && fmtDropdown.dataset.formatCurrent) || 'auto';
   const activeFmtBtn = document.querySelector('body[data-state="multi"] #formatPills button.active[data-fmt]');
   if (!fmtDropdown && activeFmtBtn) fmt = activeFmtBtn.dataset.fmt;
-  /* Quality: read slider. The slider now lives inside the quality-dropdown's
-     menu, but still carries .quality-row input[type=range] selectors so
-     this code path is unchanged. */
-  const qSlider = document.querySelector('body[data-state="multi"] .stage.multi .quality-row input[type=range]');
-  const quality = qSlider ? parseInt(qSlider.value)/100 : 0.82;
+  /* Quality: the menu containing the slider is portalled to
+     document.body on first open, so the stage-scoped selector breaks.
+     The dropdown's data-quality-current attribute is the source of
+     truth — setQuality() keeps it in sync with both preset clicks and
+     slider drags. Fallback to any .quality-row slider in the doc
+     (portalled or not) for defensive read; final fallback to 82. */
+  let qualityRaw = NaN;
+  const qDropdown = document.querySelector('.quality-dropdown');
+  if (qDropdown && qDropdown.dataset.qualityCurrent) {
+    qualityRaw = parseInt(qDropdown.dataset.qualityCurrent, 10);
+  }
+  if (!isFinite(qualityRaw)) {
+    const qSlider = document.querySelector('.quality-row input[type=range]');
+    qualityRaw = qSlider ? parseInt(qSlider.value, 10) : 82;
+  }
+  const quality = Math.max(1, Math.min(100, qualityRaw)) / 100;
   const activeMode = document.querySelector('body[data-state="multi"] .stage.multi .resize-mode-toggle .rmt-btn.active');
   const sizeInp = document.querySelector('body[data-state="multi"] .stage.multi .resize-input');
   const sizeVal = sizeInp && sizeInp.value ? parseInt(sizeInp.value) : 0;
@@ -3005,14 +3020,14 @@ function applyZoom(){
   if (typeof window.refreshSliderFromZoom === 'function') {
     window.refreshSliderFromZoom();
   }
-  /* Counter-scale the handle and divider so they stay visually consistent
-     size regardless of parent zoom. They're inside .compare-zoom (so they
-     translate with the image), but we don't want a 6x zoom to render a
-     264px handle or a 12px-thick divider. */
+  /* Counter-scale the divider so its width stays 2px regardless of
+     parent zoom. Divider still lives inside compare-zoom so it gets the
+     scale; counter-scale brings it back to crisp 2px. The handle does
+     NOT need counter-scaling any more — it's been hoisted out of
+     compare-zoom and sits in screen-space on .image-canvas, with its
+     vertical anchor at top:50% of the viewport (no transform from zoom). */
   const inv = 1 / ZOOM.scale;
-  const handle = wrap.querySelector('.compare-handle');
   const divider = wrap.querySelector('.compare-divider');
-  if (handle) handle.style.transform = `translate(-50%, -50%) scale(${inv})`;
   if (divider) divider.style.transform = `translateX(-1px) scaleX(${inv})`;
   /* Zoom-level chip — show + auto-fade ONLY when scale actually changed.
      Without the change-check, every syncMainImage → resetZoom → applyZoom
@@ -3575,14 +3590,21 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
          → unlatch
      When zoom>1, this handler bails immediately so the existing zoom-pan
      handler (in wireZoom) takes over the pointer. */
-  function setSplit(canvas, pct){
-    pct = Math.max(0, Math.min(100, pct));
+  function setSplit(canvas, localPct, screenPct){
+    localPct = Math.max(0, Math.min(100, localPct));
+    if (screenPct == null) screenPct = localPct;
+    else screenPct = Math.max(0, Math.min(100, screenPct));
     const after = canvas.querySelector('.compare-after');
     const divider = canvas.querySelector('.compare-divider');
     const handle = canvas.querySelector('.compare-handle');
-    if (after) after.style.clipPath = `inset(0 0 0 ${pct}%)`;
-    if (divider) divider.style.left = pct + '%';
-    if (handle) handle.style.left = pct + '%';
+    /* clip-path + divider use LOCAL coords — both live inside the
+       compare-zoom wrapper that's scaled+translated by the zoom. */
+    if (after) after.style.clipPath = `inset(0 0 0 ${localPct}%)`;
+    if (divider) divider.style.left = localPct + '%';
+    /* Handle uses SCREEN coords — it lives outside compare-zoom so it
+       isn't affected by the wrapper's transform, and vertical position
+       stays at canvas's top:50% (viewport vertical center). */
+    if (handle) handle.style.left = screenPct + '%';
   }
   /* The slider's canonical position is its on-SCREEN x percent. Pan/zoom
      changes recompute the LOCAL pct (what setSplit needs) so the divider
@@ -3600,7 +3622,7 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
       ? (ZOOM.x / r.width) * 100 : 0;
     /* Inverse of: screenPct = 50 + (localPct - 50) * z + panPct */
     const localPct = (window.SLIDER.screenPct - 50 - panPct) / z + 50;
-    setSplit(canvas, localPct);
+    setSplit(canvas, localPct, window.SLIDER.screenPct);
   };
   let dragging = null;
   function inDeadzone(t){
