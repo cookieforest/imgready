@@ -2675,7 +2675,9 @@ function setMetaCorners(beforeFile, encoded){
      - .has-after flips on, slider + After-meta render
      - Center spinner fades, thumb spinner clears
      - Setting Before-meta is fine pre-encode (file size is known immediately) */
-async function syncMainImage(force){
+async function syncMainImage(force, opts){
+  opts = opts || {};
+  const preserveView = !!opts.preserveView;
   const idx = CFLOW.selected;
   if (!force && idx === CFLOW.prevSelected) return;
   CFLOW.prevSelected = idx;
@@ -2711,8 +2713,10 @@ async function syncMainImage(force){
       }
     } catch(_){ /* non-fatal */ }
   })();
-  /* Reset zoom on every selection swap so the new image starts at 1x */
-  resetZoom();
+  /* Reset zoom on every selection swap so the new image starts at 1x.
+     But re-encodes (preserveView) keep the user's current zoom + pan so
+     A/B detail comparison doesn't require re-zooming each tweak. */
+  if (!preserveView) resetZoom();
   /* Update the Before meta (always known immediately from the file blob) */
   setMetaCorners(f.file, null);
   /* Priority lever: if this idx is in the background queue but not yet
@@ -2736,24 +2740,35 @@ async function syncMainImage(force){
     markThumbEncoding(idx, false);
     return;
   }
-  /* Pre-encode UI state — hide compare, show center loader, mark thumb */
-  after.style.backgroundImage = 'none';
-  after.style.backgroundColor = '#000';
-  setHasAfter(false);
-  /* Pulse bar opt-in for >5MB files — small files don't need it, the bar
-     visual would appear and disappear in <1s and feel jittery. */
-  const big = f.file.size > 5 * 1024 * 1024;
-  /* Rough time estimate: WebP/JPG/PNG ~ 60 MB/s, AVIF ~ 8 MB/s. Doesn't have
-     to be precise — it just paces the bar visually. */
-  const estMs = Math.max(1500, Math.round(f.file.size / (8 * 1024 * 1024) * 1000));
-  /* If this idx already has an encode in flight (user swiped away then back),
-     show the spinner without resetting the pulse-bar timer — feels less
-     jittery than restarting the bar from 0. */
-  const alreadyInflight = ENCODE.inflight.has(idx);
-  if (alreadyInflight) {
-    showCenterStatus('Encoding…', f.name, { bigFile: false });
+  /* Pre-encode UI state — split by preserveView:
+       - Selection swap (default): clear the After bg + show the center
+         loader immediately. User needs feedback that work has started.
+       - Re-encode (preserveView): keep the old After image up, defer
+         the center loader by 1000ms so fast encodes don't flash a
+         status overlay just to tear it down a frame later. */
+  let __deferredLoaderTimer = null;
+  if (!preserveView) {
+    after.style.backgroundImage = 'none';
+    after.style.backgroundColor = '#000';
+    setHasAfter(false);
+    const big = f.file.size > 5 * 1024 * 1024;
+    const estMs = Math.max(1500, Math.round(f.file.size / (8 * 1024 * 1024) * 1000));
+    const alreadyInflight = ENCODE.inflight.has(idx);
+    if (alreadyInflight) {
+      showCenterStatus('Encoding…', f.name, { bigFile: false });
+    } else {
+      showCenterStatus('Decoding…', f.name, { bigFile: big, estMs });
+    }
   } else {
-    showCenterStatus('Decoding…', f.name, { bigFile: big, estMs });
+    /* preserveView path — old image stays visible. Only show the loader
+       if encode is STILL running after 1000ms (slow path: AVIF, big
+       file, etc). Sub-second re-encodes show no loader at all. */
+    __deferredLoaderTimer = setTimeout(() => {
+      __deferredLoaderTimer = null;
+      if (CFLOW.selected === idx && !ENCODE.encoded.has(idx)) {
+        showCenterStatus('Encoding…', f.name, { bigFile: false });
+      }
+    }, 1000);
   }
   markThumbEncoding(idx, true);
   try {
@@ -2767,6 +2782,9 @@ async function syncMainImage(force){
     if (!ENCODE.allEncoded.has(idx)) ENCODE.allEncoded.set(idx, new Map());
     ENCODE.allEncoded.get(idx).set(fmtFromMime, enc);
     markThumbEncoding(idx, false);
+    /* Cancel the deferred loader (if encode finished in <1000ms it never
+       got a chance to fire — kill the timer before it paints). */
+    if (__deferredLoaderTimer) { clearTimeout(__deferredLoaderTimer); __deferredLoaderTimer = null; }
     if (CFLOW.selected === idx) {
       if (enc.format === 'ico') {
         setBg(after, f.url);
@@ -2776,12 +2794,23 @@ async function syncMainImage(force){
       setMetaCorners(f.file, enc);
       setHasAfter(true);
       hideCenterStatus();
+      /* Now that the fresh image is painted, revoke the stale blob URLs
+         we deferred in invalidateEncoded(). They're no longer referenced
+         by any element so revocation is safe. Best-effort: keep the list
+         empty even if a revoke throws (already-revoked URLs do). */
+      if (ENCODE.pendingRevokes && ENCODE.pendingRevokes.length) {
+        ENCODE.pendingRevokes.forEach(u => { try { URL.revokeObjectURL(u); } catch(_){} });
+        ENCODE.pendingRevokes = [];
+      }
     }
   } catch (err) {
     console.warn('[beta encode failed]', err);
     markThumbEncoding(idx, false);
+    if (__deferredLoaderTimer) { clearTimeout(__deferredLoaderTimer); __deferredLoaderTimer = null; }
     /* Show the failure inline in the centered overlay so user knows it
-       didn't hang — much more visible than the corner toast was. */
+       didn't hang — much more visible than the corner toast was. Under
+       preserveView the canvas still shows the OLD image; the overlay
+       just communicates that the latest setting tweak didn't apply. */
     if (CFLOW.selected === idx) {
       showCenterStatus('Encode failed', err && err.message || String(err));
     }
@@ -2882,15 +2911,23 @@ function bumpToFront(idx){
    single stale result that mismatches every other thumb. */
 function invalidateEncoded(){
   ENCODE.gen++;
-  ENCODE.encoded.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} });
-  ENCODE.allEncoded.forEach(m => m.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} }));
+  /* Defer URL revocation: holding the old blob URLs alive keeps the
+     previously-rendered After image visible on the canvas while the new
+     encode runs. They're revoked lazily once syncMainImage paints the
+     fresh result (or on the next invalidateEncoded if the user keeps
+     hammering the slider). Without this delay, every settings tweak
+     would briefly black-out the canvas. */
+  const pending = ENCODE.pendingRevokes || [];
+  ENCODE.encoded.forEach(e => { if (e && e.url) pending.push(e.url); });
+  ENCODE.allEncoded.forEach(m => m.forEach(e => { if (e && e.url) pending.push(e.url); }));
+  ENCODE.pendingRevokes = pending;
   ENCODE.encoded.clear();
   ENCODE.allEncoded.clear();
   ENCODE.queue.length = 0;
   CFLOW.prevSelected = -1;
-  /* Re-render the focused image first (it'll bump itself to the front of
-     the queue inside syncMainImage), then enqueue the rest. */
-  syncMainImage(true);
+  /* preserveView=true: don't reset zoom, keep the old After image up,
+     defer the loading indicator by 1000ms. */
+  syncMainImage(true, { preserveView: true });
   enqueueAll();
 }
 
