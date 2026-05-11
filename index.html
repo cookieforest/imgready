@@ -1381,15 +1381,8 @@
     flex:none;min-width:24px;text-align:right;
     color:#fff;font-weight:700;font-size:.72rem;
   }
-  /* Lossless preset gets a subtle accent dot — signals "honored only by
-     formats that support it" without burying the option for everyone. */
-  .quality-menu button[data-quality-preset="lossless"]::before{
-    content:"";display:inline-block;width:6px;height:6px;
-    background:var(--accent);border-radius:50%;margin-right:6px;
-    vertical-align:middle;
-  }
-  /* When the current format doesn't support lossless (jpg), grey out
-     the option. Class toggled by setQualityFormatSupport() at runtime. */
+  /* When the current format doesn't support lossless (jpg/ico), grey
+     out the option. aria-disabled toggled by setQualityFormatSupport. */
   .quality-menu button[data-quality-preset="lossless"][aria-disabled="true"]{
     opacity:.4;cursor:not-allowed;
   }
@@ -1933,7 +1926,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="resize-presets-menu quality-menu">
-                <button type="button" data-quality-preset="lossless" data-q="100">Lossless</button>
+                <button type="button" data-quality-preset="lossless" data-q="100">Lossless &middot; 100</button>
                 <button type="button" data-quality-preset="best" data-q="95">Best &middot; 95</button>
                 <button type="button" data-quality-preset="high" data-q="85" class="active">High &middot; 85</button>
                 <button type="button" data-quality-preset="medium" data-q="75">Medium &middot; 75</button>
@@ -3824,9 +3817,7 @@ window.PREFS = window.PREFS || { outFormat: 'auto' };
       const presetMap = { lossless: 'Lossless', best: 'Best', high: 'High',
                           medium: 'Medium', low: 'Low' };
       if (presetKey && presetMap[presetKey]) {
-        label.innerHTML = presetKey === 'lossless'
-          ? 'Lossless'
-          : `${presetMap[presetKey]} &middot; ${v}`;
+        label.innerHTML = `${presetMap[presetKey]} &middot; ${v}`;
       } else {
         label.innerHTML = `Custom &middot; ${v}`;
       }
