@@ -1384,10 +1384,10 @@
     opacity:0;
     transition:opacity .5s ease;
   }
-  /* Reduced motion: skip the transition; text still rotates. */
-  @media (prefers-reduced-motion: reduce){
-    .dz-loop.is-in, .dz-loop.is-out{transition:none;}
-  }
+  /* Opacity-only fade is WCAG-safe under reduced-motion preferences
+     (only motion that simulates physical movement — parallax, large
+     translates, rotation, scale — is considered vestibular-triggering).
+     So we DON'T disable the fade for reduced-motion users. */
 
   /* ===== WORKSPACE FORMAT DROPDOWN ======================================
      Replaces the inline 6-pill row with a compact dropdown. Reuses the
