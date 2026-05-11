@@ -1281,6 +1281,78 @@
     box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
   }
 
+
+
+  /* ===== EMPTY-STATE OUTPUT PRE-SELECTOR =================================
+     Users with conversion intent (e.g. "I want to convert HEIC to JPG")
+     can pre-select their output format BEFORE dropping files. Selection
+     persists into the workspace via window.PREFS.outFormat. */
+  .dz-format-pre{
+    display:flex;flex-direction:column;align-items:center;
+    gap:8px;margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid rgba(0,0,0,.06);
+    width:100%;
+  }
+  .dz-format-label{
+    font-size:.62rem;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .dz-format-pre .dz-pills{
+    display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:center;
+  }
+  .dz-format-pre .dz-pills button{
+    height:30px;padding:0 14px;
+    border:1px solid rgba(0,0,0,.12);
+    background:var(--card-bg,#fff);
+    color:var(--text);
+    font:inherit;font-size:.74rem;font-weight:600;
+    border-radius:6px;cursor:pointer;
+    transition:background .12s ease,border-color .12s ease,color .12s ease;
+  }
+  .dz-format-pre .dz-pills button:hover{
+    background:var(--accent-light);
+    border-color:var(--accent);
+    color:var(--accent-strong);
+  }
+  .dz-format-pre .dz-pills button.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  /* Rotating microcopy under the dropzone */
+  .dz-microcopy{
+    font-size:.74rem;color:var(--muted);
+    text-align:center;
+    margin-top:12px;
+    opacity:1;
+    transition:opacity .25s ease;
+    min-height:1em;
+  }
+
+  /* ===== WORKSPACE FORMAT DROPDOWN ======================================
+     Replaces the inline 6-pill row with a compact dropdown. Reuses the
+     same trigger / menu pattern as resize / crop dropdowns. */
+  .format-dropdown{
+    position:relative;
+  }
+  .format-menu{
+    /* Inherits .resize-presets-menu base styles via shared class. */
+  }
+  .format-menu button{
+    background:transparent;border:none;color:rgba(255,255,255,.85);
+    font:inherit;font-size:.72rem;font-weight:500;
+    padding:6px 12px;border-radius:5px;cursor:pointer;text-align:left;
+    transition:background .12s ease,color .12s ease;
+  }
+  .format-menu button:hover{
+    background:var(--accent);color:#fff;
+  }
+  .format-menu button.active{
+    background:rgba(255,255,255,.06);
+    color:#fff;
+  }
+
   /* ---------- mobile ---------- */
   @media(max-width:767px){
     /* Smaller cover-flow thumbnails on mobile — frees vertical space
@@ -1547,7 +1619,25 @@
       <span>Stays on your device — never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
+    <!-- Output pre-selector — users with conversion intent pick before
+         dropping. Selection persists via window.PREFS.outFormat into
+         the workspace's format dropdown. Auto = smart compression. -->
+    <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
+      <div class="dz-format-label">Output format</div>
+      <div class="dz-pills" id="dzPills">
+        <button type="button" class="active" data-out-fmt="auto">Auto</button>
+        <button type="button" data-out-fmt="webp">WebP</button>
+        <button type="button" data-out-fmt="avif">AVIF</button>
+        <button type="button" data-out-fmt="jpg">JPG</button>
+        <button type="button" data-out-fmt="png">PNG</button>
+        <button type="button" data-out-fmt="gif">GIF</button>
+        <button type="button" data-out-fmt="ico">ICO</button>
+      </div>
+    </div>
   </div>
+  <!-- Rotating microcopy: surfaces use-case breadth without splitting the
+       tool into separate URLs. Cycles every 4s with fade. -->
+  <div class="dz-microcopy" id="dzMicrocopy">Convert HEIC to JPG · 200 files at a time · No upload · Free</div>
 
     <header class="hero-below">
     <h1 class="brand-h1">
@@ -1763,13 +1853,23 @@
         <div class="bb-drawer-inner">
           <div class="bb-section">
             <span class="bb-section-label">Format</span>
-            <div class="adjust-pills" id="formatPills">
-              <button class="active" data-fmt="auto">Auto</button>
-              <button data-fmt="webp">WebP</button>
-              <button data-fmt="avif">AVIF</button>
-              <button data-fmt="jpg">JPG</button>
-              <button data-fmt="png">PNG</button>
-              <button data-fmt="ico">ICO</button>
+            <!-- Format dropdown replaces the inline 6-pill row to save horizontal
+                 space in the bar. Menu uses the same trigger/menu pattern as
+                 the resize and crop dropdowns. id="formatPills" stays on the
+                 menu element so existing JS selectors (querySelector('#formatPills button')) still work. -->
+            <div class="resize-presets format-dropdown" data-format-current="auto">
+              <button type="button" class="resize-presets-trigger" data-format-trigger>
+                <span class="format-current-label">Auto</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="resize-presets-menu format-menu" id="formatPills">
+                <button class="active" data-fmt="auto">Auto</button>
+                <button data-fmt="webp">WebP</button>
+                <button data-fmt="avif">AVIF</button>
+                <button data-fmt="jpg">JPG</button>
+                <button data-fmt="png">PNG</button>
+                <button data-fmt="ico">ICO</button>
+              </div>
             </div>
             <label class="switch multi-out-switch" title="Encode every selected format and bundle as a zip on download">
               <input type="checkbox" id="multiOutToggle">
@@ -3491,6 +3591,126 @@ window.openCmpSettings = window.openCmpSettings || function(){
     document.addEventListener('DOMContentLoaded', start, { once: true });
   } else {
     start();
+  }
+})();
+
+/* ============================================================
+   EMPTY-STATE OUTPUT PRE-SELECTOR + QUERYSTRING + MICROCOPY +
+   FORMAT DROPDOWN
+   ============================================================
+   1. Query string (?out=jpg) pre-selects an output format on load.
+   2. Clicking a pill in the empty state stores the choice and
+      activates the matching format pill in the workspace.
+   3. Microcopy rotates between 3 use-case lines under the dropzone.
+   4. Workspace format dropdown wires trigger / menu / mutex.
+*/
+window.PREFS = window.PREFS || { outFormat: 'auto' };
+(function initOutputPreselect(){
+  function setOutFormat(fmt, opts){
+    if (!fmt) return;
+    window.PREFS.outFormat = fmt;
+    /* Sync empty-state pills */
+    document.querySelectorAll('#dzPills button').forEach(b => {
+      b.classList.toggle('active', b.dataset.outFmt === fmt);
+    });
+    /* Sync workspace dropdown — flip active class on the menu buttons,
+       update label, and update the data-format-current attribute. */
+    const wpills = document.querySelectorAll('#formatPills button[data-fmt]');
+    wpills.forEach(b => b.classList.toggle('active', b.dataset.fmt === fmt));
+    const dd = document.querySelector('.format-dropdown');
+    if (dd) dd.dataset.formatCurrent = fmt;
+    const label = document.querySelector('.format-current-label');
+    if (label) {
+      const matched = [...wpills].find(b => b.dataset.fmt === fmt);
+      label.textContent = matched ? matched.textContent : fmt.toUpperCase();
+    }
+    /* Trigger any existing re-encode hooks if a file is loaded */
+    if (!opts || !opts.silent) {
+      if (typeof invalidateEncoded === 'function') invalidateEncoded();
+    }
+  }
+  window._setOutFormat = setOutFormat;
+
+  /* 1. Query string parse */
+  const qs = new URLSearchParams(location.search);
+  const qsOut = qs.get('out');
+  if (qsOut && ['auto','webp','avif','jpg','jpeg','png','gif','ico'].includes(qsOut.toLowerCase())) {
+    setOutFormat(qsOut.toLowerCase() === 'jpeg' ? 'jpg' : qsOut.toLowerCase(), { silent: true });
+  }
+
+  /* 2. Empty-state pill clicks */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest && e.target.closest('#dzPills button[data-out-fmt]');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setOutFormat(btn.dataset.outFmt);
+  });
+
+  /* 3. Microcopy rotation */
+  const microLines = [
+    'Convert HEIC to JPG · 200 files at a time · No upload · Free',
+    'Compress JPG · Strip EXIF · Resize for Instagram',
+    'WebP & AVIF · Browser-native · Pixel-perfect quality'
+  ];
+  let mIdx = 0;
+  function rotateMicrocopy(){
+    const el = document.getElementById('dzMicrocopy');
+    if (!el) return;
+    mIdx = (mIdx + 1) % microLines.length;
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = microLines[mIdx];
+      el.style.opacity = '1';
+    }, 250);
+  }
+  setInterval(rotateMicrocopy, 4500);
+
+  /* 4. Workspace format dropdown — open/close + click options */
+  function wireFormatDropdown(){
+    const dd = document.querySelector('.format-dropdown');
+    if (!dd || dd.dataset.fmtWired) return;
+    dd.dataset.fmtWired = '1';
+    const trig = dd.querySelector('[data-format-trigger]');
+    const menu = dd.querySelector('.format-menu');
+    if (!trig || !menu) return;
+    trig.addEventListener('click', e => {
+      e.stopPropagation();
+      const willOpen = !dd.classList.contains('open');
+      /* Mutex with resize / crop dropdowns */
+      if (willOpen && typeof closeOtherPresetDropdowns === 'function') {
+        closeOtherPresetDropdowns(dd);
+      } else if (willOpen) {
+        /* Fallback: close other .resize-presets dropdowns */
+        document.querySelectorAll('.resize-presets.open').forEach(p => {
+          if (p !== dd) p.classList.remove('open');
+        });
+      }
+      dd.classList.toggle('open');
+      menu.classList.toggle('open', willOpen);
+      if (willOpen) {
+        const r = trig.getBoundingClientRect();
+        const menuW = menu.offsetWidth || 120;
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
+        menu.style.left = left + 'px';
+        menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+        menu.style.top = 'auto';
+      }
+    });
+    menu.querySelectorAll('button[data-fmt]').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        const fmt = b.dataset.fmt;
+        setOutFormat(fmt);
+        dd.classList.remove('open');
+        menu.classList.remove('open');
+      });
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireFormatDropdown);
+  } else {
+    wireFormatDropdown();
   }
 })();
 
