@@ -1358,6 +1358,42 @@
     color:#fff;
   }
 
+  /* ===== QUALITY DROPDOWN ===========================================
+     Preset rows + an inline slider row at the bottom of the menu.
+     Reuses .resize-presets / .resize-presets-menu base styles for the
+     trigger and popover; only the slider row needs custom CSS. */
+  .quality-dropdown{position:relative;}
+  .quality-menu{min-width:160px;}
+  .quality-menu button[data-quality-preset]{
+    display:flex;justify-content:space-between;align-items:center;
+    width:100%;
+  }
+  .quality-menu .quality-custom-row{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 8px 4px;
+    border-top:1px solid rgba(255,255,255,.10);
+    margin-top:4px;
+  }
+  .quality-menu .quality-custom-row input[type=range]{
+    flex:1;min-width:0;
+  }
+  .quality-menu .quality-custom-row .q-val{
+    flex:none;min-width:24px;text-align:right;
+    color:#fff;font-weight:700;font-size:.72rem;
+  }
+  /* Lossless preset gets a subtle accent dot — signals "honored only by
+     formats that support it" without burying the option for everyone. */
+  .quality-menu button[data-quality-preset="lossless"]::before{
+    content:"";display:inline-block;width:6px;height:6px;
+    background:var(--accent);border-radius:50%;margin-right:6px;
+    vertical-align:middle;
+  }
+  /* When the current format doesn't support lossless (jpg), grey out
+     the option. Class toggled by setQualityFormatSupport() at runtime. */
+  .quality-menu button[data-quality-preset="lossless"][aria-disabled="true"]{
+    opacity:.4;cursor:not-allowed;
+  }
+
   /* ---------- mobile ---------- */
   @media(max-width:767px){
     /* Smaller cover-flow thumbnails on mobile — frees vertical space
@@ -1885,14 +1921,30 @@
             </label>
           </div>
           <div class="bb-divider"></div>
-          <!-- Quality lives in the drawer (not the core bar). Most users
-               accept the default; pros open Settings to tweak. Pattern
-               matches TinyPNG / iLoveIMG / Compressor.io / Kraken /
-               ImageOptim — only Squoosh and Optimizilla expose it
-               front-and-center. -->
+          <!-- Quality dropdown — preset buttons stack vertically with the
+               slider inline at the bottom. .quality-row class is kept on
+               the slider wrapper so existing JS selectors (which read
+               .quality-row input[type=range]) keep working. -->
           <div class="bb-section">
             <span class="bb-section-label">Quality</span>
-            <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div>
+            <div class="resize-presets quality-dropdown" data-quality-current="85" data-quality-mode="high">
+              <button type="button" class="resize-presets-trigger" data-quality-trigger>
+                <span class="quality-current-label">High &middot; 85</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="resize-presets-menu quality-menu">
+                <button type="button" data-quality-preset="lossless" data-q="100">Lossless</button>
+                <button type="button" data-quality-preset="best" data-q="95">Best &middot; 95</button>
+                <button type="button" data-quality-preset="high" data-q="85" class="active">High &middot; 85</button>
+                <button type="button" data-quality-preset="medium" data-q="75">Medium &middot; 75</button>
+                <button type="button" data-quality-preset="low" data-q="60">Low &middot; 60</button>
+                <div class="quality-custom-row quality-row">
+                  <input type="range" min="10" max="100" value="85" aria-label="Custom quality (10 to 100)">
+                  <span class="q-val">85</span>
+                </div>
+              </div>
+            </div>
+            <span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span>
           </div>
           <div class="bb-divider"></div>
           <div class="bb-row-group">
@@ -2370,8 +2422,19 @@ function pickAutoFormat(file){
   return 'jpg';
 }
 function getActiveSettings(){
-  const formatBtn = document.querySelector('body[data-state="multi"] .stage.multi .adjust-pills button.active');
-  let fmt = formatBtn ? formatBtn.textContent.trim().toLowerCase() : 'auto';
+  /* Format: the dropdown's data-format-current is the source of truth.
+     Fall back to the active button's data-fmt if the attribute is missing
+     (defensive — shouldn't happen). The OLD .adjust-pills selector was
+     dead code after the multi-stage format pills became a dropdown menu;
+     when it returned null, fmt collapsed to 'auto' and pickAutoFormat
+     locked output to the input file's MIME (the JPG-output bug). */
+  const fmtDropdown = document.querySelector('body[data-state="multi"] .stage.multi .format-dropdown');
+  let fmt = (fmtDropdown && fmtDropdown.dataset.formatCurrent) || 'auto';
+  const activeFmtBtn = document.querySelector('body[data-state="multi"] #formatPills button.active[data-fmt]');
+  if (!fmtDropdown && activeFmtBtn) fmt = activeFmtBtn.dataset.fmt;
+  /* Quality: read slider. The slider now lives inside the quality-dropdown's
+     menu, but still carries .quality-row input[type=range] selectors so
+     this code path is unchanged. */
   const qSlider = document.querySelector('body[data-state="multi"] .stage.multi .quality-row input[type=range]');
   const quality = qSlider ? parseInt(qSlider.value)/100 : 0.82;
   const activeMode = document.querySelector('body[data-state="multi"] .stage.multi .resize-mode-toggle .rmt-btn.active');
@@ -3635,6 +3698,10 @@ window.PREFS = window.PREFS || { outFormat: 'auto' };
     if (!opts || !opts.silent) {
       if (typeof invalidateEncoded === 'function') invalidateEncoded();
     }
+    /* Refresh quality dropdown's lossless-support state when format changes */
+    if (typeof window._setQualityFormatSupport === 'function') {
+      window._setQualityFormatSupport();
+    }
   }
   window._setOutFormat = setOutFormat;
 
@@ -3727,10 +3794,145 @@ window.PREFS = window.PREFS || { outFormat: 'auto' };
       });
     });
   }
+  /* 5. Quality dropdown — preset buttons + slider inside the menu. */
+  function portalQualityMenu(menu){
+    if (menu.parentNode !== document.body) document.body.appendChild(menu);
+  }
+  function setQualityFormatSupport(){
+    /* Lossless preset is only meaningful for formats that have a true
+       lossless path (PNG always, WebP/AVIF/GIF with appropriate encoder).
+       For JPG/ICO it falls back to max quality. We grey-out the button
+       in those cases so users know it's a no-op there. */
+    const dd = document.querySelector('.quality-dropdown');
+    if (!dd) return;
+    const losslessBtn = dd.querySelector('button[data-quality-preset="lossless"]');
+    if (!losslessBtn) return;
+    const fmt = (window.PREFS && window.PREFS.outFormat) || 'auto';
+    const trueLossless = ['png','webp','avif','gif'].includes(fmt) || fmt === 'auto';
+    losslessBtn.setAttribute('aria-disabled', trueLossless ? 'false' : 'true');
+  }
+  function setQuality(value, presetKey, opts){
+    const dd = document.querySelector('.quality-dropdown');
+    if (!dd) return;
+    const v = parseInt(value, 10);
+    if (!isFinite(v)) return;
+    dd.dataset.qualityCurrent = String(v);
+    if (presetKey) dd.dataset.qualityMode = presetKey;
+    /* Update label */
+    const label = dd.querySelector('.quality-current-label');
+    if (label) {
+      const presetMap = { lossless: 'Lossless', best: 'Best', high: 'High',
+                          medium: 'Medium', low: 'Low' };
+      if (presetKey && presetMap[presetKey]) {
+        label.innerHTML = presetKey === 'lossless'
+          ? 'Lossless'
+          : `${presetMap[presetKey]} &middot; ${v}`;
+      } else {
+        label.innerHTML = `Custom &middot; ${v}`;
+      }
+    }
+    /* Update preset button active states */
+    dd.querySelectorAll('button[data-quality-preset]').forEach(b => {
+      b.classList.toggle('active', presetKey ? b.dataset.qualityPreset === presetKey : false);
+    });
+    /* Sync the slider */
+    const slider = dd.querySelector('.quality-custom-row input[type=range]');
+    const valSpan = dd.querySelector('.quality-custom-row .q-val');
+    if (slider) {
+      slider.value = String(v);
+      slider.style.setProperty('--p', String(v));
+    }
+    if (valSpan) valSpan.textContent = String(v);
+    if (!opts || !opts.silent) {
+      if (typeof invalidateEncoded === 'function') {
+        document.body.dataset.qualityEncoding = 'on';
+        invalidateEncoded();
+      }
+    }
+  }
+  window._setQuality = setQuality;
+  window._setQualityFormatSupport = setQualityFormatSupport;
+  function wireQualityDropdown(){
+    const dd = document.querySelector('.quality-dropdown');
+    if (!dd || dd.dataset.qdWired) return;
+    dd.dataset.qdWired = '1';
+    const trig = dd.querySelector('[data-quality-trigger]');
+    const menu = dd.querySelector('.quality-menu');
+    if (!trig || !menu) return;
+    trig.addEventListener('click', e => {
+      e.stopPropagation();
+      const willOpen = !dd.classList.contains('open');
+      if (willOpen && typeof closeOtherPresetDropdowns === 'function') {
+        closeOtherPresetDropdowns(dd);
+      } else if (willOpen) {
+        document.querySelectorAll('.resize-presets.open').forEach(p => {
+          if (p !== dd) p.classList.remove('open');
+        });
+        document.querySelectorAll('.resize-presets-menu.open').forEach(m => {
+          if (m !== menu) m.classList.remove('open');
+        });
+      }
+      dd.classList.toggle('open');
+      menu.classList.toggle('open', willOpen);
+      if (willOpen) {
+        portalQualityMenu(menu);
+        const r = trig.getBoundingClientRect();
+        const menuW = menu.offsetWidth || 180;
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
+        menu.style.left = left + 'px';
+        menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+        menu.style.top = 'auto';
+        setQualityFormatSupport();
+      }
+    });
+    /* Preset clicks */
+    menu.querySelectorAll('button[data-quality-preset]').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        if (b.getAttribute('aria-disabled') === 'true') return;
+        const preset = b.dataset.qualityPreset;
+        const q = parseInt(b.dataset.q, 10);
+        setQuality(q, preset);
+        dd.classList.remove('open');
+        menu.classList.remove('open');
+      });
+    });
+    /* Slider — live label update on input, commit (re-encode) on change.
+       Clicking inside the slider row should NOT close the menu. */
+    const sliderRow = menu.querySelector('.quality-custom-row');
+    const slider = sliderRow && sliderRow.querySelector('input[type=range]');
+    const valSpan = sliderRow && sliderRow.querySelector('.q-val');
+    if (sliderRow) sliderRow.addEventListener('click', e => e.stopPropagation());
+    if (slider) {
+      slider.style.setProperty('--p', slider.value);
+      slider.addEventListener('input', e => {
+        e.stopPropagation();
+        const v = parseInt(slider.value, 10);
+        slider.style.setProperty('--p', String(v));
+        if (valSpan) valSpan.textContent = String(v);
+        /* Update the trigger label live to "Custom · NN" so the user
+           sees feedback before they release the slider. */
+        const label = dd.querySelector('.quality-current-label');
+        if (label) label.innerHTML = `Custom &middot; ${v}`;
+        dd.dataset.qualityCurrent = String(v);
+        dd.dataset.qualityMode = 'custom';
+        /* Deactivate preset buttons since we're in custom mode now. */
+        dd.querySelectorAll('button[data-quality-preset]').forEach(b => b.classList.remove('active'));
+      });
+      slider.addEventListener('change', e => {
+        e.stopPropagation();
+        if (typeof invalidateEncoded === 'function') {
+          document.body.dataset.qualityEncoding = 'on';
+          invalidateEncoded();
+        }
+      });
+    }
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wireFormatDropdown);
+    document.addEventListener('DOMContentLoaded', () => { wireFormatDropdown(); wireQualityDropdown(); });
   } else {
     wireFormatDropdown();
+    wireQualityDropdown();
   }
 })();
 
