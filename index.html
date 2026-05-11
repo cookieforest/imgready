@@ -385,24 +385,32 @@
      prominent middle-of-canvas state. The corner had two problems: (1) easy
      to miss on big screens, (2) it competed with the After meta box for the
      same corner. */
+  /* Loader pill — legacy fs-encoding-pulse style. Just a glowing dot
+     on the left + "Encoding…" text. No spinner ring, no filename, no
+     batch counter, no progress bar. Positioned bottom-center above the
+     menu bar so it doesn't cover the image. Only paints for genuinely
+     slow re-encodes (>2s) via the deferCenterStatus gate. */
   .center-status{
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    z-index:6;display:flex;flex-direction:column;align-items:center;gap:14px;
-    padding:18px 26px;border-radius:14px;
-    background:var(--card-bg);border:1px solid var(--card-border);
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    color:#fff;pointer-events:none;
+    position:absolute;left:50%;bottom:calc(var(--menu-h, 100px) + 78px);
+    transform:translateX(-50%);
+    z-index:6;display:inline-flex;align-items:center;gap:10px;
+    padding:9px 18px;border-radius:99px;
+    background:rgba(0,0,0,.62);color:#fff;
+    font-size:.8rem;font-weight:600;letter-spacing:.02em;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    pointer-events:none;min-width:150px;justify-content:center;
   }
   .center-status[hidden]{display:none;}
-  .center-status .cs-spinner{
-    width:34px;height:34px;border-radius:50%;
-    border:3px solid rgba(255,255,255,.16);border-top-color:var(--accent);
-    animation:csSpin .9s linear infinite;
+  .center-status .cs-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--accent);flex-shrink:0;
+    box-shadow:0 0 10px var(--accent),0 0 18px rgba(122,154,122,.45);
+    animation:csDotPulse 1.3s ease-in-out infinite;
   }
-  .center-status .cs-stage{font-size:.86rem;font-weight:700;letter-spacing:.02em;}
-  .center-status .cs-name{font-size:.72rem;color:rgba(255,255,255,.6);
-    max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  @keyframes csSpin{to{transform:rotate(360deg);}}
+  @keyframes csDotPulse{
+    0%,100%{opacity:.45;transform:scale(.85);}
+    50%{opacity:1;transform:scale(1.15);}
+  }
 
   /* Per-thumb spinner — a tiny ring+pulse overlay so the user sees encoding
      progress for every file, not just the selected one. Important for batch
@@ -476,24 +484,9 @@
      uses .bad on .fs-lbl-savings with a red color; we mirror that. */
   .compare-meta .pct.bad{color:#ff8b8b;}
 
-  /* Encoding progress bar — replaces the spinning circle as the primary
-     indicator. Shows real done/total progress for batch (>1 file) and a
-     time-estimate creep for single-file encodes. */
-  .center-status .cs-bar{
-    width:220px;height:5px;border-radius:3px;
-    background:rgba(255,255,255,.14);overflow:hidden;
-    margin-top:6px;display:none;
-  }
-  .center-status .cs-bar-fill{
-    height:100%;background:var(--accent);width:0%;
-    transition:width .25s ease;
-  }
-  /* Spinner-first, bar-after-500ms. Encodes that finish in <500ms only
-     ever show the spinner (avoids the bar flashing "stuck at 0%"); slow
-     encodes promote to the bar so the user sees real progress. The
-     swap is driven by JS adding [data-bar="on"] after the threshold. */
-  .center-status[data-bar="on"] .cs-bar{display:block;}
-  .center-status[data-bar="on"] .cs-spinner{display:none;}
+  /* Bar / batch-counter UI removed — only the selected image surfaces
+     in the loader; everything else runs in the background and is
+     conveyed via the per-thumb spinner badge. */
 
   /* Live size + spinner inline next to the quality slider — closes the
      "did anything just happen?" gap during re-encodes. The spinner
@@ -513,8 +506,10 @@
   /* Quality-slider spinner only fires when the user adjusts the slider —
      other settings changes (format, resize, crop) don't trigger the
      spinner since it's specifically attached to the slider's eyeline. */
-  body[data-quality-encoding="on"] .quality-row .qr-spinner{display:inline-block;}
-  body[data-quality-encoding="on"] .quality-row .qr-size{opacity:.5;}
+  body[data-quality-encoding="on"] .quality-row .qr-spinner,
+  body[data-reencoding="on"] .quality-row .qr-spinner{display:inline-block;}
+  body[data-quality-encoding="on"] .quality-row .qr-size,
+  body[data-reencoding="on"] .quality-row .qr-size{opacity:.5;}
 
   /* Click-and-drag affordance: col-resize cursor over the compare canvas
      when the slider is interactive (has-after + not zoomed). When zoomed,
@@ -1916,12 +1911,8 @@
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
     <div class="center-status" id="centerStatus" hidden aria-live="polite">
-      <div class="cs-spinner" aria-hidden="true"></div>
-      <div class="cs-stage" id="csStage">Decoding…</div>
-      <div class="cs-name" id="csName"></div>
-      <!-- Pulse bar: only enabled for files >5MB (data-bar="on" toggle).
-           Fill animates on a time estimate based on input size + format. -->
-      <div class="cs-bar" aria-hidden="true"><div class="cs-bar-fill" id="csBarFill"></div></div>
+      <div class="cs-dot" aria-hidden="true"></div>
+      <span class="cs-stage" id="csStage">Encoding…</span>
     </div>
     <!-- Zoom-level chip — only visible during/after zoom changes -->
     <div class="zoom-chip" id="zoomChip" aria-hidden="true">100%</div>
@@ -2398,54 +2389,25 @@ function showCenterStatus(stage, filename, opts){
   if (!el) return;
   el.hidden = false;
   const stageEl = document.getElementById('csStage');
-  const nameEl  = document.getElementById('csName');
-  /* Batch counter: when the user dropped >1 file, the stage line reads
-     "Encoding 5/12" so they can see overall progress at a glance. */
-  const total = (typeof FILES !== 'undefined') ? FILES.length : 0;
-  const done  = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.size : 0;
-  const isBatch = total > 1;
-  if (stageEl) {
-    stageEl.textContent = isBatch
-      ? `${stage} ${Math.min(done + 1, total)}/${total}`
-      : stage;
-  }
-  if (nameEl) nameEl.textContent = filename || '';
-  /* Mark the body so settings/toolbar widgets can show their own spinners */
+  /* No batch counter — only the currently-viewed image surfaces here.
+     Everything else encodes in the background (per-thumb spinner badges
+     convey that progress instead). */
+  if (stageEl) stageEl.textContent = stage || 'Encoding…';
   document.body.dataset.encoding = 'on';
-  /* Spinner-first, bar-after-500ms. The bar only shows for encodes that
-     actually take a perceptible amount of time — fast (<500ms) encodes
-     keep the spinner only, so the user doesn't see a bar flash from 0%
-     to gone. 500ms threshold is the standard "feels responsive vs. feels
-     slow" cutoff (Microsoft Fluent guidance). */
-  el.dataset.bar = '';
-  if (CS.barShowTimer) clearTimeout(CS.barShowTimer);
-  CS.barShowTimer = setTimeout(() => {
-    el.dataset.bar = 'on';
-    const total2 = (typeof FILES !== 'undefined') ? FILES.length : 0;
-    const done2  = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.size : 0;
-    if (total2 > 1) {
-      stopCsBar();
-      const fill = document.getElementById('csBarFill');
-      if (fill) fill.style.width = ((done2 / total2) * 100) + '%';
-    } else {
-      startCsBar(opts && opts.estMs || 4000);
-    }
-  }, 500);
 }
 function hideCenterStatus(){
-  /* Tear down the defer window — if encode finished inside the 1000ms
+  /* Tear down the defer window — if encode finished inside the 2000ms
      suppression, the timer never gets to fire (and never paints). */
   clearDeferCenterStatus();
   const el = document.getElementById('centerStatus');
   if (el) el.hidden = true;
   document.body.dataset.encoding = '';
-  /* Clear the quality-driven flag too — once the encode result lands,
-     the qr-spinner should disappear regardless of what triggered it. */
   document.body.dataset.qualityEncoding = '';
-  /* Cancel the deferred bar so a fast encode never flashes its bar. */
-  if (CS.barShowTimer) { clearTimeout(CS.barShowTimer); CS.barShowTimer = null; }
-  if (el) el.dataset.bar = '';
-  stopCsBar();
+  /* DON'T clear data-reencoding here. It's tied to "the selected image
+     is still encoding"; the hideCenterStatus call only signals that the
+     overlay should disappear (encode landed OR cancelled). The
+     data-reencoding cleanup happens in syncMainImage's success/cached
+     paths and on selection swaps, scoped to CFLOW.selected. */
 }
 function startCsBar(estMs){
   stopCsBar();
@@ -2714,6 +2676,10 @@ async function syncMainImage(force, opts){
   const idx = CFLOW.selected;
   if (!force && idx === CFLOW.prevSelected) return;
   CFLOW.prevSelected = idx;
+  /* Selection swap (not preserveView): user is looking at a different
+     file now, so the qr-spinner from any in-flight previous-image
+     encode is no longer relevant. Clear it. preserveView keeps it. */
+  if (!preserveView) document.body.dataset.reencoding = '';
   const thumb = CFLOW.thumbs[idx];
   if (!thumb || thumb.classList.contains('add-more')) return;
   const f = FILES[idx];
@@ -2728,6 +2694,21 @@ async function syncMainImage(force, opts){
     el.style.backgroundRepeat = 'no-repeat';
     el.style.backgroundColor = '#000';
     el.textContent = '';
+  };
+  /* Preload + decode pattern — eliminates the brief "show fallback bg
+     color" flash that happens when background-image changes before the
+     new image is decoded. Promise resolves once the bitmap is ready;
+     on resolve the caller swaps the bg, paint-instant. Decode failures
+     are non-fatal: we proceed and accept the legacy tiny flash. */
+  const setBgPreloaded = async (el, url) => {
+    if (!url) { setBg(el, url); return; }
+    try {
+      const img = new Image();
+      img.src = url;
+      if (typeof img.decode === 'function') await img.decode();
+      else await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+    } catch (_) { /* non-fatal */ }
+    setBg(el, url);
   };
   setBg(before, f.url);
   /* Filename ribbon — top-center reference of which file is currently in
@@ -2766,15 +2747,35 @@ async function syncMainImage(force, opts){
      for download. */
   const cached = ENCODE.encoded.get(idx);
   if (cached) {
+    /* Helper: clear the small qr-spinner state when the SELECTED image
+       is done. Background-queue items for other files may still be in
+       flight; that's fine, the qr-spinner is scoped to the current view. */
+    const clearReencoding = () => {
+      if (CFLOW.selected === idx) document.body.dataset.reencoding = '';
+    };
     if (cached.format === 'ico') {
+      /* ICO falls back to the Before image — that's already painted on
+         compare-before, so no preload needed. */
       setBg(after, f.url);
+      setMetaCorners(f.file, cached);
+      setHasAfter(true);
+      hideCenterStatus();
+      markThumbEncoding(idx, false);
+      clearReencoding();
     } else {
-      setBg(after, cached.url);
+      /* Preload the cached blob URL — if scrolled away and back, the
+         decoded bitmap may have been evicted; decoding first avoids a
+         fallback-color flash on swap. */
+      const myGen = ENCODE.gen;
+      setBgPreloaded(after, cached.url).then(() => {
+        if (myGen !== ENCODE.gen || CFLOW.selected !== idx) return;
+        setMetaCorners(f.file, cached);
+        setHasAfter(true);
+        hideCenterStatus();
+        markThumbEncoding(idx, false);
+        clearReencoding();
+      });
     }
-    setMetaCorners(f.file, cached);
-    setHasAfter(true);
-    hideCenterStatus();
-    markThumbEncoding(idx, false);
     return;
   }
   /* Pre-encode UI state. Two paths:
@@ -2812,21 +2813,36 @@ async function syncMainImage(force, opts){
     ENCODE.allEncoded.get(idx).set(fmtFromMime, enc);
     markThumbEncoding(idx, false);
     if (CFLOW.selected === idx) {
+      const revokePending = () => {
+        if (ENCODE.pendingRevokes && ENCODE.pendingRevokes.length) {
+          ENCODE.pendingRevokes.forEach(u => { try { URL.revokeObjectURL(u); } catch(_){} });
+          ENCODE.pendingRevokes = [];
+        }
+      };
+      const clearReencoding = () => {
+        if (CFLOW.selected === idx) document.body.dataset.reencoding = '';
+      };
       if (enc.format === 'ico') {
         setBg(after, f.url);
+        setMetaCorners(f.file, enc);
+        setHasAfter(true);
+        hideCenterStatus();
+        revokePending();
+        clearReencoding();
       } else {
-        setBg(after, enc.url);
-      }
-      setMetaCorners(f.file, enc);
-      setHasAfter(true);
-      hideCenterStatus();
-      /* Now that the fresh image is painted, revoke the stale blob URLs
-         we deferred in invalidateEncoded(). They're no longer referenced
-         by any element so revocation is safe. Best-effort: keep the list
-         empty even if a revoke throws (already-revoked URLs do). */
-      if (ENCODE.pendingRevokes && ENCODE.pendingRevokes.length) {
-        ENCODE.pendingRevokes.forEach(u => { try { URL.revokeObjectURL(u); } catch(_){} });
-        ENCODE.pendingRevokes = [];
+        /* Preload + decode the new blob BEFORE swapping the bg. Old URL
+           stays valid (held in pendingRevokes) until AFTER the swap, so
+           the canvas never blanks. Revoke happens once the new image
+           is painted. */
+        const myGen = ENCODE.gen;
+        setBgPreloaded(after, enc.url).then(() => {
+          if (myGen !== ENCODE.gen || CFLOW.selected !== idx) return;
+          setMetaCorners(f.file, enc);
+          setHasAfter(true);
+          hideCenterStatus();
+          revokePending();
+          clearReencoding();
+        });
       }
     }
   } catch (err) {
@@ -2957,11 +2973,13 @@ function invalidateEncoded(){
   ENCODE.allEncoded.clear();
   ENCODE.queue.length = 0;
   CFLOW.prevSelected = -1;
-  /* Suppress the center loader for 1000ms — every showCenterStatus call
-     (worker progress, syncMainImage, processQueue) is gated. Sub-second
-     re-encodes will never flash; only genuinely slow ones surface the
-     overlay after the window expires. */
-  deferCenterStatus(1000);
+  /* Suppress the center loader for 2000ms — every showCenterStatus
+     call (worker progress, syncMainImage, processQueue) is gated.
+     Sub-2s re-encodes never paint the pill at all; the small qr-spinner
+     inside the quality selector is the only feedback. Genuinely slow
+     encodes (>2s) surface the pill after the window expires. */
+  document.body.dataset.reencoding = 'on';
+  deferCenterStatus(2000);
   /* preserveView=true: don't reset zoom, keep the old After image up. */
   syncMainImage(true, { preserveView: true });
   enqueueAll();
