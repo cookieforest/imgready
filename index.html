@@ -1922,15 +1922,15 @@
             <span class="bb-section-label">Quality</span>
             <div class="resize-presets quality-dropdown" data-quality-current="85" data-quality-mode="high">
               <button type="button" class="resize-presets-trigger" data-quality-trigger>
-                <span class="quality-current-label">High &middot; 85</span>
+                <span class="quality-current-label">High</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="resize-presets-menu quality-menu">
-                <button type="button" data-quality-preset="lossless" data-q="100">Lossless &middot; 100</button>
-                <button type="button" data-quality-preset="best" data-q="95">Best &middot; 95</button>
-                <button type="button" data-quality-preset="high" data-q="85" class="active">High &middot; 85</button>
-                <button type="button" data-quality-preset="medium" data-q="75">Medium &middot; 75</button>
-                <button type="button" data-quality-preset="low" data-q="60">Low &middot; 60</button>
+                <button type="button" data-quality-preset="lossless" data-q="100">Lossless</button>
+                <button type="button" data-quality-preset="best" data-q="95">Best</button>
+                <button type="button" data-quality-preset="high" data-q="85" class="active">High</button>
+                <button type="button" data-quality-preset="medium" data-q="75">Medium</button>
+                <button type="button" data-quality-preset="low" data-q="60">Low</button>
                 <div class="quality-custom-row quality-row">
                   <input type="range" min="10" max="100" value="85" aria-label="Custom quality (10 to 100)">
                   <span class="q-val">85</span>
@@ -3811,24 +3811,31 @@ window.PREFS = window.PREFS || { outFormat: 'auto' };
     if (!isFinite(v)) return;
     dd.dataset.qualityCurrent = String(v);
     if (presetKey) dd.dataset.qualityMode = presetKey;
-    /* Update label */
+    /* Trigger label: preset name only (drop · NN per user — the actual
+       value is exposed via the slider position inside the menu). Custom
+       mode keeps · NN since the name doesn't carry information. */
     const label = dd.querySelector('.quality-current-label');
     if (label) {
       const presetMap = { lossless: 'Lossless', best: 'Best', high: 'High',
                           medium: 'Medium', low: 'Low' };
       if (presetKey && presetMap[presetKey]) {
-        label.innerHTML = `${presetMap[presetKey]} &middot; ${v}`;
+        label.textContent = presetMap[presetKey];
       } else {
         label.innerHTML = `Custom &middot; ${v}`;
       }
     }
-    /* Update preset button active states */
-    dd.querySelectorAll('button[data-quality-preset]').forEach(b => {
+    /* Preset-button active states. After portaling the menu lives at
+       document.body, so query by class rather than via dd. */
+    document.querySelectorAll('.quality-menu button[data-quality-preset]').forEach(b => {
       b.classList.toggle('active', presetKey ? b.dataset.qualityPreset === presetKey : false);
     });
-    /* Sync the slider */
-    const slider = dd.querySelector('.quality-custom-row input[type=range]');
-    const valSpan = dd.querySelector('.quality-custom-row .q-val');
+    /* Sync the slider + readout. Critical: the menu is portalled to body
+       on open, so dd.querySelector returns null here. Query the portalled
+       menu directly. The slider also drives the .q-val readout next to it
+       and the --p CSS var that paints the track gradient. */
+    const menuEl = document.querySelector('.quality-menu');
+    const slider = menuEl && menuEl.querySelector('input[type=range]');
+    const valSpan = menuEl && menuEl.querySelector('.q-val');
     if (slider) {
       slider.value = String(v);
       slider.style.setProperty('--p', String(v));
