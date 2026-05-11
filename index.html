@@ -1363,41 +1363,44 @@
     font-size:1.6rem;font-weight:700;letter-spacing:-.3px;
     line-height:1.2;
   }
-  /* Headline verb rotation — opacity + transform fade-slide.
-     Industry-standard pattern (Vercel, Linear, Stripe). The element
-     is a normal inline-block span; we never use overflow:hidden, so
-     CSS baseline math stays clean. Two transient classes drive the
-     animation:
-       .is-out  — leaving word: fades down and 0.3em up
-       .entering — incoming word: fades from 0.3em below + 0
-     The 'entering' animation is a forward-only @keyframes so it runs
-     once on class-add without needing a separate "remove the class"
-     step to trigger the back-transition (a common pitfall). */
+  /* Headline verb rotation — instant-snap + transition pattern.
+     Default state is visible / neutral (no class). Two transient
+     classes drive the animation:
+
+       .is-out     leaving word: opacity 0 + translateY(-.4em)
+                   (animated via the default transition)
+       .is-pre-in  incoming word: opacity 0 + translateY(+.4em),
+                   with transition:none so the snap from .is-out
+                   to .is-pre-in is INSTANT — both states are
+                   invisible so the user never sees the jump.
+                   Removing .is-pre-in triggers the default
+                   transition back to neutral, producing a fade
+                   + rise FROM BELOW.
+
+     400ms fade durations — long enough to read as a deliberate
+     fade, short enough not to feel sluggish. */
   .dz-loop{
     color:var(--accent);
     display:inline-block;
-    /* Reserve width so the H2 doesn't jitter horizontally on swap.
-       Widest word is "compressed" at ~10ch; min-width covers the loop. */
+    /* Reserve width — widest word "compressed" is ~10ch. */
     min-width:10ch;text-align:left;
-    /* The default (no class) state — visible, neutral. */
-    transition:opacity .25s ease, transform .35s cubic-bezier(.22,1,.36,1);
+    transition:opacity .4s ease, transform .45s cubic-bezier(.22,1,.36,1);
   }
   .dz-loop.is-out{
     opacity:0;
-    transform:translateY(-.3em);
+    transform:translateY(-.4em);
   }
-  @keyframes dzLoopIn{
-    from{opacity:0;transform:translateY(.3em);}
-    to  {opacity:1;transform:translateY(0);}
+  .dz-loop.is-pre-in{
+    /* Instant snap; the .is-pre-in class removal triggers the
+       transition back to neutral (visible fade + rise). */
+    opacity:0;
+    transform:translateY(.4em);
+    transition:none;
   }
-  .dz-loop.entering{
-    animation:dzLoopIn .35s cubic-bezier(.22,1,.36,1) both;
-  }
-  /* Reduced motion: still ROTATE (the JS unconditionally swaps text),
-     just skip the transition + animation so the swap is instant. */
+  /* Reduced motion: still rotates (JS unconditionally swaps text),
+     just skips the transition so the swap is instant. */
   @media (prefers-reduced-motion: reduce){
-    .dz-loop{transition:none;}
-    .dz-loop.entering{animation:none;}
+    .dz-loop, .dz-loop.is-out, .dz-loop.is-pre-in{transition:none;}
   }
 
   /* ===== WORKSPACE FORMAT DROPDOWN ======================================
@@ -3955,36 +3958,39 @@ if (!window._navMenuOutsideClick) {
     setOutFormat(btn.dataset.outFmt);
   });
 
-  /* 3. Headline verb rotation — opacity + transform. Order ranked by
-     impact: compressed first (most common use case), ready last + 2x
-     dwell so the brand word lingers. Runs unconditionally — under
-     prefers-reduced-motion the CSS drops the transition so the swap
-     is instant, but the text still rotates. */
+  /* 3. Headline verb rotation — instant-snap + transition pattern.
+     Order ranked by impact: compressed first (most common use case),
+     ready last with 2x dwell so the brand word lingers. Rotates
+     unconditionally — reduced-motion users get instant swap. */
   const loopWords = ['compressed', 'converted', 'resized', 'optimized', 'ready'];
-  /* Per-word dwell — how long each word stays visible before swapping. */
+  /* Per-word dwell — visible time before the next swap. */
   const dwell = [1600, 1600, 1600, 1600, 3200];
-  /* Fade-out duration — must match the .25s opacity transition in CSS. */
-  const FADE_OUT_MS = 250;
+  /* Fade duration — must match CSS .4s opacity transition. */
+  const FADE_MS = 400;
   const loopEl = document.getElementById('dzLoop');
   if (loopEl) {
     let lIdx = 0;
     function tick(){
-      /* Phase 1: fade current word out (+up). */
+      /* Phase 1: fade current word OUT and up. */
       loopEl.classList.add('is-out');
       setTimeout(() => {
-        /* Phase 2: swap text + run the incoming keyframe animation. */
+        /* Phase 2: text swap happens while opacity=0 so it's invisible.
+           Snap to "below + invisible" state with transition disabled. */
         lIdx = (lIdx + 1) % loopWords.length;
         loopEl.textContent = loopWords[lIdx];
         loopEl.classList.remove('is-out');
-        loopEl.classList.add('entering');
-        /* Phase 3: clean up the entering class after its animation
-           settles. Slightly longer than the .35s keyframe so we don't
-           clip the final frame. */
-        setTimeout(() => loopEl.classList.remove('entering'), 380);
-        /* Schedule next tick based on the new (now-current) word's
-           dwell — "ready" lingers 3.2s; others 1.6s. */
+        loopEl.classList.add('is-pre-in');
+        /* Force reflow so the .is-pre-in styles commit before we
+           remove the class. Without this, the browser may batch the
+           add+remove and skip the transition entirely. */
+        void loopEl.offsetHeight;
+        /* Phase 3: remove .is-pre-in. The default transition takes
+           over, animating opacity 0->1 and translateY +.4em -> 0
+           (rise from below + fade in). */
+        loopEl.classList.remove('is-pre-in');
+        /* Schedule next tick based on the new current word's dwell. */
         setTimeout(tick, dwell[lIdx]);
-      }, FADE_OUT_MS);
+      }, FADE_MS);
     }
     /* First tick after the initial word's dwell. */
     setTimeout(tick, dwell[0]);
