@@ -1333,6 +1333,16 @@
     border-color:var(--accent);
     color:#fff;
   }
+  .dz-format-hint{
+    margin:8px 0 0;
+    font-size:.72rem;
+    color:var(--muted-strong,var(--muted));
+    text-align:center;
+    line-height:1.4;
+  }
+  .dz-format-hint strong{
+    color:var(--accent);font-weight:700;
+  }
   /* Microcopy inside the dropzone — closing line of the card. */
   .dz-microcopy{
     font-size:.74rem;color:var(--muted);
@@ -1793,6 +1803,9 @@
       <button type="button" data-out-fmt="gif">GIF</button>
       <button type="button" data-out-fmt="ico">ICO</button>
     </div>
+    <!-- Multi-output discovery hint — feature lives in the workspace
+         Settings drawer but pre-drop users have no way of knowing. -->
+    <p class="dz-format-hint">Want multiple formats at once? Toggle <strong>Multi</strong> after dropping.</p>
   </div>
 
 
