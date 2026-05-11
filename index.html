@@ -710,7 +710,12 @@
     height:46px;
     border-left:1px solid transparent;
     padding:0;
-    background:#1a1a1a;
+    /* No own background — inherits menu-card's #1a1a1a transparently
+       so the toolbar paints from a single composite layer. Previously
+       declaring background:#1a1a1a here put the drawer on its own
+       compositor layer (via clip-path) and rendered a few RGB units
+       darker than its non-composited siblings on Chromium/Brave. */
+    background:transparent;
     /* Visual reveal via clip-path: starts fully clipped from the right,
        animates open to fully visible. */
     clip-path:inset(0 100% 0 0);
@@ -1485,7 +1490,7 @@
       max-width:none;width:100%;
       height:auto;
       max-height:0;overflow:hidden;
-      background:#1a1a1a;
+      background:transparent;
       border:none;border-bottom:1px solid transparent;
       border-radius:0;
       /* Mobile drawer: clip-path reveal from bottom-clipped to fully
