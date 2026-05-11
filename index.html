@@ -169,6 +169,39 @@
   body[data-state="empty"] .beta-empty{display:block;}
   body[data-state="empty"] .stage{display:none;}
   body[data-state="empty"] .brand-bar{position:sticky;top:0;background:var(--bg);}
+
+  /* ===== LEGACY TOP-NAV (empty state only) ============================
+     The minimal .brand-bar is fine for transient appearances but the
+     empty state is where users decide whether to stay. Bring back the
+     full nav from the production homepage: brand + menu links + mobile
+     hamburger. /app.css already provides nav styling (.topnav, .nav-link,
+     .nav-hamburger, .nav-links dropdown); we just gate it by state.
+
+     Order of overrides matters: this <style> block runs AFTER
+     <link rel="stylesheet" href="/app.css">, so equal-specificity rules
+     here win. */
+  .legacy-nav{display:none;}
+  body[data-state="empty"] .legacy-nav{
+    display:flex;
+    padding:18px 24px;
+    margin-bottom:0;
+  }
+  /* Skip the minimal .brand-bar on empty state — legacy-nav has its
+     own brand. Workspace states (solo/multi) already hide .brand-bar
+     via the existing rule lower in this stylesheet, so we don't need
+     to touch them. */
+  body[data-state="empty"] .brand-bar{display:none;}
+  /* BIG brand per user request — production /app.css sets the desktop
+     brand to 22px, which reads as a footer line item more than an
+     identity. Bump it for the empty state so the logo carries weight. */
+  body[data-state="empty"] .legacy-nav .brand{
+    font-size:34px;letter-spacing:-1.2px;line-height:1;
+  }
+  /* Mobile already has /app.css's 42px override for .topnav .brand
+     under @media(max-width:760px), so we don't add a duplicate here. */
+  @media(max-width:480px){
+    body[data-state="empty"] .legacy-nav{padding:14px 14px;}
+  }
   body[data-state="solo"] .beta-empty,
   body[data-state="multi"] .beta-empty{display:none;}
   /* Beta does NOT override .dropzone / .dz-icon / .dz-title / .dz-sub / .dz-trust —
@@ -1614,6 +1647,39 @@
   <a href="/" class="brand">img<span class="g">ready</span></a>
   <div class="brand-spacer"></div>
 </div>
+
+<!-- Legacy top-nav — restored on empty state per user request.
+     /app.css already styles .topnav / .nav-links / .nav-hamburger
+     (desktop horizontal row, mobile collapsing dropdown) so we just
+     need the markup; the .legacy-nav class is the scoping hook that
+     keeps the nav hidden once the user enters the workspace (solo /
+     multi), where .top-chrome takes over instead. -->
+<nav class="topnav legacy-nav" aria-label="Primary">
+  <a class="brand" href="/">img<span>ready</span></a>
+  <button class="nav-hamburger" id="navHamburger" type="button"
+          onclick="toggleNavMenu()" aria-expanded="false"
+          aria-controls="navMenu" aria-label="Toggle navigation menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="4" y1="7" x2="20" y2="7"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="17" x2="20" y2="17"/>
+    </svg>
+  </button>
+  <div class="nav-links" id="navMenu">
+    <span class="nav-sep" aria-hidden="true">|</span>
+    <a class="nav-link" href="/compress/">Compress</a>
+    <a class="nav-link" href="/heic-to-jpg/">HEIC</a>
+    <a class="nav-link" href="/resize/">Resize</a>
+    <a class="nav-link" href="/webp-converter/">Convert</a>
+    <a class="nav-link" href="/why/">Why</a>
+    <a class="nav-link" href="/developers/">Developers</a>
+    <span class="nav-grow">
+      <a class="nav-link" href="/about/">About</a>
+      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+    </span>
+  </div>
+</nav>
 
 <header class="top-chrome" aria-label="Workspace info">
   <div class="tc-section tc-before">
@@ -3668,6 +3734,29 @@ window.openCmpSettings = window.openCmpSettings || function(){
    4. Workspace format dropdown wires trigger / menu / mutex.
 */
 window.PREFS = window.PREFS || { outFormat: 'auto' };
+
+/* Hamburger toggle for the legacy top-nav (mobile only — /app.css
+   keeps the menu inline on desktop via display:contents). Closes on
+   outside-click. Bound once globally. */
+window.toggleNavMenu = function(){
+  const menu = document.getElementById('navMenu');
+  const btn  = document.getElementById('navHamburger');
+  if (!menu || !btn) return;
+  const open = menu.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+};
+if (!window._navMenuOutsideClick) {
+  window._navMenuOutsideClick = true;
+  document.addEventListener('click', e => {
+    const menu = document.getElementById('navMenu');
+    const btn  = document.getElementById('navHamburger');
+    if (!menu || !btn || !menu.classList.contains('open')) return;
+    if (e.target === btn || btn.contains(e.target)) return;
+    if (menu.contains(e.target)) return;
+    menu.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  });
+}
 (function initOutputPreselect(){
   function setOutFormat(fmt, opts){
     if (!fmt) return;
