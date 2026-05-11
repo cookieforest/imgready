@@ -1363,44 +1363,33 @@
     font-size:1.6rem;font-weight:700;letter-spacing:-.3px;
     line-height:1.2;
   }
-  /* Headline verb rotation — instant-snap + transition pattern.
-     Default state is visible / neutral (no class). Two transient
-     classes drive the animation:
+  /* Headline verb rotation — single-class toggle.
+     Neutral (no class): opacity 1, translateY(0) — fully visible.
+     .is-fading: opacity 0, translateY(-.3em) — invisible + up.
 
-       .is-out     leaving word: opacity 0 + translateY(-.4em)
-                   (animated via the default transition)
-       .is-pre-in  incoming word: opacity 0 + translateY(+.4em),
-                   with transition:none so the snap from .is-out
-                   to .is-pre-in is INSTANT — both states are
-                   invisible so the user never sees the jump.
-                   Removing .is-pre-in triggers the default
-                   transition back to neutral, producing a fade
-                   + rise FROM BELOW.
+     JS adds .is-fading (word fades + slides UP to leave),
+     swaps textContent while opacity is 0 (invisible swap),
+     removes .is-fading (word transitions BACK to neutral —
+     fades + slides DOWN to arrive).
 
-     400ms fade durations — long enough to read as a deliberate
-     fade, short enough not to feel sluggish. */
+     One transition, two phases, no race with browser batching.
+     500ms duration so the fade is clearly perceptible. */
   .dz-loop{
     color:var(--accent);
     display:inline-block;
-    /* Reserve width — widest word "compressed" is ~10ch. */
     min-width:10ch;text-align:left;
-    transition:opacity .4s ease, transform .45s cubic-bezier(.22,1,.36,1);
+    transition:opacity .5s ease, transform .5s cubic-bezier(.22,1,.36,1);
+    opacity:1;
+    transform:translateY(0);
   }
-  .dz-loop.is-out{
+  .dz-loop.is-fading{
     opacity:0;
-    transform:translateY(-.4em);
+    transform:translateY(-.3em);
   }
-  .dz-loop.is-pre-in{
-    /* Instant snap; the .is-pre-in class removal triggers the
-       transition back to neutral (visible fade + rise). */
-    opacity:0;
-    transform:translateY(.4em);
-    transition:none;
-  }
-  /* Reduced motion: still rotates (JS unconditionally swaps text),
-     just skips the transition so the swap is instant. */
+  /* Reduced motion: rotation still runs (JS swaps text), just no
+     visible transition — the swap is instant. */
   @media (prefers-reduced-motion: reduce){
-    .dz-loop, .dz-loop.is-out, .dz-loop.is-pre-in{transition:none;}
+    .dz-loop{transition:none;}
   }
 
   /* ===== WORKSPACE FORMAT DROPDOWN ======================================
@@ -3958,38 +3947,30 @@ if (!window._navMenuOutsideClick) {
     setOutFormat(btn.dataset.outFmt);
   });
 
-  /* 3. Headline verb rotation — instant-snap + transition pattern.
-     Order ranked by impact: compressed first (most common use case),
-     ready last with 2x dwell so the brand word lingers. Rotates
-     unconditionally — reduced-motion users get instant swap. */
+  /* 3. Headline verb rotation — single-class toggle.
+     Phase 1: add .is-fading → fade out + slide up (transition)
+     Phase 2 (after fade): swap textContent (invisible because opacity 0)
+     Phase 3: remove .is-fading → transition back to neutral (fade in + slide down)
+
+     Reliable across browsers because there's only one transition
+     direction and no intermediate "instant-snap" frame to fight the
+     style-batching collapse. */
   const loopWords = ['compressed', 'converted', 'resized', 'optimized', 'ready'];
   /* Per-word dwell — visible time before the next swap. */
   const dwell = [1600, 1600, 1600, 1600, 3200];
-  /* Fade duration — must match CSS .4s opacity transition. */
-  const FADE_MS = 400;
+  /* Fade duration — must match the CSS .5s opacity transition. */
+  const FADE_MS = 500;
   const loopEl = document.getElementById('dzLoop');
   if (loopEl) {
     let lIdx = 0;
     function tick(){
-      /* Phase 1: fade current word OUT and up. */
-      loopEl.classList.add('is-out');
+      loopEl.classList.add('is-fading');
       setTimeout(() => {
-        /* Phase 2: text swap happens while opacity=0 so it's invisible.
-           Snap to "below + invisible" state with transition disabled. */
         lIdx = (lIdx + 1) % loopWords.length;
         loopEl.textContent = loopWords[lIdx];
-        loopEl.classList.remove('is-out');
-        loopEl.classList.add('is-pre-in');
-        /* Force reflow so the .is-pre-in styles commit before we
-           remove the class. Without this, the browser may batch the
-           add+remove and skip the transition entirely. */
-        void loopEl.offsetHeight;
-        /* Phase 3: remove .is-pre-in. The default transition takes
-           over, animating opacity 0->1 and translateY +.4em -> 0
-           (rise from below + fade in). */
-        loopEl.classList.remove('is-pre-in');
-        /* Schedule next tick based on the new current word's dwell. */
-        setTimeout(tick, dwell[lIdx]);
+        loopEl.classList.remove('is-fading');
+        /* Schedule next tick = fade-in time + dwell for the new word. */
+        setTimeout(tick, FADE_MS + dwell[lIdx]);
       }, FADE_MS);
     }
     /* First tick after the initial word's dwell. */
