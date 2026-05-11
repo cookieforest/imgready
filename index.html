@@ -1813,9 +1813,6 @@
       <button type="button" data-out-fmt="gif">GIF</button>
       <button type="button" data-out-fmt="ico">ICO</button>
     </div>
-    <!-- Multi-output discovery hint — feature lives in the workspace
-         Settings drawer but pre-drop users have no way of knowing. -->
-    <p class="dz-format-hint">Want multiple formats at once? Toggle <strong>Multi</strong> after dropping.</p>
   </div>
 
 
@@ -3958,7 +3955,7 @@ window.openCmpSettings = window.openCmpSettings || function(){
    3. Microcopy rotates between 3 use-case lines under the dropzone.
    4. Workspace format dropdown wires trigger / menu / mutex.
 */
-window.PREFS = window.PREFS || { outFormat: 'auto' };
+window.PREFS = window.PREFS || { outFormat: 'auto', outFormats: ['auto'] };
 
 /* Hamburger toggle for the legacy top-nav (mobile only — /app.css
    keeps the menu inline on desktop via display:contents). Closes on
@@ -3983,49 +3980,99 @@ if (!window._navMenuOutsideClick) {
   });
 }
 (function initOutputPreselect(){
-  function setOutFormat(fmt, opts){
-    if (!fmt) return;
-    window.PREFS.outFormat = fmt;
-    /* Sync empty-state pills */
+  /* Normalize: 'auto' is mutex with all other formats. At least one
+     format must always be active. */
+  function normalize(formats){
+    if (!Array.isArray(formats)) formats = [formats];
+    formats = formats.filter(Boolean);
+    if (!formats.length) return ['auto'];
+    if (formats.includes('auto')) return ['auto'];
+    /* Dedupe while preserving order */
+    const seen = new Set();
+    return formats.filter(f => seen.has(f) ? false : seen.add(f));
+  }
+  /* Sync MULTI_OUT state + workspace UI to match the formats array. */
+  function syncMultiState(formats){
+    const multi = formats.length > 1;
+    if (typeof MULTI_OUT !== 'undefined') MULTI_OUT.enabled = multi;
+    document.body.dataset.multiout = multi ? 'on' : 'off';
+    const cb = document.getElementById('multiOutToggle');
+    if (cb) cb.checked = multi;
+  }
+  /* setOutFormats — array-based source of truth. */
+  function setOutFormats(formats, opts){
+    formats = normalize(formats);
+    window.PREFS.outFormats = formats;
+    window.PREFS.outFormat = formats[0]; /* back-compat */
+    /* Sync empty-state pills (multi-active possible) */
     document.querySelectorAll('#dzPills button').forEach(b => {
-      b.classList.toggle('active', b.dataset.outFmt === fmt);
+      b.classList.toggle('active', formats.includes(b.dataset.outFmt));
     });
-    /* Sync workspace dropdown — flip active class on the menu buttons,
-       update label, and update the data-format-current attribute. */
+    /* Sync workspace dropdown menu items */
     const wpills = document.querySelectorAll('#formatPills button[data-fmt]');
-    wpills.forEach(b => b.classList.toggle('active', b.dataset.fmt === fmt));
+    wpills.forEach(b => b.classList.toggle('active', formats.includes(b.dataset.fmt)));
+    /* Workspace trigger: single format -> show that label;
+       multi -> show 'Multi' badge with count */
     const dd = document.querySelector('.format-dropdown');
-    if (dd) dd.dataset.formatCurrent = fmt;
+    if (dd) dd.dataset.formatCurrent = formats.length === 1 ? formats[0] : 'multi';
     const label = document.querySelector('.format-current-label');
     if (label) {
-      const matched = [...wpills].find(b => b.dataset.fmt === fmt);
-      label.textContent = matched ? matched.textContent : fmt.toUpperCase();
+      if (formats.length === 1) {
+        const matched = [...wpills].find(b => b.dataset.fmt === formats[0]);
+        label.textContent = matched ? matched.textContent : formats[0].toUpperCase();
+      } else {
+        label.textContent = 'Multi (' + formats.length + ')';
+      }
     }
-    /* Trigger any existing re-encode hooks if a file is loaded */
+    syncMultiState(formats);
     if (!opts || !opts.silent) {
       if (typeof invalidateEncoded === 'function') invalidateEncoded();
     }
-    /* Refresh quality dropdown's lossless-support state when format changes */
     if (typeof window._setQualityFormatSupport === 'function') {
       window._setQualityFormatSupport();
     }
   }
+  /* Single-format wrapper for back-compat */
+  function setOutFormat(fmt, opts){ setOutFormats([fmt], opts); }
   window._setOutFormat = setOutFormat;
+  window._setOutFormats = setOutFormats;
 
-  /* 1. Query string parse */
+  /* 1. Query string parse — comma-separated for multi: ?out=webp,avif */
+  const VALID = ['auto','webp','avif','jpg','png','gif','ico'];
   const qs = new URLSearchParams(location.search);
   const qsOut = qs.get('out');
-  if (qsOut && ['auto','webp','avif','jpg','jpeg','png','gif','ico'].includes(qsOut.toLowerCase())) {
-    setOutFormat(qsOut.toLowerCase() === 'jpeg' ? 'jpg' : qsOut.toLowerCase(), { silent: true });
+  if (qsOut) {
+    const fmts = qsOut.toLowerCase().split(',')
+      .map(f => f === 'jpeg' ? 'jpg' : f)
+      .filter(f => VALID.includes(f));
+    if (fmts.length) setOutFormats(fmts, { silent: true });
   }
 
-  /* 2. Empty-state pill clicks */
+  /* 2. Empty-state pill clicks — toggle behavior:
+     - Click 'auto' (Original): replace whole selection with ['auto']
+     - Click any other:
+        - if 'auto' was active: replace with [clicked]
+        - if clicked was already active: remove (but keep >=1)
+        - if clicked wasn't active: add to selection */
   document.addEventListener('click', e => {
     const btn = e.target.closest && e.target.closest('#dzPills button[data-out-fmt]');
     if (!btn) return;
     e.preventDefault();
     e.stopPropagation();
-    setOutFormat(btn.dataset.outFmt);
+    const clicked = btn.dataset.outFmt;
+    const current = (window.PREFS.outFormats || ['auto']).slice();
+    let next;
+    if (clicked === 'auto') {
+      next = ['auto'];
+    } else if (current.includes('auto')) {
+      next = [clicked];
+    } else if (current.includes(clicked)) {
+      next = current.filter(f => f !== clicked);
+      if (!next.length) next = current; /* can't deselect the last */
+    } else {
+      next = [...current, clicked];
+    }
+    setOutFormats(next);
   });
 
   /* 3. Headline verb rotation — Bionic Julia pattern verbatim
