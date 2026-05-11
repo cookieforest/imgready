@@ -1334,26 +1334,48 @@
     border-color:var(--accent);
     color:#fff;
   }
-  /* Static microcopy under the dropzone */
+  /* Microcopy inside the dropzone — closing line of the card. */
   .dz-microcopy{
     font-size:.74rem;color:var(--muted);
     text-align:center;
-    margin-top:12px;
+    margin-top:6px;
     min-height:1em;
   }
-  /* Headline verb rotation — the looping last word in
-     "Get your image [ready]". Accent color so it reads as the live
-     element; fade transition handled in JS for cycle smoothness. */
+  /* Headline verb rotation — vertical mask + slide-up.
+     A fixed-height window with overflow:hidden shows exactly one word;
+     a translated track underneath holds every word stacked one-per-line.
+     JS bumps translateY by -100% per tick to advance, with a snap-back
+     trick at the wrap (duplicate of word 0 at the end so the slide
+     direction is always consistent). */
   .dz-loop{
     color:var(--accent);
     display:inline-block;
-    opacity:1;
-    transition:opacity .22s ease;
-    /* Reserve enough width to avoid horizontal jitter on word swap. */
-    min-width:6.5ch;text-align:left;
+    overflow:hidden;
+    vertical-align:bottom;
+    /* Height MUST match a single line of the H2 so only one word peeks
+       through the mask. Matches the H2's line-height (1.15). */
+    height:1.15em;
+    line-height:1.15em;
+    /* Reserve width so the H2 doesn't jitter horizontally on swap. */
+    min-width:8ch;text-align:left;
+    position:relative;vertical-align:bottom;
+  }
+  .dz-loop-track{
+    display:flex;flex-direction:column;
+    transition:transform .55s cubic-bezier(.22,1,.36,1);
+    will-change:transform;
+  }
+  /* When the track wraps to index 0, we snap back without a visible
+     reverse-scroll. JS toggles .no-tx for one frame around the snap. */
+  .dz-loop-track.no-tx{transition:none;}
+  .dz-loop-track > span{
+    display:block;
+    line-height:1.15em;
+    height:1.15em;
+    white-space:nowrap;
   }
   @media (prefers-reduced-motion: reduce){
-    .dz-loop{transition:none;}
+    .dz-loop-track{transition:none;}
   }
 
   /* ===== WORKSPACE FORMAT DROPDOWN ======================================
@@ -1693,8 +1715,21 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
     <h2>
-      Get your image <span class="dz-loop" id="dzLoop" aria-hidden="true">ready</span>
-      <span class="sr-only">Get your image ready, compressed, converted, resized, or optimized.</span>
+      Get your image
+      <span class="dz-loop" aria-hidden="true">
+        <span class="dz-loop-track" id="dzLoopTrack">
+          <span>compressed</span>
+          <span>converted</span>
+          <span>resized</span>
+          <span>optimized</span>
+          <span>ready</span>
+          <!-- Duplicate of the first word: lets the track translate one
+               full step past the last real word for a smooth slide, then
+               we snap back to index 0 with transitions disabled. -->
+          <span>compressed</span>
+        </span>
+      </span>
+      <span class="sr-only">Get your image compressed, converted, resized, optimized, or ready.</span>
     </h2>
     <p>Drop or click to browse &mdash; JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
@@ -1708,6 +1743,10 @@
       <span>Stays on your device — never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
+    <!-- USP triplet inside the dropzone (no longer orphaned below).
+         Three short punches: payment, accounts, limits. Doesn't repeat
+         the trust line's privacy claim — that's its own beat. -->
+    <div class="dz-microcopy" id="dzMicrocopy">Free. No accounts. No limits.</div>
   </div>
   <!-- Output pre-selector — users with conversion intent pick before
        dropping. Placed OUTSIDE .dropzone because the dropzone has a
@@ -1726,9 +1765,7 @@
       <button type="button" data-out-fmt="ico">ICO</button>
     </div>
   </div>
-  <!-- Static microcopy: short, punchy USP triplet that doesn't repeat
-       the trust line inside the dropzone. -->
-  <div class="dz-microcopy" id="dzMicrocopy">Free. No uploads. No limits.</div>
+
 
     <header class="hero-below">
     <h1 class="brand-h1">
@@ -3910,33 +3947,49 @@ if (!window._navMenuOutsideClick) {
     setOutFormat(btn.dataset.outFmt);
   });
 
-  /* 3. Headline verb rotation — cycles the last word in
-     "Get your image [ready]" to reveal capability breadth without a
-     feature wall. "ready" is the brand anchor and the first word; the
-     loop then sells the verbs. Skipped entirely under reduced-motion. */
-  const loopWords = ['ready', 'compressed', 'converted', 'resized', 'optimized'];
-  let lIdx = 0;
-  const loopEl = document.getElementById('dzLoop');
+  /* 3. Headline verb rotation — vertical slide-up. Order ranked by
+     impact: compressed first (most common use case), ready last + 2x
+     dwell so the brand word lingers. Snap-back via .no-tx when the
+     wrap-duplicate at index N is hit, so the loop reads forward-only.
+     Skipped under prefers-reduced-motion. */
+  const loopWords = ['compressed', 'converted', 'resized', 'optimized', 'ready'];
+  /* Per-word dwell — how long each word stays visible before sliding. */
+  const dwell = [1600, 1600, 1600, 1600, 3200];
+  const SLIDE_MS = 550;
+  const track = document.getElementById('dzLoopTrack');
   const prefersReducedMotion = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (loopEl && !prefersReducedMotion) {
-    /* Pause while the dropzone is being interacted with — a moving word
-       next to a drop target is mildly distracting. */
+  if (track && !prefersReducedMotion) {
+    let lIdx = 0;
     let paused = false;
     const dz = document.getElementById('dropzone');
     if (dz) {
+      /* Pause rotation while user is actively interacting with the
+         dropzone — motion next to a drop target is distracting. */
       dz.addEventListener('mouseenter', () => { paused = true; });
       dz.addEventListener('mouseleave', () => { paused = false; });
     }
-    setInterval(() => {
-      if (paused) return;
-      lIdx = (lIdx + 1) % loopWords.length;
-      loopEl.style.opacity = '0';
+    function tick(){
+      if (paused) { setTimeout(tick, 400); return; }
+      lIdx += 1;
+      track.style.transform = 'translateY(' + (-lIdx * 100) + '%)';
       setTimeout(() => {
-        loopEl.textContent = loopWords[lIdx];
-        loopEl.style.opacity = '1';
-      }, 220);
-    }, 2400);
+        if (lIdx === loopWords.length) {
+          /* We landed on the wrap-duplicate (visually identical to word
+             0). Snap the track back to translateY(0) without animation
+             so the user never sees the reverse-scroll. */
+          track.classList.add('no-tx');
+          lIdx = 0;
+          track.style.transform = 'translateY(0%)';
+          /* Force reflow so the no-tx state is committed BEFORE we
+             re-enable transitions for the next tick. */
+          void track.offsetHeight;
+          track.classList.remove('no-tx');
+        }
+        setTimeout(tick, dwell[lIdx]);
+      }, SLIDE_MS);
+    }
+    setTimeout(tick, dwell[0]);
   }
 
   /* 4. Workspace format dropdown — open/close + click options.
