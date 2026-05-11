@@ -1486,10 +1486,13 @@
     flex:none;min-width:24px;text-align:right;
     color:#fff;font-weight:700;font-size:.72rem;
   }
-  /* When the current format doesn't support lossless (jpg/ico), grey
-     out the option. aria-disabled toggled by setQualityFormatSupport. */
+  /* When the current format can't honor lossless (jpg/ico), HIDE the
+     preset entirely. The audit found that grey-disabled options add
+     visual noise + require explanation. aria-disabled is still set so
+     JS click handlers continue to bail correctly even if the button
+     somehow becomes visible (e.g. dev tooling). */
   .quality-menu button[data-quality-preset="lossless"][aria-disabled="true"]{
-    opacity:.4;cursor:not-allowed;
+    display:none;
   }
 
   /* ---------- mobile ---------- */
@@ -1964,10 +1967,6 @@
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
           <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
-          <!-- Solo state is currently unused — kept for backward-compat. -->
-          <div class="resize-mode-toggle" hidden>
-            <button type="button" class="rmt-btn active" data-mode="dim">Pixels</button>
-          </div>
           <div class="resize-presets resize-dropdown" data-resize-current="0">
             <button type="button" class="resize-presets-trigger">
               <span class="resize-current-label">None</span>
@@ -2113,10 +2112,6 @@
           <div class="bb-row-group">
           <div class="bb-section">
             <span class="bb-section-label">Resize</span>
-            <!-- Stub kept for any JS that reads .rmt-btn.active — pixel-only mode. -->
-            <div class="resize-mode-toggle" hidden>
-              <button type="button" class="rmt-btn active" data-mode="dim">Pixels</button>
-            </div>
             <!-- Single dropdown: trigger shows current value, menu opens upward
                  with preset rows + an inline Custom input row at the bottom.
                  Default "None" = no resize (full original dimensions). -->
