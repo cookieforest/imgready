@@ -1384,6 +1384,15 @@
     clip:rect(0,0,0,0);
     white-space:nowrap;border:0;
   }
+  /* Capabilities line — secondary subtitle showing supported formats
+     + batch limit so first-time users see this without digging into
+     the FAQ. Slightly smaller and muted vs the primary subtitle. */
+  body[data-state="empty"] .dropzone .dz-capabilities{
+    margin-top:4px;
+    font-size:.78rem;
+    color:var(--muted-strong,var(--muted));
+    opacity:.85;
+  }
   /* H2 size/weight bump for the empty state. /app.css defaults to
      1.25rem / weight 600 / -.2px, which reads thin as the primary hook.
      Line-height stays at the normal 1.2 — the .dz-loop is now a plain
@@ -1771,7 +1780,8 @@
       Your image, <span class="dz-loop is-in" id="dzLoop" aria-hidden="true">compressed.</span>
       <span class="sr-only">Your image, compressed, converted, resized, optimized, or ready.</span>
     </h2>
-    <p>Drop, click, or paste &mdash; JPG, PNG, HEIC, WebP, AVIF and more</p>
+    <p>Drop, click, paste &mdash; or drop a folder.</p>
+    <p class="dz-capabilities">JPG, PNG, HEIC, WebP, AVIF and more &middot; up to 200 files at a time</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
