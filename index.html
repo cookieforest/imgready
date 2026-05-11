@@ -1287,12 +1287,17 @@
      Users with conversion intent (e.g. "I want to convert HEIC to JPG")
      can pre-select their output format BEFORE dropping files. Selection
      persists into the workspace via window.PREFS.outFormat. */
+  /* Empty-state output pre-selector — sits OUTSIDE the dropzone (so
+     clicks don't bubble into the file picker) and styled for the cream
+     empty-state surface. Explicit colors instead of var(--card-bg)
+     because --card-bg is the dark liquid-glass color (the workspace
+     surface), not the empty-state surface. */
   .dz-format-pre{
     display:flex;flex-direction:column;align-items:center;
-    gap:8px;margin-top:18px;
-    padding-top:18px;
-    border-top:1px solid rgba(0,0,0,.06);
-    width:100%;
+    gap:10px;margin:18px auto 0;
+    padding:16px 18px 18px;
+    width:100%;max-width:560px;
+    box-sizing:border-box;
   }
   .dz-format-label{
     font-size:.62rem;font-weight:700;letter-spacing:.1em;
@@ -1303,8 +1308,8 @@
   }
   .dz-format-pre .dz-pills button{
     height:30px;padding:0 14px;
-    border:1px solid rgba(0,0,0,.12);
-    background:var(--card-bg,#fff);
+    border:1px solid rgba(0,0,0,.14);
+    background:#fff;
     color:var(--text);
     font:inherit;font-size:.74rem;font-weight:600;
     border-radius:6px;cursor:pointer;
@@ -1619,20 +1624,22 @@
       <span>Stays on your device — never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
-    <!-- Output pre-selector — users with conversion intent pick before
-         dropping. Selection persists via window.PREFS.outFormat into
-         the workspace's format dropdown. Auto = smart compression. -->
-    <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
-      <div class="dz-format-label">Output format</div>
-      <div class="dz-pills" id="dzPills">
-        <button type="button" class="active" data-out-fmt="auto">Auto</button>
-        <button type="button" data-out-fmt="webp">WebP</button>
-        <button type="button" data-out-fmt="avif">AVIF</button>
-        <button type="button" data-out-fmt="jpg">JPG</button>
-        <button type="button" data-out-fmt="png">PNG</button>
-        <button type="button" data-out-fmt="gif">GIF</button>
-        <button type="button" data-out-fmt="ico">ICO</button>
-      </div>
+  </div>
+  <!-- Output pre-selector — users with conversion intent pick before
+       dropping. Placed OUTSIDE .dropzone because the dropzone has a
+       click-to-open-file-picker handler that would otherwise hijack
+       every pill click. Selection persists via window.PREFS.outFormat
+       into the workspace's format dropdown. -->
+  <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
+    <div class="dz-format-label">Output format</div>
+    <div class="dz-pills" id="dzPills">
+      <button type="button" class="active" data-out-fmt="auto">Auto</button>
+      <button type="button" data-out-fmt="webp">WebP</button>
+      <button type="button" data-out-fmt="avif">AVIF</button>
+      <button type="button" data-out-fmt="jpg">JPG</button>
+      <button type="button" data-out-fmt="png">PNG</button>
+      <button type="button" data-out-fmt="gif">GIF</button>
+      <button type="button" data-out-fmt="ico">ICO</button>
     </div>
   </div>
   <!-- Rotating microcopy: surfaces use-case breadth without splitting the
@@ -3666,7 +3673,15 @@ window.PREFS = window.PREFS || { outFormat: 'auto' };
   }
   setInterval(rotateMicrocopy, 4500);
 
-  /* 4. Workspace format dropdown — open/close + click options */
+  /* 4. Workspace format dropdown — open/close + click options.
+     Critical: must portal the menu to document.body on open. The menu
+     lives inside .bb-drawer which has overflow:hidden for the slide
+     animation, and even position:fixed gets clipped because something
+     up the tree creates a containing block. Resize + crop dropdowns
+     both do this; the format dropdown was the only one that didn't. */
+  function portalFormatMenu(menu){
+    if (menu.parentNode !== document.body) document.body.appendChild(menu);
+  }
   function wireFormatDropdown(){
     const dd = document.querySelector('.format-dropdown');
     if (!dd || dd.dataset.fmtWired) return;
@@ -3681,14 +3696,17 @@ window.PREFS = window.PREFS || { outFormat: 'auto' };
       if (willOpen && typeof closeOtherPresetDropdowns === 'function') {
         closeOtherPresetDropdowns(dd);
       } else if (willOpen) {
-        /* Fallback: close other .resize-presets dropdowns */
         document.querySelectorAll('.resize-presets.open').forEach(p => {
           if (p !== dd) p.classList.remove('open');
+        });
+        document.querySelectorAll('.resize-presets-menu.open').forEach(m => {
+          if (m !== menu) m.classList.remove('open');
         });
       }
       dd.classList.toggle('open');
       menu.classList.toggle('open', willOpen);
       if (willOpen) {
+        portalFormatMenu(menu);
         const r = trig.getBoundingClientRect();
         const menuW = menu.offsetWidth || 120;
         const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
@@ -3697,6 +3715,8 @@ window.PREFS = window.PREFS || { outFormat: 'auto' };
         menu.style.top = 'auto';
       }
     });
+    /* Click-anywhere-to-close: menu is portalled so outside-click logic
+       must account for menu NOT being a descendant of dd. */
     menu.querySelectorAll('button[data-fmt]').forEach(b => {
       b.addEventListener('click', e => {
         e.stopPropagation();
