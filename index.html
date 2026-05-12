@@ -366,9 +366,13 @@
      menu bar so it doesn't cover the image. Only paints for genuinely
      slow re-encodes (>2s) via the deferCenterStatus gate. */
   .center-status{
-    position:absolute;left:50%;bottom:calc(var(--menu-h, 100px) + 78px);
+    /* Lift above the cover-flow strip (80px tall, starts at menu-h+42px)
+       so the loader never paints behind a thumb. 138px = 42 + 80 + 16
+       (cover-flow start + height + small gap). z-index 7 wins ties
+       against the cover-flow which is z-index 6. */
+    position:absolute;left:50%;bottom:calc(var(--menu-h, 100px) + 138px);
     transform:translateX(-50%);
-    z-index:6;display:inline-flex;align-items:center;gap:10px;
+    z-index:7;display:inline-flex;align-items:center;gap:10px;
     padding:9px 18px;border-radius:99px;
     background:rgba(0,0,0,.62);color:#fff;
     font-size:.8rem;font-weight:600;letter-spacing:.02em;
@@ -4251,23 +4255,16 @@ if (!window._navMenuOutsideClick) {
         }
       });
     });
-    /* Multi-toggle row inside the menu — flip the checkbox without
-       closing the dropdown. The existing #multiOutToggle change
-       handler in attachSettingsListeners updates MULTI_OUT.enabled +
-       body[data-multiout], so we just dispatch a change event. */
+    /* Multi-toggle row inside the menu — the row IS a <label>, so
+       clicking anywhere on it natively toggles the contained
+       checkbox (and fires the change event that
+       attachSettingsListeners listens on). All we need is to stop
+       propagation so the dropdown's outside-click handler doesn't
+       close the menu when the user toggles Multi. */
     const multiRow = menu.querySelector('[data-multi-row]');
     if (multiRow) {
-      const cb = multiRow.querySelector('input[type=checkbox]');
       multiRow.addEventListener('click', e => {
-        /* Clicks on the actual checkbox already toggle natively;
-           clicks elsewhere on the row need to toggle programmatically.
-           Native label-for would also work but we want full row
-           hit-target without relying on `for=`. */
-        if (e.target !== cb) {
-          cb.checked = !cb.checked;
-          cb.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        e.stopPropagation(); /* keep dropdown open */
+        e.stopPropagation();
       });
     }
   }
