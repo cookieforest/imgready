@@ -3746,8 +3746,11 @@ function piDelete(){
     return;
   }
   document.body.dataset.piActions = 'closed';
-  if (FILES.length === 1) document.body.dataset.state = 'solo';
-  else document.body.dataset.state = 'multi';
+  /* Always use multi state when files exist. The solo state's legacy
+     UI (pills + slider, no Multi toggle, no format/quality dropdowns)
+     was a parallel-implementation branch that lost user config on
+     state transition. Cover-flow handles a single thumb just fine. */
+  document.body.dataset.state = 'multi';
   /* wireZoom is idempotent (data-zoomWired guard) so calling on every drop is safe */
   if (typeof wireZoom === 'function') wireZoom();
   layoutCoverFlow();
