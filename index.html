@@ -477,6 +477,12 @@
        show. Otherwise it leaves a phantom gap on the right of the slider. */
   }
   .quality-row .qr-size:empty{display:none;}
+  /* Global empty-state hide for qr indicators outside .quality-row
+     (the bb-section level instances near the Quality dropdown trigger).
+     Without this they reserved horizontal width even when empty,
+     extending the Quality section beyond other sections. */
+  .qr-size:empty,
+  .qr-spinner:not([data-active]):empty{display:none;}
   .quality-row .qr-spinner{
     display:none;width:12px;height:12px;border-radius:50%;
     border:2px solid rgba(255,255,255,.18);border-top-color:var(--accent);
@@ -1543,6 +1549,12 @@
      Reuses .resize-presets / .resize-presets-menu base styles for the
      trigger and popover; only the slider row needs custom CSS. */
   .quality-dropdown{position:relative;}
+  /* Disabled state — applied when the current format(s) don't read
+     the quality value (PNG/GIF/ICO are lossless). data-quality-applicable
+     toggled by setQualityFormatSupport() at runtime. */
+  .quality-dropdown[data-quality-applicable="off"] .resize-presets-trigger{
+    opacity:.55;cursor:not-allowed;pointer-events:none;
+  }
   .quality-menu{min-width:160px;}
   .quality-menu button[data-quality-preset]{
     display:flex;justify-content:space-between;align-items:center;
@@ -4343,17 +4355,34 @@ if (!window._navMenuOutsideClick) {
     if (menu.parentNode !== document.body) document.body.appendChild(menu);
   }
   function setQualityFormatSupport(){
-    /* Lossless preset is only meaningful for formats that have a true
-       lossless path (PNG always, WebP/AVIF/GIF with appropriate encoder).
-       For JPG/ICO it falls back to max quality. We grey-out the button
-       in those cases so users know it's a no-op there. */
+    /* Two responsibilities:
+       a) Lossless preset visibility per current format (PNG always,
+          WebP/AVIF/GIF can be lossless; JPG/ICO cannot).
+       b) Whole-dropdown disable when NO active format reads quality
+          (i.e. every selected format is in {png, gif, ico}). Lets us
+          show users why a quality slider change doesn't affect output.
+       Quality-USING formats: jpg, webp, avif.
+       Quality-IGNORING: png (lossless), gif (palette), ico (PNG wrap). */
     const dd = document.querySelector('.quality-dropdown');
     if (!dd) return;
     const losslessBtn = dd.querySelector('button[data-quality-preset="lossless"]');
-    if (!losslessBtn) return;
-    const fmt = (window.PREFS && window.PREFS.outFormat) || 'auto';
-    const trueLossless = ['png','webp','avif','gif'].includes(fmt) || fmt === 'auto';
-    losslessBtn.setAttribute('aria-disabled', trueLossless ? 'false' : 'true');
+    const fmts = (window.PREFS && window.PREFS.outFormats) || ['webp'];
+    /* (a) lossless-button visibility — uses primary format only */
+    if (losslessBtn) {
+      const primary = fmts[0];
+      const trueLossless = ['png','webp','avif','gif'].includes(primary);
+      losslessBtn.setAttribute('aria-disabled', trueLossless ? 'false' : 'true');
+    }
+    /* (b) whole-dropdown disable when no selected format uses quality */
+    const QUALITY_USING = ['jpg', 'webp', 'avif'];
+    const anyUsesQuality = fmts.some(f => QUALITY_USING.includes(f));
+    dd.dataset.qualityApplicable = anyUsesQuality ? 'on' : 'off';
+    const trig = dd.querySelector('.resize-presets-trigger');
+    if (trig) {
+      trig.title = anyUsesQuality
+        ? ''
+        : 'Quality doesn\u2019t apply to this format (it\u2019s lossless)';
+    }
   }
   function setQuality(value, presetKey, opts){
     const dd = document.querySelector('.quality-dropdown');
