@@ -3418,14 +3418,17 @@ function attachHoverDelegation(){
   });
 }
 /* Persistent invisible hover zone around the active thumb.
-   The zone is the bounding rect of {thumb + 80px above + 8px slack}
-   regardless of whether icons are currently visible. So:
-     - Cursor enters the zone (over the thumb OR where icons WOULD be)
-       -> openPiActions() if closed, resetPiTimer() if already open
-     - Cursor leaves the zone -> 3s timer closes icons normally
-   After deletion the new active thumb's zone overlaps the cursor's
-   current position, so icons appear without re-hovering.
-   Touch devices use 2nd-tap not hover -> bail early. */
+   State machine on zone entry/exit:
+     - Cursor ENTERS zone:
+         * if pi-actions closed -> open them
+         * CLEAR piTimer so icons stay open indefinitely while in zone
+     - Cursor LEAVES zone:
+         * arm a 3s close timer via resetPiTimer()
+     - Cursor moves WITHIN zone: no-op (timer already cleared)
+     - Cursor moves OUTSIDE zone: no-op (timer already counting)
+   The freeze-while-inside semantics is important — without it,
+   stopping the cursor on the delete button while deciding whether
+   to click would let the timer run out and close the icons. */
 const PI_HOVER_ZONE_ABOVE = 80;  /* px above thumb top to cover icon area */
 const PI_HOVER_ZONE_SLACK = 8;
 let _piLastInZone = false;
@@ -3433,7 +3436,10 @@ document.addEventListener('mousemove', e => {
   if (e.pointerType === 'touch') return;
   const activeThumb = document.querySelector('.cflow-thumb.active');
   if (!activeThumb || activeThumb.classList.contains('add-more')) {
-    _piLastInZone = false;
+    if (_piLastInZone) {
+      _piLastInZone = false;
+      resetPiTimer();  /* leaving the zone -> arm close timer */
+    }
     return;
   }
   const r = activeThumb.getBoundingClientRect();
@@ -3443,19 +3449,21 @@ document.addEventListener('mousemove', e => {
   const bottom = r.bottom + PI_HOVER_ZONE_SLACK;
   const inZone = e.clientX >= left && e.clientX <= right &&
                  e.clientY >= top  && e.clientY <= bottom;
-  if (inZone) {
-    if (document.body.dataset.piActions === 'open') {
-      resetPiTimer();
-    } else if (!CFLOW.draggingFrom) {
+  if (inZone && !_piLastInZone) {
+    /* Just ENTERED zone: open icons (if closed) + freeze timer */
+    if (document.body.dataset.piActions !== 'open' && !CFLOW.draggingFrom) {
       openPiActions();
     }
+    /* openPiActions arms a 3s timer; clear it so icons stay open
+       indefinitely while cursor remains in zone */
+    if (piTimer) { clearTimeout(piTimer); piTimer = null; }
     _piLastInZone = true;
-  } else if (_piLastInZone) {
-    /* Just left the zone; the 3s timer in openPiActions will close
-       the icons. Don't close immediately so the user has grace time
-       to move back toward the thumb if they overshot. */
+  } else if (!inZone && _piLastInZone) {
+    /* Just EXITED zone: arm the close countdown */
     _piLastInZone = false;
+    if (document.body.dataset.piActions === 'open') resetPiTimer();
   }
+  /* else: still-in or still-out -> no-op (timer already in right state) */
 });
 document.addEventListener('click', e => {
   if (document.body.dataset.piActions !== 'open') return;
