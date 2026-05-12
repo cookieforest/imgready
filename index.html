@@ -2519,9 +2519,15 @@ function getWorker(){
            events, we ignore them in the center overlay (the per-thumb
            spinner on that thumb already conveys "this one is cooking").
            Otherwise the overlay would flash for every queue item even
-           after the selected image's compare is fully rendered. */
+           after the selected image's compare is fully rendered.
+           In Multi mode each format triggers its own decode->encode cycle,
+           which produced rapid 'Decoding…'/'Encoding…' text swapping that
+           read as an infinite loop. Keep the label stable in multi mode. */
         if (entry.filename && entry.idx === CFLOW.selected) {
-          showCenterStatus(m.stage === 'decoding' ? 'Decoding…' : 'Encoding…', entry.filename);
+          const label = (typeof MULTI_OUT !== 'undefined' && MULTI_OUT.enabled)
+            ? 'Encoding…'
+            : (m.stage === 'decoding' ? 'Decoding…' : 'Encoding…');
+          showCenterStatus(label, entry.filename);
         }
       }
     };
@@ -4094,7 +4100,7 @@ if (!window._navMenuOutsideClick) {
     /* Workspace trigger: single format -> show that label;
        multi -> show 'Multi' badge with count */
     const dd = document.querySelector('.format-dropdown');
-    if (dd) dd.dataset.formatCurrent = formats.length === 1 ? formats[0] : 'multi';
+    if (dd) dd.dataset.formatCurrent = formats[0]; /* always primary, never the literal 'multi' (broke encoder MIME lookup + inflight dedup) */
     const label = document.querySelector('.format-current-label');
     if (label) {
       if (formats.length === 1) {
