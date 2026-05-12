@@ -782,7 +782,11 @@
   .multi-out-switch .switch-track{width:24px;height:14px;}
   .multi-out-switch .switch-track::after{width:10px;height:10px;}
   .multi-out-switch input:checked + .switch-track::after{transform:translateX(11px);}
-  body[data-multiout="on"] #formatPills button[data-fmt="auto"]{display:none;}
+  /* Original ('auto') stays VISIBLE in multi mode — it just becomes
+     a normal multi-select item. 'Original' means 'match input format',
+     which composes coherently with other formats (e.g. JPG-in + Original
+     + WebP yields JPG + WebP output). Hiding it caused menu height to
+     jump every time the user toggled Multi. */
   body[data-multiout="on"] #formatPills button.active{
     background:var(--accent);color:#fff;border-color:var(--accent);
   }
@@ -4053,25 +4057,25 @@ if (!window._navMenuOutsideClick) {
   });
 }
 (function initOutputPreselect(){
-  /* Normalize: 'auto' is mutex with all other formats. At least one
-     format must always be active. */
+  /* Normalize: dedupe, ensure at least one format is active. Original
+     ('auto') mutex applies only in single mode (handled by caller). */
   function normalize(formats){
     if (!Array.isArray(formats)) formats = [formats];
     formats = formats.filter(Boolean);
     if (!formats.length) return ['auto'];
-    if (formats.includes('auto')) return ['auto'];
-    /* Dedupe while preserving order */
     const seen = new Set();
     return formats.filter(f => seen.has(f) ? false : seen.add(f));
   }
-  /* Sync MULTI_OUT state + workspace UI to match the formats array. */
-  function syncMultiState(formats){
-    const multi = formats.length > 1;
-    if (typeof MULTI_OUT !== 'undefined') MULTI_OUT.enabled = multi;
-    document.body.dataset.multiout = multi ? 'on' : 'off';
+  /* Multi state is user-controlled — only changes when the user
+     explicitly toggles. setOutFormats() does NOT change Multi. */
+  function setMultiOutMode(enabled){
+    enabled = !!enabled;
+    if (typeof MULTI_OUT !== 'undefined') MULTI_OUT.enabled = enabled;
+    document.body.dataset.multiout = enabled ? 'on' : 'off';
     const cb = document.getElementById('multiOutToggle');
-    if (cb) cb.checked = multi;
+    if (cb && cb.checked !== enabled) cb.checked = enabled;
   }
+  window._setMultiOutMode = setMultiOutMode;
   /* setOutFormats — array-based source of truth. */
   function setOutFormats(formats, opts){
     formats = normalize(formats);
@@ -4097,7 +4101,10 @@ if (!window._navMenuOutsideClick) {
         label.textContent = 'Multi (' + formats.length + ')';
       }
     }
-    syncMultiState(formats);
+    /* Note: Multi state is NOT touched here. Multi is user-controlled
+       via setMultiOutMode(). Callers that should auto-enable Multi
+       (empty-state pill click, querystring with >1 format) call
+       setMultiOutMode(true) themselves. */
     if (!opts || !opts.silent) {
       if (typeof invalidateEncoded === 'function') invalidateEncoded();
     }
@@ -4121,12 +4128,11 @@ if (!window._navMenuOutsideClick) {
     if (fmts.length) setOutFormats(fmts, { silent: true });
   }
 
-  /* 2. Empty-state pill clicks — toggle behavior:
-     - Click 'auto' (Original): replace whole selection with ['auto']
-     - Click any other:
-        - if 'auto' was active: replace with [clicked]
-        - if clicked was already active: remove (but keep >=1)
-        - if clicked wasn't active: add to selection */
+  /* 2. Empty-state pill clicks — plain toggle behavior:
+     - Click any format: toggle in the array
+     - Keep at least one active (can't deselect the last)
+     - Auto-enable Multi when result has 2+ formats (one-way; we never
+       auto-DISABLE Multi based on count — that's a user decision) */
   document.addEventListener('click', e => {
     const btn = e.target.closest && e.target.closest('#dzPills button[data-out-fmt]');
     if (!btn) return;
@@ -4135,17 +4141,14 @@ if (!window._navMenuOutsideClick) {
     const clicked = btn.dataset.outFmt;
     const current = (window.PREFS.outFormats || ['auto']).slice();
     let next;
-    if (clicked === 'auto') {
-      next = ['auto'];
-    } else if (current.includes('auto')) {
-      next = [clicked];
-    } else if (current.includes(clicked)) {
+    if (current.includes(clicked)) {
       next = current.filter(f => f !== clicked);
-      if (!next.length) next = current; /* can't deselect the last */
+      if (!next.length) next = current;
     } else {
       next = [...current, clicked];
     }
     setOutFormats(next);
+    if (next.length >= 2) setMultiOutMode(true);
   });
 
   /* 3. Headline verb rotation — Bionic Julia pattern verbatim
@@ -4231,15 +4234,13 @@ if (!window._navMenuOutsideClick) {
         e.stopPropagation();
         const fmt = b.dataset.fmt;
         if (typeof MULTI_OUT !== 'undefined' && MULTI_OUT.enabled) {
-          /* Multi mode: toggle this format in the outFormats array,
-             keep the menu open so the user can pick more. */
+          /* Multi mode: simple toggle in the outFormats array. No
+             Original mutex — Original (auto) composes coherently with
+             other formats. Keep at least one active. Menu stays open
+             so user can pick more. */
           const current = (window.PREFS.outFormats || ['auto']).slice();
           let next;
-          if (fmt === 'auto') {
-            next = ['auto'];
-          } else if (current.includes('auto')) {
-            next = [fmt];
-          } else if (current.includes(fmt)) {
+          if (current.includes(fmt)) {
             next = current.filter(f => f !== fmt);
             if (!next.length) next = current;
           } else {
@@ -4536,30 +4537,26 @@ function attachSettingsListeners(){
       invalidateEncoded();
     });
   });
-  /* Multi-output toggle */
+  /* Multi-output toggle. Preserves the current format selection on
+     toggle ON (including Original); on OFF, reduces to the first
+     active format (single mode). */
   const multiToggle = root.querySelector('#multiOutToggle');
   if (multiToggle) {
     multiToggle.addEventListener('change', () => {
-      MULTI_OUT.enabled = multiToggle.checked;
-      document.body.dataset.multiout = multiToggle.checked ? 'on' : 'off';
-      /* When turning ON: if "auto" was active, switch to webp (because Auto
-         doesn't make sense when picking multiple). When turning OFF, keep
-         only the FIRST active pill. */
-      const fp = root.querySelector('#formatPills');
-      if (fp) {
-        if (multiToggle.checked) {
-          const auto = fp.querySelector('button[data-fmt="auto"].active');
-          if (auto) {
-            auto.classList.remove('active');
-            const fallback = fp.querySelector('button[data-fmt="webp"]');
-            if (fallback) fallback.classList.add('active');
-          }
-        } else {
-          /* Single mode: keep only first active */
-          const actives = fp.querySelectorAll('button.active');
-          actives.forEach((b, i) => { if (i > 0) b.classList.remove('active'); });
+      const enabled = multiToggle.checked;
+      MULTI_OUT.enabled = enabled;
+      document.body.dataset.multiout = enabled ? 'on' : 'off';
+      if (!enabled) {
+        /* Turning OFF: reduce outFormats to the first active format
+           so single mode has one and only one active pill. */
+        const current = window.PREFS.outFormats || ['auto'];
+        if (current.length > 1 && window._setOutFormats) {
+          window._setOutFormats([current[0]], { silent: true });
         }
       }
+      /* Turning ON: keep the current selection as-is. Empty-state
+         users who pre-selected one format see it stay active as the
+         single checked item, and can add more from there. */
       invalidateEncoded();
     });
   }
