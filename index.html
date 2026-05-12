@@ -1883,8 +1883,7 @@
   <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
     <div class="dz-format-label">Output format</div>
     <div class="dz-pills" id="dzPills">
-      <button type="button" class="active" data-out-fmt="auto">Original</button>
-      <button type="button" data-out-fmt="webp">WebP</button>
+      <button type="button" class="active" data-out-fmt="webp">WebP</button>
       <button type="button" data-out-fmt="avif">AVIF</button>
       <button type="button" data-out-fmt="jpg">JPG</button>
       <button type="button" data-out-fmt="png">PNG</button>
@@ -2038,7 +2037,7 @@
       <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings panel"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
       <div class="adjust-panel">
         <div class="adjust-section"><span class="adjust-label">Format</span>
-          <div class="adjust-pills"><button>Original</button><button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button></div></div>
+          <div class="adjust-pills"><button class="active">WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
           <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
@@ -2136,9 +2135,9 @@
                  space in the bar. Menu uses the same trigger/menu pattern as
                  the resize and crop dropdowns. id="formatPills" stays on the
                  menu element so existing JS selectors (querySelector('#formatPills button')) still work. -->
-            <div class="resize-presets format-dropdown" data-format-current="auto">
+            <div class="resize-presets format-dropdown" data-format-current="webp">
               <button type="button" class="resize-presets-trigger" data-format-trigger>
-                <span class="format-current-label">Original</span>
+                <span class="format-current-label">WebP</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="resize-presets-menu format-menu" id="formatPills">
@@ -2152,8 +2151,7 @@
                   <span class="switch-track" aria-hidden="true"></span>
                   <span>Multiple formats</span>
                 </label>
-                <button class="active" data-fmt="auto">Original</button>
-                <button data-fmt="webp">WebP</button>
+                <button class="active" data-fmt="webp">WebP</button>
                 <button data-fmt="avif">AVIF</button>
                 <button data-fmt="jpg">JPG</button>
                 <button data-fmt="png">PNG</button>
@@ -2334,6 +2332,11 @@ function addFilesFromList(fileList){
   }
   if (!fresh.length) return;
   FILES.push(...fresh);
+  /* Auto-select the format that matches the dropped file's input MIME.
+     Single mode: replaces selection. Multi mode: adds to existing. */
+  if (typeof window._presetFormatFromInput === 'function') {
+    window._presetFormatFromInput(fresh[0].file);
+  }
   buildThumbs();
   /* Always use multi state — the cover flow handles 1 image cleanly
      (one thumb + Add-more) and uses the same image-canvas elements for
@@ -4078,7 +4081,7 @@ window.openCmpSettings = window.openCmpSettings || function(){
    3. Microcopy rotates between 3 use-case lines under the dropzone.
    4. Workspace format dropdown wires trigger / menu / mutex.
 */
-window.PREFS = window.PREFS || { outFormat: 'auto', outFormats: ['auto'] };
+window.PREFS = window.PREFS || { outFormat: 'webp', outFormats: ['webp'] };
 
 /* Hamburger toggle for the legacy top-nav (mobile only — /app.css
    keeps the menu inline on desktop via display:contents). Closes on
@@ -4162,6 +4165,26 @@ if (!window._navMenuOutsideClick) {
   function setOutFormat(fmt, opts){ setOutFormats([fmt], opts); }
   window._setOutFormat = setOutFormat;
   window._setOutFormats = setOutFormats;
+
+  /* Auto-select format based on the dropped file's input MIME.
+     - Single mode: replaces current selection with the matched format
+     - Multi mode: adds the matched format if not already selected
+     Called from addFilesFromList on every drop. */
+  function presetFormatFromInput(file){
+    if (!file) return;
+    const matched = pickAutoFormat(file);  /* resolves heic/svg/etc */
+    if (!matched) return;
+    const current = (window.PREFS.outFormats || ['webp']).slice();
+    const multi = (typeof MULTI_OUT !== 'undefined' && MULTI_OUT.enabled);
+    if (multi) {
+      if (current.includes(matched)) return;
+      setOutFormats([...current, matched]);
+    } else {
+      if (current.length === 1 && current[0] === matched) return;
+      setOutFormats([matched]);
+    }
+  }
+  window._presetFormatFromInput = presetFormatFromInput;
 
   /* 1. Query string parse — comma-separated for multi: ?out=webp,avif */
   const VALID = ['auto','webp','avif','jpg','png','gif','ico'];
