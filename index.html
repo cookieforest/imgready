@@ -787,9 +787,8 @@
      which composes coherently with other formats (e.g. JPG-in + Original
      + WebP yields JPG + WebP output). Hiding it caused menu height to
      jump every time the user toggled Multi. */
-  body[data-multiout="on"] #formatPills button.active{
-    background:var(--accent);color:#fff;border-color:var(--accent);
-  }
+  /* Multi-mode active override removed — base .format-menu button.active
+     now uses the same accent treatment, so the override is redundant. */
 
   /* .bb-row — horizontal sub-grouping inside a section. Used for Resize
      where input + presets dropdown sit side-by-side. */
@@ -1467,8 +1466,7 @@
     background:var(--accent);color:#fff;
   }
   .format-menu button.active{
-    background:rgba(255,255,255,.06);
-    color:#fff;
+    background:var(--accent);color:#fff;
   }
   /* Multi toggle row — sits at the top of the format dropdown menu.
      Visually distinct from format buttons (different bg + bottom
