@@ -1462,6 +1462,75 @@
     background:rgba(255,255,255,.06);
     color:#fff;
   }
+  /* Multi toggle row — sits at the top of the format dropdown menu.
+     Visually distinct from format buttons (different bg + bottom
+     divider) so users see it as a mode switch, not another format. */
+  .format-menu .format-multi-row{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 10px 8px 10px;
+    margin-bottom:4px;
+    border-bottom:1px solid rgba(255,255,255,.10);
+    color:rgba(255,255,255,.85);
+    font-size:.72rem;font-weight:600;
+    cursor:pointer;
+    user-select:none;
+  }
+  .format-menu .format-multi-row:hover{
+    background:rgba(255,255,255,.04);
+    border-radius:5px 5px 0 0;
+  }
+  .format-menu .format-multi-row input[type=checkbox]{
+    position:absolute;opacity:0;pointer-events:none;
+  }
+  .format-menu .format-multi-row .switch-track{
+    width:24px;height:14px;border-radius:7px;
+    background:rgba(255,255,255,.18);
+    position:relative;flex-shrink:0;
+    transition:background .15s ease;
+  }
+  .format-menu .format-multi-row .switch-track::after{
+    content:'';position:absolute;
+    width:10px;height:10px;border-radius:50%;
+    background:#fff;top:2px;left:2px;
+    transition:transform .15s ease;
+  }
+  .format-menu .format-multi-row input:checked + .switch-track{
+    background:var(--accent);
+  }
+  .format-menu .format-multi-row input:checked + .switch-track::after{
+    transform:translateX(10px);
+  }
+  /* When Multi is ON: format buttons show a checkmark prefix on
+     active items, signaling multi-select. Inactive items get a hollow
+     box prefix so the column visually aligns. */
+  body[data-multiout="on"] .format-menu button[data-fmt]{
+    padding-left:26px;position:relative;
+  }
+  body[data-multiout="on"] .format-menu button[data-fmt]::before{
+    content:'';
+    position:absolute;left:8px;top:50%;
+    width:12px;height:12px;
+    border:1.5px solid rgba(255,255,255,.35);
+    border-radius:3px;
+    transform:translateY(-50%);
+    transition:background .12s ease,border-color .12s ease;
+  }
+  body[data-multiout="on"] .format-menu button.active::before{
+    background:var(--accent);
+    border-color:var(--accent);
+  }
+  body[data-multiout="on"] .format-menu button.active::after{
+    content:'';
+    position:absolute;
+    left:11px;top:50%;
+    width:5px;height:8px;
+    border-right:2px solid #fff;
+    border-bottom:2px solid #fff;
+    transform:translate(0,-65%) rotate(45deg);
+  }
+  /* In multi mode, hide the Original ('auto') pill since it doesn't
+     compose with the multi-select pattern. Existing rule already does
+     this for #formatPills button[data-fmt="auto"] — keep consistent. */
 
   /* ===== QUALITY DROPDOWN ===========================================
      Preset rows + an inline slider row at the bottom of the menu.
@@ -2067,6 +2136,16 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="resize-presets-menu format-menu" id="formatPills">
+                <!-- Multi toggle lives at the top of the dropdown menu.
+                     When ON, format buttons become multi-select (active
+                     items get a checkmark prefix, the menu stays open
+                     so users can tap several in a row). Clicking the
+                     row itself doesn't close the menu — wired via JS. -->
+                <label class="format-multi-row" data-multi-row>
+                  <input type="checkbox" id="multiOutToggle">
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span>Multiple formats</span>
+                </label>
                 <button class="active" data-fmt="auto">Original</button>
                 <button data-fmt="webp">WebP</button>
                 <button data-fmt="avif">AVIF</button>
@@ -2076,11 +2155,6 @@
                 <button data-fmt="ico">ICO</button>
               </div>
             </div>
-            <label class="switch multi-out-switch" title="Encode every selected format and bundle as a zip on download">
-              <input type="checkbox" id="multiOutToggle">
-              <span class="switch-track"></span>
-              <span>Multi</span>
-            </label>
           </div>
           <div class="bb-divider"></div>
           <!-- Quality dropdown — preset buttons stack vertically with the
@@ -4152,11 +4226,50 @@ if (!window._navMenuOutsideClick) {
       b.addEventListener('click', e => {
         e.stopPropagation();
         const fmt = b.dataset.fmt;
-        setOutFormat(fmt);
-        dd.classList.remove('open');
-        menu.classList.remove('open');
+        if (typeof MULTI_OUT !== 'undefined' && MULTI_OUT.enabled) {
+          /* Multi mode: toggle this format in the outFormats array,
+             keep the menu open so the user can pick more. */
+          const current = (window.PREFS.outFormats || ['auto']).slice();
+          let next;
+          if (fmt === 'auto') {
+            next = ['auto'];
+          } else if (current.includes('auto')) {
+            next = [fmt];
+          } else if (current.includes(fmt)) {
+            next = current.filter(f => f !== fmt);
+            if (!next.length) next = current;
+          } else {
+            next = [...current, fmt];
+          }
+          if (window._setOutFormats) window._setOutFormats(next);
+          /* DON'T close the menu — let user keep selecting */
+        } else {
+          /* Single mode: replace selection and close menu */
+          setOutFormat(fmt);
+          dd.classList.remove('open');
+          menu.classList.remove('open');
+        }
       });
     });
+    /* Multi-toggle row inside the menu — flip the checkbox without
+       closing the dropdown. The existing #multiOutToggle change
+       handler in attachSettingsListeners updates MULTI_OUT.enabled +
+       body[data-multiout], so we just dispatch a change event. */
+    const multiRow = menu.querySelector('[data-multi-row]');
+    if (multiRow) {
+      const cb = multiRow.querySelector('input[type=checkbox]');
+      multiRow.addEventListener('click', e => {
+        /* Clicks on the actual checkbox already toggle natively;
+           clicks elsewhere on the row need to toggle programmatically.
+           Native label-for would also work but we want full row
+           hit-target without relying on `for=`. */
+        if (e.target !== cb) {
+          cb.checked = !cb.checked;
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        e.stopPropagation(); /* keep dropdown open */
+      });
+    }
   }
   /* 5. Quality dropdown — preset buttons + slider inside the menu. */
   function portalQualityMenu(menu){
