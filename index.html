@@ -4439,17 +4439,48 @@ if (!window._navMenuOutsideClick) {
   }, true);
 })();
 async function ensureAllEncoded(){
-  /* Ensure every file has an encoded blob; encode in parallel-with-cap */
-  const missing = [];
-  for (let i = 0; i < FILES.length; i++) if (!ENCODE.encoded.has(i)) missing.push(i);
-  if (!missing.length) return;
-  /* Sequential to keep memory low; could be parallelised later */
-  for (const i of missing) {
-    try {
-      const blob = await encodeFile(i);
-      const url = URL.createObjectURL(blob);
-      ENCODE.encoded.set(i, { blob, url, size: blob.size, format: ((blob.type||'').split('/')[1]||'img').replace('jpeg','jpg') });
-    } catch(e){ console.warn('encode failed for', i, e); }
+  /* In Multi mode, ensure every active format is encoded for every
+     file (populates ENCODE.allEncoded which the zip builder reads).
+     In single mode, just ensure the primary blob exists. */
+  const multi = (typeof MULTI_OUT !== 'undefined' && MULTI_OUT.enabled);
+  const activeFmts = multi ? getActiveFormats() : null;
+  for (let i = 0; i < FILES.length; i++) {
+    const f = FILES[i];
+    if (!f) continue;
+    if (multi) {
+      /* Ensure every active format has been encoded for this file. */
+      const existing = ENCODE.allEncoded.get(i) || new Map();
+      for (const fmt of activeFmts) {
+        /* Real fmt accounts for 'auto' which the encoder resolves to
+           the input MIME via pickAutoFormat. Use that resolved key
+           when checking the bundle so we don't double-encode. */
+        const realFmt = fmt === 'auto' ? pickAutoFormat(f.file) : fmt;
+        if (existing.has(realFmt)) continue;
+        try {
+          const blob = await encodeFile(i, fmt);
+          const url = URL.createObjectURL(blob);
+          const fmtFromMime = mimeToFmt(blob.type);
+          existing.set(fmtFromMime, { blob, url, size: blob.size, format: fmtFromMime });
+        } catch(e){ console.warn('multi encode failed for', i, fmt, e); }
+      }
+      ENCODE.allEncoded.set(i, existing);
+      /* Mirror the primary into ENCODE.encoded if not already set so
+         single-format callers (the per-file download fallback) still
+         work. Pick the first active format as primary. */
+      if (!ENCODE.encoded.has(i) && existing.size) {
+        const primaryFmt = activeFmts[0] === 'auto' ? pickAutoFormat(f.file) : activeFmts[0];
+        const primary = existing.get(primaryFmt) || existing.values().next().value;
+        if (primary) ENCODE.encoded.set(i, primary);
+      }
+    } else {
+      /* Single mode: ensure primary exists. */
+      if (ENCODE.encoded.has(i)) continue;
+      try {
+        const blob = await encodeFile(i);
+        const url = URL.createObjectURL(blob);
+        ENCODE.encoded.set(i, { blob, url, size: blob.size, format: mimeToFmt(blob.type) });
+      } catch(e){ console.warn('encode failed for', i, e); }
+    }
   }
 }
 async function downloadAll(){
