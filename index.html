@@ -1590,7 +1590,7 @@
      JS click handlers continue to bail correctly even if the button
      somehow becomes visible (e.g. dev tooling). */
   .quality-menu button[data-quality-preset="lossless"][aria-disabled="true"]{
-    display:none;
+    opacity:.4;cursor:not-allowed;
   }
 
   /* ---------- mobile ---------- */
