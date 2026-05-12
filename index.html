@@ -1573,6 +1573,17 @@
     flex:none;min-width:24px;text-align:right;
     color:#fff;font-weight:700;font-size:.72rem;
   }
+  /* Smart preset — sits at the top of the menu, visually marked with
+     an accent dot to signal 'auto-tuned, not a fixed value'. */
+  .quality-menu button[data-quality-preset="smart"]{
+    position:relative;padding-left:22px;
+  }
+  .quality-menu button[data-quality-preset="smart"]::before{
+    content:"";position:absolute;left:8px;top:50%;
+    width:6px;height:6px;border-radius:50%;
+    background:var(--accent);
+    transform:translateY(-50%);
+  }
   /* When the current format can't honor lossless (jpg/ico), HIDE the
      preset entirely. The audit found that grey-disabled options add
      visual noise + require explanation. aria-disabled is still set so
@@ -2179,15 +2190,16 @@
                .quality-row input[type=range]) keep working. -->
           <div class="bb-section">
             <span class="bb-section-label">Quality</span>
-            <div class="resize-presets quality-dropdown" data-quality-current="85" data-quality-mode="high">
+            <div class="resize-presets quality-dropdown" data-quality-current="85" data-quality-mode="smart">
               <button type="button" class="resize-presets-trigger" data-quality-trigger>
-                <span class="quality-current-label">High</span>
+                <span class="quality-current-label">Smart</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="resize-presets-menu quality-menu">
+                <button type="button" data-quality-preset="smart" data-q="auto" class="active">Smart</button>
                 <button type="button" data-quality-preset="lossless" data-q="100">Lossless</button>
                 <button type="button" data-quality-preset="best" data-q="95">Best</button>
-                <button type="button" data-quality-preset="high" data-q="85" class="active">High</button>
+                <button type="button" data-quality-preset="high" data-q="85">High</button>
                 <button type="button" data-quality-preset="medium" data-q="75">Medium</button>
                 <button type="button" data-quality-preset="low" data-q="60">Low</button>
                 <div class="quality-custom-row quality-row">
@@ -2686,6 +2698,10 @@ function pickAutoFormat(file){
   if (e === 'svg' || t.includes('svg'))   return 'png';
   return 'jpg';
 }
+/* When Smart quality mode is active we need a per-file quality.
+   getActiveSettings reads from this contextual variable; encodeFile
+   sets it before calling getActiveSettings. */
+let _gasContextFile = null;
 function getActiveSettings(){
   /* Format: the dropdown's data-format-current is the source of truth.
      Fall back to the active button's data-fmt if the attribute is missing
@@ -2703,9 +2719,16 @@ function getActiveSettings(){
      truth — setQuality() keeps it in sync with both preset clicks and
      slider drags. Fallback to any .quality-row slider in the doc
      (portalled or not) for defensive read; final fallback to 82. */
+  /* Quality: if Smart mode and we have a file context, compute
+     per-file via the bpp + format-efficiency heuristic. Otherwise
+     read from the dropdown's stored value (set by preset clicks
+     or slider drags). */
   let qualityRaw = NaN;
   const qDropdown = document.querySelector('.quality-dropdown');
-  if (qDropdown && qDropdown.dataset.qualityCurrent) {
+  const isSmart = qDropdown && qDropdown.dataset.qualityMode === 'smart';
+  if (isSmart && _gasContextFile && typeof window._suggestQuality === 'function') {
+    qualityRaw = window._suggestQuality(_gasContextFile, fmt);
+  } else if (qDropdown && qDropdown.dataset.qualityCurrent) {
     qualityRaw = parseInt(qDropdown.dataset.qualityCurrent, 10);
   }
   if (!isFinite(qualityRaw)) {
@@ -2740,7 +2763,11 @@ function getActiveSettings(){
 function encodeFile(idx, overrideFmt){
   const f = FILES[idx];
   if (!f) return Promise.reject(new Error('no file'));
+  /* Hand the file to getActiveSettings via the module-level context
+     var, so Smart quality mode can compute per-file. */
+  _gasContextFile = f.file;
   const { fmt: settingsFmt, settings } = getActiveSettings();
+  _gasContextFile = null;
   const fmt = overrideFmt || settingsFmt;
   const realFmt = fmt === 'auto' ? pickAutoFormat(f.file) : fmt;
   /* In-flight key now includes the format so two concurrent encodes of
@@ -4198,6 +4225,42 @@ if (!window._navMenuOutsideClick) {
   }
   window._presetFormatFromInput = presetFormatFromInput;
 
+  /* Smart quality heuristic — per-file. Returns 55..95.
+     Inputs that are already heavily compressed get an aggressive
+     quality drop so output is meaningfully smaller. Inputs that
+     benefit from format conversion (JPG -> WebP/AVIF) get a bump
+     since the format itself saves bytes. */
+  const FMT_EFFICIENCY = { jpg: 0.5, png: 1.0, webp: 0.35, avif: 0.25, gif: 0.5, ico: 1.0 };
+  function suggestQuality(file, outFmt){
+    if (!file) return 85;
+    const inputFmt = pickAutoFormat(file);
+    /* Find dims if known (set by syncMainImage's createImageBitmap call) */
+    let w = 0, h = 0;
+    if (typeof FILES !== 'undefined') {
+      const entry = FILES.find(f => f && f.file === file);
+      if (entry && entry.dims) { w = entry.dims.w; h = entry.dims.h; }
+    }
+    /* Baseline from bytes-per-pixel (or file size fallback). */
+    let baseline;
+    if (w && h) {
+      const bpp = file.size / (w * h);
+      if (bpp > 0.7)       baseline = 85;  /* Fresh, lots of headroom */
+      else if (bpp > 0.25) baseline = 78;  /* Standard web compression */
+      else                 baseline = 68;  /* Already optimized */
+    } else {
+      if (file.size > 2 * 1024 * 1024) baseline = 85;
+      else if (file.size > 500 * 1024) baseline = 78;
+      else                              baseline = 70;
+    }
+    /* Format-conversion bonus: log scale so 2x efficiency = +6 quality. */
+    const inEff = FMT_EFFICIENCY[inputFmt] || 0.5;
+    const outEff = FMT_EFFICIENCY[outFmt || 'webp'] || 0.5;
+    const bonus = inEff / outEff;
+    const bump = bonus > 0 ? Math.round(Math.log2(bonus) * 6) : 0;
+    return Math.max(55, Math.min(95, baseline + bump));
+  }
+  window._suggestQuality = suggestQuality;
+
   /* 1. Query string parse — comma-separated for multi: ?out=webp,avif */
   const VALID = ['auto','webp','avif','jpg','png','gif','ico'];
   const qs = new URLSearchParams(location.search);
@@ -4387,6 +4450,27 @@ if (!window._navMenuOutsideClick) {
   function setQuality(value, presetKey, opts){
     const dd = document.querySelector('.quality-dropdown');
     if (!dd) return;
+    /* Smart preset: no fixed value — flip mode + label, leave the
+       dropdown's data-quality-current alone (acts as cached numeric
+       for the fall-through if Smart can't compute). */
+    if (presetKey === 'smart') {
+      dd.dataset.qualityMode = 'smart';
+      const label = dd.querySelector('.quality-current-label');
+      if (label) label.textContent = 'Smart';
+      document.querySelectorAll('.quality-menu button[data-quality-preset]').forEach(b => {
+        b.classList.toggle('active', b.dataset.qualityPreset === 'smart');
+      });
+      if (!opts || !opts.silent) {
+        if (typeof invalidateEncoded === 'function') {
+          document.body.dataset.qualityEncoding = 'on';
+          invalidateEncoded();
+        }
+      }
+      if (typeof window._setQualityFormatSupport === 'function') {
+        window._setQualityFormatSupport();
+      }
+      return;
+    }
     const v = parseInt(value, 10);
     if (!isFinite(v)) return;
     dd.dataset.qualityCurrent = String(v);
