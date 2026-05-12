@@ -2651,11 +2651,13 @@ function mimeToFmt(mime){
   return part;
 }
 function getActiveFormats(){
-  /* In single-output mode, returns just the active pill's fmt (or 'auto').
-     In multi-output mode, returns every active pill's fmt. */
-  const pills = document.querySelectorAll('body[data-state="multi"] .stage.multi #formatPills button.active');
+  /* Returns every active format pill's fmt. The format menu gets
+     PORTALLED to document.body on first dropdown open (to escape the
+     drawer's overflow:hidden), so a stage-scoped selector matches
+     zero pills after first interaction. Use a global ID selector. */
+  const pills = document.querySelectorAll('#formatPills button.active[data-fmt]');
   if (!pills.length) return ['auto'];
-  return Array.from(pills).map(b => b.dataset.fmt || b.textContent.trim().toLowerCase());
+  return Array.from(pills).map(b => b.dataset.fmt);
 }
 
 function pickAutoFormat(file){
@@ -3415,27 +3417,44 @@ function attachHoverDelegation(){
     else openPiActions();
   });
 }
-/* Keep pi-actions open while cursor is anywhere in the combined
-   {active thumb ∪ icons ∪ gap} bounding rectangle. Previous handlers
-   only counted cursor INSIDE the thumb or INSIDE the icons; the gap
-   between them was a dead zone where the cursor lost hover state and
-   the 3s timer eventually closed the icons. Computing the union rect
-   on every mousemove is cheap (two getBoundingClientRect calls). */
+/* Persistent invisible hover zone around the active thumb.
+   The zone is the bounding rect of {thumb + 80px above + 8px slack}
+   regardless of whether icons are currently visible. So:
+     - Cursor enters the zone (over the thumb OR where icons WOULD be)
+       -> openPiActions() if closed, resetPiTimer() if already open
+     - Cursor leaves the zone -> 3s timer closes icons normally
+   After deletion the new active thumb's zone overlaps the cursor's
+   current position, so icons appear without re-hovering.
+   Touch devices use 2nd-tap not hover -> bail early. */
+const PI_HOVER_ZONE_ABOVE = 80;  /* px above thumb top to cover icon area */
+const PI_HOVER_ZONE_SLACK = 8;
+let _piLastInZone = false;
 document.addEventListener('mousemove', e => {
-  if (document.body.dataset.piActions !== 'open') return;
+  if (e.pointerType === 'touch') return;
   const activeThumb = document.querySelector('.cflow-thumb.active');
-  const pi = document.getElementById('piActions');
-  if (!activeThumb || !pi) return;
-  const tR = activeThumb.getBoundingClientRect();
-  const pR = pi.getBoundingClientRect();
-  const slack = 6;  /* small grace area so subpixel cursor drift doesn't close */
-  const left   = Math.min(tR.left,   pR.left)   - slack;
-  const right  = Math.max(tR.right,  pR.right)  + slack;
-  const top    = Math.min(tR.top,    pR.top)    - slack;
-  const bottom = Math.max(tR.bottom, pR.bottom) + slack;
-  if (e.clientX >= left && e.clientX <= right &&
-      e.clientY >= top  && e.clientY <= bottom) {
-    resetPiTimer();
+  if (!activeThumb || activeThumb.classList.contains('add-more')) {
+    _piLastInZone = false;
+    return;
+  }
+  const r = activeThumb.getBoundingClientRect();
+  const left   = r.left   - PI_HOVER_ZONE_SLACK;
+  const right  = r.right  + PI_HOVER_ZONE_SLACK;
+  const top    = r.top    - PI_HOVER_ZONE_ABOVE;
+  const bottom = r.bottom + PI_HOVER_ZONE_SLACK;
+  const inZone = e.clientX >= left && e.clientX <= right &&
+                 e.clientY >= top  && e.clientY <= bottom;
+  if (inZone) {
+    if (document.body.dataset.piActions === 'open') {
+      resetPiTimer();
+    } else if (!CFLOW.draggingFrom) {
+      openPiActions();
+    }
+    _piLastInZone = true;
+  } else if (_piLastInZone) {
+    /* Just left the zone; the 3s timer in openPiActions will close
+       the icons. Don't close immediately so the user has grace time
+       to move back toward the thumb if they overshot. */
+    _piLastInZone = false;
   }
 });
 document.addEventListener('click', e => {
