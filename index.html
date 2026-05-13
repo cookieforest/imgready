@@ -783,17 +783,8 @@
      children participate directly in bb-drawer-inner's flex. The wrapper
      only kicks in on mobile (see @media block below). */
   .bb-row-group{display:contents;}
-  /* Multi-output toggle: small switch that lives next to the format pills.
-     When ON, body[data-multiout="on"] applies and format pills behave as
-     multi-toggles. Auto pill hides because "auto" doesn't apply when the
-     user is actively picking N formats. */
-  .multi-out-switch{
-    margin-left:6px;font-size:.66rem;
-    color:rgba(255,255,255,.65);
-  }
-  .multi-out-switch .switch-track{width:24px;height:14px;}
-  .multi-out-switch .switch-track::after{width:10px;height:10px;}
-  .multi-out-switch input:checked + .switch-track::after{transform:translateX(11px);}
+  /* (Removed .multi-out-switch rules — the standalone label they
+     targeted was moved INSIDE the format dropdown menu.) */
   /* Original ('auto') stays VISIBLE in multi mode — it just becomes
      a normal multi-select item. 'Original' means 'match input format',
      which composes coherently with other formats (e.g. JPG-in + Original
@@ -2082,7 +2073,7 @@
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button class="active">WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
-          <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
+          <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
           <div class="resize-presets resize-dropdown" data-resize-current="0">
             <button type="button" class="resize-presets-trigger">
