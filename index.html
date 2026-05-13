@@ -5228,7 +5228,7 @@ function doClear(){
   FILES.length = 0;
   CFLOW.thumbs = [];
   CFLOW.selected = 0; CFLOW.drift = 0;
-  document.getElementById('cflowTrack').querySelectorAll('.cflow-thumb,.add-more').forEach(t => t.remove());
+  document.getElementById('cflowTrack').querySelectorAll('.cflow-thumb:not(.clear-all)').forEach(t => t.remove()); /* keep static clear-all tile */
   setState('empty');
 }
 </script>
