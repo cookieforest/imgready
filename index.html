@@ -628,6 +628,29 @@
     outline:2px solid var(--accent);outline-offset:2px;
   }
   .cflow-thumb.clear-all svg{width:18px;height:18px;stroke-width:2;}
+  /* Scrubber bar — bottom-center of cover-flow. Thin track, pill
+     indicator inside. Hidden when only 1 image. */
+  .cflow-scrubber{
+    position:absolute;
+    bottom:4px;left:50%;
+    transform:translateX(-50%);
+    width:min(160px, 30%);
+    height:3px;
+    background:rgba(255,255,255,.12);
+    border-radius:3px;
+    z-index:3;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .18s ease;
+  }
+  body[data-state="multi"] .cflow-scrubber.has-many{opacity:1;}
+  .cflow-scrubber-thumb{
+    position:absolute;top:0;bottom:0;
+    background:rgba(255,255,255,.55);
+    border-radius:3px;
+    transition:left .15s ease, width .15s ease;
+    min-width:18px;
+  }
   .cflow-thumb.add-more .add-more-label{
     /* Drop the all-caps tracked-out style — too formal for a small chip */
     text-transform:none;font-weight:500;letter-spacing:0;
@@ -2192,6 +2215,12 @@
   </div>
 
   <div class="cover-flow" id="coverFlow">
+    <!-- Scrubber bar — thin horizontal indicator at the bottom of the
+         strip. Pill position reflects CFLOW.selected; width reflects
+         1/N share. Visible only when 2+ images. -->
+    <div class="cflow-scrubber" id="cflowScrubber" aria-hidden="true">
+      <div class="cflow-scrubber-thumb"></div>
+    </div>
     <div class="cflow-track" id="cflowTrack">
       <!-- Clear-all tile: mirror of add-more on the opposite end of the
            strip. Positioned at virtual index -1 by layoutCoverFlow so
@@ -2586,6 +2615,31 @@ function layoutCoverFlow(){
     else caOffset = caSign * (STEP_TO_BIG + (caAdel - 1) * STEP_SMALL);
     clearAllTile.style.setProperty('--ox', caOffset.toFixed(1) + 'px');
     clearAllTile.style.width = W_SMALL.toFixed(1) + 'px';
+  }
+  /* Scrubber update: total real images = FILES.length, current
+     position = focal (= selected + drift). Show only when 2+ files. */
+  const scrubber = document.getElementById('cflowScrubber');
+  if (scrubber) {
+    const total = (typeof FILES !== 'undefined') ? FILES.length : 0;
+    if (total < 2) {
+      scrubber.classList.remove('has-many');
+    } else {
+      scrubber.classList.add('has-many');
+      /* Map focal (range [-1, total]) to a 0..1 progress.
+         When focal = 0 (leftmost real), progress = 0.
+         When focal = total-1 (rightmost real), progress = 1. */
+      const clamped = Math.max(0, Math.min(total - 1, focal));
+      const progress = clamped / (total - 1);
+      /* Thumb width: 1/total of the track, but clamped to a sensible
+         minimum so the indicator stays visible on big batches. */
+      const widthPct = Math.max(100 / total, 12);
+      const leftPct = progress * (100 - widthPct);
+      const thumb = scrubber.querySelector('.cflow-scrubber-thumb');
+      if (thumb) {
+        thumb.style.width = widthPct.toFixed(2) + '%';
+        thumb.style.left  = leftPct.toFixed(2) + '%';
+      }
+    }
   }
 }
 
