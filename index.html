@@ -127,10 +127,14 @@
     --s-4:24px;
     --s-5:32px;
     --s-6:40px;
-    /* Toolbar bottom inset — used by everything that positions above
-       the toolbar (scrubber, filename ribbon, cover-flow). Desktop
-       default is 16px; mobile overrides to max(8, safe-area-inset-bottom). */
-    --menu-anchor:var(--s-3);
+    /* Toolbar bottom inset — the visual distance from viewport bottom
+       to the menu-card's bottom edge. Used by everything that positions
+       above the toolbar (scrubber, filename ribbon, cover-flow).
+       Desktop multi state: .menu-wrap bottom:18 + padding-bottom:0 = 18.
+       Mobile multi state:  .menu-wrap bottom:8  + padding-bottom:8 = 16
+       (plus safe-area-inset-bottom on iOS). The mobile override below
+       handles the mobile case. */
+    --menu-anchor:18px;
     --action-w:240px;
   }
   body[data-state="solo"],body[data-state="multi"]{
@@ -355,9 +359,9 @@
      points at it from above. */
   .filename-ribbon{
     position:absolute;
-    /* anchor (toolbar bottom inset) + menu-h + 20px = clears scrubber
-       (which sits at anchor + 8 + 4 height) with an 8px gap above. */
-    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 20px);
+    /* anchor + 28 = 16 gap above toolbar + 4 scrubber height + 8 gap
+       above scrubber. Filename ribbon clears scrubber on both viewports. */
+    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + 28px);
     left:50%;transform:translateX(-50%);
     background:transparent;border:none;
     color:rgba(255,255,255,.7);
@@ -530,7 +534,7 @@
     /* Cover-flow above the bar with a gap that holds the filename.
        Stack from viewport bottom: bar (var --menu-h) → 14px gap → filename
        (~16px) → 12px gap → cover-flow. Total ~42px above bar. */
-    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 40px);
+    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + 48px);  /* 28 filename + ~20 to clear ribbon font */
     left:0;right:0;
     height:80px;
     z-index:6;
@@ -671,7 +675,7 @@
        the bottom toolbar (menu-h + ~16px). At menu-h + 14, scrubber
        has 8px clearance below it (toolbar) and 7px above it (filename).
        Higher z-index than the toolbar so they never visually collide. */
-    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + var(--s-1));  /* anchor + 8 gap above toolbar */
+    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + var(--s-3));  /* anchor + 16 gap above toolbar */
     left:50%;
     transform:translateX(-50%);
     width:min(180px, 35vw);
@@ -1708,10 +1712,12 @@
        up of small thumbs) without dominating the screen. */
     :root{
       --thumb-big:56px;--thumb-small:40px;--action-w:auto;
-      --menu-anchor:max(var(--s-1), env(safe-area-inset-bottom, var(--s-1)));
+      /* Mobile anchor = bottom(8) + padding-bottom(8) + safe-area (if any).
+         max() ensures non-iOS devices still get 16; iOS gets 16+safe-area. */
+      --menu-anchor:calc(var(--s-1) + max(var(--s-1), env(safe-area-inset-bottom, var(--s-1))));
     }
     .cover-flow{
-      bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 8px) + var(--s-5));  /* anchor + 32, was menu-h+40 unanchored */
+      bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 48px);  /* matches desktop offset above ribbon */
       left:0;right:0;
       height:72px;  /* was 60 — fits bigger 56px active thumb */
     }
@@ -1719,9 +1725,9 @@
       bottom:calc(var(--menu-h, 100px) + 100px);
     }
     .filename-ribbon{
-      /* Same formula as desktop now: stays 20px above the toolbar's
-         top edge regardless of safe-area inset. */
-      bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 20px);
+      /* Same anchor-aware formula as desktop. 28px above toolbar so
+         it clears the scrubber (at +16) plus the scrubber's height. */
+      bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + 28px);
       font-size:.66rem;max-width:80vw;
     }
     /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
