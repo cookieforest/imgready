@@ -839,6 +839,26 @@
     display:inline-flex;align-items:center;
     font-size:.72rem;
   }
+  /* Mobile action hierarchy: Download is the primary CTA (full-width
+     50pt tinted button), Clear + Share are secondary plain-text links
+     below it. iOS HIG: one primary per screen. */
+  @media (max-width:767px){
+    .menu-card > .actions{
+      padding:16px;flex-direction:column;gap:8px;align-items:stretch;
+    }
+    .menu-card > .actions .btn{
+      width:100%;height:50px;justify-content:center;
+      font-size:17px;font-weight:600;border-radius:12px;padding:0 16px;
+    }
+    .menu-card > .actions .btn-primary{
+      order:-1; /* hoist Download to the top */
+    }
+    .menu-card > .actions .btn:not(.btn-primary){
+      background:transparent;border:none;
+      color:var(--accent);font-weight:400;
+      height:44px;
+    }
+  }
   .settings-icon{
     display:inline-flex;align-items:center;justify-content:center;
     width:14px;height:14px;flex:none;color:rgba(255,255,255,.7);
@@ -1670,32 +1690,88 @@
         clip-path:none;-webkit-clip-path:none;
       }
     }
+    /* iOS Settings grouped-inset pattern on mobile:
+       - .bb-drawer-inner = page container with 16pt margins
+       - All .bb-sections (including those inside .bb-row-group) become
+         44pt rows in a single grouped card.
+       - Sections share rounded corners + hairlines between them. */
     .bb-drawer-inner{
-      /* Mobile: stack the Format / Resize / Privacy SECTIONS vertically
-         (column) but keep the CHILDREN of each section horizontal. */
-      flex-direction:column;gap:10px;width:100%;
-      padding:6px 10px 8px;white-space:normal;
+      flex-direction:column;gap:0;width:100%;
+      padding:0 16px 16px;white-space:normal;
+      background:transparent;
     }
-    /* Mobile sections — two layouts:
-       1) Top-level sections (Format, Quality): label inline with the
-          control on a single row (saves 2 vertical rows).
-       2) Sections inside .bb-row-group (Resize, Crop, Privacy): keep
-          column layout so 3-across grid fits.
-       The .bb-row-group rule overrides further down (see below). */
+    .bb-drawer-inner .bb-row-group{
+      display:flex;flex-direction:column;gap:0;width:100%;
+      background:rgba(255,255,255,.06);
+      border-radius:10px;overflow:hidden;
+    }
+    /* Wrap the 2 top-level sections in their own grouped card via
+       a CSS-only approach: each section above .bb-row-group inherits
+       the same grouped styling. */
     .bb-drawer-inner > .bb-section{
-      flex-wrap:nowrap;width:100%;
-      flex-direction:row;align-items:center;gap:12px;
+      background:rgba(255,255,255,.06);
+      width:100%;
     }
-    .bb-drawer-inner > .bb-section > .bb-section-label{
-      flex:none;min-width:60px;
+    .bb-drawer-inner > .bb-section:first-of-type{
+      border-radius:10px 10px 0 0;
     }
-    .bb-drawer-inner > .bb-section > *:not(.bb-section-label){
+    /* All sections (top-level + row-group children) get 44pt iOS row
+       layout: label leading, control trailing. */
+    .bb-drawer-inner .bb-section{
+      flex-direction:row !important;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      min-height:44px;
+      padding:0 16px;
+      margin:0;
+      cursor:pointer;
+    }
+    /* Hairline separator between adjacent rows in the same group */
+    .bb-drawer-inner > .bb-section + .bb-section,
+    .bb-drawer-inner .bb-row-group .bb-section + .bb-section{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding-top:0;
+    }
+    /* iOS-style label: 17pt regular, leading aligned */
+    .bb-drawer-inner .bb-section .bb-section-label{
       flex:1 1 auto;
+      font-size:17px;font-weight:400;
+      letter-spacing:0;text-transform:none;
+      color:#fff;text-align:left;
     }
-    /* Sections INSIDE row-group keep column stack so 3-across grid fits */
-    .bb-drawer-inner .bb-row-group .bb-section{
-      flex-wrap:nowrap;width:100%;
-      flex-direction:column;align-items:stretch;gap:6px;
+    /* Dropdown trigger becomes value + chevron, no button chrome */
+    .bb-drawer-inner .bb-section .resize-presets-trigger{
+      background:transparent !important;
+      border:none !important;
+      color:rgba(255,255,255,.55) !important;
+      font-size:17px !important;
+      font-weight:400 !important;
+      height:auto !important;
+      padding:0 !important;
+      gap:6px;
+      pointer-events:none; /* row delegates click */
+    }
+    .bb-drawer-inner .bb-section .resize-presets-trigger svg{
+      width:12px;height:12px;opacity:.45;
+      transform:rotate(-90deg); /* point right like iOS chevron */
+    }
+    /* Privacy switch: place toggle trailing, label inherits from row */
+    .bb-drawer-inner .bb-section .switch{
+      flex:none;gap:0;
+      pointer-events:auto; /* native label toggles checkbox */
+    }
+    .bb-drawer-inner .bb-section .switch > span:last-child{
+      display:none; /* hide redundant text — the row label covers it */
+    }
+    /* Hide the .bb-row label-then-controls vertical for resize */
+    .bb-drawer-inner .bb-section .bb-row{
+      flex-direction:row;gap:0;width:auto;
+    }
+    /* Hide irrelevant elements in compact iOS rows */
+    .bb-drawer-inner > .bb-section > .qr-size,
+    .bb-drawer-inner > .bb-section > .qr-spinner{
+      display:none !important;
     }
     .bb-drawer-inner .bb-section > *:not(.bb-section-label):not(.bb-row){
       width:100%;
@@ -4142,6 +4218,30 @@ window.openCmpSettings = window.openCmpSettings || function(){
    4. Workspace format dropdown wires trigger / menu / mutex.
 */
 window.PREFS = window.PREFS || { outFormat: 'webp', outFormats: ['webp'] };
+
+/* iOS Settings row delegation — on mobile, clicking anywhere on a
+   .bb-section row forwards the click to the inner dropdown trigger.
+   The trigger itself has pointer-events:none on mobile (via CSS) so
+   we don't double-fire. Native <label class="switch"> rows still
+   toggle their inner checkbox via the label's native behavior. */
+if (!window._bbRowDelegationInstalled) {
+  window._bbRowDelegationInstalled = true;
+  document.addEventListener('click', (e) => {
+    const isMobile = window.matchMedia && window.matchMedia('(max-width:767px)').matches;
+    if (!isMobile) return;
+    const row = e.target.closest && e.target.closest('.bb-drawer-inner .bb-section');
+    if (!row) return;
+    /* If the click was on a native switch (Privacy), let label do its job. */
+    if (e.target.closest('.switch')) return;
+    /* If the click was on the trigger SVG/text, the row container is
+       still what we want — but pointer-events:none on trigger means
+       e.target is the row itself. Find and click the trigger. */
+    const trigger = row.querySelector('.resize-presets-trigger');
+    if (trigger && e.target !== trigger) {
+      trigger.click();
+    }
+  });
+}
 
 /* Hamburger toggle for the legacy top-nav (mobile only — /app.css
    keeps the menu inline on desktop via display:contents). Closes on
