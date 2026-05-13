@@ -660,17 +660,18 @@
      indicator inside. Hidden when only 1 image. */
   .cflow-scrubber{
     position:absolute;
-    /* Gap between filename ribbon (at menu-h+26px to ~+42px) and
-       the bottom toolbar (0 to menu-h). Sit at menu-h+12px so the
-       scrubber is below the filename text and above the toolbar. */
-    bottom:calc(var(--menu-h, 80px) + 12px);
+    /* Sits in the gap between filename ribbon (menu-h + 24px) and
+       the bottom toolbar (menu-h + ~16px). At menu-h + 14, scrubber
+       has 8px clearance below it (toolbar) and 7px above it (filename).
+       Higher z-index than the toolbar so they never visually collide. */
+    bottom:calc(var(--menu-h, 80px) + 14px);
     left:50%;
     transform:translateX(-50%);
-    width:min(160px, 30vw);
-    height:3px;
-    background:rgba(255,255,255,.14);
-    border-radius:3px;
-    z-index:7;
+    width:min(180px, 35vw);
+    height:4px;  /* was 3 — slightly more prominent */
+    background:rgba(255,255,255,.20);  /* was .14 — more legible on dark */
+    border-radius:4px;
+    z-index:8;  /* was 7 — wins over toolbar (z-index 7) */
     pointer-events:none;
     opacity:0;
     transition:opacity .18s ease;
@@ -678,8 +679,8 @@
   body[data-state="multi"] .cflow-scrubber.has-many{opacity:1;}
   .cflow-scrubber-thumb{
     position:absolute;top:0;bottom:0;
-    background:rgba(255,255,255,.55);
-    border-radius:3px;
+    background:rgba(255,255,255,.85);  /* was .55 — bumped for contrast on the lighter track */
+    border-radius:4px;
     transition:left .15s ease, width .15s ease;
     min-width:18px;
   }
@@ -1698,11 +1699,11 @@
        for the compare canvas (the actual reason users come to the page).
        80/42 still keeps the active thumb tappable (>=44px after scale
        up of small thumbs) without dominating the screen. */
-    :root{--thumb-big:40px;--thumb-small:21px;--action-w:auto;}
+    :root{--thumb-big:56px;--thumb-small:40px;--action-w:auto;}  /* was 40/21 — sizes now match bookend tiles (40) with stronger active contrast (56) */
     .cover-flow{
-      bottom:calc(var(--menu-h,80px) + 38px);
+      bottom:calc(var(--menu-h,80px) + var(--s-6));  /* 40 — was 38 */
       left:0;right:0;
-      height:60px;
+      height:72px;  /* was 60 — fits bigger 56px active thumb */
     }
     .image-canvas{
       bottom:calc(var(--menu-h, 100px) + 100px);
