@@ -839,6 +839,15 @@
     display:inline-flex;align-items:center;
     font-size:.72rem;
   }
+  /* Output-size suffix on the Download button — gives the CTA a
+     concrete value to anchor the user's decision. Hidden when empty
+     (no encode yet) and a single space-margin when populated. */
+  .menu-card > .actions .btn .btn-size{
+    margin-left:6px;
+    font-weight:500;
+    opacity:.85;
+  }
+  .menu-card > .actions .btn .btn-size:empty{display:none;}
   .settings-icon{
     display:inline-flex;align-items:center;justify-content:center;
     width:14px;height:14px;flex:none;color:rgba(255,255,255,.7);
@@ -1265,6 +1274,11 @@
   }
   .top-chrome .tc-pct.bad{color:#ff8b8b;}
   .top-chrome .tc-pct:empty{display:none;}
+  /* Mobile: hide the savings % — top-chrome is narrow and the size
+     readout reads cleaner without it. */
+  @media (max-width:767px){
+    .top-chrome .tc-pct{display:none !important;}
+  }
   /* After-section row 2: wraps value + pct inline so they share a row */
   .top-chrome .tc-after-line2{
     display:inline-flex;align-items:baseline;gap:6px;
@@ -1670,32 +1684,42 @@
         clip-path:none;-webkit-clip-path:none;
       }
     }
+    /* Mobile settings — 2-column grid for all four dropdowns
+       (Format, Quality, Resize, Crop) and a full-width Privacy row.
+       Every section is column-stacked: label on top, control below.
+       Each cell is roughly 50% of container width so the dropdowns
+       line up evenly. */
     .bb-drawer-inner{
-      /* Mobile: stack the Format / Resize / Privacy SECTIONS vertically
-         (column) but keep the CHILDREN of each section horizontal. */
-      flex-direction:column;gap:10px;width:100%;
-      padding:6px 10px 8px;white-space:normal;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      column-gap:10px;row-gap:12px;
+      width:100%;
+      padding:10px 10px 8px;white-space:normal;
     }
-    /* Mobile sections — two layouts:
-       1) Top-level sections (Format, Quality): label inline with the
-          control on a single row (saves 2 vertical rows).
-       2) Sections inside .bb-row-group (Resize, Crop, Privacy): keep
-          column layout so 3-across grid fits.
-       The .bb-row-group rule overrides further down (see below). */
-    .bb-drawer-inner > .bb-section{
+    /* Row-group children participate as direct grid items */
+    .bb-drawer-inner .bb-row-group{display:contents;}
+    /* Every section: column-stacked (label above control) */
+    .bb-drawer-inner .bb-section{
       flex-wrap:nowrap;width:100%;
-      flex-direction:row;align-items:center;gap:12px;
+      flex-direction:column !important;
+      align-items:stretch;gap:6px;
+      min-width:0; /* allow contents to shrink inside grid cell */
     }
-    .bb-drawer-inner > .bb-section > .bb-section-label{
-      flex:none;min-width:60px;
+    /* Privacy row (the only one with a .switch direct child) spans
+       both columns — gets its own full-width row at the bottom. */
+    .bb-drawer-inner .bb-section:has(> .switch){
+      grid-column:1 / -1;
+      flex-direction:row !important;
+      align-items:center;
+      gap:10px;
     }
-    .bb-drawer-inner > .bb-section > *:not(.bb-section-label){
-      flex:1 1 auto;
+    /* Trigger fills its grid cell so dropdowns are visually even */
+    .bb-drawer-inner .bb-section .resize-presets,
+    .bb-drawer-inner .bb-section .resize-presets-trigger{
+      width:100%;
     }
-    /* Sections INSIDE row-group keep column stack so 3-across grid fits */
-    .bb-drawer-inner .bb-row-group .bb-section{
-      flex-wrap:nowrap;width:100%;
-      flex-direction:column;align-items:stretch;gap:6px;
+    .bb-drawer-inner .bb-section .resize-presets-trigger{
+      justify-content:space-between;
     }
     .bb-drawer-inner .bb-section > *:not(.bb-section-label):not(.bb-row){
       width:100%;
@@ -2276,7 +2300,7 @@
       <div class="actions">
         <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
         <button class="btn" onclick="shareAll()"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
-        <button class="btn btn-primary" onclick="downloadAll()"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span></button>
+        <button class="btn btn-primary" onclick="downloadAll()"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span><span class="btn-size" id="btnDlSize"></span></button>
       </div>
     </div>
   </div>
@@ -2849,6 +2873,20 @@ function setMetaCorners(beforeFile, encoded){
      keeps the user's eye on the slider while they're tuning quality. */
   const qrSize = document.getElementById('qrSize');
   if (qrSize) qrSize.textContent = encoded ? fmtSize(encoded.size) : '';
+  /* Mirror size into the Download button label. Single file: show the
+     individual size; batch: show file count (total bytes is less
+     useful when each file has its own savings). */
+  const btnDlSize = document.getElementById('btnDlSize');
+  if (btnDlSize) {
+    const fileCount = (typeof FILES !== 'undefined') ? FILES.length : 0;
+    if (fileCount > 1) {
+      btnDlSize.textContent = '\u00b7 ' + fileCount + ' files';
+    } else if (encoded) {
+      btnDlSize.textContent = '\u00b7 ' + fmtSize(encoded.size);
+    } else {
+      btnDlSize.textContent = '';
+    }
+  }
   const afterMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.r');
   if (afterMeta) {
     const sizeSpan = afterMeta.querySelector('span:not(.lbl-title):not(.pct):not(.batch-row)');
