@@ -628,6 +628,24 @@
     outline:2px solid var(--accent);outline-offset:2px;
   }
   .cflow-thumb.clear-all svg{width:18px;height:18px;stroke-width:2;}
+  /* Mobile tap target — Apple HIG 44pt min. Default --thumb-small is
+     21px on narrow viewports which is below the threshold. Override
+     bookends to at least 40px (still under Apple's 44 but closer to
+     Material's 36dp floor and a workable compromise vs. the cramped
+     21px). layoutCoverFlow's offset math uses W_SMALL = 21px so the
+     spacing stays consistent; min-width just inflates the rendered
+     box without breaking adjacent thumb positions. */
+  @media (max-width:767px){
+    .cflow-thumb.clear-all,
+    .cflow-thumb.add-more{
+      min-width:40px !important;
+      aspect-ratio:1 / 1;
+    }
+    .cflow-thumb.clear-all svg,
+    .cflow-thumb.add-more svg{
+      width:20px;height:20px;
+    }
+  }
   /* Scrubber bar — bottom-center of cover-flow. Thin track, pill
      indicator inside. Hidden when only 1 image. */
   .cflow-scrubber{
