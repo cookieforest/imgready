@@ -127,6 +127,10 @@
     --s-4:24px;
     --s-5:32px;
     --s-6:40px;
+    /* Toolbar bottom inset — used by everything that positions above
+       the toolbar (scrubber, filename ribbon, cover-flow). Desktop
+       default is 16px; mobile overrides to max(8, safe-area-inset-bottom). */
+    --menu-anchor:var(--s-3);
     --action-w:240px;
   }
   body[data-state="solo"],body[data-state="multi"]{
@@ -351,7 +355,9 @@
      points at it from above. */
   .filename-ribbon{
     position:absolute;
-    bottom:calc(var(--menu-h, 80px) + var(--s-4));  /* 24 — was 26 */
+    /* anchor (toolbar bottom inset) + menu-h + 20px = clears scrubber
+       (which sits at anchor + 8 + 4 height) with an 8px gap above. */
+    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 20px);
     left:50%;transform:translateX(-50%);
     background:transparent;border:none;
     color:rgba(255,255,255,.7);
@@ -524,7 +530,8 @@
     /* Cover-flow above the bar with a gap that holds the filename.
        Stack from viewport bottom: bar (var --menu-h) → 14px gap → filename
        (~16px) → 12px gap → cover-flow. Total ~42px above bar. */
-    bottom:calc(var(--menu-h, 80px) + 42px);left:0;right:0;
+    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 40px);
+    left:0;right:0;
     height:80px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
@@ -664,7 +671,7 @@
        the bottom toolbar (menu-h + ~16px). At menu-h + 14, scrubber
        has 8px clearance below it (toolbar) and 7px above it (filename).
        Higher z-index than the toolbar so they never visually collide. */
-    bottom:calc(var(--menu-h, 80px) + 14px);
+    bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + var(--s-1));  /* anchor + 8 gap above toolbar */
     left:50%;
     transform:translateX(-50%);
     width:min(180px, 35vw);
@@ -1699,9 +1706,12 @@
        for the compare canvas (the actual reason users come to the page).
        80/42 still keeps the active thumb tappable (>=44px after scale
        up of small thumbs) without dominating the screen. */
-    :root{--thumb-big:56px;--thumb-small:40px;--action-w:auto;}  /* was 40/21 — sizes now match bookend tiles (40) with stronger active contrast (56) */
+    :root{
+      --thumb-big:56px;--thumb-small:40px;--action-w:auto;
+      --menu-anchor:max(var(--s-1), env(safe-area-inset-bottom, var(--s-1)));
+    }
     .cover-flow{
-      bottom:calc(var(--menu-h,80px) + var(--s-6));  /* 40 — was 38 */
+      bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 8px) + var(--s-5));  /* anchor + 32, was menu-h+40 unanchored */
       left:0;right:0;
       height:72px;  /* was 60 — fits bigger 56px active thumb */
     }
@@ -1709,9 +1719,9 @@
       bottom:calc(var(--menu-h, 100px) + 100px);
     }
     .filename-ribbon{
-      /* Mobile filename — leaves room for the scrubber at menu-h+12
-         and matches desktop's 24px breathing room above the toolbar. */
-      bottom:calc(var(--menu-h,80px) + var(--s-4));  /* 24 — was 14 */
+      /* Same formula as desktop now: stays 20px above the toolbar's
+         top edge regardless of safe-area inset. */
+      bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 20px);
       font-size:.66rem;max-width:80vw;
     }
     /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
