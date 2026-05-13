@@ -1685,10 +1685,24 @@
       flex-direction:column;gap:10px;width:100%;
       padding:6px 10px 8px;white-space:normal;
     }
-    /* Mobile sections: label above controls; controls flow horizontally
-       where possible to reduce vertical space. .bb-row is a horizontal
-       sub-grouping (Resize input + Presets dropdown). */
-    .bb-drawer-inner .bb-section{
+    /* Mobile sections — two layouts:
+       1) Top-level sections (Format, Quality): label inline with the
+          control on a single row (saves 2 vertical rows).
+       2) Sections inside .bb-row-group (Resize, Crop, Privacy): keep
+          column layout so 3-across grid fits.
+       The .bb-row-group rule overrides further down (see below). */
+    .bb-drawer-inner > .bb-section{
+      flex-wrap:nowrap;width:100%;
+      flex-direction:row;align-items:center;gap:12px;
+    }
+    .bb-drawer-inner > .bb-section > .bb-section-label{
+      flex:none;min-width:60px;
+    }
+    .bb-drawer-inner > .bb-section > *:not(.bb-section-label){
+      flex:1 1 auto;
+    }
+    /* Sections INSIDE row-group keep column stack so 3-across grid fits */
+    .bb-drawer-inner .bb-row-group .bb-section{
       flex-wrap:nowrap;width:100%;
       flex-direction:column;align-items:stretch;gap:6px;
     }
