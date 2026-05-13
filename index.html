@@ -401,6 +401,12 @@
     z-index:2;
   }
   .cflow-thumb.encoding .thumb-progress{display:flex;}
+  /* While the active thumb is encoding, the per-image hover icons are
+     disabled — wouldn't make sense to share/copy/download a result
+     that doesn't exist yet, and delete-mid-encode races the worker. */
+  .cflow-track:has(.cflow-thumb.active.encoding) .pi-actions{
+    opacity:.4;pointer-events:none;
+  }
   /* "queued, not yet encoding" — softer overlay so the user can tell the
      thumb is scheduled to be processed but isn't actively cooking yet. */
   .cflow-thumb.queued .thumb-progress{display:flex;background:rgba(0,0,0,.22);}
@@ -2887,9 +2893,14 @@ function setMetaCorners(beforeFile, encoded){
   const tcA = document.getElementById('tcAfter');
   const tcP = document.getElementById('tcPct');
   const tcS = document.getElementById('tcStats');
-  if (tcB) tcB.textContent = dimsStr + fmtSize(beforeFile.size) + ' \u00b7 ' + (beforeFile.type.split('/')[1]||'IMG').toUpperCase();
+  /* On narrow viewports the top-chrome's tcBefore/tcAfter just don't
+     have room for dimensions; keep size + format only. */
+  const _isNarrow = (typeof window.matchMedia === 'function') &&
+                    window.matchMedia('(max-width: 767px)').matches;
+  const _dims = _isNarrow ? '' : dimsStr;
+  if (tcB) tcB.textContent = _dims + fmtSize(beforeFile.size) + ' \u00b7 ' + (beforeFile.type.split('/')[1]||'IMG').toUpperCase();
   if (tcA) {
-    if (encoded) { tcA.textContent = dimsStr + fmtSize(encoded.size) + ' \u00b7 ' + (encoded.format||'').toUpperCase(); }
+    if (encoded) { tcA.textContent = _dims + fmtSize(encoded.size) + ' \u00b7 ' + (encoded.format||'').toUpperCase(); }
     else { tcA.textContent = 'Encoding\u2026'; }
   }
   if (tcP) {
@@ -3432,6 +3443,11 @@ function selectIndex(i){
 /* ===== per-image actions: hover + 2nd click + 3s timer ===== */
 let piTimer = null;
 function openPiActions(){
+  /* Don't open hover actions while the active thumb is encoding —
+     the actions reference a result that doesn't exist yet. CSS also
+     disables them visually via .cflow-track:has(.cflow-thumb.active.encoding). */
+  const activeThumb = document.querySelector('.cflow-thumb.active');
+  if (activeThumb && activeThumb.classList.contains('encoding')) return;
   document.body.dataset.piActions = 'open';
   resetPiTimer();
 }
