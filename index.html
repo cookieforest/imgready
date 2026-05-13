@@ -2501,7 +2501,7 @@ window.addEventListener('resize', layoutCoverFlow);
    <img> inside the slot; aspect ratios are preserved with letterboxing. */
 function buildThumbs(){
   const track = document.getElementById('cflowTrack');
-  Array.from(track.querySelectorAll('.cflow-thumb,.add-more')).forEach(t=>t.remove());
+  Array.from(track.querySelectorAll('.cflow-thumb:not(.clear-all)')).forEach(t=>t.remove()); /* keep static clear-all tile */
   CFLOW.thumbs = [];
   for (let i = 0; i < FILES.length; i++) {
     const f = FILES[i];
