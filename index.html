@@ -117,6 +117,16 @@
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
     --thumb-big:75px;--thumb-small:35px;--stride:60px;
+    /* 8-pt spacing grid — use these for new work and migrate older
+       values opportunistically. --s-half = 4px is the minor unit for
+       tight gaps; multiples of 8 from --s-1 onward. */
+    --s-half:4px;
+    --s-1:8px;
+    --s-2:12px;
+    --s-3:16px;
+    --s-4:24px;
+    --s-5:32px;
+    --s-6:40px;
     --action-w:240px;
   }
   body[data-state="solo"],body[data-state="multi"]{
@@ -242,14 +252,14 @@
     pointer-events:auto;
     user-select:none;-webkit-user-select:none;
   }
-  .compare-meta{position:absolute;top:14px;background:var(--card-bg);
+  .compare-meta{position:absolute;top:var(--s-3);background:var(--card-bg);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     color:#fff;padding:8px 12px;border-radius:8px;
     font-size:.74rem;font-weight:600;line-height:1.35;
     pointer-events:none;z-index:5;display:flex;flex-direction:column;gap:2px;
     border:1px solid var(--card-border);}
-  .compare-meta.l{left:14px;align-items:flex-start;}
-  .compare-meta.r{right:14px;align-items:flex-end;text-align:right;}
+  .compare-meta.l{left:var(--s-3);align-items:flex-start;}
+  .compare-meta.r{right:var(--s-3);align-items:flex-end;text-align:right;}
   .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
   .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.78rem;}
   .compare-meta .batch-row{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.18);
@@ -341,7 +351,7 @@
      points at it from above. */
   .filename-ribbon{
     position:absolute;
-    bottom:calc(var(--menu-h, 80px) + 26px);
+    bottom:calc(var(--menu-h, 80px) + var(--s-4));  /* 24 — was 26 */
     left:50%;transform:translateX(-50%);
     background:transparent;border:none;
     color:rgba(255,255,255,.7);
@@ -701,7 +711,7 @@
     opacity:1;pointer-events:auto;
     transform:translate(-50%,-50%) translateY(calc(-1 * var(--thumb-big) / 2 - 38px));
   }
-  .pi-icon{width:38px;height:38px;border-radius:50%;
+  .pi-icon{width:40px;height:40px;border-radius:50%;
     background:rgba(20,20,20,.92);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     border:1px solid rgba(255,255,255,.18);
@@ -758,9 +768,9 @@
      Centering is done by flex justify-content on a full-width wrapper. */
   .menu-wrap{
     position:absolute;
-    left:0;right:0;bottom:14px;
+    left:0;right:0;bottom:var(--s-3);  /* 16 — was 14 */
     display:flex;align-items:stretch;justify-content:center;
-    padding:0 14px;
+    padding:0 var(--s-3);  /* 16 — was 14 */
     pointer-events:none;z-index:7;
   }
   .menu-card{
@@ -842,8 +852,9 @@
   .bb-drawer-inner::-webkit-scrollbar{height:6px;}
   .bb-drawer-inner::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
   .bb-drawer-inner{
-    display:flex;align-items:center;gap:14px;
-    padding:8px 12px;white-space:nowrap;
+    display:flex;align-items:center;gap:var(--s-3);  /* 16 — was 14 */
+    padding:var(--s-1) var(--s-2);                   /* 8 / 12 */
+    white-space:nowrap;
     background:transparent;
   }
   .bb-section{
@@ -903,11 +914,13 @@
   }
   .bb-divider{
     width:1px;background:rgba(255,255,255,.12);align-self:stretch;
-    margin:6px 0;
+    margin:var(--s-1) 0;  /* 8 — was 6 */
   }
   /* Batch actions (right edge of bar) */
   .menu-card > .actions{
-    padding:8px 10px;flex-direction:row;gap:6px;align-items:center;
+    padding:var(--s-1) var(--s-2);  /* 8 / 12 — was 8/10 */
+    flex-direction:row;gap:var(--s-1);  /* 8 — was 6 */
+    align-items:center;
   }
   .menu-card > .actions .btn{
     height:var(--bb-btn-h);padding:0 12px;
@@ -1695,9 +1708,9 @@
       bottom:calc(var(--menu-h, 100px) + 100px);
     }
     .filename-ribbon{
-      /* Mobile filename — same below-cover-flow placement, smaller font.
-         14px above bar matches desktop padding. */
-      bottom:calc(var(--menu-h,80px) + 14px);
+      /* Mobile filename — leaves room for the scrubber at menu-h+12
+         and matches desktop's 24px breathing room above the toolbar. */
+      bottom:calc(var(--menu-h,80px) + var(--s-4));  /* 24 — was 14 */
       font-size:.66rem;max-width:80vw;
     }
     /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
@@ -1705,10 +1718,12 @@
        strip drawer" pattern works on desktop but is too wide for
        narrow viewports; mobile just stacks the rows. */
     .menu-wrap{
-      /* Mobile bar with small inset like the Before/After meta cards.
-         Not edge-to-edge — small breathing room from viewport edges. */
-      left:0;right:0;bottom:0;
-      padding:0 8px 8px;
+      /* Mobile bar — small inset and respects safe-area-inset-bottom
+         so devices with a home indicator don't overlap the action
+         buttons. */
+      left:0;right:0;
+      bottom:max(var(--s-1), env(safe-area-inset-bottom, var(--s-1)));
+      padding:0 var(--s-1) var(--s-1);
       display:block;
     }
     .menu-card{
@@ -1913,7 +1928,7 @@
     }
     .state-toggle small{display:none;}
     .brand-bar{padding:0 12px;}
-    .pi-icon{width:42px;height:42px;}
+    .pi-icon{width:44px;height:44px;}  /* Apple HIG 44pt tap target */
     .cflow-thumb.add-more .add-more-label{display:none;}
   }
 
