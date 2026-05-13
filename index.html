@@ -598,6 +598,38 @@
                inset 0 -16px 24px -12px rgba(255,255,255,.12);
   }
   .cflow-thumb.add-more svg{width:26px;height:26px;stroke-width:2;}
+  /* Clear-all corner button — mirrors add-more on the opposite edge
+     of the cover-flow strip. Hidden until images are present. */
+  .cflow-clear-all{
+    position:absolute;left:10px;top:50%;
+    transform:translateY(-50%);
+    width:var(--thumb-small,35px);height:var(--thumb-small,35px);
+    border-radius:8px;
+    background:rgba(255,255,255,.04);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1.5px dashed rgba(255,255,255,.22);
+    color:rgba(255,255,255,.65);
+    display:none;align-items:center;justify-content:center;
+    cursor:pointer;z-index:4;padding:0;
+    font-family:inherit;
+    transition:background .15s ease,border-color .15s ease,color .15s ease;
+  }
+  body[data-state="multi"] .cflow-clear-all{display:flex;}
+  .cflow-clear-all:hover{
+    background:rgba(160,60,60,.18);
+    border-color:rgba(220,160,160,.45);
+    color:rgba(240,200,200,.95);
+  }
+  .cflow-clear-all:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;
+  }
+  .cflow-clear-all svg{width:18px;height:18px;}
+  @media (max-width:767px){
+    .cflow-clear-all{
+      width:36px;height:36px;left:8px;
+    }
+    .cflow-clear-all svg{width:16px;height:16px;}
+  }
   .cflow-thumb.add-more .add-more-label{
     /* Drop the all-caps tracked-out style — too formal for a small chip */
     text-transform:none;font-weight:500;letter-spacing:0;
@@ -2162,6 +2194,16 @@
   </div>
 
   <div class="cover-flow" id="coverFlow">
+    <button class="cflow-clear-all" id="clearAllStrip" type="button"
+            onclick="askClear()" title="Clear all images"
+            aria-label="Clear all images">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <polyline points="1 4 1 10 7 10"/>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+      </svg>
+    </button>
     <div class="cflow-track" id="cflowTrack">
       <!-- thumbs injected by JS -->
       <div class="pi-actions" id="piActions">
@@ -2297,7 +2339,7 @@
       <!-- bb-core removed: Quality slider lives in the drawer now. -->
       <div class="adjust-panel" hidden></div>
       <div class="actions">
-        <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
+        
         <button class="btn" onclick="shareAll()"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
         <button class="btn btn-primary" onclick="downloadAll()"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span><span class="btn-size" id="btnDlSize"></span></button>
       </div>
