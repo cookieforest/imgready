@@ -2818,6 +2818,16 @@ function getWorker(){
   if (!ENCODE.worker) {
     ENCODE.worker = new Worker('/imgready-worker.js');
     ENCODE.worker.onmessage = (e) => {
+      /* Diagnostic from the animated-GIF pipeline. Tagged so it bypasses
+         the normal id-routed reply flow. Useful for verifying that the
+         encoder actually wrote multiple frames. */
+      if (e.data && e.data.type === 'gif-diag') {
+        console.log('[gif] sourceFrames=%d framesWritten=%d palette=%d skip=%d size=%dx%d bytes=%d',
+          e.data.sourceFrames, e.data.framesWritten,
+          e.data.paletteSize, e.data.frameSkip,
+          e.data.outW, e.data.outH, e.data.bytes);
+        return;
+      }
       const m = e.data;
       const entry = ENCODE.pending[m.id];
       if (!entry) return;
