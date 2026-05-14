@@ -235,10 +235,19 @@
      height + 6 gap + 6 cushion on desktop; mobile overrides below. */
   .image-canvas{
     position:absolute;
-    top:0;left:0;right:0;
-    /* Stack: bar (--menu-h) + 42px filename gap + 80 cover-flow + 6 gap = +128.
-       Smaller thumbs (50% reduction) free up ~80px for the canvas. */
+    /* When settings is closed: top=0, bottom=menu-h+128 — normal.
+       When settings opens: --menu-h-delta = drawer-expansion height, so
+       top becomes -delta and bottom grows by delta (via menu-h). Net:
+       canvas keeps its original size but shifts UP by delta, taking
+       the centered image with it. Image moves the same amount as the
+       thumbs (which are anchored to menu-h). */
+    top:calc(-1 * var(--menu-h-delta, 0px));
+    left:0;right:0;
+    /* Stack: bar (--menu-h) + 42px filename gap + 80 cover-flow + 6 gap = +128. */
     bottom:calc(var(--menu-h, 80px) + 128px);
+    /* Smooth shift matching the drawer's open/close transition. */
+    transition:top .26s cubic-bezier(.22,1,.36,1),
+               bottom .26s cubic-bezier(.22,1,.36,1);
   }
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -2645,12 +2654,26 @@ function attachScrubberDrag(){
 }
 
 function updateMenuHeight(){
-  /* Read the active state's menu-card height and expose as --menu-h */
+  /* Read the active state's menu-card height and expose as --menu-h.
+     Also publish --menu-h-delta: the difference between current menu-h
+     and the "closed" baseline. Used to shift the image-canvas up by
+     the same amount as the drawer expansion (so the image moves with
+     the thumbs, not half as much). */
   const card = document.querySelector('body[data-state="multi"] .stage.multi .menu-card')
             || document.querySelector('body[data-state="solo"] .stage.solo .menu-card');
   if (!card) return;
   const h = card.offsetHeight || 100;
   document.documentElement.style.setProperty('--menu-h', h + 'px');
+  /* Baseline = menu-h when settings is closed. Whenever the drawer is
+     closed, we treat the current measured height as the new baseline
+     (handles resize / state changes that affect the closed-state h). */
+  const adjustOpen = document.body.dataset.adjust === 'open';
+  if (!adjustOpen) {
+    window._baselineMenuH = h;
+  }
+  const base = window._baselineMenuH || h;
+  const delta = Math.max(0, h - base);
+  document.documentElement.style.setProperty('--menu-h-delta', delta + 'px');
 }
 window.addEventListener('DOMContentLoaded', init);
 window.addEventListener('resize', layoutCoverFlow);
