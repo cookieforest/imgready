@@ -319,7 +319,11 @@ async function getGifFrameCount(file){
   try {
     const buffer = await file.arrayBuffer();
     const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
+    /* Per MDN: frameCount isn't stable until decoder.complete === true.
+       Even with ArrayBuffer input, parsing happens asynchronously.
+       Await both tracks.ready (metadata) AND completed (full parse). */
     await decoder.tracks.ready;
+    await decoder.completed;
     const t = decoder.tracks.selectedTrack;
     const n = t ? t.frameCount : 1;
     try { decoder.close(); } catch(_){}
@@ -365,7 +369,11 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
      Reuse prereadBuffer if the caller already loaded it. */
   const buffer = prereadBuffer || await file.arrayBuffer();
   const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
+  /* MDN: "frameCount won't be stable until all data has been received."
+     Even with ArrayBuffer input, parsing happens asynchronously.
+     Await BOTH metadata (tracks.ready) AND completion (completed). */
   await decoder.tracks.ready;
+  await decoder.completed;
   const track = decoder.tracks.selectedTrack;
   const frameCount = track.frameCount;
   if (!frameCount || frameCount < 2) {
@@ -405,6 +413,7 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
   const { paletteSize, frameSkip, dither } = gifQualityParams(q);
 
   const enc = GIFEncoder();
+  let _framesWritten = 0;
   /* Composite buffer — handles "do not dispose" frames where a frame
      overlays the previous instead of fully replacing it. ImageDecoder
      applies disposal automatically when decoding by frameIndex from 0,
@@ -436,11 +445,26 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
       dispose: 2,
       transparent: false
     });
+    _framesWritten++;
     frame.close && frame.close();
   }
   enc.finish();
   try { decoder.close(); } catch(_){}
-  return new Blob([enc.bytes()], { type: 'image/gif' });
+  const blob = new Blob([enc.bytes()], { type: 'image/gif' });
+  /* Diagnostic: surface frame counts to main-thread console so we can
+     verify the encoder did write multiple frames. Tagged so the message
+     dispatcher routes it past the normal id-based reply flow. */
+  try {
+    self.postMessage({
+      type: 'gif-diag',
+      sourceFrames: frameCount,
+      framesWritten: _framesWritten,
+      paletteSize, frameSkip,
+      outW, outH,
+      bytes: blob.size
+    });
+  } catch(_){}
+  return blob;
 }
 
 /* ---------- the main encode pipeline ---------- */
