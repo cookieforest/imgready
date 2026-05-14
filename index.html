@@ -235,19 +235,12 @@
      height + 6 gap + 6 cushion on desktop; mobile overrides below. */
   .image-canvas{
     position:absolute;
-    /* When settings is closed: top=0, bottom=menu-h+128 — normal.
-       When settings opens: --menu-h-delta = drawer-expansion height, so
-       top becomes -delta and bottom grows by delta (via menu-h). Net:
-       canvas keeps its original size but shifts UP by delta, taking
-       the centered image with it. Image moves the same amount as the
-       thumbs (which are anchored to menu-h). */
-    top:calc(-1 * var(--menu-h-delta, 0px));
-    left:0;right:0;
-    /* Stack: bar (--menu-h) + 42px filename gap + 80 cover-flow + 6 gap = +128. */
+    top:0;left:0;right:0;
+    /* Stack: bar (--menu-h) + 42px filename gap + 80 cover-flow + 6 gap = +128.
+       Note: this is overridden by the state-scoped rule
+       `body[data-state="multi"] .stage.multi .image-canvas{inset:0}`
+       below, which makes the canvas fill .stage in workspace states. */
     bottom:calc(var(--menu-h, 80px) + 128px);
-    /* Smooth shift matching the drawer's open/close transition. */
-    transition:top .26s cubic-bezier(.22,1,.36,1),
-               bottom .26s cubic-bezier(.22,1,.36,1);
   }
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -1427,7 +1420,16 @@
   body[data-state="multi"] .brand-bar{display:none !important;}
   /* Duplicate brand-bar display:none removed — the !important version above is the authoritative rule. */
   body[data-state="solo"] .stage,body[data-state="multi"] .stage{height:100vh;}
-  body[data-state="solo"] .stage.solo .image-canvas,body[data-state="multi"] .stage.multi .image-canvas{top:0;left:0;right:0;bottom:0;}
+  body[data-state="solo"] .stage.solo .image-canvas,
+  body[data-state="multi"] .stage.multi .image-canvas{
+    top:0;left:0;right:0;bottom:0;
+    /* When settings drawer opens, --menu-h-delta = drawer expansion
+       (published by updateMenuHeight). Shift the whole canvas UP by
+       that amount so the image moves with the thumbs/toolbar instead
+       of staying anchored to the stage's geometric center. */
+    transform:translateY(calc(-1 * var(--menu-h-delta, 0px)));
+    transition:transform .26s cubic-bezier(.22,1,.36,1);
+  }
   body[data-state="solo"] .stage.solo .compare-meta,body[data-state="multi"] .stage.multi .compare-meta{display:none;}
   /* Cover-flow has no container background — thumbs float freely
      against the full-screen image (like before the liquid-glass push). */
