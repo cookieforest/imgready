@@ -187,7 +187,12 @@ async function buildOnce() {
      reloads still bust the cache. */
   const swPath = 'dist/sw.js';
   if (existsSync(swPath)) {
-    const sha = process.env.CF_PAGES_COMMIT_SHA
+    /* Workers Builds: WORKERS_CI_COMMIT_SHA per official docs at
+       https://developers.cloudflare.com/workers/ci-cd/builds/configuration
+       Pages (legacy fallback): CF_PAGES_COMMIT_SHA. GitHub Actions:
+       GITHUB_SHA. Local dev: timestamp so SW reloads each rebuild. */
+    const sha = process.env.WORKERS_CI_COMMIT_SHA
+             || process.env.CF_PAGES_COMMIT_SHA
              || process.env.GITHUB_SHA
              || `dev-${Date.now()}`;
     const tag = sha.slice(0, 12);
