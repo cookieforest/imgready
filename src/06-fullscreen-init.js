@@ -429,11 +429,9 @@ document.addEventListener('click',function(e){
   p.classList.remove('show');
 });
 
-/* CMP open settings stub — replaced at runtime by Funding Choices when loaded */
-window.openCmpSettings=function(){
-  if(window.googlefc&&window.googlefc.showRevocationMessage){window.googlefc.showRevocationMessage();return;}
-  alert('Cookie & ad consent settings will appear here when the CMP is active. For now, see /privacy/ to manage your choices.');
-};
+/* No-op: AdSense + Funding Choices CMP removed 2026-05-14.
+   Stub kept so any cached footer markup linking to it doesn't throw. */
+window.openCmpSettings=function(){};
 
 /* ========================================
    DEMO SLIDER
