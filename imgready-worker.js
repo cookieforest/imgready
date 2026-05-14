@@ -349,7 +349,15 @@ async function encodeAnimatedGif(file, settings){
   if (typeof ImageDecoder !== 'function') {
     throw new Error('ImageDecoder unsupported');
   }
-  const { GIFEncoder, quantize, applyPalette } = await ensureGifenc();
+  /* gifenc bundle exports only `default` from esm.sh; the named
+     re-export claim in the wrapper doesn't actually carry through.
+     Read from mod.default with mod fallback so we don't crash. */
+  const mod = await ensureGifenc();
+  const G = (mod && mod.default) ? mod.default : mod;
+  const GIFEncoder = G.GIFEncoder, quantize = G.quantize, applyPalette = G.applyPalette;
+  if (!GIFEncoder || !quantize || !applyPalette) {
+    throw new Error('gifenc exports not found');
+  }
   const decoder = new ImageDecoder({
     data: file.stream(),
     type: 'image/gif'
