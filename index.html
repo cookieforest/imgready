@@ -116,7 +116,7 @@
     --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
-    --thumb-big:75px;--thumb-small:35px;--stride:60px;
+    --thumb-big:86px;--thumb-small:35px;--stride:60px;  /* active thumb +15% (75->86) for clearer selection */
     /* 8-pt spacing grid — use these for new work and migrate older
        values opportunistically. --s-half = 4px is the minor unit for
        tight gaps; multiples of 8 from --s-1 onward. */
@@ -538,7 +538,7 @@
        (~16px) → 12px gap → cover-flow. Total ~42px above bar. */
     bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + 48px);  /* 28 filename + ~20 to clear ribbon font */
     left:0;right:0;
-    height:80px;
+    height:96px;  /* was 80 — fits 86px active thumb with ~5px margin */
     z-index:6;
     cursor:grab;touch-action:pan-y;
     /* overflow:visible so the per-image action icons (which sit ABOVE the
@@ -1741,7 +1741,7 @@
        80/42 still keeps the active thumb tappable (>=44px after scale
        up of small thumbs) without dominating the screen. */
     :root{
-      --thumb-big:56px;--thumb-small:40px;--action-w:auto;
+      --thumb-big:64px;--thumb-small:40px;--action-w:auto;  /* active thumb +15% (56->64) for clearer selection */
       /* Mobile anchor = bottom(8) + padding-bottom(8) + safe-area (if any).
          max() ensures non-iOS devices still get 16; iOS gets 16+safe-area. */
       --menu-anchor:calc(var(--s-1) + max(var(--s-1), env(safe-area-inset-bottom, var(--s-1))));
@@ -1749,7 +1749,7 @@
     .cover-flow{
       bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 48px);  /* matches desktop offset above ribbon */
       left:0;right:0;
-      height:72px;  /* was 60 — fits bigger 56px active thumb */
+      height:80px;  /* was 72 — fits 64px active thumb with ~8px margin */
     }
     .image-canvas{
       bottom:calc(var(--menu-h, 100px) + 100px);
