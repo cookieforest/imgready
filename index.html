@@ -1542,7 +1542,12 @@
   .dz-loop{
     color:var(--accent);
     display:inline-block;
-    min-width:10ch;text-align:left;
+    /* 10ch reserves space for the longest verb so "Your image, ___"
+       doesn't visually shift each rotation. text-align:center keeps
+       shorter words centered within that fixed slot, so the whole
+       headline looks centered (with text-align:left, shorter words
+       pinned to the left edge, making the headline look skewed). */
+    min-width:10ch;text-align:center;
   }
   .dz-loop.is-in{
     opacity:1;
