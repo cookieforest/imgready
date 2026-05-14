@@ -24,18 +24,22 @@
 const LIBHEIF_URL = '/vendor/libheif.js';
 const UPNG_URL    = '/vendor/UPNG.min.js';
 const PAKO_URL    = '/vendor/pako.min.js';
-// jsquash WebP/AVIF/JPEG/OxiPNG loaded from jsDelivr. The previous self-host
+// jsquash WebP/AVIF/JPEG/OxiPNG loaded from esm.sh because
+// jsDelivr's /+esm wrapper doesn't resolve the `new URL('xyz.wasm',
+// import.meta.url)` sidecar pattern that jsquash uses — WASM modules
+// 404 with a "Coul..." HTML response instead of bytes. esm.sh's
+// ?bundle flag handles WASM correctly (verified 2026-05-14). The previous self-host
 // attempt referenced /vendor/jsquash/*.mjs but those binaries were never
 // committed to the repo, which broke encoding on every format. Reverted to
 // esm.sh until we ship a real, verified vendor bundle.
 //
-// jsDelivr bundles each package's WASM sidecar alongside the .mjs and loads it
+// esm.sh bundles each package's WASM sidecar alongside the .mjs and loads it
 // via `new URL('xyz.wasm', import.meta.url)`, so it works in classic workers
-// using dynamic import(). jsDelivr chosen over esm.sh/unpkg for its multi-CDN
-const WEBP_ESM    = 'https://cdn.jsdelivr.net/npm/@jsquash/webp@1.5.0/+esm';
-const AVIF_ESM    = 'https://cdn.jsdelivr.net/npm/@jsquash/avif@2.1.0/+esm';
-const JPEG_ESM    = 'https://cdn.jsdelivr.net/npm/@jsquash/jpeg@1.5.0/+esm';   // MozJPEG — better than canvas.toBlob('image/jpeg')
-const OXIPNG_ESM  = 'https://cdn.jsdelivr.net/npm/@jsquash/oxipng@2.3.0/+esm';
+// using dynamic import().
+const WEBP_ESM    = 'https://esm.sh/@jsquash/webp@1.5.0?bundle';
+const AVIF_ESM    = 'https://esm.sh/@jsquash/avif@2.1.0?bundle';
+const JPEG_ESM    = 'https://esm.sh/@jsquash/jpeg@1.5.0?bundle';   // MozJPEG — better than canvas.toBlob('image/jpeg')
+const OXIPNG_ESM  = 'https://esm.sh/@jsquash/oxipng@2.3.0?bundle';
 
 let libheifModule = null;
 let upngLoaded = false;
