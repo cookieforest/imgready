@@ -2062,7 +2062,7 @@
        every pill click. Selection persists via window.PREFS.outFormat
        into the workspace's format dropdown. -->
   <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
-    <div class="dz-format-label">Output format <span class="dz-format-hint">— pick one, or we'll match your input</span></div>
+    <div class="dz-format-label">Output format <span class="dz-format-hint">— optional, pick one or many</span></div>
     <div class="dz-pills" id="dzPills">
       <button type="button" data-out-fmt="webp">WebP</button>
       <button type="button" data-out-fmt="avif">AVIF</button>
@@ -4622,8 +4622,10 @@ if (!window._navMenuOutsideClick) {
     const current = (window.PREFS.outFormats || ['auto']).slice();
     let next;
     if (current.includes(clicked)) {
+      /* Allow unpicking ALL — empty array reverts to "match input on
+         drop" via presetFormatFromInput. Previous version forbade the
+         last unpick (legacy from when PREFS defaulted to ['webp']). */
       next = current.filter(f => f !== clicked);
-      if (!next.length) next = current;
     } else {
       next = [...current, clicked];
     }
