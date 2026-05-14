@@ -20,43 +20,6 @@
 <meta name="twitter:image" content="https://imgready.app/demo.webp">
 <link rel="canonical" href="https://imgready.app/">
 
-<!-- Google AdSense loader (deferred for FCP) — same gating as stable so
-     ads don't compete with first paint. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
-
 <!-- Structured data: WebApplication + FAQPage (preserved from stable) -->
 <script type="application/ld+json">
 {
@@ -92,7 +55,7 @@
         { "@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Open Settings, pick a preset, and choose your output format. Crop ratios and EXIF stripping are in the same panel." } },
         { "@type": "Question", "name": "What if a file fails to convert?", "acceptedAnswer": { "@type": "Answer", "text": "Two common reasons: the file is corrupted, or it uses a TIFF compression imgready does not support. Re-saving the file in any image editor usually fixes it." } },
         { "@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder. Smaller batches (30 to 50) are recommended on mobile." } },
-        { "@type": "Question", "name": "Is imgready free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free with no caps. The site runs on Google AdSense ads (your image data is never sent to ad partners) and voluntary Ko-fi contributions." } }
+        { "@type": "Question", "name": "Is imgready free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free with no caps. Supported by voluntary Ko-fi contributions. Your image data never leaves your device." } }
       ]
     }
   ]
@@ -2178,7 +2141,7 @@
     <details class="faq-item"><summary>Can I resize and compress at the same time?</summary><p>Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass — no double-encoding.</p></details>
     <details class="faq-item"><summary>What if the file fails to convert?</summary><p>Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level &quot;Couldn't read this file&quot; error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue.</p></details>
     <details class="faq-item"><summary>Does imgready work on iPhone or iPad?</summary><p>Yes — imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30–50 files at a time).</p></details>
-    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes &mdash; completely, no caps. Supported by AdSense ads on this page and Ko-fi tips. Your images never leave your device, so ad partners never see them either.</p></details>
+    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes &mdash; completely, no caps. Supported by voluntary Ko-fi tips. No ads, no tracking, no accounts.</p></details>
 
     <p class="content-foot">Ads on this page never see your image data. <a href="/privacy/">Privacy policy</a> · <a href="/terms/">Terms</a> · <a href="/why/">Why we built it</a></p>
   </div>
