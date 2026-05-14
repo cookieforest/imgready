@@ -106,7 +106,11 @@ async function ensureJpeg(){
 
 /* gifenc loader — quantize + apply-palette + GIF encoder. ~13KB ESM.
    Used only when input is an animated GIF and output is GIF. */
-const GIFENC_ESM = 'https://esm.sh/gifenc@1.0.3?bundle';
+/* unpkg serves the real ESM with all named exports intact (GIFEncoder,
+   quantize, applyPalette, etc.). esm.sh's ?bundle wrapper only re-exports
+   `default`, which silently breaks our destructuring — verified by direct
+   in-browser test on 2026-05-14. */
+const GIFENC_ESM = 'https://unpkg.com/gifenc@1.0.3';
 let gifencMod = null;
 async function ensureGifenc(){
   if (!gifencMod) gifencMod = await import(GIFENC_ESM);
@@ -358,10 +362,9 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
      re-export claim in the wrapper doesn't actually carry through.
      Read from mod.default with mod fallback so we don't crash. */
   const mod = await ensureGifenc();
-  const G = (mod && mod.default) ? mod.default : mod;
-  const GIFEncoder = G.GIFEncoder, quantize = G.quantize, applyPalette = G.applyPalette;
+  const GIFEncoder = mod.GIFEncoder, quantize = mod.quantize, applyPalette = mod.applyPalette;
   if (!GIFEncoder || !quantize || !applyPalette) {
-    throw new Error('gifenc exports not found');
+    throw new Error('gifenc exports not found at ' + GIFENC_ESM);
   }
   /* ArrayBuffer input — guarantees ImageDecoder has parsed the whole
      file before tracks.ready resolves, so frameCount is final and
