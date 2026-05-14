@@ -1541,21 +1541,28 @@
      animation, hence the duplication. */
   .dz-loop{
     color:var(--accent);
-    display:inline-block;
-    /* 10ch reserves space for the longest verb so "Your image, ___"
-       doesn't visually shift each rotation. text-align:center keeps
-       shorter words centered within that fixed slot, so the whole
-       headline looks centered (with text-align:left, shorter words
-       pinned to the left edge, making the headline look skewed). */
-    min-width:10ch;text-align:center;
+    /* Two-line stacked layout — verb sits on its own line, centered
+       by the parent h2's text-align. Solves the visual-asymmetry
+       problem that any fixed-width inline slot creates: with a
+       fixed slot, shorter verbs leave empty space → "Your image,"
+       looks left-skewed. Stacking eliminates the asymmetry entirely
+       because each line centers independently.
+
+       The subtle 6px translateY + opacity fade gives a slot-machine
+       feel — incoming verb slides up while fading in. Tiny motion
+       (6px) stays WCAG-safe under prefers-reduced-motion. */
+    display:block;
+    margin-top:4px;
   }
   .dz-loop.is-in{
     opacity:1;
-    transition:opacity .5s ease;
+    transform:translateY(0);
+    transition:opacity .42s ease, transform .42s cubic-bezier(.22,1,.36,1);
   }
   .dz-loop.is-out{
     opacity:0;
-    transition:opacity .5s ease;
+    transform:translateY(-6px);
+    transition:opacity .42s ease, transform .42s cubic-bezier(.22,1,.36,1);
   }
   /* Opacity-only fade is WCAG-safe under reduced-motion preferences
      (only motion that simulates physical movement — parallax, large
