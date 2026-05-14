@@ -2079,7 +2079,7 @@
   <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
     <div class="dz-format-label">Output format</div>
     <div class="dz-pills" id="dzPills">
-      <button type="button" class="active" data-out-fmt="webp">WebP</button>
+      <button type="button" data-out-fmt="webp">WebP</button>
       <button type="button" data-out-fmt="avif">AVIF</button>
       <button type="button" data-out-fmt="jpg">JPG</button>
       <button type="button" data-out-fmt="png">PNG</button>
@@ -2368,7 +2368,7 @@
                   <span class="switch-track" aria-hidden="true"></span>
                   <span>Multiple formats</span>
                 </label>
-                <button class="active" data-fmt="webp">WebP</button>
+                <button data-fmt="webp">WebP</button>
                 <button data-fmt="avif">AVIF</button>
                 <button data-fmt="jpg">JPG</button>
                 <button data-fmt="png">PNG</button>
@@ -4447,7 +4447,7 @@ window.openCmpSettings = window.openCmpSettings || function(){
    3. Microcopy rotates between 3 use-case lines under the dropzone.
    4. Workspace format dropdown wires trigger / menu / mutex.
 */
-window.PREFS = window.PREFS || { outFormat: 'webp', outFormats: ['webp'] };
+window.PREFS = window.PREFS || { outFormat: null, outFormats: [] };  /* empty default — presetFormatFromInput sets on first drop */
 
 /* Hamburger toggle for the legacy top-nav (mobile only — /app.css
    keeps the menu inline on desktop via display:contents). Closes on
