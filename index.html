@@ -1423,12 +1423,12 @@
   body[data-state="solo"] .stage.solo .image-canvas,
   body[data-state="multi"] .stage.multi .image-canvas{
     top:0;left:0;right:0;bottom:0;
-    /* When settings drawer opens, --menu-h-delta = drawer expansion
-       (published by updateMenuHeight). Shift the whole canvas UP by
-       that amount so the image moves with the thumbs/toolbar instead
-       of staying anchored to the stage's geometric center. */
+    /* --menu-h-delta is republished every animation frame during the
+       drawer transition (via _animTicker → updateMenuHeight). That
+       per-frame update produces smooth motion on its own — adding a
+       CSS transition here would cause each frame to RESTART the
+       transition from current rendered position, producing jitter. */
     transform:translateY(calc(-1 * var(--menu-h-delta, 0px)));
-    transition:transform .26s cubic-bezier(.22,1,.36,1);
   }
   body[data-state="solo"] .stage.solo .compare-meta,body[data-state="multi"] .stage.multi .compare-meta{display:none;}
   /* Cover-flow has no container background — thumbs float freely
