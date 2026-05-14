@@ -3212,9 +3212,7 @@ window.toggleTheme = window.toggleTheme || function(){
   const btn = document.getElementById('themeBtn');
   if (btn) btn.textContent = document.body.classList.contains('dark-mode') ? 'Day mode' : 'Night mode';
 };
-window.openCmpSettings = window.openCmpSettings || function(){
-  alert('Cookie & ad consent settings will appear here when the CMP is active. For now, see /privacy/ to manage your choices.');
-};
+window.openCmpSettings = window.openCmpSettings || function(){};
 
 /* Panda demo init: fetch demo-original.png, encode via canvas.toBlob
    to webp@60, render before/after compare slider with drag handler.
