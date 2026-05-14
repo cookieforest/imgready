@@ -235,6 +235,10 @@
   .compare-meta.r{right:var(--s-3);align-items:flex-end;text-align:right;}
   .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
   .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.78rem;}
+  .compare-meta .gif-meta{
+    font-size:.68rem;color:rgba(255,255,255,.65);
+    margin-top:2px;font-style:italic;
+  }
   .compare-meta .batch-row{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.18);
     font-size:.7rem;font-weight:500;color:rgba(255,255,255,.85);}
   body[data-state="solo"] .compare-meta .batch-row{display:none;}
@@ -1428,6 +1432,17 @@
     font-size:.62rem;font-weight:700;letter-spacing:.1em;
     text-transform:uppercase;color:var(--muted);
   }
+  /* Inline hint inside the OUTPUT FORMAT label — clarifies that
+     pre-picking is optional. Lighter weight + lowercase to read
+     as caption alongside the all-caps label. */
+  .dz-format-hint{
+    font-weight:500;
+    letter-spacing:.02em;
+    text-transform:none;
+    color:var(--muted);
+    opacity:.85;
+    margin-left:2px;
+  }
   .dz-format-pre .dz-pills{
     display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:center;
   }
@@ -2029,8 +2044,7 @@
       Your image, <span class="dz-loop is-in" id="dzLoop" aria-hidden="true">compressed.</span>
       <span class="sr-only">Your image, compressed, converted, resized, optimized, or ready.</span>
     </h2>
-    <p>Drop, click, paste &mdash; or drop a folder.</p>
-    <p class="dz-capabilities">JPG, PNG, HEIC, WebP, AVIF, TIFF + more &middot; up to 200 files</p>
+    <p>Drop, click, or paste &middot; up to 200 files</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
@@ -2041,10 +2055,6 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <span>Stays on your device — never uploaded</span>
     </div>
-    <!-- USP triplet inside the dropzone (no longer orphaned below).
-         Three short punches: payment, accounts, limits. Doesn't repeat
-         the trust line's privacy claim — that's its own beat. -->
-    <div class="dz-microcopy" id="dzMicrocopy">Free. No accounts. No file caps.</div>
   </div>
   <!-- Output pre-selector — users with conversion intent pick before
        dropping. Placed OUTSIDE .dropzone because the dropzone has a
@@ -2052,7 +2062,7 @@
        every pill click. Selection persists via window.PREFS.outFormat
        into the workspace's format dropdown. -->
   <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
-    <div class="dz-format-label">Output format</div>
+    <div class="dz-format-label">Output format <span class="dz-format-hint">— pick one, or we'll match your input</span></div>
     <div class="dz-pills" id="dzPills">
       <button type="button" data-out-fmt="webp">WebP</button>
       <button type="button" data-out-fmt="avif">AVIF</button>
@@ -2795,6 +2805,10 @@ function getWorker(){
           e.data.sourceFrames, e.data.framesWritten,
           e.data.paletteSize, e.data.frameSkip,
           e.data.outW, e.data.outH, e.data.bytes);
+        /* Stash by the currently-encoding idx so syncMainImage can
+           pick it up when the worker's result message lands shortly
+           after. Cleared by ENCODE.encoded.set once consumed. */
+        ENCODE._lastDiag = { idx: CFLOW.selected, data: e.data };
         return;
       }
       const m = e.data;
@@ -3136,9 +3150,24 @@ function setMetaCorners(beforeFile, encoded){
   }
   const afterMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.r');
   if (afterMeta) {
-    const sizeSpan = afterMeta.querySelector('span:not(.lbl-title):not(.pct):not(.batch-row)');
+    const sizeSpan = afterMeta.querySelector('span:not(.lbl-title):not(.pct):not(.batch-row):not(.gif-meta)');
     const pctSpan  = afterMeta.querySelector('.pct');
     const batchRow = afterMeta.querySelector('.batch-row');
+    /* GIF frame-delta callout — only present when the worker's gif
+       pipeline emitted a diag (i.e. animated GIF input got delta-encoded).
+       Shows e.g. "Frame-delta · 64 colors". Lets the user see WHY their
+       GIF compressed so well. */
+    let gifMetaEl = afterMeta.querySelector('.gif-meta');
+    if (encoded && encoded.meta && encoded.meta.framesWritten > 1) {
+      if (!gifMetaEl) {
+        gifMetaEl = document.createElement('span');
+        gifMetaEl.className = 'gif-meta';
+        afterMeta.appendChild(gifMetaEl);
+      }
+      gifMetaEl.textContent = `Frame-delta · ${encoded.meta.paletteSize} colors`;
+    } else if (gifMetaEl) {
+      gifMetaEl.remove();
+    }
     if (encoded) {
       /* If multi-output, list each format's size. Otherwise just the primary. */
       const bundle = ENCODE.allEncoded.get(idx);
@@ -3357,7 +3386,10 @@ async function syncMainImage(force, opts){
     const blob = await encodeFile(idx);
     const url = URL.createObjectURL(blob);
     const fmtFromMime = mimeToFmt(blob.type);
-    const enc = { blob, url, size: blob.size, format: fmtFromMime };
+    /* Attach any encoder-side meta captured from the gif-diag message.
+       Stored by idx in ENCODE._lastDiag (set inside worker.onmessage). */
+    const meta = (ENCODE._lastDiag && ENCODE._lastDiag.idx === idx) ? ENCODE._lastDiag.data : null;
+    const enc = { blob, url, size: blob.size, format: fmtFromMime, meta };
     ENCODE.encoded.set(idx, enc);
     if (!ENCODE.allEncoded.has(idx)) ENCODE.allEncoded.set(idx, new Map());
     ENCODE.allEncoded.get(idx).set(fmtFromMime, enc);
