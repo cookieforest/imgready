@@ -240,13 +240,7 @@
        Smaller thumbs (50% reduction) free up ~80px for the canvas. */
     bottom:calc(var(--menu-h, 80px) + 128px);
   }
-  .compare-after,.compare-before{
-    position:absolute;inset:0;
-    /* Desktop / zoomed: center. Mobile un-zoomed override below
-       top-aligns so the image hugs the top of the canvas and leaves
-       the bottom half for controls. */
-    background-position:center center;
-  }
+  .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
   .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;
     background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(0,0,0,.18);
@@ -1749,14 +1743,6 @@
     .image-canvas{
       bottom:calc(var(--menu-h, 100px) + 100px);
     }
-    /* Mobile zoom=1x: top-align the image so the bottom half of the
-       canvas becomes control space. When the user zooms in (.zoomed
-       class added by applyZoom), revert to center so transform-origin
-       (center) doesn't pull the image off-screen. */
-    .image-canvas:not(.zoomed) .compare-before,
-    .image-canvas:not(.zoomed) .compare-after{
-      background-position:center top;
-    }
     .filename-ribbon{
       /* Same anchor-aware formula as desktop. 28px above toolbar so
          it clears the scrubber (at +16) plus the scrubber's height. */
@@ -3250,9 +3236,7 @@ async function syncMainImage(force, opts){
   const setBg = (el, url) => {
     el.style.backgroundImage = `url("${url}")`;
     el.style.backgroundSize = 'contain';
-    /* backgroundPosition intentionally not set inline — CSS controls
-       it so mobile (un-zoomed) can top-align while desktop stays
-       centered. See .compare-before / .compare-after rules. */
+    el.style.backgroundPosition = 'center';
     el.style.backgroundRepeat = 'no-repeat';
     el.style.backgroundColor = '#000';
     el.textContent = '';
