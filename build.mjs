@@ -180,6 +180,30 @@ async function buildOnce() {
   copyFileSync(CSS_ENTRY, 'dist/app.css');
   mirrorDir('.', 'dist');
 
+  /* Substitute the service worker's CACHE_VERSION with the current
+     deployment SHA so users always pull a fresh worker on each deploy.
+     CF_PAGES_COMMIT_SHA is auto-injected by Cloudflare Pages at build
+     time (per CF docs). Locally we fall back to a timestamp so dev
+     reloads still bust the cache. */
+  const swPath = 'dist/sw.js';
+  if (existsSync(swPath)) {
+    const sha = process.env.CF_PAGES_COMMIT_SHA
+             || process.env.GITHUB_SHA
+             || `dev-${Date.now()}`;
+    const tag = sha.slice(0, 12);
+    const swSrc = readFileSync(swPath, 'utf8');
+    const swOut = swSrc.replace(
+      /const CACHE_VERSION = '[^']+';/,
+      `const CACHE_VERSION = 'imgready-${tag}';`
+    );
+    if (swSrc === swOut) {
+      console.warn('[imgready build] WARN: CACHE_VERSION pattern not found in sw.js — substitution skipped');
+    } else {
+      writeFileSync(swPath, swOut);
+      console.log(`[imgready build] sw.js CACHE_VERSION → imgready-${tag}`);
+    }
+  }
+
   console.log(
     `[imgready build] ${chunks.length} chunks (${concatenated.length}B src) → dist/app.js (${statSync('dist/app.js').size}B minified) + ${readdirSync('dist').length} static entries in ${Date.now() - start}ms`
   );
