@@ -104,6 +104,15 @@ async function ensureJpeg(){
   return jpegEncode;
 }
 
+/* gifenc loader — quantize + apply-palette + GIF encoder. ~13KB ESM.
+   Used only when input is an animated GIF and output is GIF. */
+const GIFENC_ESM = 'https://esm.sh/gifenc@1.0.3?bundle';
+let gifencMod = null;
+async function ensureGifenc(){
+  if (!gifencMod) gifencMod = await import(GIFENC_ESM);
+  return gifencMod;
+}
+
 async function ensureOxipng(){
   if (oxipngOptimise) return oxipngOptimise;
   const m = await import(OXIPNG_ESM);
@@ -297,8 +306,147 @@ function qualityToColors(q){
   return 16;
 }
 
+/* ---------- animated GIF detection + encode ---------- */
+
+/* Probe a GIF blob with ImageDecoder. Returns frame count (>1 means
+   animated). Returns 1 on any error or if ImageDecoder is unsupported
+   so callers fall through to the single-frame path. */
+async function getGifFrameCount(file){
+  if (typeof ImageDecoder !== 'function') return 1;
+  try {
+    const decoder = new ImageDecoder({
+      data: file.stream(),
+      type: 'image/gif'
+    });
+    await decoder.tracks.ready;
+    const t = decoder.tracks.selectedTrack;
+    const n = t ? t.frameCount : 1;
+    try { decoder.close(); } catch(_){}
+    return n || 1;
+  } catch (_) {
+    return 1;
+  }
+}
+
+/* Map quality (0..1) → { paletteSize, frameSkip, dither } for animated
+   GIFs. Logarithmic-ish curve: palette drops faster than frame skip
+   so users still get smooth animation at lower quality. */
+function gifQualityParams(q){
+  q = Math.max(0, Math.min(1, q ?? 0.85));
+  let paletteSize, frameSkip, dither;
+  if (q >= 0.85)      { paletteSize = 256; frameSkip = 1; dither = true;  }
+  else if (q >= 0.65) { paletteSize = 192; frameSkip = 1; dither = true;  }
+  else if (q >= 0.50) { paletteSize = 128; frameSkip = 1; dither = false; }
+  else if (q >= 0.35) { paletteSize = 96;  frameSkip = 2; dither = false; }
+  else if (q >= 0.20) { paletteSize = 64;  frameSkip = 3; dither = false; }
+  else                { paletteSize = 32;  frameSkip = 4; dither = false; }
+  return { paletteSize, frameSkip, dither };
+}
+
+/* Multi-frame GIF encoder. Applies same crop+resize to every frame.
+   Returns a Blob (image/gif) on success, throws on unsupported. */
+async function encodeAnimatedGif(file, settings){
+  if (typeof ImageDecoder !== 'function') {
+    throw new Error('ImageDecoder unsupported');
+  }
+  const { GIFEncoder, quantize, applyPalette } = await ensureGifenc();
+  const decoder = new ImageDecoder({
+    data: file.stream(),
+    type: 'image/gif'
+  });
+  await decoder.tracks.ready;
+  const track = decoder.tracks.selectedTrack;
+  const frameCount = track.frameCount;
+  if (!frameCount || frameCount < 2) {
+    /* Single-frame GIF — fall back to canvas path */
+    decoder.close();
+    throw new Error('NotAnimated');
+  }
+  /* Decode frame 0 to discover source dimensions, then derive output
+     dimensions via the same crop/resize logic processOne uses. */
+  const r0 = await decoder.decode({ frameIndex: 0 });
+  let srcW = r0.image.displayWidth, srcH = r0.image.displayHeight;
+  let sx = 0, sy = 0, sw = srcW, sh = srcH;
+  const ratio = CROP_RATIOS[settings.crop || 'none'];
+  if (ratio) {
+    if (srcW/srcH > ratio) { sw = Math.round(srcH*ratio); sx = Math.round((srcW-sw)/2); }
+    else                   { sh = Math.round(srcW/ratio); sy = Math.round((srcH-sh)/2); }
+  }
+  let outW = sw, outH = sh;
+  if (settings.maxDim) {
+    const longest = Math.max(outW, outH);
+    if (longest > settings.maxDim) {
+      const scale = settings.maxDim / longest;
+      outW = Math.round(outW*scale); outH = Math.round(outH*scale);
+    }
+  } else if (settings.resizePct && settings.resizePct > 0 && settings.resizePct < 100) {
+    const scale = settings.resizePct / 100;
+    outW = Math.max(1, Math.round(outW*scale));
+    outH = Math.max(1, Math.round(outH*scale));
+  }
+  r0.image.close && r0.image.close();
+
+  const canvas = new OffscreenCanvas(outW, outH);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  /* Quality params from the slider */
+  const q = (settings.quality !== undefined) ? settings.quality : 0.85;
+  const { paletteSize, frameSkip, dither } = gifQualityParams(q);
+
+  const enc = GIFEncoder();
+  /* Composite buffer — handles "do not dispose" frames where a frame
+     overlays the previous instead of fully replacing it. ImageDecoder
+     applies disposal automatically when decoding by frameIndex from 0,
+     so we just paint each decoded frame onto a fresh canvas. */
+  for (let i = 0; i < frameCount; i += frameSkip) {
+    const result = await decoder.decode({ frameIndex: i });
+    const frame = result.image;
+    ctx.clearRect(0, 0, outW, outH);
+    /* drawImage with explicit srcRect handles crop; explicit dstRect
+       handles resize. Both in one call. */
+    ctx.drawImage(frame, sx, sy, sw, sh, 0, 0, outW, outH);
+    const id = ctx.getImageData(0, 0, outW, outH);
+    const palette = quantize(id.data, paletteSize);
+    const indexed = applyPalette(id.data, palette);
+    /* VideoFrame.duration is in microseconds (or null). Sum the
+       durations of skipped frames so the playback timing stays
+       roughly accurate when frames are dropped. */
+    let durationUs = frame.duration || 100000;
+    for (let k = 1; k < frameSkip && i+k < frameCount; k++) {
+      try {
+        const pk = await decoder.decode({ frameIndex: i+k });
+        durationUs += pk.image.duration || 100000;
+        pk.image.close && pk.image.close();
+      } catch (_) {}
+    }
+    enc.writeFrame(indexed, outW, outH, {
+      palette,
+      delay: Math.max(20, Math.round(durationUs / 1000)),
+      dispose: 2,
+      transparent: false
+    });
+    frame.close && frame.close();
+  }
+  enc.finish();
+  try { decoder.close(); } catch(_){}
+  return new Blob([enc.bytes()], { type: 'image/gif' });
+}
+
 /* ---------- the main encode pipeline ---------- */
 async function processOne(file, fmt, settings){
+  /* Animated GIF → GIF: preserve frames + apply quality-driven palette
+     / frame-skip reduction. Bails on any error to the single-frame path
+     so we never block on browser quirks. */
+  if (fmt === 'gif' && file && file.type === 'image/gif') {
+    try {
+      const fc = await getGifFrameCount(file);
+      if (fc > 1) {
+        return await encodeAnimatedGif(file, settings);
+      }
+    } catch (e) {
+      /* fall through to single-frame canvas path below */
+    }
+  }
   const bmp = await decodeToBitmap(file);
   let w = bmp.width, h = bmp.height, sx = 0, sy = 0, sw = w, sh = h;
 
