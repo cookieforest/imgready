@@ -671,21 +671,40 @@
      indicator inside. Hidden when only 1 image. */
   .cflow-scrubber{
     position:absolute;
-    /* Sits in the gap between filename ribbon (menu-h + 24px) and
-       the bottom toolbar (menu-h + ~16px). At menu-h + 14, scrubber
-       has 8px clearance below it (toolbar) and 7px above it (filename).
-       Higher z-index than the toolbar so they never visually collide. */
+    /* Sits in the gap between filename ribbon (anchor+28) and the
+       bottom toolbar (top edge at anchor). 16px gap on both sides. */
     bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + var(--s-3));  /* anchor + 16 gap above toolbar */
     left:50%;
     transform:translateX(-50%);
     width:min(180px, 35vw);
-    height:4px;  /* was 3 — slightly more prominent */
-    background:rgba(255,255,255,.20);  /* was .14 — more legible on dark */
+    height:4px;
+    background:rgba(255,255,255,.20);
     border-radius:4px;
-    z-index:8;  /* was 7 — wins over toolbar (z-index 7) */
-    pointer-events:none;
+    z-index:8;
+    /* Interactive: drag/tap to jump. Hit area expanded via ::before
+       below so the visible 4px track has a ~36px effective touch box. */
+    pointer-events:auto;
+    cursor:ew-resize;
+    touch-action:none;
     opacity:0;
     transition:opacity .18s ease;
+  }
+  /* Invisible expanded hit area — 16px above + 16px below the 4px
+     track = 36px total touch box. Apple HIG min is 44pt, but the
+     visible track stays 4px for visual restraint. */
+  .cflow-scrubber::before{
+    content:"";
+    position:absolute;
+    left:-12px;right:-12px;  /* a little horizontal padding too */
+    top:-16px;bottom:-16px;
+  }
+  /* When scrubber is being actively dragged, dim transition and
+     give a small visual cue. */
+  .cflow-scrubber.scrubbing{
+    background:rgba(255,255,255,.32);
+  }
+  .cflow-scrubber.scrubbing .cflow-scrubber-thumb{
+    transition:none;  /* live-follow finger position */
   }
   body[data-state="multi"] .cflow-scrubber.has-many{opacity:1;}
   .cflow-scrubber-thumb{
@@ -1896,7 +1915,8 @@
     }
     .actions .btn{
       flex:1;min-width:0;width:auto;
-      font-size:.78rem;padding:12px 8px;
+      font-size:.92rem;padding:12px 8px;  /* was .78rem — better readability */
+      font-weight:600;
       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
     .actions .btn-primary{flex:1.4;}
@@ -2302,7 +2322,7 @@
   <!-- Scrubber bar — thin horizontal indicator showing position in
        the thumb strip. Sits in the gap between filename ribbon and
        bottom toolbar so it's never occluded by thumbs. -->
-  <div class="cflow-scrubber" id="cflowScrubber" aria-hidden="true">
+  <div class="cflow-scrubber" id="cflowScrubber" role="slider" aria-label="Scrub through images" tabindex="-1">
     <div class="cflow-scrubber-thumb"></div>
   </div>
 
@@ -2480,6 +2500,7 @@ function init(){
   flow.addEventListener('pointerdown', onPointerDown);
   flow.addEventListener('wheel', onWheel, {passive:false});
   attachHoverDelegation();
+  attachScrubberDrag();
 
   /* Wire the dropzone's file input (#fileInput from production HTML) */
   const fi = document.getElementById('fileInput') || document.getElementById('dzFileInput');
@@ -2567,6 +2588,60 @@ if (typeof window._menuHObserverInstalled === 'undefined') {
     if (_animTicker) cancelAnimationFrame(_animTicker);
     _animTicker = null; _tickMenuH();
   });
+}
+
+/* ===== Scrubber drag — tap or drag the bottom track to jump thumbs ===== */
+function attachScrubberDrag(){
+  const scrubber = document.getElementById('cflowScrubber');
+  if (!scrubber) return;
+  let dragging = false;
+  let activePointerId = null;
+
+  function progressFromEvent(e){
+    const rect = scrubber.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    return Math.max(0, Math.min(1, x / rect.width));
+  }
+  function applyProgress(p){
+    const total = (typeof FILES !== 'undefined') ? FILES.length : 0;
+    if (total < 2) return;
+    /* Map progress (0..1) to thumb index (0..total-1) */
+    const targetIdx = Math.round(p * (total - 1));
+    if (targetIdx !== CFLOW.selected) {
+      selectIndex(targetIdx);
+    } else {
+      /* Still update the indicator visually during fine-drag within
+         the same thumb cell — layoutCoverFlow re-runs on selectIndex
+         but not on no-op clicks. Force a layout to keep thumb live. */
+      layoutCoverFlow();
+    }
+  }
+  scrubber.addEventListener('pointerdown', (e) => {
+    /* Only respond when there's something to scrub. */
+    if (!scrubber.classList.contains('has-many')) return;
+    e.preventDefault();
+    e.stopPropagation();   // don't let cover-flow's pointerdown fire
+    dragging = true;
+    activePointerId = e.pointerId;
+    scrubber.setPointerCapture(e.pointerId);
+    scrubber.classList.add('scrubbing');
+    applyProgress(progressFromEvent(e));
+  });
+  scrubber.addEventListener('pointermove', (e) => {
+    if (!dragging || e.pointerId !== activePointerId) return;
+    e.preventDefault();
+    applyProgress(progressFromEvent(e));
+  });
+  function endDrag(e){
+    if (!dragging) return;
+    if (e && e.pointerId !== activePointerId) return;
+    dragging = false;
+    activePointerId = null;
+    scrubber.classList.remove('scrubbing');
+    try { if (e) scrubber.releasePointerCapture(e.pointerId); } catch(_) {}
+  }
+  scrubber.addEventListener('pointerup', endDrag);
+  scrubber.addEventListener('pointercancel', endDrag);
 }
 
 function updateMenuHeight(){
