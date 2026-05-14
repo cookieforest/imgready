@@ -308,23 +308,24 @@ function qualityToColors(q){
 
 /* ---------- animated GIF detection + encode ---------- */
 
-/* Probe a GIF blob with ImageDecoder. Returns frame count (>1 means
-   animated). Returns 1 on any error or if ImageDecoder is unsupported
-   so callers fall through to the single-frame path. */
+/* Probe a GIF blob with ImageDecoder. Reads the file into an
+   ArrayBuffer so frameCount is FINAL when tracks.ready resolves —
+   with a streaming input, frameCount grows over time and reading
+   it too early returns 1 even for animated GIFs.
+   Returns { frameCount, buffer } so encodeAnimatedGif can reuse the
+   same buffer instead of reading the file twice. */
 async function getGifFrameCount(file){
-  if (typeof ImageDecoder !== 'function') return 1;
+  if (typeof ImageDecoder !== 'function') return { frameCount: 1, buffer: null };
   try {
-    const decoder = new ImageDecoder({
-      data: file.stream(),
-      type: 'image/gif'
-    });
+    const buffer = await file.arrayBuffer();
+    const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
     await decoder.tracks.ready;
     const t = decoder.tracks.selectedTrack;
     const n = t ? t.frameCount : 1;
     try { decoder.close(); } catch(_){}
-    return n || 1;
+    return { frameCount: n || 1, buffer };
   } catch (_) {
-    return 1;
+    return { frameCount: 1, buffer: null };
   }
 }
 
@@ -345,7 +346,7 @@ function gifQualityParams(q){
 
 /* Multi-frame GIF encoder. Applies same crop+resize to every frame.
    Returns a Blob (image/gif) on success, throws on unsupported. */
-async function encodeAnimatedGif(file, settings){
+async function encodeAnimatedGif(file, settings, prereadBuffer){
   if (typeof ImageDecoder !== 'function') {
     throw new Error('ImageDecoder unsupported');
   }
@@ -358,16 +359,18 @@ async function encodeAnimatedGif(file, settings){
   if (!GIFEncoder || !quantize || !applyPalette) {
     throw new Error('gifenc exports not found');
   }
-  const decoder = new ImageDecoder({
-    data: file.stream(),
-    type: 'image/gif'
-  });
+  /* ArrayBuffer input — guarantees ImageDecoder has parsed the whole
+     file before tracks.ready resolves, so frameCount is final and
+     decode({frameIndex:i}) works for every i up to frameCount-1.
+     Reuse prereadBuffer if the caller already loaded it. */
+  const buffer = prereadBuffer || await file.arrayBuffer();
+  const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
   await decoder.tracks.ready;
   const track = decoder.tracks.selectedTrack;
   const frameCount = track.frameCount;
   if (!frameCount || frameCount < 2) {
     /* Single-frame GIF — fall back to canvas path */
-    decoder.close();
+    try { decoder.close(); } catch(_){}
     throw new Error('NotAnimated');
   }
   /* Decode frame 0 to discover source dimensions, then derive output
@@ -447,9 +450,9 @@ async function processOne(file, fmt, settings){
      so we never block on browser quirks. */
   if (fmt === 'gif' && file && file.type === 'image/gif') {
     try {
-      const fc = await getGifFrameCount(file);
-      if (fc > 1) {
-        return await encodeAnimatedGif(file, settings);
+      const probe = await getGifFrameCount(file);
+      if (probe.frameCount > 1) {
+        return await encodeAnimatedGif(file, settings, probe.buffer);
       }
     } catch (e) {
       /* fall through to single-frame canvas path below */
