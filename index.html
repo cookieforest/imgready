@@ -389,6 +389,12 @@
     background:rgba(0,0,0,.42);border-radius:inherit;pointer-events:none;
     z-index:2;
   }
+  /* Focus ring for keyboard navigation — only when keyboard-focused
+     (focus-visible), not on mouse-click which would feel noisy. */
+  .cflow-thumb:focus-visible{
+    outline:2px solid var(--accent);outline-offset:3px;
+    border-radius:6px;
+  }
   .cflow-thumb.encoding .thumb-progress{display:flex;}
   /* While the active thumb is encoding, the per-image hover icons are
      disabled — wouldn't make sense to share/copy/download a result
@@ -1543,6 +1549,37 @@
     font-size:.88rem;font-weight:700;
     margin-top:14px;
   }
+  /* "Or try:" sample row — small, subtle. Each button fetches a
+     bundled sample image and feeds it through the encode pipeline,
+     so users can see results without dropping their own file. */
+  .dz-samples{
+    margin-top:8px;display:flex;align-items:center;justify-content:center;
+    gap:8px;font-size:.72rem;color:var(--muted);flex-wrap:wrap;
+  }
+  .dz-samples-label{opacity:.75;}
+  .dz-samples button{
+    background:transparent;border:none;cursor:pointer;
+    color:var(--accent);font:inherit;font-weight:600;padding:2px 4px;
+    border-radius:4px;text-decoration:underline;text-underline-offset:2px;
+    text-decoration-color:color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .dz-samples button:hover{
+    text-decoration-color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 6%, transparent);
+  }
+  .dz-samples-sep{opacity:.4;font-size:.78rem;}
+  /* WebP "Recommended" indicator — small dot next to the pill label.
+     No layout impact, no extra click. */
+  #dzPills button[data-recommended]{
+    position:relative;
+  }
+  #dzPills button[data-recommended]::after{
+    content:"";position:absolute;top:6px;right:6px;
+    width:6px;height:6px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 2px #fff;
+  }
+
   body[data-state="empty"] .dropzone .dz-trust svg{
     width:16px;height:16px;opacity:1;
   }
@@ -1557,15 +1594,9 @@
   .dz-loop{
     color:var(--accent);
     /* Two-line stacked layout — verb sits on its own line, centered
-       by the parent h2's text-align. Solves the visual-asymmetry
-       problem that any fixed-width inline slot creates: with a
-       fixed slot, shorter verbs leave empty space → "Your image,"
-       looks left-skewed. Stacking eliminates the asymmetry entirely
-       because each line centers independently.
-
-       The subtle 6px translateY + opacity fade gives a slot-machine
-       feel — incoming verb slides up while fading in. Tiny motion
-       (6px) stays WCAG-safe under prefers-reduced-motion. */
+       by the parent h2's text-align. Stacking eliminates the
+       fixed-slot asymmetry problem and lets each line center
+       independently. Slide-up + fade gives slot-machine feel. */
     display:block;
     margin-top:4px;
   }
@@ -1578,6 +1609,14 @@
     opacity:0;
     transform:translateY(-6px);
     transition:opacity .42s ease, transform .42s cubic-bezier(.22,1,.36,1);
+  }
+  /* Disable the slide-up under prefers-reduced-motion. Opacity fade
+     stays (it's not vestibular-triggering). */
+  @media (prefers-reduced-motion: reduce){
+    .dz-loop.is-in,.dz-loop.is-out{
+      transform:none !important;
+      transition:opacity .42s ease;
+    }
   }
   /* Opacity-only fade is WCAG-safe under reduced-motion preferences
      (only motion that simulates physical movement — parallax, large
@@ -2055,6 +2094,18 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <span>Stays on your device — never uploaded</span>
     </div>
+    <!-- Quick-try samples: clicking loads one of the bundled sample
+         images into the encode pipeline. Common photo categories so
+         users can see compression results immediately without finding
+         their own file. Picsum.photos sources (Unsplash license). -->
+    <div class="dz-samples" id="dzSamples" aria-label="Try with sample images">
+      <span class="dz-samples-label">or try:</span>
+      <button type="button" data-sample="/samples/architecture.jpg" data-sample-name="architecture.jpg" data-sample-type="image/jpeg">Architecture</button>
+      <span class="dz-samples-sep">·</span>
+      <button type="button" data-sample="/samples/portrait.jpg" data-sample-name="portrait.jpg" data-sample-type="image/jpeg">Portrait</button>
+      <span class="dz-samples-sep">·</span>
+      <button type="button" data-sample="/samples/graphic.jpg" data-sample-name="graphic.jpg" data-sample-type="image/jpeg">Graphic</button>
+    </div>
   </div>
   <!-- Output pre-selector — users with conversion intent pick before
        dropping. Placed OUTSIDE .dropzone because the dropzone has a
@@ -2064,12 +2115,12 @@
   <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
     <div class="dz-format-label">Output format <span class="dz-format-hint">— optional, pick one or many</span></div>
     <div class="dz-pills" id="dzPills">
-      <button type="button" data-out-fmt="webp">WebP</button>
-      <button type="button" data-out-fmt="avif">AVIF</button>
-      <button type="button" data-out-fmt="jpg">JPG</button>
-      <button type="button" data-out-fmt="png">PNG</button>
-      <button type="button" data-out-fmt="gif">GIF</button>
-      <button type="button" data-out-fmt="ico">ICO</button>
+      <button type="button" data-out-fmt="webp" title="WebP — recommended for web. 25-35% smaller than JPG." data-recommended="1">WebP</button>
+      <button type="button" data-out-fmt="avif" title="AVIF — best compression. Modern browsers only.">AVIF</button>
+      <button type="button" data-out-fmt="jpg" title="JPG — universal compatibility. Always lossy.">JPG</button>
+      <button type="button" data-out-fmt="png" title="PNG — screenshots, graphics, transparency.">PNG</button>
+      <button type="button" data-out-fmt="gif" title="GIF — animations and flat colour. 256-colour limit.">GIF</button>
+      <button type="button" data-out-fmt="ico" title="ICO — browser favicons.">ICO</button>
     </div>
   </div>
 
@@ -2347,12 +2398,12 @@
                   <span class="switch-track" aria-hidden="true"></span>
                   <span>Multiple formats</span>
                 </label>
-                <button data-fmt="webp">WebP</button>
-                <button data-fmt="avif">AVIF</button>
-                <button data-fmt="jpg">JPG</button>
-                <button data-fmt="png">PNG</button>
-                <button data-fmt="gif">GIF</button>
-                <button data-fmt="ico">ICO</button>
+                <button data-fmt="webp" title="WebP — recommended for web. 25-35% smaller than JPG.">WebP</button>
+                <button data-fmt="avif" title="AVIF — best compression. Modern browsers only.">AVIF</button>
+                <button data-fmt="jpg" title="JPG — universal compatibility. Always lossy.">JPG</button>
+                <button data-fmt="png" title="PNG — screenshots, graphics, transparency.">PNG</button>
+                <button data-fmt="gif" title="GIF — animations and flat colour. 256-colour limit.">GIF</button>
+                <button data-fmt="ico" title="ICO — browser favicons.">ICO</button>
               </div>
             </div>
           </div>
@@ -2503,6 +2554,12 @@ function init(){
      to fire twice, double-adding files. Listeners now register exactly
      once and do the right thing for all states. */
   window.addEventListener('resize', updateMenuHeight);
+  /* WASM cold-start pre-warm — defer until idle so it doesn't compete
+     with FCP. Worker swallows errors so this is safe; if 'preload'
+     isn't handled, the worker just does nothing. */
+  const warm = () => { try { getWorker().postMessage({ action: 'preload' }); } catch(_){} };
+  if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 4000 });
+  else setTimeout(warm, 2500);
 }
 
 function onFiles(e){
@@ -2778,6 +2835,10 @@ function layoutCoverFlow(){
 
 /* ===== ENCODING via /imgready-worker.js (the same one production uses) ===== */
 const ENCODE = {
+  /* Cold-start pre-warm: once the page is idle after first load,
+     send a 'preload' action to the worker so the WebP encoder WASM
+     compiles in the background. First real encode then skips the
+     2-3s cold-start. Worker already handles 'preload' action. */
   worker: null,
   pendingId: 0,
   pending: {},                  // id -> {resolve, reject, idx, filename}
@@ -4613,6 +4674,30 @@ if (!window._navMenuOutsideClick) {
      - Keep at least one active (can't deselect the last)
      - Auto-enable Multi when result has 2+ formats (one-way; we never
        auto-DISABLE Multi based on count — that's a user decision) */
+  /* Sample-image button handler — fetch the bundled image, wrap as
+     a File, and feed through the normal addFilesFromList path. Gives
+     users a no-friction way to see results without finding a file. */
+  document.addEventListener('click', async e => {
+    const sampleBtn = e.target.closest && e.target.closest('#dzSamples button[data-sample]');
+    if (sampleBtn) {
+      e.preventDefault();
+      const url = sampleBtn.dataset.sample;
+      const name = sampleBtn.dataset.sampleName || 'sample.jpg';
+      const type = sampleBtn.dataset.sampleType || 'image/jpeg';
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
+        const blob = await resp.blob();
+        const file = new File([blob], name, { type });
+        if (typeof addFilesFromList === 'function') {
+          addFilesFromList([file]);
+        }
+      } catch (err) {
+        console.warn('[samples] failed to load', url, err);
+      }
+      return;
+    }
+  });
   document.addEventListener('click', e => {
     const btn = e.target.closest && e.target.closest('#dzPills button[data-out-fmt]');
     if (!btn) return;
