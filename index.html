@@ -1549,35 +1549,89 @@
     font-size:.88rem;font-weight:700;
     margin-top:14px;
   }
-  /* "Or try:" sample row — small, subtle. Each button fetches a
-     bundled sample image and feeds it through the encode pipeline,
-     so users can see results without dropping their own file. */
-  .dz-samples{
-    margin-top:8px;display:flex;align-items:center;justify-content:center;
-    gap:8px;font-size:.72rem;color:var(--muted);flex-wrap:wrap;
+  /* Floating sample cards — drag onto the dropzone, or click. 3 cards
+     row-aligned below the dropzone with subtle bobbing animation. */
+  .dz-floats{
+    display:flex;justify-content:center;gap:18px;
+    margin:18px auto 0;
+    max-width:600px;
   }
-  .dz-samples-label{opacity:.75;}
-  .dz-samples button{
-    background:transparent;border:none;cursor:pointer;
-    color:var(--accent);font:inherit;font-weight:600;padding:2px 4px;
-    border-radius:4px;text-decoration:underline;text-underline-offset:2px;
-    text-decoration-color:color-mix(in srgb, var(--accent) 35%, transparent);
+  body[data-state="multi"] .dz-floats,
+  body[data-state="solo"] .dz-floats{display:none;}
+  .dz-float-card{
+    flex:1;max-width:140px;
+    background:#fff;border:1px solid var(--border, rgba(0,0,0,.08));
+    border-radius:10px;padding:8px;
+    cursor:grab;font:inherit;color:var(--muted-strong);
+    display:flex;flex-direction:column;align-items:stretch;gap:6px;
+    box-shadow:0 2px 8px rgba(0,0,0,.06);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    animation:dzFloat 4s ease-in-out infinite;
   }
-  .dz-samples button:hover{
-    text-decoration-color:var(--accent);
-    background:color-mix(in srgb, var(--accent) 6%, transparent);
+  .dz-float-card:nth-child(2){animation-delay:-1.3s;}
+  .dz-float-card:nth-child(3){animation-delay:-2.6s;}
+  .dz-float-card:hover{
+    border-color:var(--accent);
+    box-shadow:0 6px 20px rgba(0,0,0,.1);
   }
-  .dz-samples-sep{opacity:.4;font-size:.78rem;}
-  /* WebP "Recommended" indicator — small dot next to the pill label.
-     No layout impact, no extra click. */
-  #dzPills button[data-recommended]{
-    position:relative;
+  .dz-float-card:active{cursor:grabbing;transform:translateY(0);}
+  .dz-float-card.dragging{opacity:.5;transform:scale(.95);}
+  .dz-float-img{
+    display:block;width:100%;aspect-ratio:1/1;
+    background-size:cover;background-position:center;
+    border-radius:6px;
+    pointer-events:none;
   }
-  #dzPills button[data-recommended]::after{
-    content:"";position:absolute;top:6px;right:6px;
-    width:6px;height:6px;border-radius:50%;
-    background:var(--accent);
-    box-shadow:0 0 0 2px #fff;
+  .dz-float-label{
+    font-size:.72rem;font-weight:600;text-align:center;
+    color:var(--muted-strong);pointer-events:none;
+  }
+  @keyframes dzFloat{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-6px);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .dz-float-card{animation:none;}
+  }
+  @media (max-width:520px){
+    .dz-floats{gap:10px;margin-top:12px;}
+    .dz-float-card{padding:6px;}
+    .dz-float-label{font-size:.66rem;}
+  }
+  /* Custom tooltip — instant show on hover, properly styled.
+     Better than native [title] which has a slow OS-level delay
+     and tiny rendering. */
+  [data-tt]{position:relative;}
+  [data-tt]:hover::before,
+  [data-tt]:focus-visible::before{
+    content:attr(data-tt);
+    position:absolute;
+    bottom:calc(100% + 8px);
+    left:50%;transform:translateX(-50%);
+    background:#1a1a1a;color:#fff;
+    padding:6px 10px;border-radius:6px;
+    font-size:.72rem;font-weight:500;
+    white-space:nowrap;
+    box-shadow:0 4px 12px rgba(0,0,0,.18);
+    z-index:50;
+    pointer-events:none;
+    opacity:0;
+    animation:ttFade .18s ease forwards;
+  }
+  [data-tt]:hover::after,
+  [data-tt]:focus-visible::after{
+    content:"";
+    position:absolute;
+    bottom:calc(100% + 2px);
+    left:50%;transform:translateX(-50%);
+    border:4px solid transparent;
+    border-top-color:#1a1a1a;
+    z-index:50;
+    pointer-events:none;
+  }
+  @keyframes ttFade{to{opacity:1;}}
+  @media (prefers-reduced-motion: reduce){
+    [data-tt]:hover::before,[data-tt]:focus-visible::before{opacity:1;animation:none;}
   }
 
   body[data-state="empty"] .dropzone .dz-trust svg{
@@ -2074,7 +2128,7 @@
 
   /* ============ Bulk batch progress (top-right) ============ */
   .batch-progress{
-    position:fixed;top:14px;right:14px;z-index:200;
+    position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:200;
     background:rgba(20,20,20,.85);
     color:#fff;
     padding:9px 14px;
@@ -2087,7 +2141,7 @@
     min-width:200px;
   }
   .batch-progress[hidden]{display:none !important;}
-  @keyframes batchFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  @keyframes batchFade{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translateX(-50%)}}
   @media (prefers-reduced-motion: reduce){
     .batch-progress{animation:none;}
   }
@@ -2186,19 +2240,37 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <span>Stays on your device — never uploaded</span>
     </div>
-    <!-- Quick-try samples: clicking loads one of the bundled sample
-         images into the encode pipeline. Common photo categories so
-         users can see compression results immediately without finding
-         their own file. Picsum.photos sources (Unsplash license). -->
-    <div class="dz-samples" id="dzSamples" aria-label="Try with sample images">
-      <span class="dz-samples-label">or try:</span>
-      <button type="button" data-sample="/samples/architecture.jpg" data-sample-name="architecture.jpg" data-sample-type="image/jpeg">Architecture</button>
-      <span class="dz-samples-sep">·</span>
-      <button type="button" data-sample="/samples/portrait.jpg" data-sample-name="portrait.jpg" data-sample-type="image/jpeg">Portrait</button>
-      <span class="dz-samples-sep">·</span>
-      <button type="button" data-sample="/samples/graphic.jpg" data-sample-name="graphic.jpg" data-sample-type="image/jpeg">Graphic</button>
-    </div>
   </div>
+  <!-- Floating sample cards — sit next to the dropzone, each shows
+       a small thumbnail. Click OR drag onto the dropzone to load.
+       Subtle 4s floating animation (translateY ±6px) at staggered
+       offsets so they feel alive. Hidden once user enters workspace. -->
+  <aside class="dz-floats" id="dzFloats" aria-label="Try with sample images">
+    <button type="button" class="dz-float-card" draggable="true"
+            data-sample="/samples/architecture.jpg"
+            data-sample-name="architecture.jpg"
+            data-sample-type="image/jpeg"
+            aria-label="Try sample: Architecture">
+      <span class="dz-float-img" style="background-image:url('/samples/architecture.jpg')"></span>
+      <span class="dz-float-label">Architecture</span>
+    </button>
+    <button type="button" class="dz-float-card" draggable="true"
+            data-sample="/samples/portrait.jpg"
+            data-sample-name="portrait.jpg"
+            data-sample-type="image/jpeg"
+            aria-label="Try sample: Portrait">
+      <span class="dz-float-img" style="background-image:url('/samples/portrait.jpg')"></span>
+      <span class="dz-float-label">Portrait</span>
+    </button>
+    <button type="button" class="dz-float-card" draggable="true"
+            data-sample="/samples/graphic.jpg"
+            data-sample-name="graphic.jpg"
+            data-sample-type="image/jpeg"
+            aria-label="Try sample: Graphic">
+      <span class="dz-float-img" style="background-image:url('/samples/graphic.jpg')"></span>
+      <span class="dz-float-label">Graphic</span>
+    </button>
+  </aside>
   <!-- Output pre-selector — users with conversion intent pick before
        dropping. Placed OUTSIDE .dropzone because the dropzone has a
        click-to-open-file-picker handler that would otherwise hijack
@@ -2207,12 +2279,12 @@
   <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
     <div class="dz-format-label">Output format <span class="dz-format-hint">— optional, pick one or many</span></div>
     <div class="dz-pills" id="dzPills">
-      <button type="button" data-out-fmt="webp" title="WebP — recommended for web. 25-35% smaller than JPG." data-recommended="1">WebP</button>
-      <button type="button" data-out-fmt="avif" title="AVIF — best compression. Modern browsers only.">AVIF</button>
-      <button type="button" data-out-fmt="jpg" title="JPG — universal compatibility. Always lossy.">JPG</button>
-      <button type="button" data-out-fmt="png" title="PNG — screenshots, graphics, transparency.">PNG</button>
-      <button type="button" data-out-fmt="gif" title="GIF — animations and flat colour. 256-colour limit.">GIF</button>
-      <button type="button" data-out-fmt="ico" title="ICO — browser favicons.">ICO</button>
+      <button type="button" data-out-fmt="webp" data-tt="WebP — recommended for web. 25-35% smaller than JPG.">WebP</button>
+      <button type="button" data-out-fmt="avif" data-tt="AVIF — best compression. Modern browsers only.">AVIF</button>
+      <button type="button" data-out-fmt="jpg" data-tt="JPG — universal compatibility. Always lossy.">JPG</button>
+      <button type="button" data-out-fmt="png" data-tt="PNG — screenshots, graphics, transparency.">PNG</button>
+      <button type="button" data-out-fmt="gif" data-tt="GIF — animations and flat colour. 256-colour limit.">GIF</button>
+      <button type="button" data-out-fmt="ico" data-tt="ICO — browser favicons.">ICO</button>
     </div>
   </div>
 
@@ -2490,12 +2562,12 @@
                   <span class="switch-track" aria-hidden="true"></span>
                   <span>Multiple formats</span>
                 </label>
-                <button data-fmt="webp" title="WebP — recommended for web. 25-35% smaller than JPG.">WebP</button>
-                <button data-fmt="avif" title="AVIF — best compression. Modern browsers only.">AVIF</button>
-                <button data-fmt="jpg" title="JPG — universal compatibility. Always lossy.">JPG</button>
-                <button data-fmt="png" title="PNG — screenshots, graphics, transparency.">PNG</button>
-                <button data-fmt="gif" title="GIF — animations and flat colour. 256-colour limit.">GIF</button>
-                <button data-fmt="ico" title="ICO — browser favicons.">ICO</button>
+                <button data-fmt="webp" data-tt="WebP — recommended for web. 25-35% smaller than JPG.">WebP</button>
+                <button data-fmt="avif" data-tt="AVIF — best compression. Modern browsers only.">AVIF</button>
+                <button data-fmt="jpg" data-tt="JPG — universal compatibility. Always lossy.">JPG</button>
+                <button data-fmt="png" data-tt="PNG — screenshots, graphics, transparency.">PNG</button>
+                <button data-fmt="gif" data-tt="GIF — animations and flat colour. 256-colour limit.">GIF</button>
+                <button data-fmt="ico" data-tt="ICO — browser favicons.">ICO</button>
               </div>
             </div>
           </div>
@@ -4861,27 +4933,68 @@ if (!window._navMenuOutsideClick) {
   /* Sample-image button handler — fetch the bundled image, wrap as
      a File, and feed through the normal addFilesFromList path. Gives
      users a no-friction way to see results without finding a file. */
+  /* Load a sample by URL → File → addFilesFromList. Used by click
+     and by the drag-to-dropzone path. */
+  async function loadSample(url, name, type){
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
+      const blob = await resp.blob();
+      const file = new File([blob], name, { type });
+      if (typeof addFilesFromList === 'function') addFilesFromList([file]);
+    } catch (err) {
+      console.warn('[samples] failed to load', url, err);
+    }
+  }
+  /* Click → load. Selector matches floating cards. */
   document.addEventListener('click', async e => {
-    const sampleBtn = e.target.closest && e.target.closest('#dzSamples button[data-sample]');
+    const sampleBtn = e.target.closest && e.target.closest('.dz-float-card[data-sample]');
     if (sampleBtn) {
       e.preventDefault();
-      const url = sampleBtn.dataset.sample;
-      const name = sampleBtn.dataset.sampleName || 'sample.jpg';
-      const type = sampleBtn.dataset.sampleType || 'image/jpeg';
-      try {
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
-        const blob = await resp.blob();
-        const file = new File([blob], name, { type });
-        if (typeof addFilesFromList === 'function') {
-          addFilesFromList([file]);
-        }
-      } catch (err) {
-        console.warn('[samples] failed to load', url, err);
-      }
-      return;
+      loadSample(sampleBtn.dataset.sample,
+                 sampleBtn.dataset.sampleName || 'sample.jpg',
+                 sampleBtn.dataset.sampleType || 'image/jpeg');
     }
   });
+  /* Drag-and-drop: card sets a custom MIME ("application/imgready-sample")
+     that the dropzone\'s drop handler intercepts. Real File objects can\'t
+     be put on a synthetic dragstart, so we pass the URL and load on drop. */
+  document.addEventListener('dragstart', e => {
+    const card = e.target.closest && e.target.closest('.dz-float-card[data-sample]');
+    if (!card) return;
+    card.classList.add('dragging');
+    try {
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('application/imgready-sample',
+        JSON.stringify({
+          url: card.dataset.sample,
+          name: card.dataset.sampleName,
+          type: card.dataset.sampleType
+        }));
+    } catch(_){}
+  });
+  document.addEventListener('dragend', e => {
+    const card = e.target.closest && e.target.closest('.dz-float-card');
+    if (card) card.classList.remove('dragging');
+  });
+  /* Dropzone listens for the custom MIME and routes to loadSample.
+     The existing drop handler still owns real File drops. */
+  document.addEventListener('drop', e => {
+    if (!e.dataTransfer) return;
+    const payload = e.dataTransfer.getData('application/imgready-sample');
+    if (!payload) return;
+    e.preventDefault();
+    try {
+      const { url, name, type } = JSON.parse(payload);
+      loadSample(url, name, type);
+    } catch(_){}
+  }, true);
+  document.addEventListener('dragover', e => {
+    if (e.dataTransfer && e.dataTransfer.types &&
+        e.dataTransfer.types.includes('application/imgready-sample')) {
+      e.preventDefault();
+    }
+  }, true);
   document.addEventListener('click', e => {
     const btn = e.target.closest && e.target.closest('#dzPills button[data-out-fmt]');
     if (!btn) return;
@@ -4899,7 +5012,10 @@ if (!window._navMenuOutsideClick) {
       next = [...current, clicked];
     }
     setOutFormats(next);
-    if (next.length >= 2) setMultiOutMode(true);
+    /* Sync multi mode with selection count: 2+ → on, ≤1 → off.
+       Previously only set ON, leaving multi stuck after user
+       deselected back to a single format. */
+    setMultiOutMode(next.length >= 2);
   });
 
   /* 3. Headline verb rotation — Bionic Julia pattern verbatim
