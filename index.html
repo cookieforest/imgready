@@ -2204,6 +2204,72 @@
     transition:width .3s ease;
   }
 
+
+  /* ============ READY state (in-tool empty between batches) ============ */
+  /* Hide everything light-state until we deliberately show it */
+  .stage.ready{display:none;}
+  body[data-state="ready"] .stage.ready{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;inset:0;background:#0e0e10;
+    color:#eaeaea;
+    z-index:1;
+  }
+  /* Mute every other state's content when in ready */
+  body[data-state="ready"] .beta-empty{display:none !important;}
+  body[data-state="ready"] .stage.solo,
+  body[data-state="ready"] .stage.multi{display:none !important;}
+  /* Brand-bar shown (logo click = exit to / = empty state). Override
+     the multi/solo display:none rule. */
+  body[data-state="ready"] .brand-bar{
+    display:flex !important;
+    position:fixed;top:0;left:0;right:0;z-index:10;
+    background:rgba(14,14,16,.85);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  body[data-state="ready"] .brand-bar .brand{color:#eaeaea;}
+  body[data-state="ready"] .brand-bar .brand .g{color:var(--accent);}
+
+  /* The dropzone itself — dark dashed border, centered, hover state */
+  .ready-dropzone{
+    position:relative;
+    max-width:560px;width:90%;
+    padding:64px 32px;
+    border:2px dashed rgba(255,255,255,.18);
+    border-radius:14px;
+    text-align:center;
+    cursor:pointer;
+    background:rgba(255,255,255,.02);
+    transition:border-color .18s ease, background .18s ease, transform .18s ease;
+  }
+  .ready-dropzone:hover,
+  .ready-dropzone.drag{
+    border-color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 6%, rgba(255,255,255,.02));
+  }
+  .ready-dropzone.drag{transform:scale(1.005);}
+  .ready-dropzone input[type=file]{
+    position:absolute;inset:0;opacity:0;cursor:pointer;
+  }
+  .ready-dz-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:64px;height:64px;border-radius:50%;
+    background:rgba(255,255,255,.05);
+    color:var(--accent);
+    margin-bottom:16px;
+  }
+  .ready-dropzone h2{
+    font-size:1.4rem;font-weight:700;letter-spacing:-.3px;
+    margin:0 0 6px;color:#fafafa;
+  }
+  .ready-dropzone p{
+    font-size:.78rem;color:rgba(255,255,255,.55);margin:0;
+  }
+  @media (max-width:520px){
+    .ready-dropzone{padding:48px 20px;}
+    .ready-dropzone h2{font-size:1.2rem;}
+  }
+
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off">
@@ -2703,6 +2769,21 @@
   </div>
 </section>
 
+<!-- ============================ READY STATE ============================
+     Dark in-tool empty state shown AFTER first batch is cleared. Lets
+     power users start the next batch without bouncing back to the light
+     landing page and re-rendering all the SEO content. -->
+<section class="stage ready">
+  <div class="ready-dropzone" id="readyDropzone" role="region" aria-label="Drop next batch">
+    <input type="file" id="readyFileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files for next batch">
+    <span class="ready-dz-icon" aria-hidden="true">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </span>
+    <h2>Drop next batch</h2>
+    <p>JPG, PNG, HEIC, WebP, AVIF, TIFF + more &middot; up to 200 files</p>
+  </div>
+</section>
+
 <input type="file" id="moreInput" accept="image/*" multiple style="display:none;">
 
 <div class="confirm-overlay" onclick="if(event.target===this)cancelConfirm()">
@@ -2763,6 +2844,39 @@ function init(){
      to fire twice, double-adding files. Listeners now register exactly
      once and do the right thing for all states. */
   window.addEventListener('resize', updateMenuHeight);
+  /* Wire up the ready-state dropzone — drop OR click both route to
+     the same addFilesFromList path used by the main dropzone. */
+  const readyDz = document.getElementById('readyDropzone');
+  const readyInput = document.getElementById('readyFileInput');
+  if (readyInput) {
+    readyInput.addEventListener('change', e => {
+      if (e.target.files && e.target.files.length) {
+        addFilesFromList(e.target.files);
+        e.target.value = '';
+      }
+    });
+  }
+  if (readyDz) {
+    ['dragenter', 'dragover'].forEach(ev => {
+      readyDz.addEventListener(ev, e => {
+        e.preventDefault();
+        readyDz.classList.add('drag');
+      });
+    });
+    ['dragleave', 'drop'].forEach(ev => {
+      readyDz.addEventListener(ev, e => {
+        if (ev === 'dragleave' && readyDz.contains(e.relatedTarget)) return;
+        readyDz.classList.remove('drag');
+      });
+    });
+    readyDz.addEventListener('drop', e => {
+      e.preventDefault();
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+        addFilesFromList(e.dataTransfer.files);
+      }
+    });
+  }
+
   /* WASM cold-start pre-warm — defer until idle so it doesn't compete
      with FCP. Worker swallows errors so this is safe; if 'preload'
      isn't handled, the worker just does nothing. */
@@ -5918,7 +6032,12 @@ function doClear(){
   CFLOW.thumbs = [];
   CFLOW.selected = 0; CFLOW.drift = 0;
   document.getElementById('cflowTrack').querySelectorAll('.cflow-thumb:not(.clear-all)').forEach(t => t.remove()); /* keep static clear-all tile */
-  setState('empty');
+  /* Three-state machine: clear-all from workspace → 'ready' (dark
+     in-tool empty state), not 'empty' (light landing page). Power
+     users doing serial batches stay in the dark theme. The 'empty'
+     state is reserved for first-time visitors and explicit
+     /-navigation via the brand logo. */
+  setState('ready');
 }
 </script>
 
