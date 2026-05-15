@@ -2023,6 +2023,10 @@
     backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
     animation:kbFade .18s ease;
   }
+  /* [hidden] attribute defaults to display:none, but the explicit
+     display:flex above overrides it. Re-assert here so the modal is
+     truly hidden when the attribute is set. */
+  .kb-shortcuts[hidden]{display:none !important;}
   @keyframes kbFade{from{opacity:0}to{opacity:1}}
   .kb-shortcuts-card{
     background:var(--surface, #fff);
@@ -2082,6 +2086,7 @@
     animation:batchFade .2s ease;
     min-width:200px;
   }
+  .batch-progress[hidden]{display:none !important;}
   @keyframes batchFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion: reduce){
     .batch-progress{animation:none;}
@@ -2683,7 +2688,12 @@ function init(){
   });
   if (kbModal) {
     kbModal.addEventListener('click', e => {
-      if (e.target === kbModal || e.target.matches('.kb-shortcuts-close')) closeKbShortcuts();
+      /* Close on: backdrop click (target === modal itself) OR any
+         click anywhere on the close button (closest handles text
+         nodes too). */
+      if (e.target === kbModal || (e.target.closest && e.target.closest('.kb-shortcuts-close'))) {
+        closeKbShortcuts();
+      }
     });
   }
 
