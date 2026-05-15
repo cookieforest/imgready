@@ -1830,6 +1830,57 @@
     opacity:.55;cursor:not-allowed;pointer-events:none;
   }
   .quality-menu{min-width:160px;}
+  /* Quality menu toggle: mirrors the format menu's "Multiple formats" row */
+  .quality-menu .quality-by-row{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 10px 8px 10px;
+    margin-bottom:4px;
+    border-bottom:1px solid rgba(255,255,255,.10);
+    color:rgba(255,255,255,.85);
+    font-size:.72rem;font-weight:600;
+    cursor:pointer;
+    user-select:none;
+  }
+  .quality-menu .quality-by-row:hover{
+    background:rgba(255,255,255,.04);
+    border-radius:5px 5px 0 0;
+  }
+  .quality-menu .quality-by-row input[type=checkbox]{
+    position:absolute;opacity:0;pointer-events:none;
+  }
+  .quality-menu .quality-by-row .switch-track{
+    width:24px;height:14px;border-radius:7px;
+    background:rgba(255,255,255,.18);
+    position:relative;flex-shrink:0;
+    transition:background .15s ease;
+  }
+  .quality-menu .quality-by-row .switch-track::after{
+    content:'';position:absolute;
+    width:10px;height:10px;border-radius:50%;
+    background:#fff;top:2px;left:2px;
+    transition:transform .15s ease;
+  }
+  .quality-menu .quality-by-row input:checked + .switch-track{
+    background:var(--accent);
+  }
+  .quality-menu .quality-by-row input:checked + .switch-track::after{
+    transform:translateX(10px);
+  }
+  /* Body swap via the wrapper's data-quality-by attribute. */
+  .quality-dropdown[data-quality-by="quality"] .quality-by-size-body{display:none;}
+  .quality-dropdown[data-quality-by="size"] .quality-by-quality-body{display:none;}
+  /* Size-target buttons reuse the same look as quality preset buttons. */
+  .quality-menu button[data-size-target]{
+    display:block;width:100%;text-align:left;
+    padding:6px 10px;margin:1px 0;
+    background:transparent;color:rgba(255,255,255,.86);
+    border:none;border-radius:5px;
+    font-size:.84rem;cursor:pointer;
+  }
+  .quality-menu button[data-size-target]:hover{background:rgba(255,255,255,.06);}
+  .quality-menu button[data-size-target].active{
+    background:rgba(255,255,255,.10);color:#fff;
+  }
   .quality-target-row{
     display:flex;align-items:center;gap:8px;padding:8px 10px;
     border-top:1px solid rgba(255,255,255,.08);
@@ -1851,14 +1902,6 @@
     border:1px solid rgba(255,255,255,.16);font-size:.78rem;cursor:pointer;
   }
   .quality-target-row .qtr-apply:hover{background:rgba(255,255,255,.15);}
-  /* Target preset gets a subtle pill-like treatment to read as "advanced"
-     vs the simple quality bands above it. */
-  .quality-menu button[data-quality-preset="target"]{
-    font-style:italic;color:rgba(255,255,255,.78);
-  }
-  .quality-menu button[data-quality-preset="target"].active{
-    font-style:normal;color:#fff;
-  }
     .quality-menu button[data-quality-preset]{
     display:flex;justify-content:space-between;align-items:center;
     width:100%;
@@ -2734,27 +2777,46 @@
                .quality-row input[type=range]) keep working. -->
           <div class="bb-section">
             <span class="bb-section-label">Quality</span>
-            <div class="resize-presets quality-dropdown" data-quality-current="85" data-quality-mode="smart">
+            <div class="resize-presets quality-dropdown" data-quality-current="85" data-quality-mode="smart" data-quality-by="quality">
               <button type="button" class="resize-presets-trigger" data-quality-trigger>
                 <span class="quality-current-label">Smart</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="resize-presets-menu quality-menu">
-                <button type="button" data-quality-preset="smart" data-q="auto" class="active">Smart</button>
-                <button type="button" data-quality-preset="lossless" data-q="100">Lossless</button>
-                <button type="button" data-quality-preset="best" data-q="95">Best</button>
-                <button type="button" data-quality-preset="high" data-q="85">High</button>
-                <button type="button" data-quality-preset="medium" data-q="75">Standard</button>
-                <button type="button" data-quality-preset="low" data-q="60">Compact</button>
-                <button type="button" data-quality-preset="target" data-q="target" data-tt="Target size — picks the quality that lands within ~5% of a KB ceiling. Great for hitting upload caps.">Target size</button>
-                <div class="quality-custom-row quality-row">
-                  <input type="range" min="10" max="100" value="85" aria-label="Custom quality (10 to 100)">
-                  <span class="q-val">85</span>
+                <!-- Toggle at top mirrors the "Multiple formats" switch in
+                     the format menu. OFF (default) = pick by quality preset.
+                     ON = pick by KB target. The body below swaps between
+                     two .quality-by-*-body containers via the wrapper's
+                     data-quality-by attribute. -->
+                <label class="quality-by-row" data-quality-by-row>
+                  <input type="checkbox" id="qualityByToggle">
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span>By size</span>
+                </label>
+                <!-- BY QUALITY body (default) -->
+                <div class="quality-by-quality-body">
+                  <button type="button" data-quality-preset="smart" data-q="auto" class="active">Smart</button>
+                  <button type="button" data-quality-preset="lossless" data-q="100">Lossless</button>
+                  <button type="button" data-quality-preset="best" data-q="95">Best</button>
+                  <button type="button" data-quality-preset="high" data-q="85">High</button>
+                  <button type="button" data-quality-preset="medium" data-q="75">Standard</button>
+                  <button type="button" data-quality-preset="low" data-q="60">Compact</button>
+                  <div class="quality-custom-row quality-row">
+                    <input type="range" min="10" max="100" value="85" aria-label="Custom quality (10 to 100)">
+                    <span class="q-val">85</span>
+                  </div>
                 </div>
-                <div class="quality-target-row" id="qualityTargetRow" style="display:none;">
-                  <input type="number" id="qualityTargetInput" min="1" max="99999" placeholder="KB" inputmode="numeric" aria-label="Target size in KB">
-                  <span class="qtr-unit">KB</span>
-                  <button type="button" class="qtr-apply" id="qualityTargetApply">Set</button>
+                <!-- BY SIZE body (visible when toggle is ON) -->
+                <div class="quality-by-size-body">
+                  <button type="button" data-size-target="100">100 KB</button>
+                  <button type="button" data-size-target="500">500 KB</button>
+                  <button type="button" data-size-target="1024">1 MB</button>
+                  <button type="button" data-size-target="2048">2 MB</button>
+                  <div class="quality-target-row" id="qualityTargetRow">
+                    <input type="number" id="qualityTargetInput" min="1" max="99999" placeholder="Custom" inputmode="numeric" aria-label="Target size in KB">
+                    <span class="qtr-unit">KB</span>
+                    <button type="button" class="qtr-apply" id="qualityTargetApply">Set</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -5710,24 +5772,28 @@ if (!window._navMenuOutsideClick) {
     }
   }
   function setQualityTarget(targetKb, opts){
-    /* Target-size mode: stash the KB target on the dropdown's
-       data-quality-target; getActiveSettings reads it back. The
-       quality slider position is set to a sensible 75 so users who
-       toggle off Target mode land on a familiar value. */
+    /* Target-size mode: stash KB target on data-quality-target; flip
+       the wrapper into the size body via data-quality-by; toggle the
+       header switch ON. getActiveSettings reads quality-target back
+       on every encode. */
     const dd = document.querySelector('.quality-dropdown');
     if (!dd) return;
     const tkb = Math.max(1, parseInt(targetKb, 10) || 0);
     if (!tkb) return;
     dd.dataset.qualityMode = 'target';
     dd.dataset.qualityTarget = String(tkb);
-    /* Show the input row in case the menu re-opens; mark Target preset active. */
-    const row = document.getElementById('qualityTargetRow');
-    if (row) row.style.display = 'flex';
-    document.querySelectorAll('.quality-menu button[data-quality-preset]').forEach(b => {
-      b.classList.toggle('active', b.dataset.qualityPreset === 'target');
-    });
+    dd.dataset.qualityBy = 'size';
+    /* Sync the visible switch (in case setQualityTarget was called
+       programmatically, not via the toggle change event). */
+    const tog = document.getElementById('qualityByToggle');
+    if (tog && !tog.checked) tog.checked = true;
+    /* Deactivate quality-preset buttons (they live in the other body). */
+    document.querySelectorAll('.quality-menu button[data-quality-preset]').forEach(b => b.classList.remove('active'));
     const label = dd.querySelector('.quality-current-label');
-    if (label) label.innerHTML = `Target &middot; ${tkb} KB`;
+    if (label) {
+      const display = tkb >= 1024 ? `${(tkb/1024).toFixed(tkb % 1024 ? 1 : 0)} MB` : `${tkb} KB`;
+      label.innerHTML = `Target &middot; ${display}`;
+    }
     if (!opts || !opts.silent) {
       if (typeof invalidateEncoded === 'function') {
         document.body.dataset.qualityEncoding = 'on';
@@ -5742,10 +5808,12 @@ if (!window._navMenuOutsideClick) {
     /* Smart preset: no fixed value — flip mode + label, leave the
        dropdown's data-quality-current alone (acts as cached numeric
        for the fall-through if Smart can't compute). */
-    /* Whichever non-target preset got picked, hide the target input row. */
-    if (presetKey !== 'target') {
-      const tRow = document.getElementById('qualityTargetRow');
-      if (tRow) tRow.style.display = 'none';
+    /* If the user picked any quality preset, ensure the By-size toggle
+       is OFF so the menu state matches reality on next open. */
+    if (presetKey && presetKey !== 'target') {
+      dd.dataset.qualityBy = 'quality';
+      const tog = document.getElementById('qualityByToggle');
+      if (tog) tog.checked = false;
     }
     if (presetKey === 'smart') {
       dd.dataset.qualityMode = 'smart';
@@ -5807,44 +5875,76 @@ if (!window._navMenuOutsideClick) {
   }
   window._setQuality = setQuality;
   window._setQualityFormatSupport = setQualityFormatSupport;
-  function wireTargetSizeRow(){
-    /* Idempotent: only wire once. */
-    if (window._qtRowWired) return;
-    window._qtRowWired = true;
-    document.addEventListener('click', (e) => {
-      /* Clicking the Target-size preset button: show the input row.
-         Don't immediately set mode — wait for the user to type + Set. */
-      const presetBtn = e.target && e.target.closest && e.target.closest('.quality-menu button[data-quality-preset="target"]');
-      if (presetBtn) {
-        const row = document.getElementById('qualityTargetRow');
-        if (row) {
-          row.style.display = 'flex';
-          const inp = document.getElementById('qualityTargetInput');
-          if (inp) setTimeout(() => inp.focus(), 0);
-        }
-        /* Visually mark Target active even before Set is clicked. */
-        document.querySelectorAll('.quality-menu button[data-quality-preset]').forEach(b => {
-          b.classList.toggle('active', b.dataset.qualityPreset === 'target');
+  function wireQualityByToggle(){
+    /* Idempotent. Wires the "By size" toggle that swaps the menu body
+       between quality presets and KB-target presets, plus the size-
+       preset click handlers and the custom-KB Apply path. */
+    if (window._qbToggleWired) return;
+    window._qbToggleWired = true;
+    /* Toggle: switch which body is visible. */
+    document.addEventListener('change', (e) => {
+      if (!e.target || e.target.id !== 'qualityByToggle') return;
+      const on = !!e.target.checked;
+      const dd = document.querySelector('.quality-dropdown');
+      if (!dd) return;
+      dd.dataset.qualityBy = on ? 'size' : 'quality';
+      if (on) {
+        /* Default to last-used target or 100 KB on first switch. */
+        const last = parseInt(dd.dataset.qualityTarget, 10) || 100;
+        const inp = document.getElementById('qualityTargetInput');
+        if (inp && !inp.value) inp.value = String(last);
+        /* Mark the matching size preset active if it lines up. */
+        document.querySelectorAll('.quality-menu button[data-size-target]').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.sizeTarget,10) === last);
         });
+        if (typeof setQualityTarget === 'function') setQualityTarget(last, { silent: false });
+      } else {
+        /* Back to quality preset land — fall back to Smart. */
+        dd.dataset.qualityMode = 'smart';
+        if (typeof setQuality === 'function') setQuality(null, 'smart');
+      }
+    });
+    /* Size-preset clicks: 100 KB / 500 KB / 1 MB / 2 MB */
+    document.addEventListener('click', (e) => {
+      const sizeBtn = e.target && e.target.closest && e.target.closest('.quality-menu button[data-size-target]');
+      if (sizeBtn) {
+        const kb = parseInt(sizeBtn.dataset.sizeTarget, 10);
+        if (kb > 0) {
+          document.querySelectorAll('.quality-menu button[data-size-target]').forEach(b => {
+            b.classList.toggle('active', b === sizeBtn);
+          });
+          const inp = document.getElementById('qualityTargetInput');
+          if (inp) inp.value = String(kb);
+          setQualityTarget(kb);
+        }
         return;
       }
       const applyBtn = e.target && e.target.closest && e.target.closest('#qualityTargetApply');
       if (applyBtn) {
         const inp = document.getElementById('qualityTargetInput');
         const kb = inp ? parseInt(inp.value, 10) : 0;
-        if (kb > 0) setQualityTarget(kb);
+        if (kb > 0) {
+          /* Custom KB — no preset gets marked active. */
+          document.querySelectorAll('.quality-menu button[data-size-target]').forEach(b => b.classList.remove('active'));
+          setQualityTarget(kb);
+        }
         return;
       }
     });
-    /* Enter inside the target input applies it. */
+    /* Enter inside the custom KB input applies it. */
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
       if (!e.target || e.target.id !== 'qualityTargetInput') return;
       const kb = parseInt(e.target.value, 10);
-      if (kb > 0) setQualityTarget(kb);
+      if (kb > 0) {
+        document.querySelectorAll('.quality-menu button[data-size-target]').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.sizeTarget,10) === kb);
+        });
+        setQualityTarget(kb);
+      }
     });
   }
-  wireTargetSizeRow();
+  wireQualityByToggle();
   function wireQualityDropdown(){
     const dd = document.querySelector('.quality-dropdown');
     if (!dd || dd.dataset.qdWired) return;
