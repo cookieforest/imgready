@@ -3062,11 +3062,10 @@ async function _decodeHeicInline(file){
   const blob = await new Promise((res, rej) => {
     c.toBlob(b => b ? res(b) : rej(new Error('canvas toBlob failed')), 'image/jpeg', 0.92);
   });
-  /* Return a File so downstream code that reads .name and .type stays happy.
-     Rename .heic→.jpg so the input-format detection treats it as JPG (which
-     it now is) for re-encode settings. */
-  const newName = (file.name || 'image').replace(/\.(heic|heif)$/i, '.jpg');
-  return new File([blob], newName, { type: 'image/jpeg' });
+  /* Return the decoded blob (renderable JPEG) + dims so callers can
+     keep the ORIGINAL HEIC File for metadata/encoder input while still
+     painting the Before pane with the decoded image. */
+  return { blob, w, h };
 }
 
 async function addFilesFromList(fileList){
@@ -3085,12 +3084,19 @@ async function addFilesFromList(fileList){
        (broken paint, but the queue entry still registers). */
     const isHeicEntry = /\.(heic|heif)$/i.test(file.name) ||
                         file.type === 'image/heic' || file.type === 'image/heif';
-    let entryFile = file, entryUrl;
+    /* For HEIC keep f.file as the ORIGINAL so the Before meta still reads
+       "X MB · HEIC" (user-visible truth) and the encoder still sees the
+       HEIC input it knows how to handle. Use the decoded JPEG blob ONLY
+       for the URL — that's what the Before pane background-image renders.
+       Stash dims from the libheif decode so the metadata corner shows
+       correct dimensions without needing createImageBitmap on the HEIC
+       (which most browsers can't do). */
+    let entryUrl, entryDims = null;
     if (isHeicEntry) {
       try {
-        const decoded = await _decodeHeicInline(file);
-        entryFile = decoded;
-        entryUrl = URL.createObjectURL(decoded);
+        const { blob, w, h } = await _decodeHeicInline(file);
+        entryUrl = URL.createObjectURL(blob);
+        entryDims = { w, h };
       } catch (err) {
         console.warn('[heic-decode] failed for', file.name, err);
         entryUrl = URL.createObjectURL(file);
@@ -3098,7 +3104,9 @@ async function addFilesFromList(fileList){
     } else {
       entryUrl = URL.createObjectURL(file);
     }
-    fresh.push({ file: entryFile, url: entryUrl, name: file.name });
+    const entry = { file, url: entryUrl, name: file.name };
+    if (entryDims) entry.dims = entryDims;
+    fresh.push(entry);
   }
   /* Feedback when ALL files were rejected (user dropped non-images).
      Without this the drop appeared to silently no-op. */
