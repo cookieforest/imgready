@@ -5156,6 +5156,11 @@ if (!window._navMenuOutsideClick) {
     const card = e.target.closest && e.target.closest('.dz-float-card[data-sample]');
     if (!card) return;
     card.classList.add('dragging');
+    /* Light up the main dropzone so the user sees the drop target glow
+       while dragging a sample card. Same .drag class the dropzone uses
+       for real file drags. */
+    const dz = document.getElementById('dropzone');
+    if (dz) dz.classList.add('drag');
     try {
       e.dataTransfer.effectAllowed = 'copy';
       e.dataTransfer.setData('application/imgready-sample',
@@ -5169,6 +5174,9 @@ if (!window._navMenuOutsideClick) {
   document.addEventListener('dragend', e => {
     const card = e.target.closest && e.target.closest('.dz-float-card');
     if (card) card.classList.remove('dragging');
+    /* Clear the dropzone highlight whether the drop succeeded or not. */
+    const dz = document.getElementById('dropzone');
+    if (dz) dz.classList.remove('drag');
   });
   /* Dropzone listens for the custom MIME and routes to loadSample.
      Scoped to drops INSIDE the dropzone — if the user drags a card
