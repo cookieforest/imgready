@@ -2017,6 +2017,9 @@
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off">
+<!-- Polite live region for screen-reader announcements (file added,
+     encode complete, errors). Visually hidden via .sr-only. -->
+<div id="srAnnounce" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
 <div class="brand-bar">
   <a href="/" class="brand">img<span class="g">ready</span></a>
@@ -2557,9 +2560,24 @@ function init(){
   /* WASM cold-start pre-warm — defer until idle so it doesn't compete
      with FCP. Worker swallows errors so this is safe; if 'preload'
      isn't handled, the worker just does nothing. */
-  const warm = () => { try { getWorker().postMessage({ action: 'preload' }); } catch(_){} };
+  const warm = () => { try { getWorker().postMessage({ action: 'prewarm' }); } catch(_){} };
   if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 4000 });
   else setTimeout(warm, 2500);
+
+  /* Throttled screen-reader announcer. Avoid spamming the SR with
+     every per-thumb encode in a 50-file batch — throttle to one
+     announcement per 1s, summarising the latest state. */
+  let _lastSrText = '', _srThrottle = null;
+  window.srAnnounce = function(text){
+    if (!text || text === _lastSrText) return;
+    _lastSrText = text;
+    if (_srThrottle) return;
+    _srThrottle = setTimeout(() => {
+      const el = document.getElementById('srAnnounce');
+      if (el) el.textContent = _lastSrText;
+      _srThrottle = null;
+    }, 1000);
+  };
 }
 
 function onFiles(e){
@@ -3168,8 +3186,8 @@ function showRejectedToast(count){
     document.body.appendChild(_rejectedToastEl);
   }
   _rejectedToastEl.textContent = count === 1
-    ? "That file isn't an image."
-    : `None of those ${count} files looked like images.`;
+    ? "That file isn't a supported image. Try JPG, PNG, HEIC, WebP, AVIF, TIFF, or GIF."
+    : `None of those ${count} files looked like images. Supported: JPG, PNG, HEIC, WebP, AVIF, TIFF, GIF.`;
   _rejectedToastEl.classList.add('show');
   if (_rejectedToastEl._t) clearTimeout(_rejectedToastEl._t);
   _rejectedToastEl._t = setTimeout(() => {
@@ -3452,6 +3470,19 @@ async function syncMainImage(force, opts){
     const meta = (ENCODE._lastDiag && ENCODE._lastDiag.idx === idx) ? ENCODE._lastDiag.data : null;
     const enc = { blob, url, size: blob.size, format: fmtFromMime, meta };
     ENCODE.encoded.set(idx, enc);
+    /* Announce encode result for screen readers. Only on success.
+       Throttled inside srAnnounce; safe to call per file. */
+    try {
+      const beforeSize = f.file.size;
+      const savedPct = beforeSize ? Math.round((beforeSize - blob.size) / beforeSize * 100) : 0;
+      const total = (typeof FILES !== 'undefined') ? FILES.length : 1;
+      const done = (typeof ENCODE.encoded !== 'undefined') ? ENCODE.encoded.size : 1;
+      window.srAnnounce && window.srAnnounce(
+        total > 1
+          ? `${done} of ${total} encoded · latest ${savedPct}% smaller`
+          : `Encoded · ${savedPct}% smaller`
+      );
+    } catch(_){}
     if (!ENCODE.allEncoded.has(idx)) ENCODE.allEncoded.set(idx, new Map());
     ENCODE.allEncoded.get(idx).set(fmtFromMime, enc);
     markThumbEncoding(idx, false);
