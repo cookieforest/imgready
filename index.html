@@ -2983,26 +2983,64 @@ function onFiles(e){
    loads /vendor/libheif.js (CSP-safe via <script>) on first HEIC encounter,
    then decodes the first frame to a canvas and emits a JPEG File so the
    downstream cover-flow + encoder paths see a renderable blob. */
-let _libheifInlinePromise = null;
-function _ensureLibheifInline(){
-  if (window.libheif) return Promise.resolve(window.libheif);
-  if (_libheifInlinePromise) return _libheifInlinePromise;
-  _libheifInlinePromise = new Promise((res, rej) => {
-    const existing = document.querySelector('script[data-libheif-inline]');
-    if (existing) {
-      existing.addEventListener('load', () => res(window.libheif));
-      existing.addEventListener('error', () => rej(new Error('libheif load failed')));
-      return;
+let _libheifInlineModule = null;
+let _libheifInlineLoading = null;
+/* libheif is an Emscripten WASM module. window.libheif is the FACTORY
+   function — calling new lib.HeifDecoder() on the factory throws.
+   Mirror src/02-decoders.js' ensureLibheif: load the script, then if
+   window.libheif is a function, invoke it with onRuntimeInitialized to
+   get the real module. Stash the resolved module so subsequent calls
+   are sync. */
+async function _ensureLibheifInline(){
+  if (_libheifInlineModule) return _libheifInlineModule;
+  if (_libheifInlineLoading) return _libheifInlineLoading;
+  _libheifInlineLoading = (async () => {
+    /* Step 1 — load the script tag if it isn't on the page yet. */
+    if (!window.libheif) {
+      await new Promise((res, rej) => {
+        const existing = document.querySelector('script[data-libheif-inline]');
+        if (existing) {
+          existing.addEventListener('load', res);
+          existing.addEventListener('error', () => rej(new Error('libheif script load failed')));
+          return;
+        }
+        const s = document.createElement('script');
+        s.src = '/vendor/libheif.js';
+        s.async = true;
+        s.setAttribute('data-libheif-inline','1');
+        s.onload = res;
+        s.onerror = () => rej(new Error('libheif script load failed'));
+        document.head.appendChild(s);
+      });
     }
-    const s = document.createElement('script');
-    s.src = '/vendor/libheif.js';
-    s.async = true;
-    s.setAttribute('data-libheif-inline','1');
-    s.onload = () => res(window.libheif);
-    s.onerror = () => rej(new Error('libheif load failed'));
-    document.head.appendChild(s);
-  });
-  return _libheifInlinePromise;
+    let lib = window.libheif;
+    if (!lib) throw new Error('libheif global missing after load');
+    /* Step 2 — if lib is the Emscripten factory, invoke it. The
+       module's onRuntimeInitialized callback fires once WASM is ready;
+       inside the callback `this` is the module itself. */
+    if (typeof lib === 'function') {
+      lib = await new Promise((res, rej) => {
+        const to = setTimeout(() => rej(new Error('libheif init timeout')), 30000);
+        lib({ onRuntimeInitialized: function(){ clearTimeout(to); res(this); } });
+      });
+    } else if (lib && typeof lib.then === 'function') {
+      lib = await lib;
+    }
+    /* Step 3 — some builds put HeifDecoder on window instead of on the
+       module. Patch it across. */
+    if (!lib.HeifDecoder && window.HeifDecoder) lib.HeifDecoder = window.HeifDecoder;
+    if (!lib.HeifDecoder) {
+      /* small grace window in case HeifDecoder is being attached
+         asynchronously after onRuntimeInitialized. */
+      await new Promise(r => setTimeout(r, 500));
+      if (!lib.HeifDecoder && window.HeifDecoder) lib.HeifDecoder = window.HeifDecoder;
+    }
+    if (!lib.HeifDecoder) throw new Error('HeifDecoder not exposed by libheif build');
+    _libheifInlineModule = lib;
+    return lib;
+  })();
+  try { return await _libheifInlineLoading; }
+  finally { _libheifInlineLoading = null; }
 }
 async function _decodeHeicInline(file){
   const lib = await _ensureLibheifInline();
