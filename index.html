@@ -1553,7 +1553,7 @@
      row-aligned below the dropzone with subtle bobbing animation. */
   .dz-floats{
     display:flex;justify-content:center;gap:18px;
-    margin:18px auto 0;
+    margin:6px auto 0;
     max-width:600px;
   }
   body[data-state="multi"] .dz-floats,
@@ -1563,7 +1563,7 @@
     background:#fff;border:1px solid var(--border, rgba(0,0,0,.08));
     border-radius:10px;padding:8px;
     cursor:grab;font:inherit;color:var(--muted-strong);
-    display:flex;flex-direction:column;align-items:stretch;gap:6px;
+    display:flex;flex-direction:column;align-items:stretch;
     box-shadow:0 2px 8px rgba(0,0,0,.06);
     transition:box-shadow .18s ease, border-color .18s ease;
     /* Ambient bob — 4-keyframe asymmetric drift with translateY +
@@ -1596,10 +1596,14 @@
     border-radius:6px;
     pointer-events:none;
   }
-  .dz-float-label{
-    font-size:.72rem;font-weight:600;text-align:center;
-    color:var(--muted-strong);pointer-events:none;
+  /* "or try one of these" caption above the floating cards */
+  .dz-floats-caption{
+    text-align:center;font-size:.72rem;color:var(--muted);
+    margin:18px 0 4px;
+    opacity:.75;
   }
+  body[data-state="multi"] .dz-floats-caption,
+  body[data-state="solo"] .dz-floats-caption{display:none;}
   /* 4-stop keyframe with rotation drift. The 25/50/75 stops at
      asymmetric Y positions make the motion feel less like a sine
      wave and more like floating leaves. Rotation is sub-1deg —
@@ -2264,34 +2268,32 @@
       <span>Stays on your device — never uploaded</span>
     </div>
   </div>
-  <!-- Floating sample cards — sit next to the dropzone, each shows
-       a small thumbnail. Click OR drag onto the dropzone to load.
-       Subtle 4s floating animation (translateY ±6px) at staggered
-       offsets so they feel alive. Hidden once user enters workspace. -->
+  <!-- Floating sample cards — sit beside the dropzone. Image-only;
+       no labels (the photos speak for themselves). Click loads,
+       drag-and-drop into the dropzone also loads. Drag-release
+       outside the dropzone does nothing. -->
+  <p class="dz-floats-caption">or try one of these</p>
   <aside class="dz-floats" id="dzFloats" aria-label="Try with sample images">
     <button type="button" class="dz-float-card" draggable="true"
             data-sample="/samples/architecture.jpg"
             data-sample-name="architecture.jpg"
             data-sample-type="image/jpeg"
-            aria-label="Try sample: Architecture">
+            aria-label="Try sample 1">
       <span class="dz-float-img" style="background-image:url('/samples/architecture.jpg')"></span>
-      <span class="dz-float-label">Architecture</span>
     </button>
     <button type="button" class="dz-float-card" draggable="true"
             data-sample="/samples/portrait.jpg"
             data-sample-name="portrait.jpg"
             data-sample-type="image/jpeg"
-            aria-label="Try sample: Portrait">
+            aria-label="Try sample 2">
       <span class="dz-float-img" style="background-image:url('/samples/portrait.jpg')"></span>
-      <span class="dz-float-label">Portrait</span>
     </button>
     <button type="button" class="dz-float-card" draggable="true"
             data-sample="/samples/graphic.jpg"
             data-sample-name="graphic.jpg"
             data-sample-type="image/jpeg"
-            aria-label="Try sample: Graphic">
+            aria-label="Try sample 3">
       <span class="dz-float-img" style="background-image:url('/samples/graphic.jpg')"></span>
-      <span class="dz-float-label">Graphic</span>
     </button>
   </aside>
   <!-- Output pre-selector — users with conversion intent pick before
@@ -5001,21 +5003,35 @@ if (!window._navMenuOutsideClick) {
     if (card) card.classList.remove('dragging');
   });
   /* Dropzone listens for the custom MIME and routes to loadSample.
-     The existing drop handler still owns real File drops. */
+     Scoped to drops INSIDE the dropzone — if the user drags a card
+     and releases anywhere else on the page, nothing happens. */
+  function isInsideDropzone(target){
+    const dz = document.getElementById('dropzone') ||
+               document.querySelector('.dropzone, .image-canvas, body[data-state="multi"] .stage');
+    return dz && target && dz.contains(target);
+  }
   document.addEventListener('drop', e => {
     if (!e.dataTransfer) return;
     const payload = e.dataTransfer.getData('application/imgready-sample');
     if (!payload) return;
+    /* CRITICAL: only fire when the drop target is within the dropzone.
+       Without this, releasing the drag anywhere else still loaded the
+       sample, which is the bug the user flagged. */
+    if (!isInsideDropzone(e.target)) return;
     e.preventDefault();
     try {
       const { url, name, type } = JSON.parse(payload);
       loadSample(url, name, type);
     } catch(_){}
   }, true);
+  /* dragover preventDefault on dropzone only — lets the browser show
+     the "copy" cursor inside the zone, "no-drop" outside. */
   document.addEventListener('dragover', e => {
-    if (e.dataTransfer && e.dataTransfer.types &&
-        e.dataTransfer.types.includes('application/imgready-sample')) {
+    if (!e.dataTransfer || !e.dataTransfer.types ||
+        !e.dataTransfer.types.includes('application/imgready-sample')) return;
+    if (isInsideDropzone(e.target)) {
       e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
     }
   }, true);
   document.addEventListener('click', e => {
