@@ -2221,6 +2221,18 @@
   body[data-empty-batch="true"] .canvas-fade{
     display:none !important;
   }
+  /* Top-chrome: hide BEFORE/AFTER sections + savings stats in empty-batch
+     mode. Keep only the centered .tc-brand-name ('imgready' link). */
+  body[data-empty-batch="true"] .top-chrome .tc-before,
+  body[data-empty-batch="true"] .top-chrome .tc-after,
+  body[data-empty-batch="true"] .top-chrome .tc-stats{
+    display:none !important;
+  }
+  body[data-empty-batch="true"] .top-chrome{
+    /* Re-center the surviving brand-name link since the flex layout
+       would otherwise be unbalanced with only one child. */
+    justify-content:center;
+  }
   /* Disable bottom-toolbar actions that need files (Share/Download).
      Settings drawer stays usable so user can pre-configure for the
      next batch. */
