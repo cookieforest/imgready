@@ -2978,15 +2978,36 @@ function onFiles(e){
     e.target.value = '';
   }
 }
-function addFilesFromList(fileList){
+async function addFilesFromList(fileList){
   const fresh = [];
   let totalSeen = 0;
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList[i];
     totalSeen++;
     if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name)) continue;
-    const url = URL.createObjectURL(file);
-    fresh.push({ file, url, name: file.name });
+    /* Exotic formats (HEIC, TIFF, SVG, BMP) — browsers can't render the
+       raw blob, so URL.createObjectURL(file) gives us a URL that paints
+       nothing. Decode via libheif/UTIF and use the decoded JPEG blob
+       for both file ref and URL so the Before preview renders. The
+       decoder is exposed by src/02-decoders.js as window.preDecodeFile. */
+    const isExoticEntry = /\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name) ||
+                          /^image\/(heic|heif|tiff|bmp|svg\+xml)$/.test(file.type);
+    let entryFile = file, entryUrl;
+    if (isExoticEntry && typeof window.preDecodeFile === 'function') {
+      try {
+        const decoded = await window.preDecodeFile(file);
+        entryFile = decoded;
+        entryUrl = URL.createObjectURL(decoded);
+      } catch (err) {
+        console.warn('[exotic-decode] failed for', file.name, err);
+        /* Fall back to raw — the queue still shows the entry so the user
+           knows the drop registered; Before just won't paint. */
+        entryUrl = URL.createObjectURL(file);
+      }
+    } else {
+      entryUrl = URL.createObjectURL(file);
+    }
+    fresh.push({ file: entryFile, url: entryUrl, name: file.name });
   }
   /* Feedback when ALL files were rejected (user dropped non-images).
      Without this the drop appeared to silently no-op. */
