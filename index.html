@@ -2876,7 +2876,7 @@ function addFilesFromList(fileList){
   FILES.push(...fresh);
   /* Auto-select the format that matches the dropped file's input MIME.
      Single mode: replaces selection. Multi mode: adds to existing. */
-  if (!window._skipPresetFormat && typeof window._presetFormatFromInput === 'function') {
+  if (typeof window._presetFormatFromInput === 'function') {
     window._presetFormatFromInput(fresh[0].file);
   }
   buildThumbs();
@@ -4940,22 +4940,28 @@ if (!window._navMenuOutsideClick) {
     }
     /* Baseline from bytes-per-pixel (or file size fallback). */
     let baseline;
+    /* Rebalanced 2026-05: prior baselines (85/78/68) produced ~10%
+       savings on already-optimized JPGs, which felt token. New lower
+       targets (78/70/58) push more aggressively on the assumption
+       that "save me bytes" is the user's primary intent. Visual loss
+       at q=58 on a small bpp source is minimal (the source had no
+       fine detail left to discard). */
     if (w && h) {
       const bpp = file.size / (w * h);
-      if (bpp > 0.7)       baseline = 85;  /* Fresh, lots of headroom */
-      else if (bpp > 0.25) baseline = 78;  /* Standard web compression */
-      else                 baseline = 68;  /* Already optimized */
+      if (bpp > 0.7)       baseline = 78;  /* fresh capture, lots of headroom */
+      else if (bpp > 0.25) baseline = 70;  /* standard web JPG */
+      else                 baseline = 58;  /* already-optimized, push harder */
     } else {
-      if (file.size > 2 * 1024 * 1024) baseline = 85;
-      else if (file.size > 500 * 1024) baseline = 78;
-      else                              baseline = 70;
+      if (file.size > 2 * 1024 * 1024) baseline = 78;
+      else if (file.size > 500 * 1024) baseline = 70;
+      else                              baseline = 60;
     }
     /* Format-conversion bonus: log scale so 2x efficiency = +6 quality. */
     const inEff = FMT_EFFICIENCY[inputFmt] || 0.5;
     const outEff = FMT_EFFICIENCY[outFmt || 'webp'] || 0.5;
     const bonus = inEff / outEff;
     const bump = bonus > 0 ? Math.round(Math.log2(bonus) * 6) : 0;
-    return Math.max(55, Math.min(95, baseline + bump));
+    return Math.max(50, Math.min(95, baseline + bump));
   }
   window._suggestQuality = suggestQuality;
 
@@ -4978,34 +4984,18 @@ if (!window._navMenuOutsideClick) {
   /* Sample-image button handler — fetch the bundled image, wrap as
      a File, and feed through the normal addFilesFromList path. Gives
      users a no-friction way to see results without finding a file. */
-  /* Load a sample by URL → File → addFilesFromList. Used by click
-     and by the drag-to-dropzone path.
-     
-     For SAMPLE flow specifically, we pre-select WebP before the file
-     is added — competitor research (2026): Cloudinary, ShortPixel,
-     Webflow, ToolsUseful all default to WebP for auto-optimization;
-     Squoosh and TinyPNG preserve original. Since samples are explicitly
-     a "show me what this tool can do" pitch, WebP gives the user a
-     real-world demonstration of compression savings instead of the
-     marginal 5-6% they'd see on JPG→JPG re-encode of pre-optimized
-     stock images. Normal user drops keep their "match input" default. */
+  /* Load a sample by URL → File → addFilesFromList. Same flow as a
+     real user drop — match-input format on output, Smart quality.
+     The new sample sources are Unsplash raw (q=85) instead of picsum's
+     pre-compressed versions, so there's enough headroom that even
+     JPG→JPG re-encode shows meaningful savings. */
   async function loadSample(url, name, type){
     try {
       const resp = await fetch(url);
       if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
       const blob = await resp.blob();
       const file = new File([blob], name, { type });
-      /* Override format to WebP for the demo. Done BEFORE addFilesFromList
-         so presetFormatFromInput inside it doesn't fire and overwrite. */
-      if (typeof window._setOutFormats === 'function') {
-        window._setOutFormats(['webp'], { silent: true });
-      }
-      window._skipPresetFormat = true;
-      try {
-        if (typeof addFilesFromList === 'function') addFilesFromList([file]);
-      } finally {
-        window._skipPresetFormat = false;
-      }
+      if (typeof addFilesFromList === 'function') addFilesFromList([file]);
     } catch (err) {
       console.warn('[samples] failed to load', url, err);
     }
