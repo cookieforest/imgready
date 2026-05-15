@@ -2205,69 +2205,70 @@
   }
 
 
-  /* ============ READY state (in-tool empty between batches) ============ */
-  /* Hide everything light-state until we deliberately show it */
-  .stage.ready{display:none;}
-  body[data-state="ready"] .stage.ready{
-    display:flex;align-items:center;justify-content:center;
-    position:fixed;inset:0;background:#0e0e10;
-    color:#eaeaea;
-    z-index:1;
+  /* ============ Empty-batch overlay (workspace with no files) ============
+     Applied via body[data-empty-batch="true"] which doClear sets and
+     addFilesFromList clears. Workspace stays in `data-state="multi"`,
+     so all the chrome (brand-bar at top, toolbar at bottom) renders
+     normally. We just hide the compare-slider machinery and show a
+     centered dropzone in its place. */
+  body[data-empty-batch="true"] .compare-zoom,
+  body[data-empty-batch="true"] .compare-handle,
+  body[data-empty-batch="true"] .compare-meta,
+  body[data-empty-batch="true"] .compare-divider,
+  body[data-empty-batch="true"] .cover-flow,
+  body[data-empty-batch="true"] .filename-ribbon,
+  body[data-empty-batch="true"] .cflow-scrubber,
+  body[data-empty-batch="true"] .canvas-fade{
+    display:none !important;
   }
-  /* Mute every other state's content when in ready */
-  body[data-state="ready"] .beta-empty{display:none !important;}
-  body[data-state="ready"] .stage.solo,
-  body[data-state="ready"] .stage.multi{display:none !important;}
-  /* Brand-bar shown (logo click = exit to / = empty state). Override
-     the multi/solo display:none rule. */
-  body[data-state="ready"] .brand-bar{
-    display:flex !important;
-    position:fixed;top:0;left:0;right:0;z-index:10;
-    background:rgba(14,14,16,.85);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border-bottom:1px solid rgba(255,255,255,.06);
+  /* Disable bottom-toolbar actions that need files (Share/Download).
+     Settings drawer stays usable so user can pre-configure for the
+     next batch. */
+  body[data-empty-batch="true"] .menu-card > .actions .btn-primary,
+  body[data-empty-batch="true"] .menu-card > .actions .btn-clear,
+  body[data-empty-batch="true"] .menu-card > .actions .btn:not(.settings-toggle){
+    opacity:.4;pointer-events:none;
   }
-  body[data-state="ready"] .brand-bar .brand{color:#eaeaea;}
-  body[data-state="ready"] .brand-bar .brand .g{color:var(--accent);}
-
-  /* The dropzone itself — dark dashed border, centered, hover state */
-  .ready-dropzone{
-    position:relative;
-    max-width:560px;width:90%;
-    padding:64px 32px;
+  /* The dropzone overlay — centered in the image-canvas region. */
+  .empty-batch-dropzone{
+    display:none;
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    max-width:560px;width:calc(100% - 64px);
+    padding:56px 32px;
     border:2px dashed rgba(255,255,255,.18);
     border-radius:14px;
     text-align:center;
     cursor:pointer;
     background:rgba(255,255,255,.02);
-    transition:border-color .18s ease, background .18s ease, transform .18s ease;
+    transition:border-color .18s ease, background .18s ease;
+    z-index:5;
   }
-  .ready-dropzone:hover,
-  .ready-dropzone.drag{
+  body[data-empty-batch="true"] .empty-batch-dropzone{display:block;}
+  .empty-batch-dropzone:hover,
+  .empty-batch-dropzone.drag{
     border-color:var(--accent);
     background:color-mix(in srgb, var(--accent) 6%, rgba(255,255,255,.02));
   }
-  .ready-dropzone.drag{transform:scale(1.005);}
-  .ready-dropzone input[type=file]{
+  .empty-batch-dropzone input[type=file]{
     position:absolute;inset:0;opacity:0;cursor:pointer;
   }
-  .ready-dz-icon{
+  .empty-batch-dropzone .ebd-icon{
     display:inline-flex;align-items:center;justify-content:center;
-    width:64px;height:64px;border-radius:50%;
-    background:rgba(255,255,255,.05);
-    color:var(--accent);
-    margin-bottom:16px;
+    width:56px;height:56px;border-radius:50%;
+    background:rgba(255,255,255,.05);color:var(--accent);
+    margin-bottom:12px;
   }
-  .ready-dropzone h2{
-    font-size:1.4rem;font-weight:700;letter-spacing:-.3px;
-    margin:0 0 6px;color:#fafafa;
+  .empty-batch-dropzone h3{
+    font-size:1.2rem;font-weight:700;letter-spacing:-.2px;
+    margin:0 0 4px;color:#fafafa;
   }
-  .ready-dropzone p{
-    font-size:.78rem;color:rgba(255,255,255,.55);margin:0;
+  .empty-batch-dropzone p{
+    font-size:.74rem;color:rgba(255,255,255,.55);margin:0;
   }
   @media (max-width:520px){
-    .ready-dropzone{padding:48px 20px;}
-    .ready-dropzone h2{font-size:1.2rem;}
+    .empty-batch-dropzone{padding:40px 20px;}
+    .empty-batch-dropzone h3{font-size:1.05rem;}
   }
 
 </style>
@@ -2767,20 +2768,16 @@
       </div>
     </div>
   </div>
-</section>
 
-<!-- ============================ READY STATE ============================
-     Dark in-tool empty state shown AFTER first batch is cleared. Lets
-     power users start the next batch without bouncing back to the light
-     landing page and re-rendering all the SEO content. -->
-<section class="stage ready">
-  <div class="ready-dropzone" id="readyDropzone" role="region" aria-label="Drop next batch">
-    <input type="file" id="readyFileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files for next batch">
-    <span class="ready-dz-icon" aria-hidden="true">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  <!-- Empty-batch dropzone — shown by CSS when body[data-empty-batch="true"].
+       Drop or click loads the next batch; same flow as main dropzone. -->
+  <div class="empty-batch-dropzone" id="emptyBatchDropzone" role="region" aria-label="Drop more images">
+    <input type="file" id="emptyBatchInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose more image files">
+    <span class="ebd-icon" aria-hidden="true">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
-    <h2>Drop next batch</h2>
-    <p>JPG, PNG, HEIC, WebP, AVIF, TIFF + more &middot; up to 200 files</p>
+    <h3>Drop, click, or paste</h3>
+    <p>up to 200 files</p>
   </div>
 </section>
 
@@ -2844,32 +2841,31 @@ function init(){
      to fire twice, double-adding files. Listeners now register exactly
      once and do the right thing for all states. */
   window.addEventListener('resize', updateMenuHeight);
-  /* Wire up the ready-state dropzone — drop OR click both route to
-     the same addFilesFromList path used by the main dropzone. */
-  const readyDz = document.getElementById('readyDropzone');
-  const readyInput = document.getElementById('readyFileInput');
-  if (readyInput) {
-    readyInput.addEventListener('change', e => {
+  /* Wire up the empty-batch dropzone (shown when body[data-empty-batch]). */
+  const ebDz = document.getElementById('emptyBatchDropzone');
+  const ebInput = document.getElementById('emptyBatchInput');
+  if (ebInput) {
+    ebInput.addEventListener('change', e => {
       if (e.target.files && e.target.files.length) {
         addFilesFromList(e.target.files);
         e.target.value = '';
       }
     });
   }
-  if (readyDz) {
+  if (ebDz) {
     ['dragenter', 'dragover'].forEach(ev => {
-      readyDz.addEventListener(ev, e => {
+      ebDz.addEventListener(ev, e => {
         e.preventDefault();
-        readyDz.classList.add('drag');
+        ebDz.classList.add('drag');
       });
     });
     ['dragleave', 'drop'].forEach(ev => {
-      readyDz.addEventListener(ev, e => {
-        if (ev === 'dragleave' && readyDz.contains(e.relatedTarget)) return;
-        readyDz.classList.remove('drag');
+      ebDz.addEventListener(ev, e => {
+        if (ev === 'dragleave' && ebDz.contains(e.relatedTarget)) return;
+        ebDz.classList.remove('drag');
       });
     });
-    readyDz.addEventListener('drop', e => {
+    ebDz.addEventListener('drop', e => {
       e.preventDefault();
       if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
         addFilesFromList(e.dataTransfer.files);
@@ -2999,6 +2995,8 @@ function addFilesFromList(fileList){
      rendering. Solo state had its own separate IDs that never got
      wired to syncMainImage. */
   document.body.dataset.state = 'multi';
+  /* Clear empty-batch flag if it was set by a previous doClear. */
+  delete document.body.dataset.emptyBatch;
   /* wireZoom is idempotent (data-zoomWired guard) so calling on every drop is safe */
   if (typeof wireZoom === 'function') wireZoom();
   /* Kick off the background encode queue. The selected file is encoded
@@ -6032,12 +6030,14 @@ function doClear(){
   CFLOW.thumbs = [];
   CFLOW.selected = 0; CFLOW.drift = 0;
   document.getElementById('cflowTrack').querySelectorAll('.cflow-thumb:not(.clear-all)').forEach(t => t.remove()); /* keep static clear-all tile */
-  /* Three-state machine: clear-all from workspace → 'ready' (dark
-     in-tool empty state), not 'empty' (light landing page). Power
-     users doing serial batches stay in the dark theme. The 'empty'
-     state is reserved for first-time visitors and explicit
-     /-navigation via the brand logo. */
-  setState('ready');
+  /* Stay in workspace state ('multi'), just flag the body so CSS shows
+     an empty-batch dropzone overlay over the compare-slider area.
+     Workspace chrome (top stats bar + bottom toolbar) keeps rendering,
+     so user feels they're still in the same tool — just waiting for
+     the next batch. No state transition = no flash. */
+  document.body.dataset.emptyBatch = 'true';
+  /* The /-link in the brand-bar (logo click) still exits to '/' which
+     is the empty state — preserves the landing-page-as-exit pattern. */
 }
 </script>
 
