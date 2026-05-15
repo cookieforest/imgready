@@ -3405,9 +3405,24 @@ function getActiveSettings(){
     },
   };
 }
-function encodeFile(idx, overrideFmt){
+async function encodeFile(idx, overrideFmt){
   const f = FILES[idx];
   if (!f) return Promise.reject(new Error('no file'));
+  /* Ensure dimensions are populated BEFORE running Smart quality math.
+     Previously syncMainImage populated f.dims asynchronously via
+     createImageBitmap, so the first encode fired with dims=undefined and
+     fell back to a file-size-tier baseline (q=78) instead of the
+     bpp-aware baseline (q=70). Same file → two different quality values
+     → "first encode saves 27%, second encode saves 57%" bug.
+     Eliminate the race by awaiting dims inline here. ~50-200ms latency
+     on first encode in exchange for consistent output sizes. */
+  if (!f.dims) {
+    try {
+      const bmp = await createImageBitmap(f.file);
+      f.dims = { w: bmp.width, h: bmp.height };
+      try { bmp.close && bmp.close(); } catch(_){}
+    } catch(_){ /* fall through with no dims — Smart uses file-size fallback */ }
+  }
   /* Hand the file to getActiveSettings via the module-level context
      var, so Smart quality mode can compute per-file. */
   _gasContextFile = f.file;
