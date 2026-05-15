@@ -1830,7 +1830,36 @@
     opacity:.55;cursor:not-allowed;pointer-events:none;
   }
   .quality-menu{min-width:160px;}
-  .quality-menu button[data-quality-preset]{
+  .quality-target-row{
+    display:flex;align-items:center;gap:8px;padding:8px 10px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .quality-target-row input[type=number]{
+    flex:1;min-width:0;padding:6px 8px;border-radius:6px;
+    background:rgba(255,255,255,.06);color:#fff;
+    border:1px solid rgba(255,255,255,.12);font-size:.86rem;
+  }
+  .quality-target-row input[type=number]:focus{
+    outline:none;border-color:rgba(255,255,255,.32);
+  }
+  .quality-target-row .qtr-unit{
+    color:rgba(255,255,255,.55);font-size:.78rem;
+  }
+  .quality-target-row .qtr-apply{
+    padding:6px 12px;border-radius:6px;
+    background:rgba(255,255,255,.10);color:#fff;
+    border:1px solid rgba(255,255,255,.16);font-size:.78rem;cursor:pointer;
+  }
+  .quality-target-row .qtr-apply:hover{background:rgba(255,255,255,.15);}
+  /* Target preset gets a subtle pill-like treatment to read as "advanced"
+     vs the simple quality bands above it. */
+  .quality-menu button[data-quality-preset="target"]{
+    font-style:italic;color:rgba(255,255,255,.78);
+  }
+  .quality-menu button[data-quality-preset="target"].active{
+    font-style:normal;color:#fff;
+  }
+    .quality-menu button[data-quality-preset]{
     display:flex;justify-content:space-between;align-items:center;
     width:100%;
   }
@@ -2717,9 +2746,15 @@
                 <button type="button" data-quality-preset="high" data-q="85">High</button>
                 <button type="button" data-quality-preset="medium" data-q="75">Standard</button>
                 <button type="button" data-quality-preset="low" data-q="60">Compact</button>
+                <button type="button" data-quality-preset="target" data-q="target" data-tt="Target size — picks the quality that lands within ~5% of a KB ceiling. Great for hitting upload caps.">Target size</button>
                 <div class="quality-custom-row quality-row">
                   <input type="range" min="10" max="100" value="85" aria-label="Custom quality (10 to 100)">
                   <span class="q-val">85</span>
+                </div>
+                <div class="quality-target-row" id="qualityTargetRow" style="display:none;">
+                  <input type="number" id="qualityTargetInput" min="1" max="99999" placeholder="KB" inputmode="numeric" aria-label="Target size in KB">
+                  <span class="qtr-unit">KB</span>
+                  <button type="button" class="qtr-apply" id="qualityTargetApply">Set</button>
                 </div>
               </div>
             </div>
@@ -3269,6 +3304,41 @@ function buildThumbs(){
         <div class="thumb-progress" aria-hidden="true"></div>
       </div>`;
     t.addEventListener('click', e => onThumbClick(i, e));
+    /* Drag-out: let users drag the cover-flow thumb to their desktop /
+       Finder / Slack / email composer and drop the ENCODED file. Uses
+       the HTML5 DownloadURL transfer type (Chrome/Edge/Opera; Firefox
+       partial). The dragged blob is the encoded result when available,
+       falling back to the original blob. */
+    t.draggable = true;
+    t.addEventListener('dragstart', ev => {
+      try {
+        if (!ev.dataTransfer) return;
+        const idx = parseInt(t.dataset.i, 10);
+        const file = FILES[idx];
+        if (!file) return;
+        const enc = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.get(idx) : null;
+        let url, mime, name;
+        if (enc && enc.url && enc.blob) {
+          url = enc.url;
+          mime = enc.blob.type || 'application/octet-stream';
+          const base = file.file.name.replace(/\.[^.]+$/, '');
+          name = `${base}_imgready.${enc.format}`;
+        } else {
+          /* Encode hasn't landed yet — drag-out the original so the
+             gesture isn't silently broken. */
+          url = file.url;
+          mime = (file.file && file.file.type) || 'application/octet-stream';
+          name = file.file.name || 'image';
+        }
+        /* Chromium DownloadURL format: "mime:filename:absolute-url".
+           Blob URLs are valid here. Firefox/Safari may fall through. */
+        ev.dataTransfer.effectAllowed = 'copy';
+        ev.dataTransfer.setData('DownloadURL', `${mime}:${name}:${location.origin}${url.startsWith('blob:') ? '' : ''}${url}`);
+        /* Fallback for generic drop targets (URL list). */
+        ev.dataTransfer.setData('text/uri-list', url);
+        ev.dataTransfer.setData('text/plain', name);
+      } catch(_) { /* non-fatal */ }
+    });
     track.insertBefore(t, document.getElementById('piActions'));
     CFLOW.thumbs.push(t);
   }
@@ -3617,9 +3687,22 @@ function getActiveSettings(){
      or slider drags). */
   let qualityRaw = NaN;
   const qDropdown = document.querySelector('.quality-dropdown');
-  const isSmart = qDropdown && qDropdown.dataset.qualityMode === 'smart';
+  const qMode = qDropdown && qDropdown.dataset.qualityMode;
+  const isSmart = qMode === 'smart';
+  const isTarget = qMode === 'target';
   if (isSmart && _gasContextFile && typeof window._suggestQuality === 'function') {
     qualityRaw = window._suggestQuality(_gasContextFile, fmt);
+  } else if (isTarget && _gasContextFile && typeof window._qualityFromTarget === 'function') {
+    /* Target-size mode: compute the quality that should land on the
+       user-specified KB ceiling. Uses cached dims (populated by
+       syncMainImage's createImageBitmap / HEIC pre-decode). */
+    const targetKb = parseInt(qDropdown.dataset.qualityTarget, 10) || 100;
+    let tw = 0, th = 0;
+    if (typeof FILES !== 'undefined') {
+      const entry = FILES.find(f => f && f.file === _gasContextFile);
+      if (entry && entry.dims) { tw = entry.dims.w; th = entry.dims.h; }
+    }
+    qualityRaw = window._qualityFromTarget(_gasContextFile, fmt, targetKb, tw, th);
   } else if (qDropdown && qDropdown.dataset.qualityCurrent) {
     qualityRaw = parseInt(qDropdown.dataset.qualityCurrent, 10);
   }
@@ -5253,6 +5336,22 @@ if (!window._navMenuOutsideClick) {
      numbers are within ~15% of measured output for q≥60 — close
      enough to drive a quality-vs-size tradeoff without doing real
      encode probes (which would be too slow for live preview). */
+  /* Inverse of _predictBpp: given a desired KB ceiling, solve for the
+     quality that hits it. Returns 50..95 floor/ceiling. Uses the same
+     bpp curves as _predictBpp so target mode and Smart agree. */
+  function _qualityFromTarget(file, fmt, targetKb, w, h){
+    if (!w || !h || !file) return 75;
+    const targetBpp = (targetKb * 1024) / (w * h);
+    /* Format constants — must mirror _predictBpp below. */
+    const K = { webp:0.55, avif:0.40, jpg:0.85, gif:1.20, png:0, ico:0 };
+    const k = K[fmt] || 0.85;
+    if (!k) return 95;  /* lossless format, quality is symbolic */
+    /* _predictBpp = k * (q/100)^1.7  →  q = (bpp/k)^(1/1.7) * 100 */
+    const ratio = Math.max(0, targetBpp / k);
+    if (ratio <= 0) return 50;
+    const q = Math.pow(ratio, 1/1.7) * 100;
+    return Math.max(50, Math.min(95, Math.round(q)));
+  }
   function _predictBpp(quality, fmt){
     const qf = Math.pow(Math.max(0.4, quality / 100), 1.7);
     if (fmt === 'webp') return 0.55 * qf;
@@ -5318,6 +5417,7 @@ if (!window._navMenuOutsideClick) {
     return q;
   }
   window._suggestQuality = suggestQuality;
+  window._qualityFromTarget = _qualityFromTarget;
 
   /* 1. Query string parse — comma-separated for multi: ?out=webp,avif */
   const VALID = ['auto','webp','avif','jpg','png','gif','ico'];
@@ -5609,12 +5709,44 @@ if (!window._navMenuOutsideClick) {
         : 'Quality doesn\u2019t apply to this format (it\u2019s lossless)';
     }
   }
+  function setQualityTarget(targetKb, opts){
+    /* Target-size mode: stash the KB target on the dropdown's
+       data-quality-target; getActiveSettings reads it back. The
+       quality slider position is set to a sensible 75 so users who
+       toggle off Target mode land on a familiar value. */
+    const dd = document.querySelector('.quality-dropdown');
+    if (!dd) return;
+    const tkb = Math.max(1, parseInt(targetKb, 10) || 0);
+    if (!tkb) return;
+    dd.dataset.qualityMode = 'target';
+    dd.dataset.qualityTarget = String(tkb);
+    /* Show the input row in case the menu re-opens; mark Target preset active. */
+    const row = document.getElementById('qualityTargetRow');
+    if (row) row.style.display = 'flex';
+    document.querySelectorAll('.quality-menu button[data-quality-preset]').forEach(b => {
+      b.classList.toggle('active', b.dataset.qualityPreset === 'target');
+    });
+    const label = dd.querySelector('.quality-current-label');
+    if (label) label.innerHTML = `Target &middot; ${tkb} KB`;
+    if (!opts || !opts.silent) {
+      if (typeof invalidateEncoded === 'function') {
+        document.body.dataset.qualityEncoding = 'on';
+        invalidateEncoded();
+      }
+    }
+  }
+  window._setQualityTarget = setQualityTarget;
   function setQuality(value, presetKey, opts){
     const dd = document.querySelector('.quality-dropdown');
     if (!dd) return;
     /* Smart preset: no fixed value — flip mode + label, leave the
        dropdown's data-quality-current alone (acts as cached numeric
        for the fall-through if Smart can't compute). */
+    /* Whichever non-target preset got picked, hide the target input row. */
+    if (presetKey !== 'target') {
+      const tRow = document.getElementById('qualityTargetRow');
+      if (tRow) tRow.style.display = 'none';
+    }
     if (presetKey === 'smart') {
       dd.dataset.qualityMode = 'smart';
       const label = dd.querySelector('.quality-current-label');
@@ -5675,6 +5807,44 @@ if (!window._navMenuOutsideClick) {
   }
   window._setQuality = setQuality;
   window._setQualityFormatSupport = setQualityFormatSupport;
+  function wireTargetSizeRow(){
+    /* Idempotent: only wire once. */
+    if (window._qtRowWired) return;
+    window._qtRowWired = true;
+    document.addEventListener('click', (e) => {
+      /* Clicking the Target-size preset button: show the input row.
+         Don't immediately set mode — wait for the user to type + Set. */
+      const presetBtn = e.target && e.target.closest && e.target.closest('.quality-menu button[data-quality-preset="target"]');
+      if (presetBtn) {
+        const row = document.getElementById('qualityTargetRow');
+        if (row) {
+          row.style.display = 'flex';
+          const inp = document.getElementById('qualityTargetInput');
+          if (inp) setTimeout(() => inp.focus(), 0);
+        }
+        /* Visually mark Target active even before Set is clicked. */
+        document.querySelectorAll('.quality-menu button[data-quality-preset]').forEach(b => {
+          b.classList.toggle('active', b.dataset.qualityPreset === 'target');
+        });
+        return;
+      }
+      const applyBtn = e.target && e.target.closest && e.target.closest('#qualityTargetApply');
+      if (applyBtn) {
+        const inp = document.getElementById('qualityTargetInput');
+        const kb = inp ? parseInt(inp.value, 10) : 0;
+        if (kb > 0) setQualityTarget(kb);
+        return;
+      }
+    });
+    /* Enter inside the target input applies it. */
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      if (!e.target || e.target.id !== 'qualityTargetInput') return;
+      const kb = parseInt(e.target.value, 10);
+      if (kb > 0) setQualityTarget(kb);
+    });
+  }
+  wireTargetSizeRow();
   function wireQualityDropdown(){
     const dd = document.querySelector('.quality-dropdown');
     if (!dd || dd.dataset.qdWired) return;
@@ -5850,7 +6020,37 @@ async function downloadAll(){
     }
     /* JSZip unavailable — fall through to per-file individual downloads. */
   }
-  /* Single-format path (or multi-out fallback) */
+  /* Single-format path: when batch has 2+ files, zip everything into
+     one download so the browser doesn't stagger N save dialogs. Single
+     file keeps the legacy direct-download UX. */
+  let realCount = 0;
+  for (let i = 0; i < FILES.length; i++) {
+    if (FILES[i] && ENCODE.encoded.get(i)) realCount++;
+  }
+  if (realCount > 1) {
+    const JSZipMod = window.JSZip || (await loadJSZip());
+    if (JSZipMod) {
+      const zip = new JSZipMod();
+      let added = 0;
+      for (let i = 0; i < FILES.length; i++) {
+        const f = FILES[i]; const enc = ENCODE.encoded.get(i);
+        if (!f || !enc) continue;
+        const base = f.file.name.replace(/\.[^.]+$/, '');
+        zip.file(`${base}_imgready.${enc.format}`, enc.blob);
+        added++;
+      }
+      if (added > 0) {
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(blob);
+        const stamp = new Date().toISOString().slice(0,10);
+        triggerDownload(url, `imgready-${stamp}.zip`);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return;
+      }
+    }
+    /* JSZip unavailable — fall through to per-file individual downloads. */
+  }
+  /* Single file (or zip path unavailable): individual download(s). */
   for (let i = 0; i < FILES.length; i++) {
     const f = FILES[i]; const enc = ENCODE.encoded.get(i);
     if (!f || !enc) continue;
