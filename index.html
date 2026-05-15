@@ -1566,17 +1566,31 @@
     display:flex;flex-direction:column;align-items:stretch;
     box-shadow:0 2px 8px rgba(0,0,0,.06);
     transition:box-shadow .18s ease, border-color .18s ease;
-    /* Ambient bob — 4-keyframe asymmetric drift with translateY +
-       subtle rotate. Each card gets a slightly different duration
-       and a negative delay so they desync over time and don't move
-       in lock-step. Pure transform: GPU-accelerated, no layout
-       thrash (per web.dev animation guide). */
-    animation:dzFloat var(--dz-float-dur, 5.5s) ease-in-out infinite;
-    will-change:transform;
+    /* Continuous ambient drift — TWO simultaneous single-axis animations
+       on DIFFERENT periods. Each is a smooth 2-keyframe sine (no
+       intermediate stops, no "deceleration into a keyframe" pause).
+       Y-period (5-7s) and rotate-period (7-9s) never sync, so the
+       combined motion appears continuous and organic. Uses individual
+       `translate` and `rotate` CSS properties (Chrome 104+, FF 72+,
+       Safari 14.1+) so two animations can stack without fighting over
+       the `transform` shorthand. */
+    animation:
+      dzFloatY var(--dz-y-dur, 5.5s) ease-in-out infinite,
+      dzFloatR var(--dz-r-dur, 7.5s) ease-in-out infinite;
+    will-change:translate, rotate;
   }
-  .dz-float-card:nth-child(1){--dz-float-dur:5.4s;animation-delay:-0.3s;}
-  .dz-float-card:nth-child(2){--dz-float-dur:6.7s;animation-delay:-2.1s;}
-  .dz-float-card:nth-child(3){--dz-float-dur:5.9s;animation-delay:-4.0s;}
+  .dz-float-card:nth-child(1){
+    --dz-y-dur:5.4s; --dz-r-dur:7.7s;
+    animation-delay: -0.3s, -1.1s;
+  }
+  .dz-float-card:nth-child(2){
+    --dz-y-dur:6.7s; --dz-r-dur:8.9s;
+    animation-delay: -2.1s, -4.3s;
+  }
+  .dz-float-card:nth-child(3){
+    --dz-y-dur:5.9s; --dz-r-dur:7.1s;
+    animation-delay: -4.0s, -0.5s;
+  }
   .dz-float-card:hover{
     border-color:var(--accent);
     box-shadow:0 6px 20px rgba(0,0,0,.1);
@@ -1604,15 +1618,17 @@
   }
   body[data-state="multi"] .dz-floats-caption,
   body[data-state="solo"] .dz-floats-caption{display:none;}
-  /* 4-stop keyframe with rotation drift. The 25/50/75 stops at
-     asymmetric Y positions make the motion feel less like a sine
-     wave and more like floating leaves. Rotation is sub-1deg —
-     enough to feel alive, not enough to be noticeable as rotation. */
-  @keyframes dzFloat{
-    0%,100% { transform: translateY(0) rotate(0deg); }
-    25%     { transform: translateY(-4px) rotate(-0.35deg); }
-    50%     { transform: translateY(-7px) rotate(0deg); }
-    75%     { transform: translateY(-3px) rotate(0.35deg); }
+  /* Two independent single-axis keyframes. Each is a pure 2-stop
+     sine wave with ease-in-out — no intermediate keyframes means
+     no visible deceleration points. The independent periods on the
+     two animations create organic wander without ever syncing. */
+  @keyframes dzFloatY{
+    0%, 100% { translate: 0 0; }
+    50%      { translate: 0 -7px; }
+  }
+  @keyframes dzFloatR{
+    0%, 100% { rotate: 0deg; }
+    50%      { rotate: 0.5deg; }
   }
   /* No prefers-reduced-motion guard here — the float is 6px
      translateY + sub-1deg rotation over 5-7s. That's far below
@@ -2279,25 +2295,25 @@
   <p class="dz-floats-caption">or try one of these</p>
   <aside class="dz-floats" id="dzFloats" aria-label="Try with sample images">
     <button type="button" class="dz-float-card" draggable="true"
-            data-sample="/samples/architecture.jpg"
+            data-sample="/samples/architecture.jpg?v=2"
             data-sample-name="architecture.jpg"
             data-sample-type="image/jpeg"
             aria-label="Try sample 1">
-      <span class="dz-float-img" style="background-image:url('/samples/architecture.jpg')"></span>
+      <span class="dz-float-img" style="background-image:url('/samples/architecture.jpg?v=2')"></span>
     </button>
     <button type="button" class="dz-float-card" draggable="true"
-            data-sample="/samples/portrait.jpg"
+            data-sample="/samples/portrait.jpg?v=2"
             data-sample-name="portrait.jpg"
             data-sample-type="image/jpeg"
             aria-label="Try sample 2">
-      <span class="dz-float-img" style="background-image:url('/samples/portrait.jpg')"></span>
+      <span class="dz-float-img" style="background-image:url('/samples/portrait.jpg?v=2')"></span>
     </button>
     <button type="button" class="dz-float-card" draggable="true"
-            data-sample="/samples/graphic.jpg"
+            data-sample="/samples/graphic.jpg?v=2"
             data-sample-name="graphic.jpg"
             data-sample-type="image/jpeg"
             aria-label="Try sample 3">
-      <span class="dz-float-img" style="background-image:url('/samples/graphic.jpg')"></span>
+      <span class="dz-float-img" style="background-image:url('/samples/graphic.jpg?v=2')"></span>
     </button>
   </aside>
   <!-- Output pre-selector — users with conversion intent pick before
