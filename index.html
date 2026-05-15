@@ -2301,7 +2301,7 @@
     <span class="tc-value" id="tcBefore">—</span>
   </div>
   <div class="tc-section tc-brand">
-    <a href="/" class="tc-brand-name">img<span class="g">ready</span></a>
+    <a href="/" class="tc-brand-name" onclick="if(typeof FILES!=='undefined' && FILES.length && document.body.dataset.emptyBatch!=='true'){event.preventDefault();askLeaveHome();}">img<span class="g">ready</span></a>
     <span class="tc-stats" id="tcStats">—</span>
   </div>
   <div class="tc-section tc-after">
@@ -2801,7 +2801,7 @@
     <p>This removes every image in this batch. You can't undo it.</p>
     <div class="confirm-actions">
       <button class="btn" onclick="cancelConfirm()" style="border-color:rgba(255,255,255,.22);">Cancel</button>
-      <button class="btn btn-clear" onclick="doClear()" style="color:#ff9c9c;border-color:rgba(220,120,120,.5);">Clear all</button>
+      <button class="btn btn-clear" id="confirmPrimaryBtn" onclick="(window._confirmAction||doClear)()" style="color:#ff9c9c;border-color:rgba(220,120,120,.5);">Clear all</button>
     </div>
   </div>
 </div>
@@ -2978,6 +2978,59 @@ function onFiles(e){
     e.target.value = '';
   }
 }
+/* Inline HEIC decoder — minimal mirror of src/02-decoders.js' decodeHeic,
+   needed because the bundled app.js isn't loaded on the live page. Lazily
+   loads /vendor/libheif.js (CSP-safe via <script>) on first HEIC encounter,
+   then decodes the first frame to a canvas and emits a JPEG File so the
+   downstream cover-flow + encoder paths see a renderable blob. */
+let _libheifInlinePromise = null;
+function _ensureLibheifInline(){
+  if (window.libheif) return Promise.resolve(window.libheif);
+  if (_libheifInlinePromise) return _libheifInlinePromise;
+  _libheifInlinePromise = new Promise((res, rej) => {
+    const existing = document.querySelector('script[data-libheif-inline]');
+    if (existing) {
+      existing.addEventListener('load', () => res(window.libheif));
+      existing.addEventListener('error', () => rej(new Error('libheif load failed')));
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = '/vendor/libheif.js';
+    s.async = true;
+    s.setAttribute('data-libheif-inline','1');
+    s.onload = () => res(window.libheif);
+    s.onerror = () => rej(new Error('libheif load failed'));
+    document.head.appendChild(s);
+  });
+  return _libheifInlinePromise;
+}
+async function _decodeHeicInline(file){
+  const lib = await _ensureLibheifInline();
+  if (!lib) throw new Error('libheif not available');
+  const buf = await file.arrayBuffer();
+  const dec = new lib.HeifDecoder();
+  const data = dec.decode(new Uint8Array(buf));
+  if (!data || !data.length) throw new Error('No images in HEIC');
+  const img = data[0];
+  const w = img.get_width(), h = img.get_height();
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  const id = ctx.createImageData(w, h);
+  await new Promise((res, rej) => {
+    img.display(id, d => d ? res(d) : rej(new Error('HEIC display failed')));
+  });
+  ctx.putImageData(id, 0, 0);
+  const blob = await new Promise((res, rej) => {
+    c.toBlob(b => b ? res(b) : rej(new Error('canvas toBlob failed')), 'image/jpeg', 0.92);
+  });
+  /* Return a File so downstream code that reads .name and .type stays happy.
+     Rename .heic→.jpg so the input-format detection treats it as JPG (which
+     it now is) for re-encode settings. */
+  const newName = (file.name || 'image').replace(/\.(heic|heif)$/i, '.jpg');
+  return new File([blob], newName, { type: 'image/jpeg' });
+}
+
 async function addFilesFromList(fileList){
   const fresh = [];
   let totalSeen = 0;
@@ -2985,23 +3038,23 @@ async function addFilesFromList(fileList){
     const file = fileList[i];
     totalSeen++;
     if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name)) continue;
-    /* Exotic formats (HEIC, TIFF, SVG, BMP) — browsers can't render the
-       raw blob, so URL.createObjectURL(file) gives us a URL that paints
-       nothing. Decode via libheif/UTIF and use the decoded JPEG blob
-       for both file ref and URL so the Before preview renders. The
-       decoder is exposed by src/02-decoders.js as window.preDecodeFile. */
-    const isExoticEntry = /\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name) ||
-                          /^image\/(heic|heif|tiff|bmp|svg\+xml)$/.test(file.type);
+    /* Exotic formats — browsers can't render the raw blob, so
+       URL.createObjectURL(file) gives us a URL that paints nothing.
+       For HEIC/HEIF we run an inline libheif decode and use the
+       decoded JPEG blob URL. The bundled decoders in src/02-decoders.js
+       aren't reachable here because app.js isn't loaded on this page —
+       only inline scripts run. TIFF/SVG/BMP fall through to a raw URL
+       (broken paint, but the queue entry still registers). */
+    const isHeicEntry = /\.(heic|heif)$/i.test(file.name) ||
+                        file.type === 'image/heic' || file.type === 'image/heif';
     let entryFile = file, entryUrl;
-    if (isExoticEntry && typeof window.preDecodeFile === 'function') {
+    if (isHeicEntry) {
       try {
-        const decoded = await window.preDecodeFile(file);
+        const decoded = await _decodeHeicInline(file);
         entryFile = decoded;
         entryUrl = URL.createObjectURL(decoded);
       } catch (err) {
-        console.warn('[exotic-decode] failed for', file.name, err);
-        /* Fall back to raw — the queue still shows the entry so the user
-           knows the drop registered; Before just won't paint. */
+        console.warn('[heic-decode] failed for', file.name, err);
         entryUrl = URL.createObjectURL(file);
       }
     } else {
@@ -4704,7 +4757,22 @@ function piDelete(){
 }
 
 /* ===== Clear all (with confirm) ===== */
-function askClear(){ document.body.dataset.confirm = 'open'; }
+function askClear(){
+  /* Default flow — primary button (re)wired to doClear via _confirmAction. */
+  window._confirmAction = doClear;
+  var b = document.getElementById('confirmPrimaryBtn');
+  if (b) b.textContent = 'Clear all';
+  document.body.dataset.confirm = 'open';
+}
+function askLeaveHome(){
+  /* Logo-click flow — confirm before navigating away. Same warning text
+     as Clear (user request: "same warning as if user needed to clear");
+     primary button now clears AND navigates to '/'. */
+  window._confirmAction = function(){ try { doClear(); } catch(_){} window.location.href = '/'; };
+  var b = document.getElementById('confirmPrimaryBtn');
+  if (b) b.textContent = 'Leave';
+  document.body.dataset.confirm = 'open';
+}
 function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
 
 /* ===== before/after slider drag handler ===== */
