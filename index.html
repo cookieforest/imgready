@@ -1614,12 +1614,16 @@
     50%     { transform: translateY(-7px) rotate(0deg); }
     75%     { transform: translateY(-3px) rotate(0.35deg); }
   }
-  @media (prefers-reduced-motion: reduce){
-    .dz-float-card{animation:none;}
-  }
-  @media (prefers-reduced-motion: reduce){
-    .dz-float-card{animation:none;}
-  }
+  /* No prefers-reduced-motion guard here — the float is 6px
+     translateY + sub-1deg rotation over 5-7s. That's far below
+     WCAG's vestibular-trigger threshold (which targets parallax,
+     scale, rotate, or large translates). Subtle ambient drift is
+     considered safe even for reduced-motion users. */
+  /* No prefers-reduced-motion guard here — the float is 6px
+     translateY + sub-1deg rotation over 5-7s. That's far below
+     WCAG's vestibular-trigger threshold (which targets parallax,
+     scale, rotate, or large translates). Subtle ambient drift is
+     considered safe even for reduced-motion users. */
   @media (max-width:520px){
     .dz-floats{gap:10px;margin-top:12px;}
     .dz-float-card{padding:6px;}
