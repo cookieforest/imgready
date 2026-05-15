@@ -2633,8 +2633,8 @@
                 <button type="button" data-quality-preset="lossless" data-q="100">Lossless</button>
                 <button type="button" data-quality-preset="best" data-q="95">Best</button>
                 <button type="button" data-quality-preset="high" data-q="85">High</button>
-                <button type="button" data-quality-preset="medium" data-q="75">Medium</button>
-                <button type="button" data-quality-preset="low" data-q="60">Low</button>
+                <button type="button" data-quality-preset="medium" data-q="75">Standard</button>
+                <button type="button" data-quality-preset="low" data-q="60">Compact</button>
                 <div class="quality-custom-row quality-row">
                   <input type="range" min="10" max="100" value="85" aria-label="Custom quality (10 to 100)">
                   <span class="q-val">85</span>
@@ -2876,7 +2876,7 @@ function addFilesFromList(fileList){
   FILES.push(...fresh);
   /* Auto-select the format that matches the dropped file's input MIME.
      Single mode: replaces selection. Multi mode: adds to existing. */
-  if (typeof window._presetFormatFromInput === 'function') {
+  if (!window._skipPresetFormat && typeof window._presetFormatFromInput === 'function') {
     window._presetFormatFromInput(fresh[0].file);
   }
   buildThumbs();
@@ -4979,14 +4979,33 @@ if (!window._navMenuOutsideClick) {
      a File, and feed through the normal addFilesFromList path. Gives
      users a no-friction way to see results without finding a file. */
   /* Load a sample by URL → File → addFilesFromList. Used by click
-     and by the drag-to-dropzone path. */
+     and by the drag-to-dropzone path.
+     
+     For SAMPLE flow specifically, we pre-select WebP before the file
+     is added — competitor research (2026): Cloudinary, ShortPixel,
+     Webflow, ToolsUseful all default to WebP for auto-optimization;
+     Squoosh and TinyPNG preserve original. Since samples are explicitly
+     a "show me what this tool can do" pitch, WebP gives the user a
+     real-world demonstration of compression savings instead of the
+     marginal 5-6% they'd see on JPG→JPG re-encode of pre-optimized
+     stock images. Normal user drops keep their "match input" default. */
   async function loadSample(url, name, type){
     try {
       const resp = await fetch(url);
       if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
       const blob = await resp.blob();
       const file = new File([blob], name, { type });
-      if (typeof addFilesFromList === 'function') addFilesFromList([file]);
+      /* Override format to WebP for the demo. Done BEFORE addFilesFromList
+         so presetFormatFromInput inside it doesn't fire and overwrite. */
+      if (typeof window._setOutFormats === 'function') {
+        window._setOutFormats(['webp'], { silent: true });
+      }
+      window._skipPresetFormat = true;
+      try {
+        if (typeof addFilesFromList === 'function') addFilesFromList([file]);
+      } finally {
+        window._skipPresetFormat = false;
+      }
     } catch (err) {
       console.warn('[samples] failed to load', url, err);
     }
@@ -5265,8 +5284,7 @@ if (!window._navMenuOutsideClick) {
        mode keeps · NN since the name doesn't carry information. */
     const label = dd.querySelector('.quality-current-label');
     if (label) {
-      const presetMap = { lossless: 'Lossless', best: 'Best', high: 'High',
-                          medium: 'Medium', low: 'Low' };
+      const presetMap = { lossless: 'Lossless', best: 'Best', high: 'High', medium: 'Standard', low: 'Compact' };
       if (presetKey && presetMap[presetKey]) {
         label.textContent = presetMap[presetKey];
       } else {
