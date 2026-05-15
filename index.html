@@ -1565,17 +1565,31 @@
     cursor:grab;font:inherit;color:var(--muted-strong);
     display:flex;flex-direction:column;align-items:stretch;gap:6px;
     box-shadow:0 2px 8px rgba(0,0,0,.06);
-    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    animation:dzFloat 4s ease-in-out infinite;
+    transition:box-shadow .18s ease, border-color .18s ease;
+    /* Ambient bob — 4-keyframe asymmetric drift with translateY +
+       subtle rotate. Each card gets a slightly different duration
+       and a negative delay so they desync over time and don't move
+       in lock-step. Pure transform: GPU-accelerated, no layout
+       thrash (per web.dev animation guide). */
+    animation:dzFloat var(--dz-float-dur, 5.5s) ease-in-out infinite;
+    will-change:transform;
   }
-  .dz-float-card:nth-child(2){animation-delay:-1.3s;}
-  .dz-float-card:nth-child(3){animation-delay:-2.6s;}
+  .dz-float-card:nth-child(1){--dz-float-dur:5.4s;animation-delay:-0.3s;}
+  .dz-float-card:nth-child(2){--dz-float-dur:6.7s;animation-delay:-2.1s;}
+  .dz-float-card:nth-child(3){--dz-float-dur:5.9s;animation-delay:-4.0s;}
   .dz-float-card:hover{
     border-color:var(--accent);
     box-shadow:0 6px 20px rgba(0,0,0,.1);
+    /* Pause the ambient bob during hover so it doesn't fight the
+       user's pointer (Smart Interface Design Patterns recommendation
+       for drag-and-drop). */
+    animation-play-state:paused;
   }
-  .dz-float-card:active{cursor:grabbing;transform:translateY(0);}
-  .dz-float-card.dragging{opacity:.5;transform:scale(.95);}
+  .dz-float-card:active{cursor:grabbing;animation-play-state:paused;}
+  .dz-float-card.dragging{
+    opacity:.55;
+    animation-play-state:paused;
+  }
   .dz-float-img{
     display:block;width:100%;aspect-ratio:1/1;
     background-size:cover;background-position:center;
@@ -1586,9 +1600,18 @@
     font-size:.72rem;font-weight:600;text-align:center;
     color:var(--muted-strong);pointer-events:none;
   }
+  /* 4-stop keyframe with rotation drift. The 25/50/75 stops at
+     asymmetric Y positions make the motion feel less like a sine
+     wave and more like floating leaves. Rotation is sub-1deg —
+     enough to feel alive, not enough to be noticeable as rotation. */
   @keyframes dzFloat{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-6px);}
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    25%     { transform: translateY(-4px) rotate(-0.35deg); }
+    50%     { transform: translateY(-7px) rotate(0deg); }
+    75%     { transform: translateY(-3px) rotate(0.35deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .dz-float-card{animation:none;}
   }
   @media (prefers-reduced-motion: reduce){
     .dz-float-card{animation:none;}
