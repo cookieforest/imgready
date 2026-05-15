@@ -1855,6 +1855,18 @@
      drops out of scope. body[data-quality-by] is always reachable. */
   body[data-quality-by="quality"] .quality-by-size-body{display:none;}
   body[data-quality-by="size"] .quality-by-quality-body{display:none;}
+  /* "By size" is meaningless in multi-output: a single quality lands
+     each format at a different file size, so a single KB target can't
+     apply. Gray the tab and intercept clicks via JS. The aria-disabled
+     attribute + reduced opacity reads as "this is off right now". */
+  body[data-multiout="on"] .quality-by-tab[data-quality-by-pick="size"]{
+    opacity:.4;cursor:not-allowed;pointer-events:none;
+  }
+  body[data-multiout="on"] .quality-by-tab[data-quality-by-pick="size"]::after{
+    content:' \2014 single format only';
+    font-size:.65rem;font-weight:400;color:rgba(255,255,255,.45);
+    margin-left:4px;
+  }
   /* Size-target buttons reuse the same look as quality preset buttons. */
   .quality-menu button[data-size-target]{
     display:block;width:100%;text-align:left;
@@ -5306,6 +5318,14 @@ if (!window._navMenuOutsideClick) {
     document.body.dataset.multiout = enabled ? 'on' : 'off';
     const cb = document.getElementById('multiOutToggle');
     if (cb && cb.checked !== enabled) cb.checked = enabled;
+    /* Multi-output and "By size" can't coexist (single quality →
+       multiple file sizes), so flipping multi ON snaps us back to
+       "By quality" if the user was on By size. The CSS rule above
+       prevents re-selecting By size while multi is on. */
+    if (enabled && document.body.dataset.qualityBy === 'size') {
+      if (typeof _setQualityByTab === 'function') _setQualityByTab('quality');
+      if (typeof setQuality === 'function') setQuality(null, 'smart');
+    }
   }
   window._setMultiOutMode = setMultiOutMode;
   /* setOutFormats — array-based source of truth. */
@@ -5878,6 +5898,12 @@ if (!window._navMenuOutsideClick) {
       const tab = e.target && e.target.closest && e.target.closest('.quality-by-tab');
       if (tab) {
         const which = tab.dataset.qualityByPick;
+        /* Block By size selection while multi-output is on. The CSS
+           already does pointer-events:none, but a defensive guard
+           here covers programmatic / keyboard / AT-driven clicks. */
+        if (which === 'size' && document.body.dataset.multiout === 'on') {
+          return;
+        }
         _setQualityByTab(which);
         if (which === 'size') {
           const dd = document.querySelector('.quality-dropdown');
