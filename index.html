@@ -5920,7 +5920,8 @@ if (!window._navMenuOutsideClick) {
         }
         return;
       }
-      /* Size-preset clicks: 100 KB / 500 KB / 1 MB / 2 MB. */
+      /* Size-preset clicks: 100 KB / 500 KB / 1 MB / 2 MB.
+         Match the quality-preset behavior: commit + close. */
       const sizeBtn = e.target && e.target.closest && e.target.closest('.quality-menu button[data-size-target]');
       if (sizeBtn) {
         const kb = parseInt(sizeBtn.dataset.sizeTarget, 10);
@@ -5931,10 +5932,11 @@ if (!window._navMenuOutsideClick) {
           const inp = document.getElementById('qualityTargetInput');
           if (inp) inp.value = String(kb);
           setQualityTarget(kb);
+          _closeQualityMenu();
         }
         return;
       }
-      /* Custom-KB Apply button. */
+      /* Custom-KB Apply button — same commit-and-close pattern. */
       const applyBtn = e.target && e.target.closest && e.target.closest('#qualityTargetApply');
       if (applyBtn) {
         const inp = document.getElementById('qualityTargetInput');
@@ -5942,11 +5944,13 @@ if (!window._navMenuOutsideClick) {
         if (kb > 0) {
           document.querySelectorAll('.quality-menu button[data-size-target]').forEach(b => b.classList.remove('active'));
           setQualityTarget(kb);
+          _closeQualityMenu();
         }
         return;
       }
     });
-    /* Enter inside the custom KB input applies it. */
+    /* Enter inside the custom KB input applies it AND closes the menu,
+       matching the click-Apply behavior. */
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
       if (!e.target || e.target.id !== 'qualityTargetInput') return;
@@ -5956,8 +5960,17 @@ if (!window._navMenuOutsideClick) {
           b.classList.toggle('active', parseInt(b.dataset.sizeTarget,10) === kb);
         });
         setQualityTarget(kb);
+        _closeQualityMenu();
       }
     });
+  }
+  function _closeQualityMenu(){
+    /* Helper because the menu's portalled to body — both the wrapper's
+       and the menu's own .open class need clearing. */
+    const dd = document.querySelector('.quality-dropdown');
+    const menu = document.querySelector('.quality-menu');
+    if (dd) dd.classList.remove('open');
+    if (menu) menu.classList.remove('open');
   }
   wireQualityByToggle();
   function wireQualityDropdown(){
@@ -6285,11 +6298,29 @@ function attachSettingsListeners(){
     document.querySelectorAll('.resize-presets.open').forEach(p => {
       if (p !== keep) p.classList.remove('open');
     });
+    /* Map each dropdown class to the class of the menu it owns. Portalled
+       menus aren't descendants of their dropdown wrapper anymore, so DOM
+       containment can't be used — match by class instead. The old code
+       only distinguished crop-vs-non-crop, so opening Format/Quality/
+       Resize while another non-crop dropdown was open left the other one
+       visible. */
+    const DD_TO_MENU = {
+      'format-dropdown':  'format-menu',
+      'quality-dropdown': 'quality-menu',
+      'resize-dropdown':  'resize-menu',
+      'crop-dropdown':    'crop-menu',
+    };
+    let keepMenuClass = null;
+    if (keep) {
+      for (const ddCls in DD_TO_MENU) {
+        if (keep.classList.contains(ddCls)) { keepMenuClass = DD_TO_MENU[ddCls]; break; }
+      }
+    }
     document.querySelectorAll('.resize-presets-menu.open').forEach(m => {
       if (!keep) { m.classList.remove('open'); return; }
-      const keepIsCrop = keep.classList.contains('crop-dropdown');
-      const menuIsCrop = m.classList.contains('crop-menu');
-      if (keepIsCrop !== menuIsCrop) m.classList.remove('open');
+      if (!keepMenuClass || !m.classList.contains(keepMenuClass)) {
+        m.classList.remove('open');
+      }
     });
   }
   /* Resize dropdown — single control with presets + inline custom input.
@@ -6433,6 +6464,16 @@ function attachSettingsListeners(){
           if (m && !m.contains(e.target)) m.classList.remove('open');
         }
       });
+    });
+    /* Esc closes any open preset dropdown (Format / Quality / Resize /
+       Crop). Mirrors the navMenu/kbShortcuts pattern. */
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      const anyOpen = document.querySelector('.resize-presets.open, .resize-presets-menu.open');
+      if (!anyOpen) return;
+      document.querySelectorAll('.resize-presets.open').forEach(p => p.classList.remove('open'));
+      document.querySelectorAll('.resize-presets-menu.open').forEach(m => m.classList.remove('open'));
+      e.preventDefault();
     });
   }
   /* (Old mode-toggle + initial sync removed — single dropdown handles state) */
