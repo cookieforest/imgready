@@ -2014,6 +2014,90 @@
     padding:8px;color:#fff;font-weight:700;font-size:1rem;
     text-shadow:0 1px 3px rgba(0,0,0,.4);}
   .mock-image.large{font-size:1.4rem;padding:20px;}
+
+  /* ============ Keyboard shortcuts modal ============ */
+  .kb-shortcuts{
+    position:fixed;inset:0;z-index:1000;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.5);
+    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    animation:kbFade .18s ease;
+  }
+  @keyframes kbFade{from{opacity:0}to{opacity:1}}
+  .kb-shortcuts-card{
+    background:var(--surface, #fff);
+    border-radius:12px;
+    padding:24px 28px;
+    max-width:420px;width:90%;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);
+    position:relative;
+  }
+  .kb-shortcuts h2{
+    font-size:1.05rem;font-weight:700;margin:0 0 16px;
+    color:var(--text);
+  }
+  .kb-shortcuts-table{
+    width:100%;border-collapse:collapse;
+  }
+  .kb-shortcuts-table td{
+    padding:7px 0;font-size:.84rem;color:var(--text2, var(--muted-strong));
+  }
+  .kb-shortcuts-table td:first-child{
+    width:130px;color:var(--text);
+  }
+  .kb-shortcuts kbd{
+    display:inline-block;
+    padding:2px 7px;margin:0 1px;
+    font:inherit;font-size:.76rem;font-weight:600;
+    background:rgba(0,0,0,.06);
+    border:1px solid rgba(0,0,0,.14);
+    border-bottom-width:2px;
+    border-radius:4px;
+    color:var(--text);
+    line-height:1.2;
+  }
+  .kb-shortcuts-close{
+    position:absolute;top:10px;right:10px;
+    width:30px;height:30px;
+    background:none;border:none;cursor:pointer;
+    font-size:1.4rem;line-height:1;color:var(--muted);
+    border-radius:50%;
+  }
+  .kb-shortcuts-close:hover{background:rgba(0,0,0,.06);color:var(--text);}
+  @media (prefers-reduced-motion: reduce){
+    .kb-shortcuts{animation:none;}
+  }
+
+  /* ============ Bulk batch progress (top-right) ============ */
+  .batch-progress{
+    position:fixed;top:14px;right:14px;z-index:200;
+    background:rgba(20,20,20,.85);
+    color:#fff;
+    padding:9px 14px;
+    border-radius:9px;
+    font-size:.78rem;font-weight:600;
+    display:flex;align-items:center;gap:10px;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
+    animation:batchFade .2s ease;
+    min-width:200px;
+  }
+  @keyframes batchFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){
+    .batch-progress{animation:none;}
+  }
+  .batch-progress-text{flex:1;}
+  .batch-progress-bar{
+    flex:none;width:60px;height:4px;
+    background:rgba(255,255,255,.18);
+    border-radius:2px;overflow:hidden;
+  }
+  .batch-progress-fill{
+    display:block;height:100%;width:0%;
+    background:#bfe6bf;
+    transition:width .3s ease;
+  }
+
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off">
@@ -2578,6 +2662,65 @@ function init(){
       _srThrottle = null;
     }, 1000);
   };
+
+  /* ====== Keyboard shortcuts overlay ====== */
+  const kbModal = document.getElementById('kbShortcuts');
+  function isTypingTarget(t){
+    if (!t) return false;
+    const tag = t.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t.isContentEditable;
+  }
+  function openKbShortcuts(){ if (kbModal) kbModal.hidden = false; }
+  function closeKbShortcuts(){ if (kbModal) kbModal.hidden = true; }
+  document.addEventListener('keydown', e => {
+    if (isTypingTarget(e.target)) return;
+    if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+      e.preventDefault();
+      if (kbModal && kbModal.hidden) openKbShortcuts(); else closeKbShortcuts();
+    } else if (e.key === 'Escape') {
+      if (kbModal && !kbModal.hidden) { e.preventDefault(); closeKbShortcuts(); }
+    }
+  });
+  if (kbModal) {
+    kbModal.addEventListener('click', e => {
+      if (e.target === kbModal || e.target.matches('.kb-shortcuts-close')) closeKbShortcuts();
+    });
+  }
+
+  /* ====== Bulk batch progress indicator ====== */
+  const batchEl = document.getElementById('batchProgress');
+  if (batchEl) {
+    const txt = batchEl.querySelector('.batch-progress-text');
+    const fill = batchEl.querySelector('.batch-progress-fill');
+    window._updateBatchProgress = function(){
+      const total = (typeof FILES !== 'undefined') ? FILES.length : 0;
+      const done = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.size : 0;
+      if (total < 2) { batchEl.hidden = true; return; }
+      const pct = total ? Math.round(done / total * 100) : 0;
+      if (txt) txt.textContent = `Encoding ${done} of ${total}`;
+      if (fill) fill.style.width = pct + '%';
+      batchEl.hidden = (done >= total);
+    };
+    /* Tick the progress when anything happens. Re-poll every 600ms
+       while there are inflight encodes; idle when none. */
+    let _bpTimer = null;
+    function tickBatch(){
+      window._updateBatchProgress && window._updateBatchProgress();
+      const total = (typeof FILES !== 'undefined') ? FILES.length : 0;
+      const done = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.size : 0;
+      if (total >= 2 && done < total) {
+        clearTimeout(_bpTimer);
+        _bpTimer = setTimeout(tickBatch, 600);
+      }
+    }
+    /* Hook into the existing addFilesFromList + syncMainImage paths
+       by polling on any file-list change. Cheap; runs only while
+       batching is active. */
+    setInterval(() => {
+      const total = (typeof FILES !== 'undefined') ? FILES.length : 0;
+      if (total >= 2) tickBatch();
+    }, 1500);
+  }
 }
 
 function onFiles(e){
@@ -5637,5 +5780,33 @@ function doClear(){
 </div>
 
 <!-- PROTOTYPE_EOF -->
+
+<!-- Keyboard shortcuts modal — opened by '?' key, closed by Esc or
+     outside-click. Hidden until first invocation. -->
+<div id="kbShortcuts" class="kb-shortcuts" hidden role="dialog" aria-labelledby="kbShortcutsTitle" aria-modal="true">
+  <div class="kb-shortcuts-card">
+    <h2 id="kbShortcutsTitle">Keyboard shortcuts</h2>
+    <table class="kb-shortcuts-table">
+      <tbody>
+        <tr><td><kbd>?</kbd></td><td>Show / hide this list</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Close menus or this list</td></tr>
+        <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Previous / next image</td></tr>
+        <tr><td><kbd>Cmd</kbd> + <kbd>V</kbd></td><td>Paste an image</td></tr>
+        <tr><td><kbd>Cmd</kbd> + <kbd>S</kbd></td><td>Download current image</td></tr>
+        <tr><td><kbd>Delete</kbd></td><td>Remove current image</td></tr>
+      </tbody>
+    </table>
+    <button type="button" class="kb-shortcuts-close" aria-label="Close shortcuts">×</button>
+  </div>
+</div>
+
+<!-- Bulk batch progress — top-right floating indicator. Shows when
+     2+ files are encoding, auto-hides when done. No buttons, no
+     dismiss needed; appears + disappears with the encode lifecycle. -->
+<div id="batchProgress" class="batch-progress" hidden aria-live="polite">
+  <span class="batch-progress-text"></span>
+  <span class="batch-progress-bar"><span class="batch-progress-fill"></span></span>
+</div>
+
 </body>
 </html>
