@@ -79,7 +79,7 @@
     --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
-    --thumb-big:86px;--thumb-small:35px;--stride:60px;  /* active thumb +15% (75->86) for clearer selection */
+    --thumb-big:86px;--thumb-small:45px;--stride:70px;  /* active thumb +15% (75->86); unselected +28% (35->45) for easier clicking; stride bumped to preserve gap */
     /* 8-pt spacing grid — use these for new work and migrate older
        values opportunistically. --s-half = 4px is the minor unit for
        tight gaps; multiples of 8 from --s-1 onward. */
@@ -2797,8 +2797,8 @@
 
 <div class="confirm-overlay" onclick="if(event.target===this)cancelConfirm()">
   <div class="confirm-modal">
-    <h3>Clear all images?</h3>
-    <p>This removes every image in this batch. You can't undo it.</p>
+    <h3 id="confirmTitle">Clear all images?</h3>
+    <p id="confirmBody">This removes every image in this batch. You can't undo it.</p>
     <div class="confirm-actions">
       <button class="btn" onclick="cancelConfirm()" style="border-color:rgba(255,255,255,.22);">Cancel</button>
       <button class="btn btn-clear" id="confirmPrimaryBtn" onclick="(window._confirmAction||doClear)()" style="color:#ff9c9c;border-color:rgba(220,120,120,.5);">Clear all</button>
@@ -4196,6 +4196,20 @@ function invalidateEncoded(){
    The transform is applied to the .compare-zoom wrapper so cbBefore + cbAfter
    stay perfectly aligned for the compare slider. */
 const ZOOM = { scale: 1, x: 0, y: 0, dragging: false, lastX: 0, lastY: 0, pinchDist: 0, _lastShownScale: 1 };
+/* Canvas width cache — read once per resize. Reading
+   getBoundingClientRect() inside applyZoom forces a synchronous layout
+   flush mid-batch (write wrap.transform → READ rect → write divider/
+   handle), which is the classic jitter signature on compare sliders
+   under continuous zoom/pan input. Cache it and invalidate on resize. */
+let _canvasWidthCache = 0;
+function _canvasWidth(){
+  if (_canvasWidthCache > 0) return _canvasWidthCache;
+  const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
+  if (!canvas) return 0;
+  _canvasWidthCache = canvas.getBoundingClientRect().width;
+  return _canvasWidthCache;
+}
+window.addEventListener('resize', () => { _canvasWidthCache = 0; });
 function applyZoom(){
   const wrap = document.querySelector('body[data-state="multi"] .stage.multi .compare-zoom');
   const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
@@ -4209,14 +4223,13 @@ function applyZoom(){
     window.refreshSliderFromZoom();
   }
   /* Counter-scale the divider so its width stays 2px regardless of
-     parent zoom. Divider still lives inside compare-zoom so it gets the
-     scale; counter-scale brings it back to crisp 2px. The handle does
-     NOT need counter-scaling any more — it's been hoisted out of
-     compare-zoom and sits in screen-space on .image-canvas, with its
-     vertical anchor at top:50% of the viewport (no transform from zoom). */
+     parent zoom. translateX is in LOCAL coords (before the wrap's
+     scale), so to land a constant 1px screen-space centering offset
+     we pre-divide by zoom — otherwise the offset grows linearly with
+     zoom and the divider visibly jitters when zooming. */
   const inv = 1 / ZOOM.scale;
   const divider = wrap.querySelector('.compare-divider');
-  if (divider) divider.style.transform = `translateX(-1px) scaleX(${inv})`;
+  if (divider) divider.style.transform = `translateX(${-inv}px) scaleX(${inv})`;
   /* Zoom-level chip — show + auto-fade ONLY when scale actually changed.
      Without the change-check, every syncMainImage → resetZoom → applyZoom
      would flash the chip on selection swaps even though no zoom happened. */
@@ -4803,20 +4816,35 @@ function piDelete(){
 }
 
 /* ===== Clear all (with confirm) ===== */
-function askClear(){
-  /* Default flow — primary button (re)wired to doClear via _confirmAction. */
-  window._confirmAction = doClear;
+function _setConfirmText(title, body, btnLabel){
+  var t = document.getElementById('confirmTitle');
+  var p = document.getElementById('confirmBody');
   var b = document.getElementById('confirmPrimaryBtn');
-  if (b) b.textContent = 'Clear all';
+  if (t) t.textContent = title;
+  if (p) p.textContent = body;
+  if (b) b.textContent = btnLabel;
+}
+function askClear(){
+  /* Intentional clear: user reached for the Clear button, so they know
+     what's about to happen. Concise warning, "Clear all" label. */
+  window._confirmAction = doClear;
+  _setConfirmText(
+    'Clear all images?',
+    "This removes every image in this batch. You can't undo it.",
+    'Clear all');
   document.body.dataset.confirm = 'open';
 }
 function askLeaveHome(){
-  /* Logo-click flow — confirm before navigating away. Same warning text
-     as Clear (user request: "same warning as if user needed to clear");
-     primary button now clears AND navigates to '/'. */
+  /* Accidental-leave guard: user clicked the logo. Often this is a
+     reflex (browsers train people that the wordmark goes home). Use
+     warmer language than the Clear warning since they likely didn't
+     mean to lose their batch — and remind them why we can't recover
+     it (privacy-first, never uploaded). */
   window._confirmAction = function(){ try { doClear(); } catch(_){} window.location.href = '/'; };
-  var b = document.getElementById('confirmPrimaryBtn');
-  if (b) b.textContent = 'Leave';
+  _setConfirmText(
+    'Heading home?',
+    "Going back clears your current batch. Your images stayed on your device the whole time — nothing's uploaded — so once you leave, they're gone for good.",
+    'Leave anyway');
   document.body.dataset.confirm = 'open';
 }
 function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
@@ -4863,11 +4891,14 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
   window.refreshSliderFromZoom = function(){
     const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
     if (!canvas || !canvas.classList.contains('has-after')) return;
-    const r = canvas.getBoundingClientRect();
-    if (!r.width) return;
+    /* Use cached canvas width to avoid the layout-flush jitter that
+       hits when applyZoom is fired 60+ times/sec during pan/zoom.
+       Falls back to a live read if the cache isn't populated yet. */
+    const w = (typeof _canvasWidth === 'function' && _canvasWidth()) || canvas.getBoundingClientRect().width;
+    if (!w) return;
     const z = (typeof ZOOM !== 'undefined' && ZOOM.scale) || 1;
     const panPct = (typeof ZOOM !== 'undefined' && ZOOM.x)
-      ? (ZOOM.x / r.width) * 100 : 0;
+      ? (ZOOM.x / w) * 100 : 0;
     /* Inverse of: screenPct = 50 + (localPct - 50) * z + panPct */
     const localPct = (window.SLIDER.screenPct - 50 - panPct) / z + 50;
     setSplit(canvas, localPct, window.SLIDER.screenPct);
