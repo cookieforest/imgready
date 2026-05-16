@@ -2189,6 +2189,136 @@
     text-shadow:0 1px 3px rgba(0,0,0,.4);}
   .mock-image.large{font-size:1.4rem;padding:20px;}
 
+  /* ========= EDIT MODAL — second workflow surface ========= */
+  .edit-modal{
+    position:fixed;inset:0;z-index:9000;
+    background:rgba(8,8,10,.86);backdrop-filter:blur(8px);
+    display:flex;align-items:stretch;justify-content:stretch;
+    color:#fff;
+  }
+  .edit-modal[hidden]{display:none !important;}
+  .edit-modal-card{
+    background:#15151a;width:100%;height:100%;
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .edit-modal .edit-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.08);
+    flex-shrink:0;
+  }
+  .edit-modal .edit-header h2{margin:0;font-size:1.05rem;font-weight:600;}
+  .edit-modal .edit-close{
+    width:36px;height:36px;border-radius:8px;
+    background:transparent;color:rgba(255,255,255,.7);
+    border:none;cursor:pointer;font-size:1.4rem;line-height:1;
+  }
+  .edit-modal .edit-close:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .edit-modal .edit-tabs{
+    display:flex;gap:4px;padding:8px 16px;
+    border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;
+  }
+  .edit-modal .edit-tab{
+    padding:8px 14px;border-radius:7px;
+    background:transparent;color:rgba(255,255,255,.55);
+    border:none;cursor:pointer;font-size:.86rem;font-weight:500;
+    transition:background .12s ease,color .12s ease;
+  }
+  .edit-modal .edit-tab:hover{color:rgba(255,255,255,.85);}
+  .edit-modal .edit-tab.active{background:rgba(255,255,255,.1);color:#fff;}
+  .edit-modal .edit-body{
+    flex:1;overflow:auto;padding:24px;
+    display:flex;flex-direction:column;
+  }
+  .edit-modal .edit-actions{
+    display:flex;justify-content:flex-end;gap:8px;
+    padding:14px 22px;border-top:1px solid rgba(255,255,255,.08);
+    flex-shrink:0;
+  }
+  .edit-modal .btn{
+    padding:10px 18px;border-radius:7px;
+    background:rgba(255,255,255,.08);color:#fff;
+    border:1px solid rgba(255,255,255,.14);
+    font-size:.88rem;font-weight:600;cursor:pointer;
+  }
+  .edit-modal .btn:hover{background:rgba(255,255,255,.14);}
+  .edit-modal .btn-primary{
+    background:var(--accent);color:#0a0a0c;border-color:transparent;
+  }
+  .edit-modal .btn-primary:hover{filter:brightness(1.06);}
+  .edit-rotate-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .edit-rotate-btn{
+    padding:14px 18px;border-radius:9px;
+    background:rgba(255,255,255,.06);color:#fff;
+    border:1px solid rgba(255,255,255,.12);cursor:pointer;
+    font-size:.88rem;display:flex;align-items:center;gap:8px;
+  }
+  .edit-rotate-btn:hover{background:rgba(255,255,255,.12);}
+  .edit-rotate-preview{
+    flex:1;min-height:280px;max-height:60vh;
+    background:#0a0a0c;border-radius:10px;
+    background-size:contain;background-position:center;background-repeat:no-repeat;
+    transition:transform .25s cubic-bezier(.22,1,.36,1);
+  }
+  .edit-frames-strip{
+    display:flex;gap:6px;overflow-x:auto;
+    padding:10px;background:#0a0a0c;border-radius:10px;
+    min-height:120px;align-items:center;margin-bottom:16px;
+  }
+  .edit-frame-thumb{
+    position:relative;flex-shrink:0;
+    width:80px;aspect-ratio:1/1;border-radius:6px;
+    border:2px solid transparent;overflow:hidden;cursor:default;
+    background:#1a1a1f;
+  }
+  .edit-frame-thumb.kept{border-color:rgba(255,255,255,.12);}
+  .edit-frame-thumb.deleted{opacity:.25;border-color:rgba(220,80,80,.5);}
+  .edit-frame-thumb canvas{width:100%;height:100%;object-fit:contain;display:block;}
+  .edit-frame-thumb .frame-num{
+    position:absolute;top:2px;left:4px;
+    font-size:.62rem;color:rgba(255,255,255,.7);
+    background:rgba(0,0,0,.55);padding:1px 4px;border-radius:3px;
+  }
+  .edit-frame-thumb .frame-del{
+    position:absolute;top:2px;right:2px;
+    width:18px;height:18px;border-radius:50%;
+    background:rgba(160,60,60,.85);color:#fff;
+    border:none;cursor:pointer;font-size:.7rem;
+    display:none;align-items:center;justify-content:center;
+  }
+  .edit-frame-thumb:hover .frame-del{display:flex;}
+  .edit-frames-controls{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:520px;
+  }
+  .edit-frames-controls label{
+    display:flex;flex-direction:column;gap:4px;
+    font-size:.78rem;color:rgba(255,255,255,.7);
+  }
+  .edit-frames-controls input[type=number],
+  .edit-frames-controls input[type=range]{
+    padding:6px 8px;border-radius:6px;
+    background:rgba(255,255,255,.06);color:#fff;
+    border:1px solid rgba(255,255,255,.12);font-size:.88rem;
+  }
+  .edit-bg-card{
+    background:rgba(255,255,255,.04);border-radius:10px;
+    padding:24px;text-align:center;
+  }
+  .edit-bg-card .bg-icon{font-size:2rem;margin-bottom:8px;}
+  .edit-bg-card h3{margin:0 0 6px;font-size:1rem;}
+  .edit-bg-card p{margin:0;color:rgba(255,255,255,.6);font-size:.86rem;line-height:1.5;}
+  .edit-bg-run{
+    margin-top:18px;padding:12px 24px;
+    background:var(--accent);color:#0a0a0c;border:none;border-radius:8px;
+    font-size:.9rem;font-weight:700;cursor:pointer;
+  }
+  .edit-bg-run:disabled{opacity:.5;cursor:not-allowed;}
+  body[data-edit-open="true"] .menu-card,
+  body[data-edit-open="true"] .pi-actions{pointer-events:none;}
+  @media (max-width: 600px){
+    .edit-modal .edit-body{padding:14px;}
+    .edit-modal .edit-header{padding:10px 14px;}
+    .edit-modal .edit-tabs{padding:6px 10px;}
+  }
   /* ============ Keyboard shortcuts modal ============ */
   .kb-shortcuts{
     position:fixed;inset:0;z-index:1000;
@@ -2358,7 +2488,7 @@
 
 </style>
 </head>
-<body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality">
+<body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
 <!-- Polite live region for screen-reader announcements (file added,
      encode complete, errors). Visually hidden via .sr-only. -->
 <div id="srAnnounce" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -2712,6 +2842,7 @@
         <button class="pi-icon" title="Share this" onclick="event.stopPropagation();piShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
         <button class="pi-icon" title="Copy to clipboard" onclick="event.stopPropagation();piCopy(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
         <button class="pi-icon" title="Download this" onclick="event.stopPropagation();piDownload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+        <button class="pi-icon" title="Edit this — rotate, frames, background" onclick="event.stopPropagation();piEdit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
         <button class="pi-icon danger" title="Delete this" onclick="event.stopPropagation();piDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
       </div>
     </div>
@@ -4912,6 +5043,387 @@ function triggerDownload(url, filename){
   document.body.appendChild(a); a.click();
   setTimeout(() => { try { a.remove(); } catch(_){} }, 1000);
 }
+/* ============================================================
+   EDIT MODE — second workflow surface. State held in _editState
+   while the modal is open. On Save the pending edits are applied
+   to FILES[idx].file (a new source blob) and the encode pipeline
+   re-runs from that source. Optimize/convert flow is untouched —
+   it just sees a different source file after Save.
+   ============================================================ */
+const _editState = {
+  active: false, idx: -1,
+  originalFile: null, originalUrl: null, fileType: null,
+  pendingEdits: {},
+  rotateState: { deg: 0, flipH: false, flipV: false },
+  framesState: null, bgState: null,
+};
+function _detectEditFileType(file){
+  const ext = (file.name || '').toLowerCase().split('.').pop();
+  const type = (file.type || '').toLowerCase();
+  if (ext === 'gif' || type === 'image/gif') return 'gif';
+  if (ext === 'png' || type === 'image/png') return 'png';
+  if (ext === 'jpg' || ext === 'jpeg' || type === 'image/jpeg') return 'jpg';
+  if (ext === 'webp' || type === 'image/webp') return 'webp';
+  if (ext === 'avif' || type === 'image/avif') return 'avif';
+  if (ext === 'heic' || ext === 'heif' || type === 'image/heic' || type === 'image/heif') return 'heic';
+  if (ext === 'tif' || ext === 'tiff') return 'tiff';
+  if (ext === 'bmp') return 'bmp';
+  if (ext === 'svg') return 'svg';
+  if (ext === 'ico') return 'ico';
+  return 'other';
+}
+function _editTabsForType(t){
+  const tabs = [{ id: 'rotate', label: 'Rotate' }];
+  if (t === 'gif') tabs.unshift({ id: 'frames', label: 'Frames' });
+  if (t === 'png' || t === 'jpg' || t === 'webp' || t === 'avif' || t === 'heic') {
+    tabs.push({ id: 'bg', label: 'Background' });
+  }
+  return tabs;
+}
+function piEdit(){
+  const idx = CFLOW.selected;
+  if (typeof FILES === 'undefined' || !FILES[idx]) return;
+  openEditMode(idx);
+  document.body.dataset.piActions = 'closed';
+}
+function openEditMode(idx){
+  if (!FILES[idx]) return;
+  const f = FILES[idx];
+  _editState.active = true;
+  _editState.idx = idx;
+  _editState.originalFile = f.file;
+  _editState.originalUrl = f.url;
+  _editState.fileType = _detectEditFileType(f.file);
+  _editState.pendingEdits = {};
+  _editState.rotateState = { deg: 0, flipH: false, flipV: false };
+  _editState.framesState = null;
+  _editState.bgState = null;
+  document.body.dataset.editOpen = 'true';
+  const modal = document.getElementById('editModal');
+  if (!modal) return;
+  modal.removeAttribute('hidden');
+  const title = document.getElementById('editTitle');
+  if (title) title.textContent = `Edit \u2014 ${f.name || 'image'}`;
+  const tabs = _editTabsForType(_editState.fileType);
+  const tabBar = document.getElementById('editTabs');
+  tabBar.innerHTML = '';
+  tabs.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'edit-tab' + (i === 0 ? ' active' : '');
+    btn.dataset.tab = t.id;
+    btn.textContent = t.label;
+    btn.addEventListener('click', () => _switchEditTab(t.id));
+    tabBar.appendChild(btn);
+  });
+  _switchEditTab(tabs[0].id);
+}
+function _switchEditTab(tabId){
+  document.querySelectorAll('.edit-modal .edit-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tabId);
+  });
+  const body = document.getElementById('editBody');
+  body.innerHTML = '';
+  if (tabId === 'rotate') _renderRotateTab(body);
+  else if (tabId === 'frames') _renderFramesTab(body);
+  else if (tabId === 'bg') _renderBackgroundTab(body);
+}
+function cancelEdit(){
+  document.body.dataset.editOpen = 'false';
+  const modal = document.getElementById('editModal');
+  if (modal) modal.setAttribute('hidden', '');
+  _editState.active = false;
+  _editState.pendingEdits = {};
+  if (_editState.framesState && _editState.framesState.frames) {
+    _editState.framesState.frames.forEach(fr => { try { fr.bitmap && fr.bitmap.close && fr.bitmap.close(); } catch(_){} });
+  }
+  _editState.framesState = null;
+  _editState.bgState = null;
+}
+async function saveEdit(){
+  const idx = _editState.idx;
+  if (idx < 0 || !FILES[idx]) { cancelEdit(); return; }
+  const f = FILES[idx];
+  const saveBtn = document.getElementById('editSaveBtn');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving\u2026'; }
+  let newBlob = null;
+  try {
+    if (_editState.pendingEdits.rotate) {
+      newBlob = await _applyRotation(f.file, _editState.pendingEdits.rotate);
+    } else if (_editState.pendingEdits.gifEdit) {
+      newBlob = await _applyGifEdit(f.file, _editState.pendingEdits.gifEdit);
+    } else if (_editState.pendingEdits.bgRemoved) {
+      newBlob = _editState.pendingEdits.bgRemoved;
+    }
+  } catch (err) {
+    console.warn('[edit] save failed', err);
+    alert('Edit failed: ' + (err.message || err));
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+    return;
+  }
+  if (newBlob) {
+    try { URL.revokeObjectURL(f.url); } catch(_){}
+    const newName = f.file.name || 'image';
+    f.file = new File([newBlob], newName, { type: newBlob.type || f.file.type });
+    f.url = URL.createObjectURL(newBlob);
+    f.dims = null;
+    if (typeof ENCODE !== 'undefined' && ENCODE.encoded && ENCODE.encoded.has(idx)) {
+      const e = ENCODE.encoded.get(idx);
+      try { URL.revokeObjectURL(e.url); } catch(_){}
+      ENCODE.encoded.delete(idx);
+    }
+    if (typeof ENCODE !== 'undefined' && ENCODE.allEncoded && ENCODE.allEncoded.has(idx)) {
+      const bundle = ENCODE.allEncoded.get(idx);
+      if (bundle) bundle.forEach(b => { try { URL.revokeObjectURL(b.url); } catch(_){} });
+      ENCODE.allEncoded.delete(idx);
+    }
+    if (typeof buildThumbs === 'function') buildThumbs();
+    if (typeof layoutCoverFlow === 'function') layoutCoverFlow();
+    if (typeof invalidateEncoded === 'function') invalidateEncoded();
+    if (typeof syncMainImage === 'function') syncMainImage(true);
+  }
+  if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+  cancelEdit();
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.body.dataset.editOpen === 'true') {
+    cancelEdit(); e.preventDefault();
+  }
+});
+/* ---- ROTATE TAB ---- */
+function _renderRotateTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  body.innerHTML = `
+    <div class="edit-rotate-row">
+      <button type="button" class="edit-rotate-btn" data-rot="cw">\u21bb Rotate 90\u00b0</button>
+      <button type="button" class="edit-rotate-btn" data-rot="ccw">\u21ba Rotate -90\u00b0</button>
+      <button type="button" class="edit-rotate-btn" data-rot="180">\u21bb 180\u00b0</button>
+      <button type="button" class="edit-rotate-btn" data-rot="fh">\u2194 Flip horizontal</button>
+      <button type="button" class="edit-rotate-btn" data-rot="fv">\u2195 Flip vertical</button>
+      <button type="button" class="edit-rotate-btn" data-rot="reset">Reset</button>
+    </div>
+    <div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${f.url}');"></div>
+  `;
+  const preview = body.querySelector('#editRotatePreview');
+  body.querySelectorAll('.edit-rotate-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rs = _editState.rotateState;
+      switch (btn.dataset.rot) {
+        case 'cw':    rs.deg = (rs.deg + 90) % 360; break;
+        case 'ccw':   rs.deg = (rs.deg + 270) % 360; break;
+        case '180':   rs.deg = (rs.deg + 180) % 360; break;
+        case 'fh':    rs.flipH = !rs.flipH; break;
+        case 'fv':    rs.flipV = !rs.flipV; break;
+        case 'reset': rs.deg = 0; rs.flipH = false; rs.flipV = false; break;
+      }
+      const tx = `rotate(${rs.deg}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`;
+      preview.style.transform = tx;
+      const dirty = rs.deg !== 0 || rs.flipH || rs.flipV;
+      _editState.pendingEdits.rotate = dirty ? { deg: rs.deg, flipH: rs.flipH, flipV: rs.flipV } : null;
+    });
+  });
+}
+async function _applyRotation(file, rotation){
+  const bmp = await createImageBitmap(file);
+  const w = bmp.width, h = bmp.height;
+  const deg = rotation.deg || 0;
+  const swap = (deg === 90 || deg === 270);
+  const canvas = document.createElement('canvas');
+  canvas.width = swap ? h : w;
+  canvas.height = swap ? w : h;
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.rotate(deg * Math.PI / 180);
+  ctx.scale(rotation.flipH ? -1 : 1, rotation.flipV ? -1 : 1);
+  ctx.drawImage(bmp, -w / 2, -h / 2);
+  ctx.restore();
+  try { bmp.close && bmp.close(); } catch(_){}
+  const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
+  return await new Promise((res, rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('rotation encode failed')), mime, 0.95);
+  });
+}
+/* ---- FRAMES TAB (GIF frame editor) ---- */
+async function _renderFramesTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  body.innerHTML = '<p style="color:rgba(255,255,255,.6);">Decoding frames\u2026</p>';
+  if (typeof ImageDecoder !== 'function') {
+    body.innerHTML = '<p style="color:rgba(255,200,120,.85);">Your browser doesn\u2019t support the ImageDecoder API. Frame editing requires a recent Chrome/Edge/Firefox.</p>';
+    return;
+  }
+  if (!_editState.framesState) {
+    try {
+      _editState.framesState = await _decodeGifFramesForEdit(f.file);
+    } catch (err) {
+      body.innerHTML = `<p style="color:rgba(255,120,120,.85);">Couldn\u2019t decode frames: ${err.message || err}</p>`;
+      return;
+    }
+  }
+  const fs = _editState.framesState;
+  body.innerHTML = `
+    <div class="edit-frames-strip" id="editFramesStrip"></div>
+    <div class="edit-frames-controls">
+      <label>FPS
+        <input type="number" id="editFramesFps" min="1" max="60" value="${fs.fps}">
+      </label>
+      <label>Loop count <span style="color:rgba(255,255,255,.45);font-weight:400;">(0 = forever)</span>
+        <input type="number" id="editFramesLoop" min="0" max="999" value="${fs.loop}">
+      </label>
+      <label>Trim start (frame)
+        <input type="range" id="editFramesTrimStart" min="0" max="${fs.frames.length - 1}" value="${fs.trimStart}">
+        <span id="editFramesTrimStartVal" style="font-size:.78rem;color:rgba(255,255,255,.7);">${fs.trimStart}</span>
+      </label>
+      <label>Trim end (frame)
+        <input type="range" id="editFramesTrimEnd" min="0" max="${fs.frames.length - 1}" value="${fs.trimEnd}">
+        <span id="editFramesTrimEndVal" style="font-size:.78rem;color:rgba(255,255,255,.7);">${fs.trimEnd}</span>
+      </label>
+    </div>
+    <p style="margin-top:14px;font-size:.78rem;color:rgba(255,255,255,.55);">Hover a frame to delete it. The remaining frames are encoded into a new GIF on Save.</p>
+  `;
+  const strip = body.querySelector('#editFramesStrip');
+  fs.frames.forEach((frame, i) => {
+    const div = document.createElement('div');
+    div.className = 'edit-frame-thumb' + (frame.deleted ? ' deleted' : ' kept');
+    div.dataset.fi = String(i);
+    const c = document.createElement('canvas');
+    c.width = 80; c.height = 80;
+    const cx = c.getContext('2d');
+    const rb = Math.min(80 / frame.bitmap.width, 80 / frame.bitmap.height);
+    const dw = frame.bitmap.width * rb, dh = frame.bitmap.height * rb;
+    cx.drawImage(frame.bitmap, (80 - dw) / 2, (80 - dh) / 2, dw, dh);
+    div.appendChild(c);
+    const num = document.createElement('span');
+    num.className = 'frame-num';
+    num.textContent = String(i + 1);
+    div.appendChild(num);
+    const del = document.createElement('button');
+    del.className = 'frame-del';
+    del.textContent = '\u00d7';
+    del.title = 'Delete frame';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      frame.deleted = !frame.deleted;
+      div.classList.toggle('deleted', frame.deleted);
+      div.classList.toggle('kept', !frame.deleted);
+      _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+    });
+    div.appendChild(del);
+    strip.appendChild(div);
+  });
+  body.querySelector('#editFramesFps').addEventListener('input', e => {
+    fs.fps = parseInt(e.target.value, 10) || 10;
+    _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+  });
+  body.querySelector('#editFramesLoop').addEventListener('input', e => {
+    fs.loop = Math.max(0, parseInt(e.target.value, 10) || 0);
+    _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+  });
+  const tsEl = body.querySelector('#editFramesTrimStart');
+  const teEl = body.querySelector('#editFramesTrimEnd');
+  tsEl.addEventListener('input', e => {
+    fs.trimStart = Math.min(parseInt(e.target.value, 10), fs.trimEnd);
+    tsEl.value = String(fs.trimStart);
+    body.querySelector('#editFramesTrimStartVal').textContent = String(fs.trimStart);
+    _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+  });
+  teEl.addEventListener('input', e => {
+    fs.trimEnd = Math.max(parseInt(e.target.value, 10), fs.trimStart);
+    teEl.value = String(fs.trimEnd);
+    body.querySelector('#editFramesTrimEndVal').textContent = String(fs.trimEnd);
+    _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+  });
+  _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+}
+function _gifEditPayload(fs){
+  return {
+    keepIndices: fs.frames.map((f, i) => f.deleted ? -1 : i).filter(i => i >= fs.trimStart && i <= fs.trimEnd),
+    delay: Math.round(1000 / Math.max(1, fs.fps)),
+    loop: fs.loop,
+    width: fs.width, height: fs.height,
+  };
+}
+async function _decodeGifFramesForEdit(file){
+  const buf = await file.arrayBuffer();
+  const dec = new ImageDecoder({ data: buf, type: 'image/gif' });
+  await dec.tracks.ready;
+  await dec.completed;
+  const track = dec.tracks.selectedTrack;
+  const count = track.frameCount;
+  if (!count || count < 1) throw new Error('No frames in GIF');
+  const frames = [];
+  let delaySum = 0, delayN = 0;
+  for (let i = 0; i < count; i++) {
+    const r = await dec.decode({ frameIndex: i });
+    const w = r.image.displayWidth, h = r.image.displayHeight;
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const cx = c.getContext('2d');
+    cx.drawImage(r.image, 0, 0);
+    const bmp = await createImageBitmap(c);
+    const dur = (r.image.duration || 0) / 1000;
+    if (dur > 0) { delaySum += dur; delayN++; }
+    frames.push({ bitmap: bmp, delay: dur || 100, deleted: false, originalIdx: i });
+    try { r.image.close && r.image.close(); } catch(_){}
+  }
+  try { dec.close && dec.close(); } catch(_){}
+  const avgDelay = delayN > 0 ? delaySum / delayN : 100;
+  const fps = Math.max(1, Math.min(60, Math.round(1000 / Math.max(20, avgDelay))));
+  return {
+    frames, fps, loop: 0,
+    trimStart: 0, trimEnd: count - 1,
+    width: frames[0].bitmap.width, height: frames[0].bitmap.height,
+  };
+}
+let _gifencInlineMod = null;
+async function _ensureGifencInline(){
+  if (_gifencInlineMod) return _gifencInlineMod;
+  _gifencInlineMod = await import('https://cdn.jsdelivr.net/npm/gifenc@1.0.3/+esm');
+  return _gifencInlineMod;
+}
+async function _applyGifEdit(file, edits){
+  const gifenc = await _ensureGifencInline();
+  const GIFEncoder = gifenc.GIFEncoder, quantize = gifenc.quantize, applyPalette = gifenc.applyPalette;
+  if (!GIFEncoder || !quantize || !applyPalette) throw new Error('gifenc not available');
+  const fs = _editState.framesState;
+  if (!fs) throw new Error('frame state missing');
+  const keep = edits.keepIndices;
+  if (!keep || !keep.length) throw new Error('No frames left after edits');
+  const w = edits.width, h = edits.height;
+  const enc = GIFEncoder();
+  for (const idx of keep) {
+    const fr = fs.frames[idx];
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const cx = c.getContext('2d');
+    cx.drawImage(fr.bitmap, 0, 0, w, h);
+    const data = cx.getImageData(0, 0, w, h).data;
+    const palette = quantize(data, 256);
+    const indexed = applyPalette(data, palette);
+    enc.writeFrame(indexed, w, h, {
+      palette, delay: Math.max(20, edits.delay),
+      dispose: 2, transparent: false, repeat: edits.loop,
+    });
+  }
+  enc.finish();
+  return new Blob([enc.bytes()], { type: 'image/gif' });
+}
+/* ---- BACKGROUND REMOVAL TAB (scaffold; inference lands next batch) ---- */
+function _renderBackgroundTab(body){
+  body.innerHTML = `
+    <div class="edit-bg-card">
+      <div class="bg-icon">\u2702\ufe0f</div>
+      <h3>Remove background</h3>
+      <p>Strip the background and keep only the subject. Runs 100% in your browser via a quantized U\u00b2-Net model (~42 MB) using WebGPU when available, WebAssembly otherwise. Output is forced to PNG to preserve transparency.</p>
+      <button type="button" class="edit-bg-run" disabled>Coming in next update</button>
+      <p style="margin-top:10px;font-size:.74rem;color:rgba(255,255,255,.4);">First run downloads the model (~42 MB) and caches it. Subsequent runs are instant.</p>
+    </div>
+  `;
+}
+
 function piDelete(){
   const idx = CFLOW.selected;
   const f = FILES[idx];
@@ -6721,6 +7233,30 @@ function doClear(){
       </tbody>
     </table>
     <button type="button" class="kb-shortcuts-close" aria-label="Close shortcuts">×</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     Edit modal — the second workflow surface. Opened by the Edit
+     pi-icon. File-type-aware tabs: Rotate (universal), Frames (GIF),
+     Background removal (raster photos). Edits write a NEW source
+     file to FILES[idx].file; the optimize/convert pipeline then re-
+     encodes from the edited source. Optimize-side settings (Format
+     / Quality / Resize / Crop / Privacy) stay encode-time and are
+     unaffected.
+     ============================================================ -->
+<div id="editModal" class="edit-modal" hidden role="dialog" aria-modal="true" aria-labelledby="editTitle">
+  <div class="edit-modal-card">
+    <header class="edit-header">
+      <h2 id="editTitle">Edit</h2>
+      <button type="button" class="edit-close" onclick="cancelEdit()" aria-label="Close edit">&times;</button>
+    </header>
+    <nav class="edit-tabs" role="tablist" id="editTabs"></nav>
+    <main class="edit-body" id="editBody"></main>
+    <footer class="edit-actions">
+      <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
+    </footer>
   </div>
 </div>
 
