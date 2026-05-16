@@ -16,7 +16,7 @@
 
 // Bump on every deploy. Tag is just for humans; what matters is that the
 // string changes so old caches get evicted in the activate step.
-const CACHE_VERSION = 'imgready-2026-05-16-edit-r8-bg-refine';
+const CACHE_VERSION = 'imgready-2026-05-16-edit-r9-hq-bg';
 const PRECACHE  = `${CACHE_VERSION}-precache`;
 const RUNTIME   = `${CACHE_VERSION}-runtime`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
