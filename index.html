@@ -5517,6 +5517,7 @@ function openEditMode(idx){
   const modal = document.getElementById('editModal');
   if (!modal) return;
   modal.removeAttribute('hidden');
+  const eb0 = document.getElementById('editBody'); if (eb0) delete eb0.dataset.splitBound;
   const title = document.getElementById('editTitle');
   if (title) title.textContent = `Edit \u2014 ${f.name || 'image'}`;
   const tabs = _editTabsForType(_editState.fileType);
@@ -5825,6 +5826,16 @@ function _ensureSplitUi(){
     ov.classList.remove('active');
     btn.classList.remove('active');
     btn.textContent = '\u21C4 Compare';
+  }
+  /* One-shot delegated listeners on #editBody so the Compare button enables/disables
+   * after the user mutates state via clicks, slider input/change, or programmatic changes. */
+  const eb = document.getElementById('editBody');
+  if (eb && eb.dataset.splitBound !== '1'){
+    eb.dataset.splitBound = '1';
+    const refresh = () => { try { queueMicrotask(_updateSplitBtnState); } catch(_) { _updateSplitBtnState(); } };
+    eb.addEventListener('click', refresh, true);
+    eb.addEventListener('input', refresh, true);
+    eb.addEventListener('change', refresh, true);
   }
   _updateSplitBtnState();
 }
