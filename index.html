@@ -2245,6 +2245,59 @@
     background:var(--accent);color:#0a0a0c;border-color:transparent;
   }
   .edit-modal .btn-primary:hover{filter:brightness(1.06);}
+  /* Round 4: undo/redo/reset/compare controls */
+  .edit-modal .btn-ghost{
+    background:transparent;border-color:transparent;
+    color:rgba(255,255,255,.5);font-size:.83rem;padding:8px 12px;
+  }
+  .edit-modal .btn-ghost:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);}
+  .edit-modal .btn-ghost:disabled{opacity:.3;cursor:default;pointer-events:none;}
+  .edit-modal .btn-icon{
+    width:34px;height:34px;padding:0;border-radius:7px;
+    background:transparent;border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.6);font-size:1rem;line-height:1;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .edit-modal .btn-icon:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .edit-modal .btn-icon:disabled{opacity:.28;cursor:default;pointer-events:none;}
+  .edit-modal .edit-compare-btn{
+    padding:5px 11px;border-radius:7px;font-size:.8rem;font-weight:500;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+    color:rgba(255,255,255,.65);cursor:pointer;margin-left:auto;margin-right:8px;
+    transition:background .12s;white-space:nowrap;
+  }
+  .edit-modal .edit-compare-btn:hover,.edit-modal .edit-compare-btn.active{
+    background:rgba(255,255,255,.15);color:#fff;
+  }
+  .edit-modal .edit-actions{display:flex;align-items:center;}
+  .edit-modal .edit-history-btns{display:flex;gap:4px;margin-right:4px;}
+  .edit-modal .edit-size-info{
+    font-size:.78rem;color:rgba(255,255,255,.38);margin-right:auto;
+    padding-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    max-width:220px;
+  }
+  /* Compare overlay — full-size original inside the modal card */
+  .edit-compare-overlay{
+    position:absolute;inset:0;z-index:20;background:#0a0a0c;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    border-radius:inherit;overflow:hidden;
+  }
+  .edit-compare-overlay img{
+    max-width:100%;max-height:calc(100% - 44px);object-fit:contain;
+  }
+  .edit-compare-label{
+    position:absolute;top:12px;left:50%;transform:translateX(-50%);
+    background:rgba(0,0,0,.65);color:rgba(255,255,255,.85);
+    font-size:.78rem;font-weight:600;letter-spacing:.04em;
+    padding:4px 12px;border-radius:20px;pointer-events:none;
+  }
+  .edit-compare-dismiss{
+    position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+    color:#fff;border-radius:20px;padding:8px 20px;font-size:.84rem;cursor:pointer;
+  }
+  .edit-compare-dismiss:hover{background:rgba(255,255,255,.18);}
+  .edit-modal-card{position:relative;}
   .edit-rotate-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
   .edit-rotate-btn{
     padding:14px 18px;border-radius:9px;
@@ -5184,6 +5237,7 @@ const _editState = {
   pendingEdits: {},
   rotateState: { deg: 0, flipH: false, flipV: false, angle: 0 },
   framesState: null, bgState: null,
+  _undoStack: [], _redoStack: [],
 };
 function _detectEditFileType(file){
   const ext = (file.name || '').toLowerCase().split('.').pop();
@@ -5228,6 +5282,7 @@ function openEditMode(idx){
   _editState.fileType = _detectEditFileType(f.file);
   _editState.pendingEdits = {};
   _editState.rotateState = { deg: 0, flipH: false, flipV: false, angle: 0 };
+  _editState._undoStack = []; _editState._redoStack = [];
   _editState.framesState = null;
   if (_editState.bgState && _editState.bgState.previewUrl) {
     try { URL.revokeObjectURL(_editState.bgState.previewUrl); } catch(_){}
@@ -5252,6 +5307,7 @@ function openEditMode(idx){
     tabBar.appendChild(btn);
   });
   _switchEditTab(tabs[0].id);
+  _updateEditHistoryUI();
 }
 function _switchEditTab(tabId){
   document.querySelectorAll('.edit-modal .edit-tab').forEach(t => {
@@ -5335,10 +5391,122 @@ async function saveEdit(){
   if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
   cancelEdit();
 }
+/* ---- EDIT UNDO/REDO HELPERS (Round 4) ---- */
+function _editSnapshot(){
+  const pe = _editState.pendingEdits;
+  return {
+    rotate: pe.rotate ? { ...pe.rotate } : null,
+    photoAdjust: pe.photoAdjust ? { ...pe.photoAdjust } : null,
+    photoCrop: pe.photoCrop ? { ...pe.photoCrop } : null,
+    bgRemoved: pe.bgRemoved || null,
+    gifEdit: pe.gifEdit ? JSON.parse(JSON.stringify(pe.gifEdit)) : null,
+    rotateState: { ..._editState.rotateState },
+  };
+}
+function _editRestore(snap){
+  _editState.pendingEdits = {};
+  if (snap.rotate) _editState.pendingEdits.rotate = snap.rotate;
+  if (snap.photoAdjust) _editState.pendingEdits.photoAdjust = snap.photoAdjust;
+  if (snap.photoCrop) _editState.pendingEdits.photoCrop = snap.photoCrop;
+  if (snap.bgRemoved) _editState.pendingEdits.bgRemoved = snap.bgRemoved;
+  if (snap.gifEdit) _editState.pendingEdits.gifEdit = snap.gifEdit;
+  _editState.rotateState = { ...snap.rotateState };
+}
+function _editPushUndo(){
+  _editState._undoStack.push(_editSnapshot());
+  if (_editState._undoStack.length > 20) _editState._undoStack.shift();
+  _editState._redoStack = [];
+  _updateEditHistoryUI();
+}
+function _editUndo(){
+  if (!_editState._undoStack.length) return;
+  _editState._redoStack.push(_editSnapshot());
+  _editRestore(_editState._undoStack.pop());
+  _updateEditHistoryUI();
+  _reRenderEditTab();
+}
+function _editRedo(){
+  if (!_editState._redoStack.length) return;
+  _editState._undoStack.push(_editSnapshot());
+  _editRestore(_editState._redoStack.pop());
+  _updateEditHistoryUI();
+  _reRenderEditTab();
+}
+function _editResetAll(){
+  if (!_editState.active) return;
+  _editPushUndo();
+  _editState.pendingEdits = {};
+  _editState.rotateState = { deg: 0, flipH: false, flipV: false, angle: 0 };
+  if (_editState.bgState && _editState.bgState.previewUrl){
+    try { URL.revokeObjectURL(_editState.bgState.previewUrl); } catch(_){}
+  }
+  _editState.bgState = null;
+  _updateEditHistoryUI();
+  _reRenderEditTab();
+}
+function _reRenderEditTab(){
+  const active = document.querySelector('.edit-modal .edit-tab.active');
+  if (active) _switchEditTab(active.dataset.tab);
+}
+function _hasEdits(){
+  const pe = _editState.pendingEdits;
+  const rs = _editState.rotateState;
+  return Object.keys(pe).length > 0 ||
+    rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0;
+}
+function _updateEditHistoryUI(){
+  const resetBtn = document.getElementById('editResetBtn');
+  const hasEdits = _hasEdits();
+  if (resetBtn) resetBtn.disabled = !hasEdits && !_editState._undoStack.length;
+  const undoBtn = document.getElementById('editUndoBtn');
+  if (undoBtn) undoBtn.disabled = !_editState._undoStack.length;
+  const redoBtn = document.getElementById('editRedoBtn');
+  if (redoBtn) redoBtn.disabled = !_editState._redoStack.length;
+  _updateEditSizeInfo();
+}
+function _updateEditSizeInfo(){
+  const el = document.getElementById('editSizeInfo');
+  if (!el || !_editState.active || typeof FILES === 'undefined') return;
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  let txt = fmtSize(f.file.size) + ' original';
+  if (typeof ENCODE !== 'undefined' && ENCODE.encoded && ENCODE.encoded.has(_editState.idx)){
+    const e = ENCODE.encoded.get(_editState.idx);
+    if (e && e.size) txt += ' → ~' + fmtSize(e.size) + ' ' + (e.format || '').toUpperCase();
+  }
+  el.textContent = txt;
+}
+/* ---- EDIT COMPARE (View Original) ---- */
+function _toggleEditCompare(){
+  const overlay = document.getElementById('editCompareOverlay');
+  if (!overlay) return;
+  const showing = overlay.style.display === 'flex';
+  if (!showing){
+    const img = overlay.querySelector('#editCompareImg');
+    if (img && _editState.originalUrl) img.src = _editState.originalUrl;
+    overlay.style.display = 'flex';
+    const btn = document.getElementById('editCompareBtn');
+    if (btn){ btn.textContent = 'Hide original'; btn.classList.add('active'); }
+  } else {
+    overlay.style.display = 'none';
+    const btn = document.getElementById('editCompareBtn');
+    if (btn){ btn.textContent = 'View original'; btn.classList.remove('active'); }
+  }
+}
 document.addEventListener('keydown', e => {
-  if (e.key !== 'Escape') return;
-  if (document.body.dataset.editOpen === 'true') {
-    cancelEdit(); e.preventDefault();
+  if (document.body.dataset.editOpen !== 'true') return;
+  if (e.key === 'Escape'){
+    const overlay = document.getElementById('editCompareOverlay');
+    if (overlay && overlay.style.display === 'flex'){
+      _toggleEditCompare(); e.preventDefault(); return;
+    }
+    cancelEdit(); e.preventDefault(); return;
+  }
+  const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'z' || e.key === 'Z') && !isInput){
+    _editUndo(); e.preventDefault();
+  } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey) || (e.key === 'Z' && e.shiftKey)) && !isInput){
+    _editRedo(); e.preventDefault();
   }
 });
 /* ---- ROTATE TAB ---- */
@@ -5374,6 +5542,7 @@ function _renderRotateTab(body){
   }
   body.querySelectorAll('.edit-rotate-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (btn.dataset.rot !== 'reset') _editPushUndo();
       const rs = _editState.rotateState;
       switch (btn.dataset.rot) {
         case 'cw':    rs.deg = (rs.deg + 90) % 360; break;
@@ -5399,6 +5568,7 @@ function _renderRotateTab(body){
       if (valLabel) valLabel.textContent = slider.value + '°';
       _updateRot();
     });
+    slider.addEventListener('change', () => { _editPushUndo(); });
   }
 }
 async function _applyRotation(file, rotation){
@@ -5528,6 +5698,7 @@ async function _renderFramesTab(body){
       del.title = 'Delete frame';
       del.addEventListener('click', e => {
         e.stopPropagation();
+        _editPushUndo();
         frame.deleted = !frame.deleted;
         div.classList.toggle('deleted', frame.deleted);
         div.classList.toggle('kept', !frame.deleted);
@@ -5540,6 +5711,7 @@ async function _renderFramesTab(body){
       dup.title = 'Duplicate frame';
       dup.addEventListener('click', e => {
         e.stopPropagation();
+        _editPushUndo();
         /* Clone the frame — shares the bitmap reference (no need to
            re-decode), copies delay + deleted flag. Insert immediately
            after the source, matching ezgif's per-frame Copy behavior. */
@@ -5589,6 +5761,7 @@ async function _renderFramesTab(body){
       });
       div.addEventListener('drop', e => {
         e.preventDefault();
+        _editPushUndo();
         const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
         const toRect = div.getBoundingClientRect();
         const before = e.clientX < (toRect.left + toRect.width / 2);
@@ -5613,6 +5786,7 @@ async function _renderFramesTab(body){
   /* Action buttons: Reverse all / Reset delays. */
   body.querySelectorAll('.edit-frames-action-btn[data-act]').forEach(btn => {
     btn.addEventListener('click', () => {
+      _editPushUndo();
       const act = btn.dataset.act;
       if (act === 'reverse') {
         /* Reverse the frames array — preserves per-frame delay + deleted
@@ -5632,6 +5806,7 @@ async function _renderFramesTab(body){
   uniformBtn.addEventListener('click', () => {
     const ms = parseInt(uniformInp.value, 10);
     if (isFinite(ms) && ms >= 20) {
+      _editPushUndo();
       fs.frames.forEach(fr => { fr.delay = ms; });
       fs.fps = Math.max(1, Math.min(60, Math.round(1000 / ms)));
       _renderStrip();
@@ -5916,6 +6091,7 @@ function _renderBackgroundTab(body){
       const [res] = await pipe(f.url);
       const blob = await res.toBlob('image/png');
 
+      _editPushUndo();
       _editState.pendingEdits.bgRemoved = blob;
 
       if (state.previewUrl) { try { URL.revokeObjectURL(state.previewUrl); } catch(_){} }
@@ -6015,9 +6191,11 @@ function _renderAdjustTab(body){
       if (vl) vl.textContent = fmt(v);
       _markDirty();
     });
+    sl.addEventListener('change', () => { _editPushUndo(); });
   });
   body.querySelectorAll('.edit-preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      _editPushUndo();
       body.querySelectorAll('.edit-preset-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       _editState.pendingEdits.photoAdjust.preset = btn.dataset.preset;
@@ -6175,6 +6353,7 @@ async function _renderCropTab(body){
     });
   });
   body.querySelector('#editCropApplyBtn').addEventListener('click', () => {
+    _editPushUndo();
     _editState.pendingEdits.photoCrop = {
       x: Math.round(crop.x / scale), y: Math.round(crop.y / scale),
       w: Math.max(1,Math.round(crop.w / scale)), h: Math.max(1,Math.round(crop.h / scale)),
@@ -6772,6 +6951,7 @@ if (!window._navMenuOutsideClick) {
   }
   window._suggestQuality = suggestQuality;
   window._qualityFromTarget = _qualityFromTarget;
+  window._predictBpp = _predictBpp;
 
   /* 1. Query string parse — comma-separated for multi: ?out=webp,avif */
   const VALID = ['auto','webp','avif','jpg','png','gif','ico'];
@@ -8025,11 +8205,23 @@ function doClear(){
   <div class="edit-modal-card">
     <header class="edit-header">
       <h2 id="editTitle">Edit</h2>
+      <button type="button" class="edit-compare-btn" id="editCompareBtn" onclick="_toggleEditCompare()">View original</button>
       <button type="button" class="edit-close" onclick="cancelEdit()" aria-label="Close edit">&times;</button>
     </header>
     <nav class="edit-tabs" role="tablist" id="editTabs"></nav>
     <main class="edit-body" id="editBody"></main>
+    <div id="editCompareOverlay" class="edit-compare-overlay" style="display:none">
+      <img id="editCompareImg" src="" alt="Original" draggable="false">
+      <div class="edit-compare-label">Original</div>
+      <button type="button" class="edit-compare-dismiss" onclick="_toggleEditCompare()">Back to editing</button>
+    </div>
     <footer class="edit-actions">
+      <span class="edit-size-info" id="editSizeInfo"></span>
+      <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits (preserves undo history)">Reset edits</button>
+      <div class="edit-history-btns">
+        <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)">↶</button>
+        <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)">↷</button>
+      </div>
       <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
       <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
     </footer>
