@@ -2215,13 +2215,6 @@
     margin:0;font-size:.95rem;font-weight:600;
     flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
-  .edit-modal .edit-close{
-    width:32px;height:32px;border-radius:7px;flex-shrink:0;
-    background:transparent;color:rgba(255,255,255,.6);
-    border:none;cursor:pointer;font-size:1.25rem;line-height:1;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .edit-modal .edit-close:hover{background:rgba(255,255,255,.08);color:#fff;}
   .edit-layout{
     flex:1;min-height:0;
     display:grid;grid-template-columns:1fr 300px;
@@ -2636,9 +2629,30 @@
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
   @media (max-width:640px){
-    .edit-layout{grid-template-columns:1fr;grid-template-rows:45vw 1fr;}
-    .edit-panel-col{border-left:none;border-top:1px solid rgba(255,255,255,.07);}
+    /* Mobile layout overhaul: preview hogs vertical space; controls compact. */
+    .edit-modal .edit-header{height:42px;padding:0 12px;gap:8px;}
+    .edit-modal .edit-header h2{font-size:.86rem;}
+    .edit-layout{grid-template-columns:1fr;grid-template-rows:minmax(36vh,1fr) auto;}
+    .edit-panel-col{
+      border-left:none;border-top:1px solid rgba(255,255,255,.07);
+      max-height:60vh;
+    }
     .edit-compare-btn{display:none;}
+    /* Tabs become a horizontal scrolling strip so they never wrap. */
+    .edit-modal .edit-tabs{
+      padding:5px 8px;gap:2px;flex-wrap:nowrap;
+      overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+    .edit-modal .edit-tabs::-webkit-scrollbar{display:none;}
+    .edit-modal .edit-tab{padding:5px 10px;font-size:.74rem;flex-shrink:0;white-space:nowrap;}
+    .edit-modal .edit-body{padding:10px 10px;gap:10px;min-height:0;}
+    /* Preset / filter / aspect / mode buttons share .edit-preset-btn — shrink so they fit in one row. */
+    .edit-modal .edit-preset-btn{padding:5px 9px;font-size:.72rem;}
+    .edit-modal .edit-actions{padding:6px 10px;gap:4px;}
+    .edit-modal .btn{padding:6px 12px;font-size:.78rem;}
+    .edit-modal .btn-icon{width:28px;height:28px;}
+    .edit-modal .edit-size-info{font-size:.66rem;margin-bottom:1px;}
   }
 
 
@@ -9713,7 +9727,6 @@ function doClear(){
     <header class="edit-header">
       <h2 id="editTitle">Edit</h2>
       <button type="button" class="edit-compare-btn" id="editCompareBtn" onclick="_toggleEditCompare()">View original</button>
-      <button type="button" class="edit-close" onclick="cancelEdit()" aria-label="Close edit">&times;</button>
     </header>
     <div class="edit-layout">
       <div class="edit-preview-col" id="editPreviewCol"></div>
