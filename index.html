@@ -2189,7 +2189,10 @@
     text-shadow:0 1px 3px rgba(0,0,0,.4);}
   .mock-image.large{font-size:1.4rem;padding:20px;}
 
-  /* ========= EDIT MODAL — second workflow surface ========= */
+  /* ========= EDIT MODAL — second workflow surface (R5 layout overhaul) ========= */
+  /* Round-5 layout: 2-column on desktop (image-left ~65%, controls-right
+     capped at 320px), stacked on mobile (<= 768px). Header compacted to a
+     single 52px row. Sliders constrained to the controls panel width. */
   .edit-modal{
     position:fixed;inset:0;z-index:9000;
     background:rgba(8,8,10,.86);backdrop-filter:blur(8px);
@@ -2199,84 +2202,113 @@
   .edit-modal[hidden]{display:none !important;}
   .edit-modal-card{
     background:#15151a;width:100%;height:100%;
-    display:flex;flex-direction:column;overflow:hidden;
+    display:grid;grid-template-rows:auto 1fr auto;
+    overflow:hidden;position:relative;
   }
   .edit-modal .edit-header{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.08);
-    flex-shrink:0;
+    display:flex;align-items:center;gap:10px;
+    padding:10px 18px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    min-height:52px;
   }
-  .edit-modal .edit-header h2{margin:0;font-size:1.05rem;font-weight:600;}
+  .edit-modal .edit-header h2{
+    margin:0;font-size:1rem;font-weight:600;
+    margin-right:auto;
+  }
   .edit-modal .edit-close{
-    width:36px;height:36px;border-radius:8px;
+    width:32px;height:32px;border-radius:7px;
     background:transparent;color:rgba(255,255,255,.7);
-    border:none;cursor:pointer;font-size:1.4rem;line-height:1;
+    border:none;cursor:pointer;font-size:1.3rem;line-height:1;
   }
   .edit-modal .edit-close:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .edit-modal .edit-compare-btn{
+    padding:5px 11px;border-radius:7px;font-size:.78rem;font-weight:500;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+    color:rgba(255,255,255,.65);cursor:pointer;white-space:nowrap;
+    transition:background .12s;
+  }
+  .edit-modal .edit-compare-btn:hover,
+  .edit-modal .edit-compare-btn.active{
+    background:rgba(255,255,255,.15);color:#fff;
+  }
+
+  /* 2-column body: image preview left, side pane (tabs+controls) right */
+  .edit-modal .edit-body{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 320px;
+    overflow:hidden;min-height:0;padding:0;
+  }
+  .edit-modal .edit-preview-pane{
+    background:#0a0a0c;
+    display:flex;align-items:center;justify-content:center;
+    overflow:auto;padding:18px;position:relative;
+    min-height:0;min-width:0;
+  }
+  .edit-modal .edit-side-pane{
+    display:flex;flex-direction:column;
+    border-left:1px solid rgba(255,255,255,.08);
+    background:#15151a;overflow:hidden;min-height:0;min-width:0;
+  }
+
+  /* Tabs sit at the top of the side pane. */
   .edit-modal .edit-tabs{
-    display:flex;gap:4px;padding:8px 16px;
-    border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;
+    display:flex;gap:2px;padding:8px 10px 0;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    overflow-x:auto;flex-shrink:0;
   }
   .edit-modal .edit-tab{
-    padding:8px 14px;border-radius:7px;
+    padding:7px 11px;border-radius:7px 7px 0 0;
     background:transparent;color:rgba(255,255,255,.55);
-    border:none;cursor:pointer;font-size:.86rem;font-weight:500;
-    transition:background .12s ease,color .12s ease;
+    border:none;cursor:pointer;font-size:.82rem;font-weight:500;
+    white-space:nowrap;transition:background .12s ease,color .12s ease;
   }
   .edit-modal .edit-tab:hover{color:rgba(255,255,255,.85);}
-  .edit-modal .edit-tab.active{background:rgba(255,255,255,.1);color:#fff;}
-  .edit-modal .edit-body{
-    flex:1;overflow:auto;padding:24px;
-    display:flex;flex-direction:column;
+  .edit-modal .edit-tab.active{background:rgba(255,255,255,.08);color:#fff;}
+
+  .edit-modal .edit-controls{
+    flex:1;overflow-y:auto;padding:14px 14px 22px;
+    display:flex;flex-direction:column;gap:12px;
   }
+  .edit-modal .edit-controls input[type=range]{width:100%;}
+
+  /* Footer actions */
   .edit-modal .edit-actions{
-    display:flex;justify-content:flex-end;gap:8px;
-    padding:14px 22px;border-top:1px solid rgba(255,255,255,.08);
-    flex-shrink:0;
+    display:flex;justify-content:flex-end;align-items:center;gap:8px;
+    padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);
   }
   .edit-modal .btn{
-    padding:10px 18px;border-radius:7px;
+    padding:9px 16px;border-radius:7px;
     background:rgba(255,255,255,.08);color:#fff;
     border:1px solid rgba(255,255,255,.14);
-    font-size:.88rem;font-weight:600;cursor:pointer;
+    font-size:.86rem;font-weight:600;cursor:pointer;
   }
   .edit-modal .btn:hover{background:rgba(255,255,255,.14);}
   .edit-modal .btn-primary{
     background:var(--accent);color:#0a0a0c;border-color:transparent;
   }
   .edit-modal .btn-primary:hover{filter:brightness(1.06);}
-  /* Round 4: undo/redo/reset/compare controls */
   .edit-modal .btn-ghost{
     background:transparent;border-color:transparent;
-    color:rgba(255,255,255,.5);font-size:.83rem;padding:8px 12px;
+    color:rgba(255,255,255,.5);font-size:.82rem;padding:7px 11px;
   }
   .edit-modal .btn-ghost:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);}
   .edit-modal .btn-ghost:disabled{opacity:.3;cursor:default;pointer-events:none;}
   .edit-modal .btn-icon{
-    width:34px;height:34px;padding:0;border-radius:7px;
+    width:32px;height:32px;padding:0;border-radius:7px;
     background:transparent;border:1px solid rgba(255,255,255,.12);
     color:rgba(255,255,255,.6);font-size:1rem;line-height:1;cursor:pointer;
     display:inline-flex;align-items:center;justify-content:center;
   }
   .edit-modal .btn-icon:hover{background:rgba(255,255,255,.08);color:#fff;}
   .edit-modal .btn-icon:disabled{opacity:.28;cursor:default;pointer-events:none;}
-  .edit-modal .edit-compare-btn{
-    padding:5px 11px;border-radius:7px;font-size:.8rem;font-weight:500;
-    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
-    color:rgba(255,255,255,.65);cursor:pointer;margin-left:auto;margin-right:8px;
-    transition:background .12s;white-space:nowrap;
-  }
-  .edit-modal .edit-compare-btn:hover,.edit-modal .edit-compare-btn.active{
-    background:rgba(255,255,255,.15);color:#fff;
-  }
-  .edit-modal .edit-actions{display:flex;align-items:center;}
   .edit-modal .edit-history-btns{display:flex;gap:4px;margin-right:4px;}
   .edit-modal .edit-size-info{
-    font-size:.78rem;color:rgba(255,255,255,.38);margin-right:auto;
+    font-size:.76rem;color:rgba(255,255,255,.38);margin-right:auto;
     padding-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     max-width:220px;
   }
-  /* Compare overlay — full-size original inside the modal card */
+
+  /* Compare overlay — covers the whole modal-card */
   .edit-compare-overlay{
     position:absolute;inset:0;z-index:20;background:#0a0a0c;
     display:none;flex-direction:column;align-items:center;justify-content:center;
@@ -2297,7 +2329,71 @@
     color:#fff;border-radius:20px;padding:8px 20px;font-size:.84rem;cursor:pointer;
   }
   .edit-compare-dismiss:hover{background:rgba(255,255,255,.18);}
-  .edit-modal-card{position:relative;}
+
+  /* Per-tab adjustments to fit narrower side panel ------------------ */
+  .edit-modal .edit-controls .edit-rotate-row{
+    display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0;
+  }
+  .edit-modal .edit-controls .edit-rotate-btn{
+    padding:9px 8px;font-size:.78rem;justify-content:center;
+    border-radius:7px;gap:4px;
+  }
+  .edit-modal .edit-controls .edit-angle-row{
+    margin:0;padding:10px 12px;background:rgba(255,255,255,.03);
+    border-radius:8px;display:flex;align-items:center;gap:8px;
+  }
+  .edit-modal .edit-controls .edit-angle-row input[type=range]{flex:1;}
+  .edit-modal .edit-preview-pane .edit-rotate-preview{
+    width:100%;height:100%;min-height:0;max-height:none;flex:1;
+    background-color:transparent;
+  }
+  .edit-modal .edit-preview-pane .edit-adjust-preview-wrap{
+    width:100%;height:100%;flex:1;min-height:0;max-height:none;
+    background:transparent;margin:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .edit-modal .edit-preview-pane .edit-adjust-preview{
+    max-width:100%;max-height:100%;
+  }
+  .edit-modal .edit-preview-pane .edit-crop-canvas-wrap{
+    width:100%;height:100%;flex:1;min-height:0;max-height:none;
+    background:transparent;
+  }
+  .edit-modal .edit-controls .edit-crop-presets{
+    margin-bottom:0;flex-wrap:wrap;
+  }
+  .edit-modal .edit-controls .edit-crop-presets > span{
+    width:100%;margin-bottom:4px;
+  }
+  .edit-modal .edit-preview-pane .bg-checkerboard{
+    max-width:100%;max-height:100%;min-height:160px;margin:0;
+  }
+  .edit-modal .edit-controls .edit-bg-card{
+    padding:0;background:transparent;text-align:left;
+  }
+  .edit-modal .edit-controls .edit-bg-card .edit-bg-controls{text-align:left;}
+  .edit-modal .edit-controls .adj-row{
+    grid-template-columns:76px 1fr 38px;gap:6px;
+  }
+  .edit-modal .edit-controls .edit-preset-strip{gap:5px;}
+  .edit-modal .edit-controls .edit-preset-btn{padding:6px 10px;font-size:.74rem;}
+  .edit-modal .edit-controls .edit-frames-actions{margin-bottom:0;}
+  .edit-modal .edit-controls .edit-frames-controls{
+    grid-template-columns:1fr;max-width:none;gap:10px;
+  }
+  .edit-modal .edit-controls .edit-frames-optimize{
+    margin-top:0;padding-top:10px;
+  }
+  .edit-modal .edit-controls .edit-frames-optimize .opt-row{
+    grid-template-columns:1fr 1fr;gap:8px;
+  }
+  .edit-modal .edit-controls .edit-frames-optimize .opt-row .opt-val{
+    text-align:right;
+  }
+  .edit-modal .edit-preview-pane .edit-frames-strip{
+    max-width:100%;width:100%;margin:0;
+    overflow-x:auto;background:transparent;
+  }
   .edit-rotate-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
   .edit-rotate-btn{
     padding:14px 18px;border-radius:9px;
@@ -2495,10 +2591,20 @@
 
   body[data-edit-open="true"] .menu-card,
   body[data-edit-open="true"] .pi-actions{pointer-events:none;}
-  @media (max-width: 600px){
-    .edit-modal .edit-body{padding:14px;}
-    .edit-modal .edit-header{padding:10px 14px;}
-    .edit-modal .edit-tabs{padding:6px 10px;}
+  /* Mobile: stack preview on top, controls below (Snapseed-style). */
+  @media (max-width: 768px){
+    .edit-modal .edit-body{
+      grid-template-columns:1fr;
+      grid-template-rows:minmax(0,55vh) minmax(0,1fr);
+    }
+    .edit-modal .edit-side-pane{
+      border-left:none;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .edit-modal .edit-header{padding:8px 12px;min-height:46px;}
+    .edit-modal .edit-preview-pane{padding:10px;}
+    .edit-modal .edit-controls{padding:12px 12px 18px;}
+    .edit-modal .edit-actions{padding:10px 12px;}
   }
   /* ============ Keyboard shortcuts modal ============ */
   .kb-shortcuts{
@@ -5314,7 +5420,10 @@ function _switchEditTab(tabId){
     t.classList.toggle('active', t.dataset.tab === tabId);
   });
   const body = document.getElementById('editBody');
-  body.innerHTML = '';
+  const preview = document.getElementById('editPreviewPane');
+  const controls = document.getElementById('editControls');
+  if (preview) preview.innerHTML = '';
+  if (controls) controls.innerHTML = '';
   if (tabId === 'rotate') _renderRotateTab(body);
   else if (tabId === 'frames') _renderFramesTab(body);
   else if (tabId === 'bg') _renderBackgroundTab(body);
@@ -5513,24 +5622,26 @@ document.addEventListener('keydown', e => {
 function _renderRotateTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
-  body.innerHTML = `
-    <div class="edit-rotate-row">
-      <button type="button" class="edit-rotate-btn" data-rot="cw">\u21bb Rotate 90\u00b0</button>
-      <button type="button" class="edit-rotate-btn" data-rot="ccw">\u21ba Rotate -90\u00b0</button>
-      <button type="button" class="edit-rotate-btn" data-rot="180">\u21bb 180\u00b0</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fh">\u2194 Flip horizontal</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fv">\u2195 Flip vertical</button>
-      <button type="button" class="edit-rotate-btn" data-rot="reset">Reset</button>
-    </div>
+  const __pp = body.querySelector('#editPreviewPane');
+  const __cp = body.querySelector('#editControls');
+  __pp.innerHTML = `
     <div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${f.url}');"></div>
   `;
-  // Inject angle slider below the button row
-  const angleRow = document.createElement('div');
-  angleRow.className = 'edit-angle-row';
-  angleRow.innerHTML = `<label class="adj-label" style="min-width:52px;">Angle</label>
-    <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
-    <span id="editAngleVal" class="adj-val" style="min-width:42px;">${_editState.rotateState.angle}°</span>`;
-  body.querySelector('.edit-rotate-row').after(angleRow);
+  __cp.innerHTML = `
+    <div class="edit-rotate-row">
+      <button type="button" class="edit-rotate-btn" data-rot="cw">↻ Rotate 90°</button>
+      <button type="button" class="edit-rotate-btn" data-rot="ccw">↺ Rotate -90°</button>
+      <button type="button" class="edit-rotate-btn" data-rot="180">↻ 180°</button>
+      <button type="button" class="edit-rotate-btn" data-rot="fh">↔ Flip H</button>
+      <button type="button" class="edit-rotate-btn" data-rot="fv">↕ Flip V</button>
+      <button type="button" class="edit-rotate-btn" data-rot="reset">Reset</button>
+    </div>
+    <div class="edit-angle-row">
+      <label class="adj-label" style="min-width:42px;">Angle</label>
+      <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
+      <span id="editAngleVal" class="adj-val" style="min-width:42px;">${_editState.rotateState.angle}°</span>
+    </div>
+  `;
   const preview = body.querySelector('#editRotatePreview');
   function _updateRot(){
     const rs = _editState.rotateState;
@@ -5600,16 +5711,19 @@ async function _applyRotation(file, rotation){
 async function _renderFramesTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
-  body.innerHTML = '<p style="color:rgba(255,255,255,.6);">Decoding frames\u2026</p>';
+  const __pp = body.querySelector('#editPreviewPane');
+  const __cp = body.querySelector('#editControls');
+  if (__pp) __pp.innerHTML = '';
+  if (__cp) __cp.innerHTML = '<p style="color:rgba(255,255,255,.6);">Decoding frames…</p>';
   if (typeof ImageDecoder !== 'function') {
-    body.innerHTML = '<p style="color:rgba(255,200,120,.85);">Your browser doesn\u2019t support the ImageDecoder API. Frame editing requires a recent Chrome/Edge/Firefox.</p>';
+    if (__cp) __cp.innerHTML = '<p style="color:rgba(255,200,120,.85);">Your browser doesn’t support the ImageDecoder API. Frame editing requires a recent Chrome/Edge/Firefox.</p>';
     return;
   }
   if (!_editState.framesState) {
     try {
       _editState.framesState = await _decodeGifFramesForEdit(f.file);
     } catch (err) {
-      body.innerHTML = `<p style="color:rgba(255,120,120,.85);">Couldn\u2019t decode frames: ${err.message || err}</p>`;
+      if (__cp) __cp.innerHTML = `<p style="color:rgba(255,120,120,.85);">Couldn’t decode frames: ${err.message || err}</p>`;
       return;
     }
   }
@@ -5618,12 +5732,14 @@ async function _renderFramesTab(body){
      for this file). Defaults match gifenc's defaults so toggling on
      the optimize panel without changing anything is a no-op. */
   if (!fs.opt) fs.opt = { paletteSize: 256, colorFormat: 'rgb565', dedupe: false };
-  body.innerHTML = `
+  body.querySelector('#editPreviewPane').innerHTML = `
+    <div class="edit-frames-strip" id="editFramesStrip"></div>
+  `;
+  body.querySelector('#editControls').innerHTML = `
     <div class="edit-frames-actions">
-      <button type="button" class="edit-frames-action-btn" data-act="reverse">\u21bb Reverse all frames</button>
+      <button type="button" class="edit-frames-action-btn" data-act="reverse">↻ Reverse all frames</button>
       <button type="button" class="edit-frames-action-btn" data-act="resetDelays">Reset delays to original</button>
     </div>
-    <div class="edit-frames-strip" id="editFramesStrip"></div>
     <div class="edit-frames-controls">
       <label>Set all frames to
         <div style="display:flex;gap:6px;align-items:center;">
@@ -6023,12 +6139,14 @@ function _renderBackgroundTab(body){
   const state = _editState.bgState;
   const hasDone = !!_editState.pendingEdits.bgRemoved;
 
-  body.innerHTML = `
+  body.querySelector('#editPreviewPane').innerHTML = `
+    <div class="bg-checkerboard" id="bgCheckboard">
+      <img id="bgResultImg" class="bg-result-img" alt="Result" style="display:none">
+      <img id="bgOrigThumb" class="bg-orig-thumb"  alt="Original">
+    </div>
+  `;
+  body.querySelector('#editControls').innerHTML = `
     <div class="edit-bg-card">
-      <div class="bg-checkerboard" id="bgCheckboard">
-        <img id="bgResultImg" class="bg-result-img" alt="Result" style="display:none">
-        <img id="bgOrigThumb" class="bg-orig-thumb"  alt="Original">
-      </div>
       <div class="edit-bg-controls">
         <div id="bgProgressWrap" class="edit-bg-progress-wrap" style="display:none">
           <div class="edit-bg-progress-bar"><div id="bgFill" class="edit-bg-progress-fill" style="width:0%"></div></div>
@@ -6038,7 +6156,7 @@ function _renderBackgroundTab(body){
         <button type="button" class="edit-bg-run" id="bgRunBtn">
           ${hasDone ? '↺ Remove Again' : '✂️ Remove Background'}
         </button>
-        <p class="edit-bg-hint">BEN2-ONNX · Apache-2.0/MIT · WASM ~56 MB or WebGPU ~223 MB · Output forced to PNG.</p>
+        <p class="edit-bg-hint">BEN2-ONNX · Apache-2.0/MIT · WASM ~56 MB or WebGPU ~223 MB · Output forced to PNG.</p>
       </div>
     </div>
   `;
@@ -6142,10 +6260,12 @@ function _renderAdjustTab(body){
     { id: 'warm',    label: 'Warm',     css: 'sepia(30%) saturate(180%) brightness(105%)' },
   ];
   const fmt = v => (v - 100 >= 0 ? '+' : '') + (v - 100);
-  body.innerHTML = `
+  body.querySelector('#editPreviewPane').innerHTML = `
     <div class="edit-adjust-preview-wrap">
       <img id="editAdjPreview" src="${f.url}" class="edit-adjust-preview" draggable="false">
     </div>
+  `;
+  body.querySelector('#editControls').innerHTML = `
     <div class="edit-adjust-sliders">
       <div class="adj-row">
         <span class="adj-label">Brightness</span>
@@ -6224,26 +6344,26 @@ async function _applyPhotoAdjust(file, adjInfo){
 async function _renderCropTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
-  body.innerHTML = `
-    <div class="edit-crop-presets" id="editCropPresets">
-      <span style="font-size:.8rem;color:rgba(255,255,255,.55);margin-right:2px;">Aspect:</span>
-      ${[{l:'Free',v:'free'},{l:'1:1',v:'1:1'},{l:'4:3',v:'4:3'},{l:'3:2',v:'3:2'},{l:'16:9',v:'16:9'}]
-        .map(p=>`<button type="button" class="edit-preset-btn${p.v==='free'?' active':''}" data-aspect="${p.v}">${p.l}</button>`).join('')}
-    </div>
+  body.querySelector('#editPreviewPane').innerHTML = `
     <div class="edit-crop-canvas-wrap" id="editCropWrap">
       <canvas id="editCropCanvas"></canvas>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
-      <p style="font-size:.74rem;color:rgba(255,255,255,.4);margin:0;">Drag corners or edges to crop.</p>
-      <button type="button" class="edit-frames-action-btn" id="editCropApplyBtn">Apply crop</button>
+  `;
+  body.querySelector('#editControls').innerHTML = `
+    <div class="edit-crop-presets" id="editCropPresets">
+      <span style="font-size:.8rem;color:rgba(255,255,255,.55);">Aspect:</span>
+      ${[{l:'Free',v:'free'},{l:'1:1',v:'1:1'},{l:'4:3',v:'4:3'},{l:'3:2',v:'3:2'},{l:'16:9',v:'16:9'}]
+        .map(p=>`<button type="button" class="edit-preset-btn${p.v==='free'?' active':''}" data-aspect="${p.v}">${p.l}</button>`).join('')}
     </div>
+    <p style="font-size:.74rem;color:rgba(255,255,255,.4);margin:0;">Drag corners or edges to crop.</p>
+    <button type="button" class="edit-frames-action-btn" id="editCropApplyBtn" style="align-self:flex-start;">Apply crop</button>
   `;
   const canvas = body.querySelector('#editCropCanvas');
   const ctx = canvas.getContext('2d');
   const wrap = body.querySelector('#editCropWrap');
   let bmp;
   try { bmp = await createImageBitmap(f.file); }
-  catch(e) { body.innerHTML = '<p style="color:rgba(255,120,120,.85);">Could not load image for crop.</p>'; return; }
+  catch(e) { body.querySelector('#editControls').innerHTML = '<p style="color:rgba(255,120,120,.85);">Could not load image for crop.</p>'; return; }
   const imgW = bmp.width, imgH = bmp.height;
   const maxW = Math.min((wrap.clientWidth || 640) - 4, 900);
   const maxH = Math.min(Math.round(window.innerHeight * 0.48), 520);
@@ -8208,8 +8328,13 @@ function doClear(){
       <button type="button" class="edit-compare-btn" id="editCompareBtn" onclick="_toggleEditCompare()">View original</button>
       <button type="button" class="edit-close" onclick="cancelEdit()" aria-label="Close edit">&times;</button>
     </header>
-    <nav class="edit-tabs" role="tablist" id="editTabs"></nav>
-    <main class="edit-body" id="editBody"></main>
+    <div class="edit-body" id="editBody">
+      <main class="edit-preview-pane" id="editPreviewPane"></main>
+      <aside class="edit-side-pane">
+        <nav class="edit-tabs" role="tablist" id="editTabs"></nav>
+        <div class="edit-controls" id="editControls"></div>
+      </aside>
+    </div>
     <div id="editCompareOverlay" class="edit-compare-overlay" style="display:none">
       <img id="editCompareImg" src="" alt="Original" draggable="false">
       <div class="edit-compare-label">Original</div>
