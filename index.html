@@ -2590,6 +2590,32 @@
   .edit-bg-progress-label{font-size:.7rem;color:rgba(255,255,255,.4);}
   .edit-bg-success-msg{margin:4px 0;font-size:.76rem;color:#6fcf97;}
   .edit-bg-hint{margin-top:7px;font-size:.66rem;color:rgba(255,255,255,.22);line-height:1.4;}
+  .bg-mode-toggle{
+    display:flex;gap:4px;margin:8px 0 6px;padding:3px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.07);border-radius:7px;
+  }
+  .bg-mode-btn{
+    flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    padding:6px 8px;font-size:.74rem;font-weight:600;color:rgba(255,255,255,.62);
+    background:transparent;border:1px solid transparent;border-radius:5px;
+    cursor:pointer;transition:background .15s ease,color .15s ease;
+    font-family:inherit;letter-spacing:.01em;
+  }
+  .bg-mode-btn:hover{background:rgba(255,255,255,.06);color:#fff;}
+  .bg-mode-btn.active{
+    background:rgba(255,255,255,.12);color:#fff;
+    border-color:rgba(255,255,255,.18);
+    box-shadow:0 1px 0 rgba(0,0,0,.18) inset;
+  }
+  .bg-mode-pill{
+    font-size:.6rem;font-weight:500;
+    padding:1px 5px;border-radius:8px;
+    color:rgba(255,255,255,.6);
+    background:rgba(255,255,255,.08);
+    letter-spacing:.02em;
+  }
+  .bg-mode-btn.active .bg-mode-pill{background:rgba(255,255,255,.16);color:rgba(255,255,255,.92);}
   /* Round 8: Background refinement brushes */
   .edit-preview-col .bg-refine-canvas{
     max-width:100%;max-height:100%;display:block;touch-action:none;
@@ -6173,37 +6199,99 @@ async function _applyGifEdit(file, edits){
  * WebGPU first (dtype fp32 to avoid fp16 casting bug), WASM q8 fallback (~56 MB).
  * The pipeline singleton persists across modal open/close cycles so the model stays warm.
  */
-let _bgPipe = null;
-let _bgPipePromise = null;
+/* Round 9: Multi-model singleton.
+ * 'std' = BEN2-ONNX (Apache-2.0/MIT) — fast, default.
+ * 'hq'  = BiRefNet_lite-ONNX (MIT code https://github.com/ZhengPeng7/BiRefNet/blob/main/LICENSE,
+ *         MIT weights https://huggingface.co/onnx-community/BiRefNet_lite-ONNX) — finer edges, ~110 MB fp16 / ~214 MB fp32.
+ * Each mode warms independently so toggling between them doesn't re-download.
+ */
+const _bgPipes = { std: null, hq: null };
+const _bgPipePromises = { std: null, hq: null };
 let _bgPipeCb = null;   // always points to the most recent progress callback
 
-async function _getBgPipeline(progressCb) {
+async function _getBgPipeline(progressCb, mode) {
+  mode = (mode === 'hq') ? 'hq' : 'std';
   _bgPipeCb = progressCb || null;
-  if (_bgPipe) return _bgPipe;
-  if (!_bgPipePromise) {
-    _bgPipePromise = (async () => {
+  if (_bgPipes[mode]) return _bgPipes[mode];
+  if (!_bgPipePromises[mode]) {
+    _bgPipePromises[mode] = (async () => {
       const cbw = (info) => _bgPipeCb && _bgPipeCb(info);
       const mod = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3');
-      const { pipeline } = mod;
       const useGPU = !!navigator.gpu;
       let pipe;
-      try {
-        const opts = useGPU
-          ? { device: 'webgpu', dtype: 'fp32', progress_callback: cbw }
-          : { device: 'wasm',   dtype: 'q8',   progress_callback: cbw };
-        pipe = await pipeline('background-removal', 'onnx-community/BEN2-ONNX', opts);
-      } catch (e) {
-        if (useGPU) {
-          console.warn('[bg] WebGPU init failed, falling back to WASM q8:', e);
-          pipe = await pipeline('background-removal', 'onnx-community/BEN2-ONNX',
-            { device: 'wasm', dtype: 'q8', progress_callback: cbw });
-        } else { throw e; }
+      if (mode === 'hq') {
+        /* BiRefNet_lite: AutoModel + AutoProcessor; emits 1-channel mask we composite onto original RGB. */
+        const { AutoModel, AutoProcessor, RawImage } = mod;
+        const id = 'onnx-community/BiRefNet_lite-ONNX';
+        let model;
+        try {
+          const opts = useGPU
+            ? { device: 'webgpu', dtype: 'fp16', progress_callback: cbw }
+            : { device: 'wasm',   dtype: 'fp32', progress_callback: cbw };
+          model = await AutoModel.from_pretrained(id, opts);
+        } catch (e) {
+          if (useGPU) {
+            console.warn('[bg-hq] WebGPU init failed, WASM fp32 fallback:', e);
+            model = await AutoModel.from_pretrained(id, { device: 'wasm', dtype: 'fp32', progress_callback: cbw });
+          } else { throw e; }
+        }
+        const processor = await AutoProcessor.from_pretrained(id);
+        pipe = async function birefnetRun(src) {
+          const image = await RawImage.fromURL(src);
+          const w = image.width, h = image.height;
+          const { pixel_values } = await processor(image);
+          const out = await model({ input_image: pixel_values });
+          const outKey = ('output_image' in out) ? 'output_image'
+                       : (Object.keys(out).find(k => out[k] && (out[k].dims || Array.isArray(out[k])))) || Object.keys(out)[0];
+          let t = out[outKey];
+          if (t && Array.isArray(t)) t = t[0];
+          if (t && t.dims && t.dims.length === 4) t = t.squeeze(0);
+          const probTensor = (t && t.sigmoid) ? t.sigmoid() : t;
+          const u8Tensor   = probTensor.mul(255).to('uint8');
+          const mask       = await RawImage.fromTensor(u8Tensor);
+          const maskResized = mask.resize ? await mask.resize(w, h) : mask;
+          const cnv = document.createElement('canvas');
+          cnv.width = w; cnv.height = h;
+          const ctx2 = cnv.getContext('2d');
+          let drawable;
+          try {
+            drawable = await createImageBitmap(await (await fetch(src)).blob());
+          } catch(_) {
+            const im = new Image(); im.crossOrigin = 'anonymous';
+            await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = src; });
+            drawable = im;
+          }
+          ctx2.drawImage(drawable, 0, 0, w, h);
+          const imgData = ctx2.getImageData(0, 0, w, h);
+          const md = maskResized.data;
+          const N  = w * h;
+          const mc = (md.length === N) ? 1 : (md.length === N*4 ? 4 : (md.length === N*3 ? 3 : 1));
+          for (let i = 0, j = 0; j < N; i += 4, j++) {
+            imgData.data[i+3] = md[j*mc];
+          }
+          ctx2.putImageData(imgData, 0, 0);
+          return [{ toBlob: (type) => new Promise(res => cnv.toBlob(res, type || 'image/png')) }];
+        };
+      } else {
+        const { pipeline } = mod;
+        try {
+          const opts = useGPU
+            ? { device: 'webgpu', dtype: 'fp32', progress_callback: cbw }
+            : { device: 'wasm',   dtype: 'q8',   progress_callback: cbw };
+          pipe = await pipeline('background-removal', 'onnx-community/BEN2-ONNX', opts);
+        } catch (e) {
+          if (useGPU) {
+            console.warn('[bg] WebGPU init failed, falling back to WASM q8:', e);
+            pipe = await pipeline('background-removal', 'onnx-community/BEN2-ONNX',
+              { device: 'wasm', dtype: 'q8', progress_callback: cbw });
+          } else { throw e; }
+        }
       }
-      _bgPipe = pipe;
+      _bgPipes[mode] = pipe;
       return pipe;
-    })().catch(e => { _bgPipePromise = null; throw e; });
+    })().catch(e => { _bgPipePromises[mode] = null; throw e; });
   }
-  return _bgPipePromise;
+  return _bgPipePromises[mode];
 }
 
 function _renderBackgroundTab(body){
@@ -6248,11 +6336,21 @@ function _renderBackgroundTab(body){
     +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft for feathered edges, higher for crisp.</p>'
     + '</div>'
   ) : '';
+  if (!state.mode) state.mode = 'std';
+  const mode = state.mode;
+  const stdHint = 'WASM ~56 MB · WebGPU ~223 MB · Saves as PNG';
+  const hqHint  = 'WebGPU ~110 MB (fp16) · WASM ~214 MB (fp32) · Finer hair / edges, slower';
   body.innerHTML = ''
     + '<div class="edit-bg-card">'
     +   '<div class="bg-icon">✂️</div>'
     +   '<h3>Remove Background</h3>'
-    +   '<p>BEN2-ONNX · Apache-2.0/MIT</p>'
+    +   '<p id="bgModelTag">' + (mode === 'hq'
+          ? 'BiRefNet_lite-ONNX · MIT'
+          : 'BEN2-ONNX · Apache-2.0/MIT') + '</p>'
+    + '</div>'
+    + '<div class="bg-mode-toggle" role="tablist" aria-label="Background-removal model quality">'
+    +   '<button type="button" class="bg-mode-btn' + (mode==="std"?" active":"") + '" data-bg-mode="std" role="tab" aria-selected="' + (mode==="std") + '">Standard</button>'
+    +   '<button type="button" class="bg-mode-btn' + (mode==="hq" ?" active":"") + '" data-bg-mode="hq"  role="tab" aria-selected="' + (mode==="hq") + '">HQ <span class="bg-mode-pill">~110 MB</span></button>'
     + '</div>'
     + '<div id="bgProgressWrap" class="edit-bg-progress-wrap" style="display:none">'
     +   '<div class="edit-bg-progress-bar"><div id="bgFill" class="edit-bg-progress-fill" style="width:0%"></div></div>'
@@ -6262,7 +6360,7 @@ function _renderBackgroundTab(body){
     + '<button type="button" class="edit-bg-run" id="bgRunBtn">'
     +   (hasDone ? '↺ Remove Again' : '✂️ Remove Background')
     + '</button>'
-    + '<p class="edit-bg-hint">WASM ~56 MB · WebGPU ~223 MB · Saves as PNG</p>'
+    + '<p class="edit-bg-hint" id="bgHint">' + (mode === 'hq' ? hqHint : stdHint) + '</p>'
     + refineHTML;
 
   const progressWr = document.getElementById('bgProgressWrap');
@@ -6280,6 +6378,27 @@ function _renderBackgroundTab(body){
     successMsg.style.display = '';
     _initBgRefine().catch(e => console.warn('[bg-refine]', e));
   }
+
+  /* Round 9: HQ-mode toggle. Switches model between BEN2-ONNX (std) and BiRefNet_lite-ONNX (hq).
+   * Toggling does NOT clear an existing mask — user can compare runs on the same image. */
+  body.querySelectorAll('.bg-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = btn.getAttribute('data-bg-mode');
+      if (!m || _editState.bgState.mode === m) return;
+      _editState.bgState.mode = m;
+      body.querySelectorAll('.bg-mode-btn').forEach(b => {
+        const isMe = b.getAttribute('data-bg-mode') === m;
+        b.classList.toggle('active', isMe);
+        b.setAttribute('aria-selected', isMe ? 'true' : 'false');
+      });
+      const hint = document.getElementById('bgHint');
+      if (hint) hint.textContent = (m === 'hq') ? hqHint : stdHint;
+      const tag = document.getElementById('bgModelTag');
+      if (tag) tag.textContent = (m === 'hq')
+        ? 'BiRefNet_lite-ONNX · MIT'
+        : 'BEN2-ONNX · Apache-2.0/MIT';
+    });
+  });
 
   runBtn.addEventListener('click', async () => {
     runBtn.disabled = true;
@@ -6303,7 +6422,7 @@ function _renderBackgroundTab(body){
         }
       };
 
-      const pipe = await _getBgPipeline(onProgress);
+      const pipe = await _getBgPipeline(onProgress, _editState.bgState.mode || 'std');
       fill.style.width = '90%';
       progLabel.textContent = 'Removing background…';
 
