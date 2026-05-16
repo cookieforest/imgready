@@ -2260,11 +2260,28 @@
     padding:14px 12px;
     display:flex;flex-direction:column;gap:12px;
   }
+  /* Round 12 — single-row action footer.
+     Was: flex-wrap:wrap with 5 direct children — at any panel width
+     <320px the buttons stacked to 5 rows (172px tall on desktop / 162
+     on mobile, eating 20–25% of modal height). Now size-info is its
+     own row above a single .edit-actions-row that lays Reset+Undo/Redo
+     on the left and Cancel/Save on the right via a flex:1 spacer.
+     Footer collapses to ~60px tall, ~110px reclaimed for the preview
+     at every breakpoint. */
   .edit-modal .edit-actions{
-    display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+    display:flex;flex-direction:column;align-items:stretch;gap:5px;
     padding:8px 12px;border-top:1px solid rgba(255,255,255,.07);
     flex-shrink:0;
   }
+  .edit-modal .edit-actions-row{
+    display:flex;align-items:center;gap:6px;width:100%;
+    flex-wrap:nowrap;
+  }
+  .edit-modal .edit-actions-spacer{flex:1 1 auto;min-width:0;}
+  /* In the new layout Save no longer needs flex:1 (the spacer fills
+     the row). Reassert intrinsic width with a minimum so the primary
+     action stays visually prominent. */
+  .edit-modal .edit-actions .btn-primary{flex:initial;min-width:78px;padding:7px 18px;}
   .edit-modal .btn{
     padding:7px 14px;border-radius:7px;
     background:rgba(255,255,255,.08);color:#fff;
@@ -2303,7 +2320,7 @@
   .edit-modal .edit-size-info{
     font-size:.7rem;color:rgba(255,255,255,.3);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    flex:1;min-width:0;order:-1;width:100%;margin-bottom:2px;
+    text-align:center;width:100%;min-width:0;
   }
   .edit-compare-overlay{
     position:absolute;inset:0;z-index:20;background:#0a0a0c;
@@ -2724,9 +2741,11 @@
     /* Preset / filter / aspect / mode buttons share .edit-preset-btn — shrink so they fit in one row. */
     .edit-modal .edit-preset-btn{padding:5px 9px;font-size:.72rem;}
     .edit-modal .edit-actions{padding:6px 10px;gap:4px;}
+    .edit-modal .edit-actions-row{gap:5px;}
     .edit-modal .btn{padding:6px 12px;font-size:.78rem;}
     .edit-modal .btn-icon{width:28px;height:28px;}
-    .edit-modal .edit-size-info{font-size:.66rem;margin-bottom:1px;}
+    .edit-modal .edit-actions .btn-primary{min-width:70px;padding:6px 14px;}
+    .edit-modal .edit-size-info{font-size:.66rem;}
   }
 
 
@@ -9989,13 +10008,16 @@ function doClear(){
         <main class="edit-body" id="editBody"></main>
         <footer class="edit-actions">
           <span class="edit-size-info" id="editSizeInfo"></span>
-          <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
-          <div class="edit-history-btns">
-            <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
-            <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
+          <div class="edit-actions-row">
+            <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
+            <div class="edit-history-btns">
+              <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
+              <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
+            </div>
+            <span class="edit-actions-spacer" aria-hidden="true"></span>
+            <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
+            <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
           </div>
-          <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
-          <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
         </footer>
       </div>
     </div>
