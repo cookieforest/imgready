@@ -2488,6 +2488,91 @@
   .edit-pixelate-help{
     margin:0;font-size:.7rem;color:rgba(255,255,255,.5);line-height:1.4;
   }
+  /* Round 7: Text overlay + Watermark */
+  .edit-preview-col .edit-text-wrap{
+    width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:#0a0a0c;position:relative;
+  }
+  .edit-text-canvas{
+    max-width:100%;max-height:100%;
+    cursor:default;touch-action:none;display:block;
+    box-shadow:0 0 0 1px rgba(255,255,255,.06);
+  }
+  .edit-text-canvas.tx-dragging{cursor:grabbing;}
+  .edit-text-canvas.tx-grab{cursor:grab;}
+  .edit-text-controls{display:flex;flex-direction:column;gap:10px;}
+  .tx-add-row{display:flex;gap:6px;}
+  .tx-add-row .edit-frames-action-btn{flex:1;padding:7px 8px;font-size:.78rem;}
+  .tx-item-list{
+    display:flex;flex-direction:column;gap:3px;max-height:140px;overflow-y:auto;
+    background:rgba(0,0,0,.18);border-radius:6px;padding:4px;
+  }
+  .tx-item-row{
+    display:flex;align-items:center;gap:6px;
+    padding:5px 7px;border-radius:5px;cursor:pointer;
+    border:1px solid transparent;
+    font-size:.74rem;color:rgba(255,255,255,.78);
+  }
+  .tx-item-row:hover{background:rgba(255,255,255,.06);}
+  .tx-item-row.active{
+    background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);
+    color:#fff;
+  }
+  .tx-item-row .tx-item-icon{
+    width:18px;text-align:center;font-weight:700;color:rgba(255,255,255,.55);
+    flex-shrink:0;
+  }
+  .tx-item-row.active .tx-item-icon{color:var(--accent,#ffb650);}
+  .tx-item-row .tx-item-label{
+    flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  }
+  .tx-item-row .tx-item-del{
+    background:none;border:none;color:rgba(255,255,255,.4);
+    cursor:pointer;font-size:.86rem;padding:0 3px;line-height:1;
+  }
+  .tx-item-row .tx-item-del:hover{color:#ff7070;}
+  .tx-empty{
+    padding:14px 6px;text-align:center;
+    font-size:.72rem;color:rgba(255,255,255,.4);
+    font-style:italic;
+  }
+  .tx-sel-controls{
+    display:flex;flex-direction:column;gap:8px;
+    padding-top:8px;border-top:1px solid rgba(255,255,255,.08);
+  }
+  .tx-text-input,.tx-font-select,.tx-color-row input[type=text]{
+    width:100%;box-sizing:border-box;
+    background:rgba(0,0,0,.32);color:#fff;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:5px;padding:6px 8px;font-size:.78rem;
+    font-family:inherit;
+  }
+  .tx-color-row{
+    display:grid;grid-template-columns:62px 1fr 30px;gap:6px;align-items:center;
+    font-size:.72rem;color:rgba(255,255,255,.62);
+  }
+  .tx-color-row input[type=color]{
+    width:30px;height:24px;padding:0;border:1px solid rgba(255,255,255,.18);
+    border-radius:4px;background:transparent;cursor:pointer;
+  }
+  .tx-toggle-row{display:flex;gap:4px;}
+  .tx-toggle-row .edit-preset-btn{flex:1;padding:5px 6px;font-size:.74rem;}
+  .tx-anchor-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
+    background:rgba(0,0,0,.22);border-radius:5px;padding:4px;
+  }
+  .tx-anchor-btn{
+    aspect-ratio:1;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.1);border-radius:4px;
+    cursor:pointer;color:rgba(255,255,255,.45);
+    font-size:.6rem;line-height:1;
+    transition:all .12s;
+  }
+  .tx-anchor-btn:hover{background:rgba(255,255,255,.14);color:#fff;}
+  .tx-anchor-help{
+    margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
+  }
 
   .edit-bg-card{background:rgba(255,255,255,.03);border-radius:7px;padding:14px;text-align:center;}
   .edit-bg-card .bg-icon{font-size:1.5rem;margin-bottom:5px;}
@@ -5279,6 +5364,7 @@ function _editTabsForType(t){
   if (isPhoto) {
     tabs.push({ id: 'crop', label: 'Crop' });
     tabs.push({ id: 'pixelate', label: 'Pixelate' });
+    tabs.push({ id: 'text', label: 'Text' });
     tabs.push({ id: 'bg', label: 'Background' });
   }
   return tabs;
@@ -5340,6 +5426,7 @@ function _switchEditTab(tabId){
   else if (tabId === 'adjust') _renderAdjustTab(body);
   else if (tabId === 'crop') { _renderCropTab(body).catch(e => console.warn('[crop]', e)); }
   else if (tabId === 'pixelate') { _renderPixelateTab(body).catch(e => console.warn('[pixelate]', e)); }
+  else if (tabId === 'text') { _renderTextTab(body).catch(e => console.warn('[text]', e)); }
 }
 function cancelEdit(){
   document.body.dataset.editOpen = 'false';
@@ -5362,6 +5449,11 @@ function cancelEdit(){
   _editState._pxBaseUrl && (function(){ try { URL.revokeObjectURL(_editState._pxBaseUrl); } catch(_){} })();
   _editState._pxBaseUrl = null;
   _editState._pxBaseBlob = null;
+  if (_editState._txBitmap){
+    try { _editState._txBitmap.close && _editState._txBitmap.close(); } catch(_){}
+    _editState._txBitmap = null;
+  }
+  if (_editState._txBaseUrl){ try { URL.revokeObjectURL(_editState._txBaseUrl); } catch(_){} _editState._txBaseUrl = null; _editState._txBaseBlob = null; _editState._txBaseSig = null; }
 }
 async function saveEdit(){
   const idx = _editState.idx;
@@ -5391,6 +5483,9 @@ async function saveEdit(){
       }
       if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length) {
         workingBlob = await _applyPixelate(workingBlob, _editState.pendingEdits.pixelate);
+      }
+      if (_editState.pendingEdits.textOverlays && _editState.pendingEdits.textOverlays.items && _editState.pendingEdits.textOverlays.items.length) {
+        workingBlob = await _applyTextOverlays(workingBlob, _editState.pendingEdits.textOverlays);
       }
     }
     newBlob = (workingBlob !== f.file) ? workingBlob : null;
@@ -5438,6 +5533,7 @@ function _editSnapshot(){
     autoEnhanced: pe.autoEnhanced || null,
     autoEnhancedUrl: pe.autoEnhancedUrl || null,
     pixelate: pe.pixelate ? JSON.parse(JSON.stringify(pe.pixelate)) : null,
+    textOverlays: pe.textOverlays ? JSON.parse(JSON.stringify(pe.textOverlays)) : null,
     gifEdit: pe.gifEdit ? JSON.parse(JSON.stringify(pe.gifEdit)) : null,
     rotateState: { ..._editState.rotateState },
   };
@@ -5453,6 +5549,7 @@ function _editRestore(snap){
     _editState.pendingEdits.autoEnhancedUrl = snap.autoEnhancedUrl;
   }
   if (snap.pixelate) _editState.pendingEdits.pixelate = snap.pixelate;
+  if (snap.textOverlays) _editState.pendingEdits.textOverlays = snap.textOverlays;
   if (snap.gifEdit) _editState.pendingEdits.gifEdit = snap.gifEdit;
   _editState.rotateState = { ...snap.rotateState };
 }
@@ -5490,6 +5587,11 @@ function _editResetAll(){
     _editState._pxBitmap = null;
   }
   if (_editState._pxBaseUrl){ try { URL.revokeObjectURL(_editState._pxBaseUrl); } catch(_){} _editState._pxBaseUrl = null; _editState._pxBaseBlob = null; }
+  if (_editState._txBitmap){
+    try { _editState._txBitmap.close && _editState._txBitmap.close(); } catch(_){}
+    _editState._txBitmap = null;
+  }
+  if (_editState._txBaseUrl){ try { URL.revokeObjectURL(_editState._txBaseUrl); } catch(_){} _editState._txBaseUrl = null; _editState._txBaseBlob = null; _editState._txBaseSig = null; }
   _updateEditHistoryUI();
   _reRenderEditTab();
 }
@@ -6816,6 +6918,540 @@ async function _applyPixelate(file, pixInfo){
   const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
   return await new Promise((res, rej) => {
     canvas.toBlob(b => b ? res(b) : rej(new Error('pixelate encode failed')), mime, 0.95);
+  });
+}
+
+/* ============================================================
+   TEXT OVERLAY + WATERMARK (Round 7)
+   - System-font stack only (zero new deps, zero license risk)
+   - Canvas2D + Pointer Events
+   - Stroke-then-fill for readable outlined captions
+   - Snap-to-center guides at 6px tolerance
+   - 9-anchor quick-position grid (corners + edges + center)
+   - Image logo (watermark): FileReader -> dataURL, drawn via drawImage
+   - Cited: MDN strokeText/fillText/CanvasRenderingContext2D, Canva default-text,
+     WaterMarquee 30% watermark opacity, Adobe Express 9-anchor grid.
+   ============================================================ */
+const _TX_FONTS = [
+  { label: 'Sans',     value: 'Arial, system-ui, sans-serif' },
+  { label: 'Helvetica',value: 'Helvetica, Arial, sans-serif' },
+  { label: 'Impact',   value: 'Impact, "Arial Black", sans-serif' },
+  { label: 'Serif',    value: 'Georgia, "Times New Roman", serif' },
+  { label: 'Mono',     value: '"Courier New", Courier, monospace' },
+  { label: 'Verdana',  value: 'Verdana, Tahoma, sans-serif' },
+  { label: 'Trebuchet',value: '"Trebuchet MS", Verdana, sans-serif' },
+  { label: 'Comic',    value: '"Comic Sans MS", "Trebuchet MS", sans-serif' },
+];
+
+async function _txBaseBlob(){
+  /* Compose upstream edits (auto-enhance + rotate + adjust + crop + pixelate)
+     so the text overlay preview positions match the final saved image. */
+  const pe = _editState.pendingEdits;
+  const sig = JSON.stringify({
+    a: !!pe.autoEnhanced,
+    r: pe.rotate || null,
+    j: pe.photoAdjust && pe.photoAdjust._dirty ? pe.photoAdjust : null,
+    c: pe.photoCrop || null,
+    p: pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length ? pe.pixelate : null
+  });
+  if (_editState._txBaseSig === sig && _editState._txBaseBlob){
+    return _editState._txBaseBlob;
+  }
+  let blob = _editState.originalFile;
+  if (pe.autoEnhanced) blob = pe.autoEnhanced;
+  if (pe.rotate) blob = await _applyRotation(blob, pe.rotate);
+  if (pe.photoAdjust && pe.photoAdjust._dirty) blob = await _applyPhotoAdjust(blob, pe.photoAdjust);
+  if (pe.photoCrop) blob = await _applyPhotoCrop(blob, pe.photoCrop);
+  if (pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length) blob = await _applyPixelate(blob, pe.pixelate);
+  if (_editState._txBaseUrl){ try { URL.revokeObjectURL(_editState._txBaseUrl); } catch(_){} }
+  _editState._txBaseBlob = blob;
+  _editState._txBaseUrl = URL.createObjectURL(blob);
+  _editState._txBaseSig = sig;
+  if (_editState._txBitmap){ try { _editState._txBitmap.close && _editState._txBitmap.close(); } catch(_){} }
+  _editState._txBitmap = null;
+  return blob;
+}
+
+function _txNewTextItem(state, kind){
+  const id = 'tx' + (state.nextId++);
+  if (kind === 'watermark'){
+    return {
+      id, type: 'text', text: '© ' + (new Date().getFullYear()),
+      x: 0.96, y: 0.95, ax: 1, ay: 1,
+      fontFamily: 'Arial, system-ui, sans-serif',
+      fontSize: 40, bold: true, italic: false,
+      fill: '#ffffff', stroke: '#000000', strokeWidth: 1,
+      shadow: false, opacity: 0.35
+    };
+  }
+  return {
+    id, type: 'text', text: 'Your text',
+    x: 0.5, y: 0.5, ax: 0.5, ay: 0.5,
+    fontFamily: 'Impact, "Arial Black", sans-serif',
+    fontSize: 96, bold: true, italic: false,
+    fill: '#ffffff', stroke: '#000000', strokeWidth: 4,
+    shadow: false, opacity: 1.0
+  };
+}
+
+function _txNewImageItem(state, dataUrl, w, h){
+  const id = 'tx' + (state.nextId++);
+  return {
+    id, type: 'image', imgDataUrl: dataUrl, imgW: w, imgH: h,
+    x: 0.96, y: 0.96, ax: 1, ay: 1,
+    scale: 0.22,   /* fraction of base-image width */
+    opacity: 0.85, rotation: 0
+  };
+}
+
+function _txDrawItem(ctx, item, baseW, baseH, scaleX, scaleY, imgCache){
+  const sMin = Math.min(scaleX, scaleY);
+  ctx.save();
+  ctx.globalAlpha = (item.opacity != null) ? item.opacity : 1;
+  if (item.type === 'image'){
+    const img = imgCache[item.id];
+    if (!img || !img.complete) { ctx.restore(); return null; }
+    const drawW = (item.scale * baseW) * scaleX;
+    const drawH = drawW * (item.imgH / item.imgW);
+    const cx = item.x * baseW * scaleX;
+    const cy = item.y * baseH * scaleY;
+    const x = cx - drawW * item.ax;
+    const y = cy - drawH * item.ay;
+    ctx.drawImage(img, x, y, drawW, drawH);
+    ctx.restore();
+    return { x, y, w: drawW, h: drawH, cx, cy };
+  }
+  // text
+  const sz = item.fontSize * sMin;
+  const family = item.fontFamily;
+  const wts = (item.bold ? 'bold ' : '') + (item.italic ? 'italic ' : '');
+  ctx.font = wts + sz + 'px ' + family;
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'left';
+  const lines = (item.text || '').split('\n');
+  let maxW = 0;
+  const m0 = ctx.measureText('Mg');
+  const ascent = (m0.actualBoundingBoxAscent != null) ? m0.actualBoundingBoxAscent : sz * 0.8;
+  const descent = (m0.actualBoundingBoxDescent != null) ? m0.actualBoundingBoxDescent : sz * 0.2;
+  const lh = sz * 1.18;
+  const widths = lines.map(t => { const m = ctx.measureText(t); if (m.width > maxW) maxW = m.width; return m.width; });
+  const totalH = (lines.length - 1) * lh + (ascent + descent);
+  const cx = item.x * baseW * scaleX;
+  const cy = item.y * baseH * scaleY;
+  const blockX = cx - maxW * item.ax;
+  const blockY = cy - totalH * item.ay;
+  if (item.shadow){
+    ctx.shadowColor = 'rgba(0,0,0,.55)';
+    ctx.shadowBlur = Math.max(2, sz * 0.08);
+    ctx.shadowOffsetX = sz * 0.04;
+    ctx.shadowOffsetY = sz * 0.06;
+  }
+  if (item.strokeWidth > 0){
+    ctx.lineJoin = 'round';
+    ctx.miterLimit = 2;
+    ctx.strokeStyle = item.stroke || '#000';
+    ctx.lineWidth = item.strokeWidth * sMin * 2; /* doubled so stroke shows half outside */
+    for (let i = 0; i < lines.length; i++){
+      const lx = blockX;
+      const ly = blockY + ascent + i * lh;
+      ctx.strokeText(lines[i], lx, ly);
+    }
+  }
+  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+  ctx.fillStyle = item.fill || '#fff';
+  for (let i = 0; i < lines.length; i++){
+    const lx = blockX;
+    const ly = blockY + ascent + i * lh;
+    ctx.fillText(lines[i], lx, ly);
+  }
+  ctx.restore();
+  return { x: blockX, y: blockY, w: maxW, h: totalH, cx, cy };
+}
+
+async function _renderTextTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  if (!_editState.pendingEdits.textOverlays){
+    _editState.pendingEdits.textOverlays = { items: [], selectedId: null, nextId: 1 };
+  }
+  const state = _editState.pendingEdits.textOverlays;
+  const previewCol = document.getElementById('editPreviewCol');
+  if (previewCol){
+    previewCol.innerHTML = '<div class="edit-text-wrap" id="editTextWrap"><canvas id="editTextCanvas" class="edit-text-canvas"></canvas></div>';
+  }
+  body.innerHTML = ''
+    + '<div class="edit-text-controls">'
+    +   '<div class="tx-add-row">'
+    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="text">+ Text</button>'
+    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="watermark">+ Watermark</button>'
+    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="logo" title="Upload an image logo">+ Logo</button>'
+    +   '</div>'
+    +   '<input type="file" id="txLogoInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">'
+    +   '<div class="tx-item-list" id="txItemList"></div>'
+    +   '<div class="tx-sel-controls" id="txSelControls"></div>'
+    +   '<p class="tx-anchor-help">Drag any item on the image to position it. Click an item below to select.</p>'
+    + '</div>';
+
+  await _txBaseBlob();
+  let bmp = _editState._txBitmap;
+  if (!bmp){
+    bmp = await createImageBitmap(_editState._txBaseBlob);
+    _editState._txBitmap = bmp;
+  }
+  const baseW = bmp.width, baseH = bmp.height;
+  const canvas = document.getElementById('editTextCanvas');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  function fitDims(){
+    const cw = (wrap.clientWidth || 800);
+    const ch = (wrap.clientHeight || 600);
+    const ratio = baseW / baseH;
+    let dw = cw, dh = cw / ratio;
+    if (dh > ch){ dh = ch; dw = ch * ratio; }
+    return { dw: Math.max(1, Math.floor(dw)), dh: Math.max(1, Math.floor(dh)) };
+  }
+  const dims = fitDims();
+  const dw = dims.dw, dh = dims.dh;
+  canvas.width = dw; canvas.height = dh;
+  canvas.style.width = dw + 'px'; canvas.style.height = dh + 'px';
+  const sx = dw / baseW, sy = dh / baseH;
+  const imgCache = {};
+  const ctx = canvas.getContext('2d');
+  let snapGuides = { x: false, y: false };
+
+  function ensureImgs(cb){
+    let pending = 0;
+    state.items.forEach(it => {
+      if (it.type === 'image' && !imgCache[it.id]){
+        pending++;
+        const im = new Image();
+        im.onload = () => { imgCache[it.id] = im; if (--pending === 0) cb(); };
+        im.onerror = () => { if (--pending === 0) cb(); };
+        im.src = it.imgDataUrl;
+      }
+    });
+    if (pending === 0) cb();
+  }
+  function render(){
+    ctx.clearRect(0, 0, dw, dh);
+    ctx.drawImage(bmp, 0, 0, dw, dh);
+    state.items.forEach(it => {
+      const bb = _txDrawItem(ctx, it, baseW, baseH, sx, sy, imgCache);
+      it._bbox = bb;
+    });
+    /* selection outline */
+    const sel = state.items.find(it => it.id === state.selectedId);
+    if (sel && sel._bbox){
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,182,80,.9)';
+      ctx.setLineDash([4, 3]);
+      ctx.lineWidth = 1;
+      ctx.strokeRect(sel._bbox.x - 2, sel._bbox.y - 2, sel._bbox.w + 4, sel._bbox.h + 4);
+      ctx.restore();
+    }
+    /* snap guides */
+    if (snapGuides.x){
+      ctx.save();
+      ctx.strokeStyle = 'rgba(120,200,255,.7)';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(dw/2, 0); ctx.lineTo(dw/2, dh); ctx.stroke();
+      ctx.restore();
+    }
+    if (snapGuides.y){
+      ctx.save();
+      ctx.strokeStyle = 'rgba(120,200,255,.7)';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(0, dh/2); ctx.lineTo(dw, dh/2); ctx.stroke();
+      ctx.restore();
+    }
+  }
+  function renderAll(){ ensureImgs(render); }
+
+  function buildList(){
+    const list = document.getElementById('txItemList');
+    if (!list) return;
+    if (!state.items.length){
+      list.innerHTML = '<div class="tx-empty">No text or logos yet. Add one above.</div>';
+    } else {
+      list.innerHTML = state.items.map(it => {
+        const lbl = it.type === 'image' ? 'Logo' : (it.text || '(empty)').slice(0, 26);
+        const ic = it.type === 'image' ? 'IMG' : 'T';
+        return '<div class="tx-item-row' + (it.id === state.selectedId ? ' active' : '') + '" data-tx-id="' + it.id + '">'
+          + '<span class="tx-item-icon">' + ic + '</span>'
+          + '<span class="tx-item-label">' + (lbl.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')) + '</span>'
+          + '<button type="button" class="tx-item-del" data-tx-del="' + it.id + '" title="Delete">&times;</button>'
+          + '</div>';
+      }).join('');
+    }
+    list.querySelectorAll('[data-tx-id]').forEach(row => {
+      row.addEventListener('click', e => {
+        if (e.target.matches('[data-tx-del]')) return;
+        state.selectedId = row.dataset.txId;
+        rebuild();
+      });
+    });
+    list.querySelectorAll('[data-tx-del]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        _editPushUndo();
+        const id = btn.dataset.txDel;
+        state.items = state.items.filter(x => x.id !== id);
+        delete imgCache[id];
+        if (state.selectedId === id) state.selectedId = state.items.length ? state.items[state.items.length-1].id : null;
+        rebuild();
+        _updateEditHistoryUI();
+      });
+    });
+  }
+
+  function buildSelControls(){
+    const sel = state.items.find(it => it.id === state.selectedId);
+    const host = document.getElementById('txSelControls');
+    if (!host) return;
+    if (!sel){
+      host.innerHTML = '';
+      return;
+    }
+    if (sel.type === 'text'){
+      host.innerHTML = ''
+        + '<input type="text" class="tx-text-input" id="txTextInput" maxlength="300" placeholder="Text">'
+        + '<select class="tx-font-select" id="txFontSelect">' + _TX_FONTS.map(fn => '<option value="' + fn.value + '">' + fn.label + '</option>').join('') + '</select>'
+        + '<div class="adj-row"><span class="adj-label">Size</span><input type="range" id="txSize" min="12" max="320" step="1"><span class="adj-val" id="txSizeVal"></span></div>'
+        + '<div class="adj-row"><span class="adj-label">Outline</span><input type="range" id="txStrokeW" min="0" max="12" step="1"><span class="adj-val" id="txStrokeWVal"></span></div>'
+        + '<div class="adj-row"><span class="adj-label">Opacity</span><input type="range" id="txOpacity" min="5" max="100" step="1"><span class="adj-val" id="txOpacityVal"></span></div>'
+        + '<div class="tx-color-row"><span>Fill</span><input type="text" id="txFillTxt"><input type="color" id="txFill"></div>'
+        + '<div class="tx-color-row"><span>Outline</span><input type="text" id="txStrokeTxt"><input type="color" id="txStroke"></div>'
+        + '<div class="tx-toggle-row">'
+        +   '<button type="button" class="edit-preset-btn" data-tx-toggle="bold">Bold</button>'
+        +   '<button type="button" class="edit-preset-btn" data-tx-toggle="italic">Italic</button>'
+        +   '<button type="button" class="edit-preset-btn" data-tx-toggle="shadow">Shadow</button>'
+        + '</div>'
+        + '<div class="tx-anchor-grid" id="txAnchorGrid">'
+        +   ['tl','tc','tr','ml','mc','mr','bl','bc','br'].map(p => '<button type="button" class="tx-anchor-btn" data-anchor="' + p + '" title="Snap to ' + p + '">' + p + '</button>').join('')
+        + '</div>';
+
+      const input = document.getElementById('txTextInput'); input.value = sel.text;
+      input.addEventListener('input', () => { sel.text = input.value; renderAll(); });
+      input.addEventListener('change', () => { _editPushUndo(); buildList(); _updateEditHistoryUI(); });
+
+      const fs = document.getElementById('txFontSelect'); fs.value = sel.fontFamily;
+      fs.addEventListener('change', () => { _editPushUndo(); sel.fontFamily = fs.value; renderAll(); _updateEditHistoryUI(); });
+
+      const ssz = document.getElementById('txSize'); const sszV = document.getElementById('txSizeVal');
+      ssz.value = sel.fontSize; sszV.textContent = sel.fontSize;
+      ssz.addEventListener('input', () => { sel.fontSize = parseInt(ssz.value,10); sszV.textContent = ssz.value; renderAll(); });
+      ssz.addEventListener('change', () => { _editPushUndo(); _updateEditHistoryUI(); });
+
+      const stw = document.getElementById('txStrokeW'); const stwV = document.getElementById('txStrokeWVal');
+      stw.value = sel.strokeWidth; stwV.textContent = sel.strokeWidth;
+      stw.addEventListener('input', () => { sel.strokeWidth = parseInt(stw.value,10); stwV.textContent = stw.value; renderAll(); });
+      stw.addEventListener('change', () => { _editPushUndo(); _updateEditHistoryUI(); });
+
+      const op = document.getElementById('txOpacity'); const opV = document.getElementById('txOpacityVal');
+      op.value = Math.round(sel.opacity*100); opV.textContent = op.value + '%';
+      op.addEventListener('input', () => { sel.opacity = parseInt(op.value,10)/100; opV.textContent = op.value + '%'; renderAll(); });
+      op.addEventListener('change', () => { _editPushUndo(); _updateEditHistoryUI(); });
+
+      const fill = document.getElementById('txFill'); const fillT = document.getElementById('txFillTxt');
+      fill.value = sel.fill; fillT.value = sel.fill;
+      const onFill = v => { sel.fill = v; fill.value = v; fillT.value = v; renderAll(); };
+      fill.addEventListener('input', () => onFill(fill.value));
+      fill.addEventListener('change', () => { _editPushUndo(); _updateEditHistoryUI(); });
+      fillT.addEventListener('change', () => { if (/^#[0-9a-fA-F]{6}$/.test(fillT.value)){ onFill(fillT.value); _editPushUndo(); _updateEditHistoryUI(); } else { fillT.value = sel.fill; }});
+
+      const stk = document.getElementById('txStroke'); const stkT = document.getElementById('txStrokeTxt');
+      stk.value = sel.stroke; stkT.value = sel.stroke;
+      const onStk = v => { sel.stroke = v; stk.value = v; stkT.value = v; renderAll(); };
+      stk.addEventListener('input', () => onStk(stk.value));
+      stk.addEventListener('change', () => { _editPushUndo(); _updateEditHistoryUI(); });
+      stkT.addEventListener('change', () => { if (/^#[0-9a-fA-F]{6}$/.test(stkT.value)){ onStk(stkT.value); _editPushUndo(); _updateEditHistoryUI(); } else { stkT.value = sel.stroke; }});
+
+      ['bold','italic','shadow'].forEach(k => {
+        const btn = host.querySelector('[data-tx-toggle="' + k + '"]');
+        if (btn){
+          if (sel[k]) btn.classList.add('active');
+          btn.addEventListener('click', () => { _editPushUndo(); sel[k] = !sel[k]; btn.classList.toggle('active', sel[k]); renderAll(); _updateEditHistoryUI(); });
+        }
+      });
+    } else {
+      host.innerHTML = ''
+        + '<div class="adj-row"><span class="adj-label">Size %</span><input type="range" id="txImgSize" min="5" max="80" step="1"><span class="adj-val" id="txImgSizeVal"></span></div>'
+        + '<div class="adj-row"><span class="adj-label">Opacity</span><input type="range" id="txImgOp" min="5" max="100" step="1"><span class="adj-val" id="txImgOpVal"></span></div>'
+        + '<div class="tx-anchor-grid" id="txAnchorGrid">'
+        +   ['tl','tc','tr','ml','mc','mr','bl','bc','br'].map(p => '<button type="button" class="tx-anchor-btn" data-anchor="' + p + '" title="Snap to ' + p + '">' + p + '</button>').join('')
+        + '</div>';
+
+      const sz = document.getElementById('txImgSize'); const szV = document.getElementById('txImgSizeVal');
+      sz.value = Math.round(sel.scale*100); szV.textContent = sz.value + '%';
+      sz.addEventListener('input', () => { sel.scale = parseInt(sz.value,10)/100; szV.textContent = sz.value + '%'; renderAll(); });
+      sz.addEventListener('change', () => { _editPushUndo(); _updateEditHistoryUI(); });
+
+      const op = document.getElementById('txImgOp'); const opV = document.getElementById('txImgOpVal');
+      op.value = Math.round(sel.opacity*100); opV.textContent = op.value + '%';
+      op.addEventListener('input', () => { sel.opacity = parseInt(op.value,10)/100; opV.textContent = op.value + '%'; renderAll(); });
+      op.addEventListener('change', () => { _editPushUndo(); _updateEditHistoryUI(); });
+    }
+
+    /* anchor grid common */
+    host.querySelectorAll('[data-anchor]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _editPushUndo();
+        const a = btn.dataset.anchor;
+        const map = { tl:[0.04,0.05,0,0], tc:[0.5,0.05,0.5,0], tr:[0.96,0.05,1,0],
+                      ml:[0.04,0.5,0,0.5], mc:[0.5,0.5,0.5,0.5], mr:[0.96,0.5,1,0.5],
+                      bl:[0.04,0.95,0,1], bc:[0.5,0.95,0.5,1], br:[0.96,0.95,1,1] };
+        const m = map[a]; if (!m) return;
+        sel.x = m[0]; sel.y = m[1]; sel.ax = m[2]; sel.ay = m[3];
+        renderAll(); _updateEditHistoryUI();
+      });
+    });
+  }
+  function rebuild(){
+    buildList();
+    buildSelControls();
+    renderAll();
+  }
+
+  /* logo upload */
+  const fileInput = document.getElementById('txLogoInput');
+  document.querySelectorAll('#editBody [data-tx-add]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const kind = btn.dataset.txAdd;
+      if (kind === 'logo'){
+        fileInput.click();
+        return;
+      }
+      _editPushUndo();
+      const item = _txNewTextItem(state, kind);
+      state.items.push(item);
+      state.selectedId = item.id;
+      rebuild();
+      _updateEditHistoryUI();
+    });
+  });
+  fileInput.addEventListener('change', e => {
+    const fl = e.target.files && e.target.files[0];
+    if (!fl) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      const im = new Image();
+      im.onload = () => {
+        _editPushUndo();
+        const item = _txNewImageItem(state, dataUrl, im.naturalWidth, im.naturalHeight);
+        state.items.push(item);
+        imgCache[item.id] = im;
+        state.selectedId = item.id;
+        rebuild();
+        _updateEditHistoryUI();
+      };
+      im.onerror = () => alert('Could not load logo image.');
+      im.src = dataUrl;
+    };
+    reader.readAsDataURL(fl);
+    fileInput.value = '';
+  });
+
+  /* pointer-based hit-test + drag */
+  let dragging = null; /* { id, startX, startY, origX, origY, moved } */
+  const DRAG_THRESHOLD = 6;
+  const SNAP_PX = 8;
+  function ptFromEv(ev){
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (ev.clientX - rect.left),
+      y: (ev.clientY - rect.top)
+    };
+  }
+  function hitItem(p){
+    for (let i = state.items.length - 1; i >= 0; i--){
+      const it = state.items[i];
+      const b = it._bbox; if (!b) continue;
+      if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return it;
+    }
+    return null;
+  }
+  canvas.addEventListener('pointermove', ev => {
+    if (dragging) return;
+    const p = ptFromEv(ev);
+    canvas.classList.toggle('tx-grab', !!hitItem(p));
+  });
+  canvas.addEventListener('pointerdown', ev => {
+    ev.preventDefault();
+    const p = ptFromEv(ev);
+    const hit = hitItem(p);
+    if (!hit){
+      if (state.selectedId){ state.selectedId = null; rebuild(); }
+      return;
+    }
+    if (state.selectedId !== hit.id){ state.selectedId = hit.id; rebuild(); }
+    dragging = { id: hit.id, startX: p.x, startY: p.y, origX: hit.x, origY: hit.y, moved: false };
+    try { canvas.setPointerCapture(ev.pointerId); } catch(_){}
+  });
+  canvas.addEventListener('pointermove', ev => {
+    if (!dragging) return;
+    const p = ptFromEv(ev);
+    const dx = p.x - dragging.startX;
+    const dy = p.y - dragging.startY;
+    if (!dragging.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+    if (!dragging.moved){
+      dragging.moved = true;
+      _editPushUndo();
+      canvas.classList.add('tx-dragging');
+    }
+    const sel = state.items.find(it => it.id === dragging.id);
+    if (!sel) return;
+    let nx = dragging.origX + dx / dw;
+    let ny = dragging.origY + dy / dh;
+    /* snap to center */
+    const cx = sel.x * dw, cy = sel.y * dh;
+    snapGuides.x = false; snapGuides.y = false;
+    if (Math.abs(nx * dw - dw/2) < SNAP_PX){ nx = 0.5; sel.ax = 0.5; snapGuides.x = true; }
+    if (Math.abs(ny * dh - dh/2) < SNAP_PX){ ny = 0.5; sel.ay = 0.5; snapGuides.y = true; }
+    nx = Math.max(-0.05, Math.min(1.05, nx));
+    ny = Math.max(-0.05, Math.min(1.05, ny));
+    sel.x = nx; sel.y = ny;
+    renderAll();
+  });
+  function endDrag(ev){
+    if (!dragging) return;
+    if (dragging.moved){ _updateEditHistoryUI(); }
+    dragging = null;
+    canvas.classList.remove('tx-dragging');
+    snapGuides.x = false; snapGuides.y = false;
+    renderAll();
+    try { if (ev && ev.pointerId != null) canvas.releasePointerCapture(ev.pointerId); } catch(_){}
+  }
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+  canvas.addEventListener('lostpointercapture', endDrag);
+
+  rebuild();
+}
+
+async function _applyTextOverlays(file, state){
+  if (!state || !state.items || !state.items.length) return file;
+  const bmp = await createImageBitmap(file);
+  const W = bmp.width, H = bmp.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bmp, 0, 0);
+  /* preload image items */
+  const imgCache = {};
+  await Promise.all(state.items.filter(it => it.type === 'image').map(it => new Promise(res => {
+    const im = new Image();
+    im.onload = () => { imgCache[it.id] = im; res(); };
+    im.onerror = () => res();
+    im.src = it.imgDataUrl;
+  })));
+  state.items.forEach(it => { _txDrawItem(ctx, it, W, H, 1, 1, imgCache); });
+  try { bmp.close && bmp.close(); } catch(_){}
+  /* preserve transparency if there is image-logo or shadow */
+  const hasAlphaContent = state.items.some(it => it.type === 'image' || it.shadow);
+  const mime = (file.type === 'image/jpeg' && !hasAlphaContent) ? 'image/jpeg' : ((file.type === 'image/jpeg') ? 'image/png' : (file.type || 'image/png'));
+  return await new Promise((res, rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('text overlay encode failed')), mime, 0.95);
   });
 }
 
