@@ -2383,6 +2383,23 @@
     font-size:.9rem;font-weight:700;cursor:pointer;
   }
   .edit-bg-run:disabled{opacity:.5;cursor:not-allowed;}
+  /* Round 3 — BG removal UI */
+  .bg-checkerboard{
+    width:100%;min-height:160px;max-height:44vh;border-radius:10px;overflow:hidden;
+    margin-bottom:14px;
+    background-image:linear-gradient(45deg,#888 25%,transparent 25%),linear-gradient(-45deg,#888 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#888 75%),linear-gradient(-45deg,transparent 75%,#888 75%);
+    background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;background-color:#aaa;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .bg-result-img,.bg-orig-thumb{max-width:100%;max-height:44vh;object-fit:contain;display:block;}
+  .bg-orig-thumb{opacity:.45;}
+  .edit-bg-controls{text-align:center;}
+  .edit-bg-progress-wrap{margin-bottom:12px;}
+  .edit-bg-progress-bar{width:100%;height:5px;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden;margin-bottom:5px;}
+  .edit-bg-progress-fill{height:100%;background:var(--accent);transition:width .25s ease;}
+  .edit-bg-progress-label{font-size:.76rem;color:rgba(255,255,255,.45);}
+  .edit-bg-success-msg{margin:6px 0;font-size:.82rem;color:#6fcf97;}
+  .edit-bg-hint{margin-top:10px;font-size:.72rem;color:rgba(255,255,255,.3);line-height:1.4;}
   /* Round 2 — Adjust tab */
   .edit-adjust-preview-wrap{
     flex:1;min-height:180px;max-height:48vh;
@@ -5212,6 +5229,9 @@ function openEditMode(idx){
   _editState.pendingEdits = {};
   _editState.rotateState = { deg: 0, flipH: false, flipV: false, angle: 0 };
   _editState.framesState = null;
+  if (_editState.bgState && _editState.bgState.previewUrl) {
+    try { URL.revokeObjectURL(_editState.bgState.previewUrl); } catch(_){}
+  }
   _editState.bgState = null;
   document.body.dataset.editOpen = 'true';
   const modal = document.getElementById('editModal');
@@ -5290,7 +5310,10 @@ async function saveEdit(){
   }
   if (newBlob) {
     try { URL.revokeObjectURL(f.url); } catch(_){}
-    const newName = f.file.name || 'image';
+    let newName = f.file.name || 'image';
+    if (_editState.pendingEdits.bgRemoved && newBlob === _editState.pendingEdits.bgRemoved) {
+      newName = newName.replace(/\.[^.]+$/, '') + '.png';
+    }
     f.file = new File([newBlob], newName, { type: newBlob.type || f.file.type });
     f.url = URL.createObjectURL(newBlob);
     f.dims = null;
@@ -5779,16 +5802,149 @@ async function _applyGifEdit(file, edits){
   return new Blob([enc.bytes()], { type: 'image/gif' });
 }
 /* ---- BACKGROUND REMOVAL TAB (scaffold; inference lands next batch) ---- */
+/* ---- BACKGROUND REMOVAL TAB (Round 3 — BEN2-ONNX via transformers.js) ----
+ * Licenses: transformers.js Apache-2.0 (https://github.com/huggingface/transformers.js/blob/main/LICENSE)
+ *           onnx-community/BEN2-ONNX MIT (https://huggingface.co/onnx-community/BEN2-ONNX)
+ * WebGPU first (dtype fp32 to avoid fp16 casting bug), WASM q8 fallback (~56 MB).
+ * The pipeline singleton persists across modal open/close cycles so the model stays warm.
+ */
+let _bgPipe = null;
+let _bgPipePromise = null;
+let _bgPipeCb = null;   // always points to the most recent progress callback
+
+async function _getBgPipeline(progressCb) {
+  _bgPipeCb = progressCb || null;
+  if (_bgPipe) return _bgPipe;
+  if (!_bgPipePromise) {
+    _bgPipePromise = (async () => {
+      const cbw = (info) => _bgPipeCb && _bgPipeCb(info);
+      const mod = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3');
+      const { pipeline } = mod;
+      const useGPU = !!navigator.gpu;
+      let pipe;
+      try {
+        const opts = useGPU
+          ? { device: 'webgpu', dtype: 'fp32', progress_callback: cbw }
+          : { device: 'wasm',   dtype: 'q8',   progress_callback: cbw };
+        pipe = await pipeline('background-removal', 'onnx-community/BEN2-ONNX', opts);
+      } catch (e) {
+        if (useGPU) {
+          console.warn('[bg] WebGPU init failed, falling back to WASM q8:', e);
+          pipe = await pipeline('background-removal', 'onnx-community/BEN2-ONNX',
+            { device: 'wasm', dtype: 'q8', progress_callback: cbw });
+        } else { throw e; }
+      }
+      _bgPipe = pipe;
+      return pipe;
+    })().catch(e => { _bgPipePromise = null; throw e; });
+  }
+  return _bgPipePromise;
+}
+
 function _renderBackgroundTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  if (!_editState.bgState) _editState.bgState = {};
+  const state = _editState.bgState;
+  const hasDone = !!_editState.pendingEdits.bgRemoved;
+
   body.innerHTML = `
     <div class="edit-bg-card">
-      <div class="bg-icon">\u2702\ufe0f</div>
-      <h3>Remove background</h3>
-      <p>Strip the background and keep only the subject. Runs 100% in your browser via a quantized U\u00b2-Net model (~42 MB) using WebGPU when available, WebAssembly otherwise. Output is forced to PNG to preserve transparency.</p>
-      <button type="button" class="edit-bg-run" disabled>Coming in next update</button>
-      <p style="margin-top:10px;font-size:.74rem;color:rgba(255,255,255,.4);">First run downloads the model (~42 MB) and caches it. Subsequent runs are instant.</p>
+      <div class="bg-checkerboard" id="bgCheckboard">
+        <img id="bgResultImg" class="bg-result-img" alt="Result" style="display:none">
+        <img id="bgOrigThumb" class="bg-orig-thumb"  alt="Original">
+      </div>
+      <div class="edit-bg-controls">
+        <div id="bgProgressWrap" class="edit-bg-progress-wrap" style="display:none">
+          <div class="edit-bg-progress-bar"><div id="bgFill" class="edit-bg-progress-fill" style="width:0%"></div></div>
+          <span id="bgProgLabel" class="edit-bg-progress-label">Loading model…</span>
+        </div>
+        <p id="bgSuccessMsg" class="edit-bg-success-msg" style="display:none"></p>
+        <button type="button" class="edit-bg-run" id="bgRunBtn">
+          ${hasDone ? '↺ Remove Again' : '✂️ Remove Background'}
+        </button>
+        <p class="edit-bg-hint">BEN2-ONNX · Apache-2.0/MIT · WASM ~56 MB or WebGPU ~223 MB · Output forced to PNG.</p>
+      </div>
     </div>
   `;
+
+  const resultImg  = document.getElementById('bgResultImg');
+  const origThumb  = document.getElementById('bgOrigThumb');
+  const progressWr = document.getElementById('bgProgressWrap');
+  const fill       = document.getElementById('bgFill');
+  const progLabel  = document.getElementById('bgProgLabel');
+  const successMsg = document.getElementById('bgSuccessMsg');
+  const runBtn     = document.getElementById('bgRunBtn');
+
+  origThumb.src = f.url;
+
+  if (hasDone && state.previewUrl) {
+    resultImg.src = state.previewUrl;
+    resultImg.style.display = '';
+    origThumb.style.display = 'none';
+    successMsg.textContent = '✓ Background removed — click Save to apply.';
+    successMsg.style.color = '#6fcf97';
+    successMsg.style.display = '';
+  }
+
+  runBtn.addEventListener('click', async () => {
+    runBtn.disabled = true;
+    progressWr.style.display = '';
+    fill.style.width = '0%';
+    progLabel.textContent = 'Loading model…';
+    successMsg.style.display = 'none';
+
+    try {
+      const onProgress = (info) => {
+        if (info.status === 'downloading' && info.progress != null) {
+          const pct = Math.min(Math.round(info.progress), 85);
+          fill.style.width = pct + '%';
+          progLabel.textContent = 'Downloading: ' + pct + '%';
+        } else if (info.status === 'initiate' || info.status === 'loading') {
+          fill.style.width = '70%';
+          progLabel.textContent = 'Initializing model…';
+        } else if (info.status === 'ready') {
+          fill.style.width = '88%';
+          progLabel.textContent = 'Running inference…';
+        }
+      };
+
+      const pipe = await _getBgPipeline(onProgress);
+      fill.style.width = '90%';
+      progLabel.textContent = 'Removing background…';
+
+      const [res] = await pipe(f.url);
+      const blob = await res.toBlob('image/png');
+
+      _editState.pendingEdits.bgRemoved = blob;
+
+      if (state.previewUrl) { try { URL.revokeObjectURL(state.previewUrl); } catch(_){} }
+      state.previewUrl = URL.createObjectURL(blob);
+
+      fill.style.width = '100%';
+      progLabel.textContent = 'Done!';
+
+      setTimeout(() => {
+        progressWr.style.display = 'none';
+        resultImg.src = state.previewUrl;
+        resultImg.style.display = '';
+        origThumb.style.display = 'none';
+        successMsg.textContent = '✓ Background removed — click Save to apply.';
+        successMsg.style.color = '#6fcf97';
+        successMsg.style.display = '';
+        runBtn.disabled = false;
+        runBtn.textContent = '↺ Remove Again';
+      }, 500);
+
+    } catch(err) {
+      console.error('[bg] removal failed', err);
+      progressWr.style.display = 'none';
+      successMsg.textContent = '⚠ Failed: ' + (err.message || String(err)).slice(0, 90);
+      successMsg.style.color = '#eb5757';
+      successMsg.style.display = '';
+      runBtn.disabled = false;
+    }
+  });
 }
 
 
