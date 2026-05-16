@@ -2448,6 +2448,47 @@
     background:rgba(255,255,255,.06);color:#fff;
     border:1px solid rgba(255,255,255,.12);font-size:.82rem;
   }
+  /* Round 6: Auto Enhance row inside Adjust tab */
+  .edit-auto-enhance-row{
+    display:flex;align-items:center;gap:6px;
+    padding:8px 9px;border-radius:7px;
+    background:linear-gradient(90deg,rgba(120,180,255,.10),rgba(120,180,255,.04));
+    border:1px solid rgba(120,180,255,.18);
+  }
+  .edit-auto-enhance-btn{
+    flex:1;padding:7px 10px;border-radius:6px;
+    background:rgba(120,180,255,.18);color:#fff;
+    border:1px solid rgba(120,180,255,.32);cursor:pointer;
+    font-size:.78rem;font-weight:600;
+  }
+  .edit-auto-enhance-btn:hover{background:rgba(120,180,255,.28);}
+  .edit-auto-enhance-btn:disabled{opacity:.5;cursor:default;}
+  .edit-auto-enhance-btn.active{background:rgba(120,180,255,.36);border-color:rgba(120,180,255,.55);}
+  .edit-auto-enhance-undo{
+    padding:6px 9px;border-radius:6px;font-size:.7rem;
+    background:transparent;color:rgba(255,255,255,.6);
+    border:1px solid rgba(255,255,255,.14);cursor:pointer;
+  }
+  .edit-auto-enhance-undo:hover{color:#fff;background:rgba(255,255,255,.08);}
+  /* Round 6: Pixelate tab */
+  .edit-preview-col .edit-pixelate-wrap{
+    width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:#0a0a0c;
+  }
+  .edit-pixelate-canvas{
+    max-width:100%;max-height:100%;
+    cursor:crosshair;touch-action:none;
+    display:block;
+    box-shadow:0 0 0 1px rgba(255,255,255,.06);
+  }
+  .edit-pixelate-controls{display:flex;flex-direction:column;gap:10px;}
+  .px-tool-strip{display:flex;gap:4px;}
+  .px-tool-strip .edit-preset-btn{flex:1;text-align:center;}
+  .edit-pixelate-help{
+    margin:0;font-size:.7rem;color:rgba(255,255,255,.5);line-height:1.4;
+  }
+
   .edit-bg-card{background:rgba(255,255,255,.03);border-radius:7px;padding:14px;text-align:center;}
   .edit-bg-card .bg-icon{font-size:1.5rem;margin-bottom:5px;}
   .edit-bg-card h3{margin:0 0 4px;font-size:.88rem;}
@@ -5237,6 +5278,7 @@ function _editTabsForType(t){
   tabs.push({ id: 'rotate', label: 'Rotate' });
   if (isPhoto) {
     tabs.push({ id: 'crop', label: 'Crop' });
+    tabs.push({ id: 'pixelate', label: 'Pixelate' });
     tabs.push({ id: 'bg', label: 'Background' });
   }
   return tabs;
@@ -5297,6 +5339,7 @@ function _switchEditTab(tabId){
   else if (tabId === 'bg') _renderBackgroundTab(body);
   else if (tabId === 'adjust') _renderAdjustTab(body);
   else if (tabId === 'crop') { _renderCropTab(body).catch(e => console.warn('[crop]', e)); }
+  else if (tabId === 'pixelate') { _renderPixelateTab(body).catch(e => console.warn('[pixelate]', e)); }
 }
 function cancelEdit(){
   document.body.dataset.editOpen = 'false';
@@ -5309,6 +5352,16 @@ function cancelEdit(){
   }
   _editState.framesState = null;
   _editState.bgState = null;
+  if (_editState.pendingEdits && _editState.pendingEdits.autoEnhancedUrl){
+    try { URL.revokeObjectURL(_editState.pendingEdits.autoEnhancedUrl); } catch(_){}
+  }
+  if (_editState._pxBitmap){
+    try { _editState._pxBitmap.close && _editState._pxBitmap.close(); } catch(_){}
+    _editState._pxBitmap = null;
+  }
+  _editState._pxBaseUrl && (function(){ try { URL.revokeObjectURL(_editState._pxBaseUrl); } catch(_){} })();
+  _editState._pxBaseUrl = null;
+  _editState._pxBaseBlob = null;
 }
 async function saveEdit(){
   const idx = _editState.idx;
@@ -5324,6 +5377,9 @@ async function saveEdit(){
     } else if (_editState.pendingEdits.bgRemoved) {
       workingBlob = _editState.pendingEdits.bgRemoved;
     } else {
+      if (_editState.pendingEdits.autoEnhanced) {
+        workingBlob = _editState.pendingEdits.autoEnhanced;
+      }
       if (_editState.pendingEdits.rotate) {
         workingBlob = await _applyRotation(workingBlob, _editState.pendingEdits.rotate);
       }
@@ -5332,6 +5388,9 @@ async function saveEdit(){
       }
       if (_editState.pendingEdits.photoCrop) {
         workingBlob = await _applyPhotoCrop(workingBlob, _editState.pendingEdits.photoCrop);
+      }
+      if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length) {
+        workingBlob = await _applyPixelate(workingBlob, _editState.pendingEdits.pixelate);
       }
     }
     newBlob = (workingBlob !== f.file) ? workingBlob : null;
@@ -5376,6 +5435,9 @@ function _editSnapshot(){
     photoAdjust: pe.photoAdjust ? { ...pe.photoAdjust } : null,
     photoCrop: pe.photoCrop ? { ...pe.photoCrop } : null,
     bgRemoved: pe.bgRemoved || null,
+    autoEnhanced: pe.autoEnhanced || null,
+    autoEnhancedUrl: pe.autoEnhancedUrl || null,
+    pixelate: pe.pixelate ? JSON.parse(JSON.stringify(pe.pixelate)) : null,
     gifEdit: pe.gifEdit ? JSON.parse(JSON.stringify(pe.gifEdit)) : null,
     rotateState: { ..._editState.rotateState },
   };
@@ -5386,6 +5448,11 @@ function _editRestore(snap){
   if (snap.photoAdjust) _editState.pendingEdits.photoAdjust = snap.photoAdjust;
   if (snap.photoCrop) _editState.pendingEdits.photoCrop = snap.photoCrop;
   if (snap.bgRemoved) _editState.pendingEdits.bgRemoved = snap.bgRemoved;
+  if (snap.autoEnhanced) {
+    _editState.pendingEdits.autoEnhanced = snap.autoEnhanced;
+    _editState.pendingEdits.autoEnhancedUrl = snap.autoEnhancedUrl;
+  }
+  if (snap.pixelate) _editState.pendingEdits.pixelate = snap.pixelate;
   if (snap.gifEdit) _editState.pendingEdits.gifEdit = snap.gifEdit;
   _editState.rotateState = { ...snap.rotateState };
 }
@@ -5418,6 +5485,11 @@ function _editResetAll(){
     try { URL.revokeObjectURL(_editState.bgState.previewUrl); } catch(_){}
   }
   _editState.bgState = null;
+  if (_editState._pxBitmap){
+    try { _editState._pxBitmap.close && _editState._pxBitmap.close(); } catch(_){}
+    _editState._pxBitmap = null;
+  }
+  if (_editState._pxBaseUrl){ try { URL.revokeObjectURL(_editState._pxBaseUrl); } catch(_){} _editState._pxBaseUrl = null; _editState._pxBaseBlob = null; }
   _updateEditHistoryUI();
   _reRenderEditTab();
 }
@@ -6135,9 +6207,15 @@ function _renderAdjustTab(body){
   const fmt = v => (v - 100 >= 0 ? '+' : '') + (v - 100);
   const adjPreviewCol = document.getElementById('editPreviewCol');
   if (adjPreviewCol) {
-    adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><img id="editAdjPreview" src="${f.url}" class="edit-adjust-preview" draggable="false"></div>`;
+    const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || f.url;
+    adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false"></div>`;
   }
+  const _aeOn = !!_editState.pendingEdits.autoEnhanced;
   body.innerHTML = `
+    <div class="edit-auto-enhance-row">
+      <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'✓ Auto Enhanced':'✨ Auto Enhance'}</button>
+      ${_aeOn?'<button type="button" class="edit-auto-enhance-undo" id="adjAutoEnhanceUndo">Undo</button>':''}
+    </div>
     <div class="edit-adjust-sliders">
       <div class="adj-row">
         <span class="adj-label">Brightness</span>
@@ -6195,6 +6273,41 @@ function _renderAdjustTab(body){
       _markDirty();
     });
   });
+  const aeBtn = document.getElementById('adjAutoEnhanceBtn');
+  if (aeBtn) {
+    aeBtn.addEventListener('click', async () => {
+      if (aeBtn.disabled) return;
+      aeBtn.disabled = true; aeBtn.textContent = 'Enhancing…';
+      _editPushUndo();
+      try {
+        const enhanced = await _runAutoEnhance(_editState.originalFile);
+        if (_editState.pendingEdits.autoEnhancedUrl) {
+          try { URL.revokeObjectURL(_editState.pendingEdits.autoEnhancedUrl); } catch(_){}
+        }
+        _editState.pendingEdits.autoEnhanced = enhanced;
+        _editState.pendingEdits.autoEnhancedUrl = URL.createObjectURL(enhanced);
+        _updateEditHistoryUI();
+        _reRenderEditTab();
+      } catch (err) {
+        console.warn('[auto-enhance]', err);
+        alert('Auto enhance failed: ' + (err.message || err));
+        aeBtn.disabled = false; aeBtn.textContent = '✨ Auto Enhance';
+      }
+    });
+  }
+  const aeUndo = document.getElementById('adjAutoEnhanceUndo');
+  if (aeUndo) {
+    aeUndo.addEventListener('click', () => {
+      _editPushUndo();
+      if (_editState.pendingEdits.autoEnhancedUrl) {
+        try { URL.revokeObjectURL(_editState.pendingEdits.autoEnhancedUrl); } catch(_){}
+      }
+      delete _editState.pendingEdits.autoEnhanced;
+      delete _editState.pendingEdits.autoEnhancedUrl;
+      _updateEditHistoryUI();
+      _reRenderEditTab();
+    });
+  }
 }
 async function _applyPhotoAdjust(file, adjInfo){
   const bmp = await createImageBitmap(file);
@@ -6368,6 +6481,341 @@ async function _applyPhotoCrop(file, cropInfo){
   const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
   return await new Promise((res,rej) => {
     canvas.toBlob(b => b ? res(b) : rej(new Error('crop encode failed')), mime, 0.95);
+  });
+}
+
+/* ---- ROUND 6: AUTO-ENHANCE (gray-world WB + percentile auto-levels + sat) ---- */
+async function _runAutoEnhance(file){
+  const bmp = await createImageBitmap(file);
+  const W = bmp.width, H = bmp.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bmp, 0, 0);
+  try { bmp.close && bmp.close(); } catch(_){}
+  const imgData = ctx.getImageData(0, 0, W, H);
+  _autoEnhanceData(imgData);
+  ctx.putImageData(imgData, 0, 0);
+  const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
+  return await new Promise((res, rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('auto-enhance encode failed')), mime, 0.95);
+  });
+}
+function _autoEnhanceData(imgData){
+  const d = imgData.data, n = d.length, px = (n >> 2) || 1;
+  /* 1. Gray-world white balance (tamed) */
+  let sumR = 0, sumG = 0, sumB = 0;
+  for (let i = 0; i < n; i += 4){ sumR += d[i]; sumG += d[i+1]; sumB += d[i+2]; }
+  const mR = sumR / px, mG = sumG / px, mB = sumB / px;
+  const gray = (mR + mG + mB) / 3;
+  const tame = v => Math.min(1.45, Math.max(0.70, v));
+  const cR = tame(gray / Math.max(mR, 1e-3));
+  const cG = tame(gray / Math.max(mG, 1e-3));
+  const cB = tame(gray / Math.max(mB, 1e-3));
+  for (let i = 0; i < n; i += 4){
+    let r = d[i] * cR, g = d[i+1] * cG, b = d[i+2] * cB;
+    d[i]   = r < 0 ? 0 : (r > 255 ? 255 : r);
+    d[i+1] = g < 0 ? 0 : (g > 255 ? 255 : g);
+    d[i+2] = b < 0 ? 0 : (b > 255 ? 255 : b);
+  }
+  /* 2. Per-channel auto-levels (0.5% / 99.5% percentile clip) */
+  const histR = new Uint32Array(256), histG = new Uint32Array(256), histB = new Uint32Array(256);
+  for (let i = 0; i < n; i += 4){ histR[d[i]]++; histG[d[i+1]]++; histB[d[i+2]]++; }
+  function pct(hist){
+    const lo = px * 0.005, hi = px * 0.995;
+    let cum = 0, loV = 0, hiV = 255, foundLo = false;
+    for (let v = 0; v < 256; v++){
+      cum += hist[v];
+      if (!foundLo && cum >= lo){ loV = v; foundLo = true; }
+      if (cum >= hi){ hiV = v; break; }
+    }
+    if (hiV <= loV) hiV = loV + 1;
+    return [loV, hiV];
+  }
+  const [rLo, rHi] = pct(histR);
+  const [gLo, gHi] = pct(histG);
+  const [bLo, bHi] = pct(histB);
+  const lutR = new Uint8ClampedArray(256), lutG = new Uint8ClampedArray(256), lutB = new Uint8ClampedArray(256);
+  const rS = 255 / (rHi - rLo), gS = 255 / (gHi - gLo), bS = 255 / (bHi - bLo);
+  for (let v = 0; v < 256; v++){
+    lutR[v] = (v - rLo) * rS;
+    lutG[v] = (v - gLo) * gS;
+    lutB[v] = (v - bLo) * bS;
+  }
+  for (let i = 0; i < n; i += 4){
+    d[i] = lutR[d[i]]; d[i+1] = lutG[d[i+1]]; d[i+2] = lutB[d[i+2]];
+  }
+  /* 3. Modest saturation bump (+15%) via luma-preserving scale */
+  const sat = 1.15;
+  for (let i = 0; i < n; i += 4){
+    const r = d[i], g = d[i+1], b = d[i+2];
+    const Y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    let nr = Y + (r - Y) * sat;
+    let ng = Y + (g - Y) * sat;
+    let nb = Y + (b - Y) * sat;
+    d[i]   = nr < 0 ? 0 : (nr > 255 ? 255 : nr);
+    d[i+1] = ng < 0 ? 0 : (ng > 255 ? 255 : ng);
+    d[i+2] = nb < 0 ? 0 : (nb > 255 ? 255 : nb);
+  }
+  return imgData;
+}
+
+/* ---- ROUND 6: PIXELATE TAB (brush-based mosaic redaction) ---- */
+async function _pxBaseBlob(){
+  /* Build the snapshot that pixelate is layered on top of:
+     applies auto-enhance + rotate + adjust + crop to the original file.
+     Cached on _editState until upstream edits change. */
+  const pe = _editState.pendingEdits;
+  const sig = JSON.stringify({
+    a: !!pe.autoEnhanced,
+    r: pe.rotate || null,
+    j: pe.photoAdjust && pe.photoAdjust._dirty ? pe.photoAdjust : null,
+    c: pe.photoCrop || null
+  });
+  if (_editState._pxBaseSig === sig && _editState._pxBaseBlob){
+    return _editState._pxBaseBlob;
+  }
+  let blob = _editState.originalFile;
+  if (pe.autoEnhanced) blob = pe.autoEnhanced;
+  if (pe.rotate) blob = await _applyRotation(blob, pe.rotate);
+  if (pe.photoAdjust && pe.photoAdjust._dirty) blob = await _applyPhotoAdjust(blob, pe.photoAdjust);
+  if (pe.photoCrop) blob = await _applyPhotoCrop(blob, pe.photoCrop);
+  if (_editState._pxBaseUrl){ try { URL.revokeObjectURL(_editState._pxBaseUrl); } catch(_){} }
+  _editState._pxBaseBlob = blob;
+  _editState._pxBaseUrl = URL.createObjectURL(blob);
+  _editState._pxBaseSig = sig;
+  if (_editState._pxBitmap){ try { _editState._pxBitmap.close && _editState._pxBitmap.close(); } catch(_){} }
+  _editState._pxBitmap = null;
+  return blob;
+}
+async function _renderPixelateTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  if (!_editState.pendingEdits.pixelate){
+    _editState.pendingEdits.pixelate = { strokes: [], blockSize: 14, brushPx: 38, mode: 'paint' };
+  }
+  const px = _editState.pendingEdits.pixelate;
+  const previewCol = document.getElementById('editPreviewCol');
+  if (previewCol){
+    previewCol.innerHTML = '<div class="edit-pixelate-wrap"><canvas id="editPixelateCanvas" class="edit-pixelate-canvas"></canvas></div>';
+  }
+  body.innerHTML = ''
+    + '<div class="edit-pixelate-controls">'
+    +   '<div class="px-tool-strip">'
+    +     '<button type="button" class="edit-preset-btn' + (px.mode==='paint'?' active':'') + '" data-px-mode="paint">Paint</button>'
+    +     '<button type="button" class="edit-preset-btn' + (px.mode==='erase'?' active':'') + '" data-px-mode="erase">Erase</button>'
+    +   '</div>'
+    +   '<div class="adj-row">'
+    +     '<span class="adj-label">Brush</span>'
+    +     '<input type="range" id="pxBrush" min="6" max="160" step="1" value="' + px.brushPx + '">'
+    +     '<span class="adj-val" id="pxBrushVal">' + px.brushPx + '</span>'
+    +   '</div>'
+    +   '<div class="adj-row">'
+    +     '<span class="adj-label">Block</span>'
+    +     '<input type="range" id="pxBlock" min="4" max="60" step="1" value="' + px.blockSize + '">'
+    +     '<span class="adj-val" id="pxBlockVal">' + px.blockSize + '</span>'
+    +   '</div>'
+    +   '<button type="button" class="edit-frames-action-btn" id="pxClear">Clear all</button>'
+    +   '<p class="edit-pixelate-help">Drag over the image to redact regions. Switch to Erase to clear pixelation from areas.</p>'
+    + '</div>';
+  /* Build preview source (applies upstream edits) */
+  await _pxBaseBlob();
+  let bmp = _editState._pxBitmap;
+  if (!bmp){
+    bmp = await createImageBitmap(_editState._pxBaseBlob);
+    _editState._pxBitmap = bmp;
+  }
+  const canvas = document.getElementById('editPixelateCanvas');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  function fitDims(){
+    const cw = (wrap.clientWidth || 800);
+    const ch = (wrap.clientHeight || 600);
+    const ratio = bmp.width / bmp.height;
+    let dw = cw, dh = cw / ratio;
+    if (dh > ch){ dh = ch; dw = ch * ratio; }
+    return { dw: Math.max(1, Math.floor(dw)), dh: Math.max(1, Math.floor(dh)) };
+  }
+  const dims = fitDims();
+  const dw = dims.dw, dh = dims.dh;
+  canvas.width = dw; canvas.height = dh;
+  canvas.style.width = dw + 'px'; canvas.style.height = dh + 'px';
+  function buildPixelatedPreview(blockSrc){
+    const sx = dw / bmp.width;
+    const block = Math.max(2, Math.round(blockSrc * sx));
+    const tw = Math.max(1, Math.floor(dw / block));
+    const th = Math.max(1, Math.floor(dh / block));
+    const tiny = document.createElement('canvas');
+    tiny.width = tw; tiny.height = th;
+    const tctx = tiny.getContext('2d');
+    tctx.imageSmoothingEnabled = false;
+    tctx.drawImage(bmp, 0, 0, tw, th);
+    const out = document.createElement('canvas');
+    out.width = dw; out.height = dh;
+    const octx = out.getContext('2d');
+    octx.imageSmoothingEnabled = false;
+    octx.drawImage(tiny, 0, 0, tw, th, 0, 0, dw, dh);
+    return out;
+  }
+  let pixCache = null, pixCacheBlock = -1;
+  function getPix(){
+    if (pixCache && pixCacheBlock === px.blockSize) return pixCache;
+    pixCache = buildPixelatedPreview(px.blockSize);
+    pixCacheBlock = px.blockSize;
+    return pixCache;
+  }
+  const mask = document.createElement('canvas');
+  mask.width = dw; mask.height = dh;
+  const mctx = mask.getContext('2d');
+  function drawStrokeAt(ctxM, stk, scaleX, scaleY){
+    ctxM.fillStyle = '#fff';
+    ctxM.strokeStyle = '#fff';
+    ctxM.globalCompositeOperation = (stk.mode === 'erase') ? 'destination-out' : 'source-over';
+    const minD = Math.min(scaleX, scaleY);
+    for (let i = 0; i < stk.pts.length; i++){
+      const p = stk.pts[i];
+      const x = p.x * scaleX, y = p.y * scaleY, r = p.r * minD;
+      ctxM.beginPath(); ctxM.arc(x, y, r, 0, Math.PI * 2); ctxM.fill();
+      if (i > 0){
+        const prev = stk.pts[i-1];
+        const px0 = prev.x * scaleX, py0 = prev.y * scaleY;
+        ctxM.lineWidth = r * 2; ctxM.lineCap = 'round';
+        ctxM.beginPath(); ctxM.moveTo(px0, py0); ctxM.lineTo(x, y); ctxM.stroke();
+      }
+    }
+    ctxM.globalCompositeOperation = 'source-over';
+  }
+  function replay(){
+    mctx.clearRect(0, 0, dw, dh);
+    px.strokes.forEach(stk => drawStrokeAt(mctx, stk, dw, dh));
+  }
+  const ctx = canvas.getContext('2d');
+  function render(){
+    ctx.clearRect(0, 0, dw, dh);
+    ctx.drawImage(bmp, 0, 0, dw, dh);
+    replay();
+    const pix = getPix();
+    const tmp = document.createElement('canvas');
+    tmp.width = dw; tmp.height = dh;
+    const tctx = tmp.getContext('2d');
+    tctx.drawImage(pix, 0, 0);
+    tctx.globalCompositeOperation = 'destination-in';
+    tctx.drawImage(mask, 0, 0);
+    ctx.drawImage(tmp, 0, 0);
+  }
+  render();
+  let painting = false, curStroke = null;
+  function ptFromEv(ev){
+    const rect = canvas.getBoundingClientRect();
+    const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+    const cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - rect.top;
+    return { x: cx / dw, y: cy / dh, r: (px.brushPx / 2) / Math.min(dw, dh) };
+  }
+  function down(ev){
+    ev.preventDefault();
+    _editPushUndo();
+    painting = true;
+    curStroke = { mode: px.mode, pts: [ptFromEv(ev)] };
+    px.strokes.push(curStroke);
+    render();
+    _updateEditHistoryUI();
+  }
+  function move(ev){
+    if (!painting) return;
+    ev.preventDefault();
+    curStroke.pts.push(ptFromEv(ev));
+    render();
+  }
+  function up(){ painting = false; curStroke = null; }
+  canvas.addEventListener('mousedown', down);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', up);
+  canvas.addEventListener('touchstart', down, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  window.addEventListener('touchend', up);
+  document.querySelectorAll('#editBody [data-px-mode]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#editBody [data-px-mode]').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      px.mode = b.dataset.pxMode;
+    });
+  });
+  const brushSl = document.getElementById('pxBrush');
+  const brushVal = document.getElementById('pxBrushVal');
+  brushSl.addEventListener('input', () => {
+    px.brushPx = parseInt(brushSl.value, 10);
+    brushVal.textContent = px.brushPx;
+  });
+  const blockSl = document.getElementById('pxBlock');
+  const blockVal = document.getElementById('pxBlockVal');
+  blockSl.addEventListener('input', () => {
+    px.blockSize = parseInt(blockSl.value, 10);
+    blockVal.textContent = px.blockSize;
+    pixCache = null;
+    render();
+  });
+  blockSl.addEventListener('change', () => { _editPushUndo(); });
+  document.getElementById('pxClear').addEventListener('click', () => {
+    if (!px.strokes.length) return;
+    _editPushUndo();
+    px.strokes = [];
+    render();
+    _updateEditHistoryUI();
+  });
+}
+async function _applyPixelate(file, pixInfo){
+  if (!pixInfo || !pixInfo.strokes || !pixInfo.strokes.length) return file;
+  const bmp = await createImageBitmap(file);
+  const W = bmp.width, H = bmp.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bmp, 0, 0);
+  const block = Math.max(2, pixInfo.blockSize | 0);
+  const tw = Math.max(1, Math.floor(W / block));
+  const th = Math.max(1, Math.floor(H / block));
+  const tiny = document.createElement('canvas');
+  tiny.width = tw; tiny.height = th;
+  const tctx = tiny.getContext('2d');
+  tctx.imageSmoothingEnabled = false;
+  tctx.drawImage(bmp, 0, 0, tw, th);
+  const pix = document.createElement('canvas');
+  pix.width = W; pix.height = H;
+  const pctx = pix.getContext('2d');
+  pctx.imageSmoothingEnabled = false;
+  pctx.drawImage(tiny, 0, 0, tw, th, 0, 0, W, H);
+  const mask = document.createElement('canvas');
+  mask.width = W; mask.height = H;
+  const mctx = mask.getContext('2d');
+  pixInfo.strokes.forEach(stk => {
+    mctx.fillStyle = '#fff';
+    mctx.strokeStyle = '#fff';
+    mctx.globalCompositeOperation = (stk.mode === 'erase') ? 'destination-out' : 'source-over';
+    const minD = Math.min(W, H);
+    for (let i = 0; i < stk.pts.length; i++){
+      const p = stk.pts[i];
+      const x = p.x * W, y = p.y * H, r = p.r * minD;
+      mctx.beginPath(); mctx.arc(x, y, r, 0, Math.PI * 2); mctx.fill();
+      if (i > 0){
+        const prev = stk.pts[i-1];
+        const px0 = prev.x * W, py0 = prev.y * H;
+        mctx.lineWidth = r * 2; mctx.lineCap = 'round';
+        mctx.beginPath(); mctx.moveTo(px0, py0); mctx.lineTo(x, y); mctx.stroke();
+      }
+    }
+    mctx.globalCompositeOperation = 'source-over';
+  });
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = H;
+  const ttctx = tmp.getContext('2d');
+  ttctx.drawImage(pix, 0, 0);
+  ttctx.globalCompositeOperation = 'destination-in';
+  ttctx.drawImage(mask, 0, 0);
+  ctx.drawImage(tmp, 0, 0);
+  try { bmp.close && bmp.close(); } catch(_){}
+  const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
+  return await new Promise((res, rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('pixelate encode failed')), mime, 0.95);
   });
 }
 
