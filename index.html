@@ -2194,6 +2194,18 @@
      2-column: image preview fills left, 300px panel on right.
      imgready design language: dark canvas, image is the hero.
      Single 48px header row. ══════════════════════════════ */
+  /* Round 11: inline Lucide icon helper. Inherits color via currentColor. */
+  .ico{
+    display:inline-block;width:1em;height:1em;
+    vertical-align:-.16em;flex-shrink:0;
+    fill:none;stroke:currentColor;stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+  .ico.ico-sm{width:.85em;height:.85em;}
+  .ico.ico-lg{width:1.4em;height:1.4em;}
+  /* Buttons that combine icon + label keep a small gap. */
+  .edit-modal button .ico{margin-right:5px;}
+  .edit-modal button.btn-icon .ico{margin:0;width:1.05em;height:1.05em;}
   .edit-modal{
     position:fixed;inset:0;z-index:9000;
     background:#0d0d10;
@@ -2892,6 +2904,22 @@
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
+<!-- Lucide icon sprite (ISC — https://github.com/lucide-icons/lucide/blob/main/LICENSE). Hidden inert SVG; <use href="#i-name"> references each <symbol>. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-rotate-cw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></symbol>
+    <symbol id="i-rotate-ccw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9c-2.52 0-4.93 1-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-flip-horizontal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 20v2"/><path d="M12 14v2"/><path d="M12 8v2"/><path d="M12 2v2"/></symbol>
+    <symbol id="i-flip-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3"/><path d="M4 12H2"/><path d="M10 12H8"/><path d="M16 12h-2"/><path d="M22 12h-2"/></symbol>
+    <symbol id="i-scissors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></symbol>
+    <symbol id="i-wand-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></symbol>
+    <symbol id="i-arrow-left-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13"/></symbol>
+  </defs>
+</svg>
 <!-- Polite live region for screen-reader announcements (file added,
      encode complete, errors). Visually hidden via .sr-only. -->
 <div id="srAnnounce" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -3722,11 +3750,13 @@ async function addFilesFromList(fileList){
        correct dimensions without needing createImageBitmap on the HEIC
        (which most browsers can't do). */
     let entryUrl, entryDims = null;
+    let decodedBlob = null;
     if (isHeicEntry) {
       try {
         const { blob, w, h } = await _decodeHeicInline(file);
         entryUrl = URL.createObjectURL(blob);
         entryDims = { w, h };
+        decodedBlob = blob;   /* Round 11: stash for Edit-mode createImageBitmap */
       } catch (err) {
         console.warn('[heic-decode] failed for', file.name, err);
         entryUrl = URL.createObjectURL(file);
@@ -3736,6 +3766,7 @@ async function addFilesFromList(fileList){
     }
     const entry = { file, url: entryUrl, name: file.name };
     if (entryDims) entry.dims = entryDims;
+    if (decodedBlob) entry.decodedBlob = decodedBlob;
     fresh.push(entry);
   }
   /* Feedback when ALL files were rejected (user dropped non-images).
@@ -5502,7 +5533,13 @@ function openEditMode(idx){
   const f = FILES[idx];
   _editState.active = true;
   _editState.idx = idx;
-  _editState.originalFile = f.file;
+  /* Round 11 HEIC fix: most canvas paths (createImageBitmap, autoEnhance,
+   * bgRefine, save pipeline) call into the originalFile blob directly. Raw
+   * HEIC blobs are NOT decodable by Chrome/Firefox/Edge — only Safari does
+   * it natively. We already decoded HEIC to a JPEG blob in addFilesFromList
+   * (stored as f.decodedBlob). Use that here. f.file remains the original
+   * HEIC for metadata + encoder-level use. */
+  _editState.originalFile = f.decodedBlob || f.file;
   _editState.originalUrl = f.url;
   _editState.fileType = _detectEditFileType(f.file);
   _editState.pendingEdits = {};
@@ -5795,7 +5832,7 @@ function _ensureSplitUi(){
     btn.type = 'button';
     btn.className = 'edit-split-btn';
     btn.id = 'editSplitBtn';
-    btn.textContent = '\u21C4 Compare';
+    btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg>Compare';
     btn.addEventListener('click', _toggleSplitCompare);
     col.appendChild(btn);
   }
@@ -5819,13 +5856,13 @@ function _ensureSplitUi(){
   if (_editState._splitActive){
     ov.classList.add('active');
     btn.classList.add('active');
-    btn.textContent = '\u2715 Exit compare';
+    btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-x"/></svg>Exit compare';
     const img = ov.querySelector('#editSplitImg');
     if (img && _editState.originalUrl) img.src = _editState.originalUrl;
   } else {
     ov.classList.remove('active');
     btn.classList.remove('active');
-    btn.textContent = '\u21C4 Compare';
+    btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg>Compare';
   }
   /* One-shot delegated listeners on #editBody so the Compare button enables/disables
    * after the user mutates state via clicks, slider input/change, or programmatic changes. */
@@ -5959,11 +5996,11 @@ function _renderRotateTab(body){
   }
   body.innerHTML = `
     <div class="edit-rotate-row">
-      <button type="button" class="edit-rotate-btn" data-rot="cw">\u21bb 90\u00b0 CW</button>
-      <button type="button" class="edit-rotate-btn" data-rot="ccw">\u21ba 90\u00b0 CCW</button>
-      <button type="button" class="edit-rotate-btn" data-rot="180">\u21bb 180\u00b0</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fh">\u2194 Flip H</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fv">\u2195 Flip V</button>
+      <button type="button" class="edit-rotate-btn" data-rot="cw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>90\u00b0 CW</button>
+      <button type="button" class="edit-rotate-btn" data-rot="ccw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>90\u00b0 CCW</button>
+      <button type="button" class="edit-rotate-btn" data-rot="180"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>180\u00b0</button>
+      <button type="button" class="edit-rotate-btn" data-rot="fh"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg>Flip H</button>
+      <button type="button" class="edit-rotate-btn" data-rot="fv"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg>Flip V</button>
       <button type="button" class="edit-rotate-btn" data-rot="reset">Reset</button>
     </div>
   `;
@@ -6067,7 +6104,7 @@ async function _renderFramesTab(body){
   if (!fs.opt) fs.opt = { paletteSize: 256, colorFormat: 'rgb565', dedupe: false };
   body.innerHTML = `
     <div class="edit-frames-actions">
-      <button type="button" class="edit-frames-action-btn" data-act="reverse">\u21bb Reverse all frames</button>
+      <button type="button" class="edit-frames-action-btn" data-act="reverse"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>Reverse all frames</button>
       <button type="button" class="edit-frames-action-btn" data-act="resetDelays">Reset delays to original</button>
     </div>
     <div class="edit-frames-strip" id="editFramesStrip"></div>
@@ -6573,7 +6610,7 @@ function _renderBackgroundTab(body){
   const hqHint  = 'WebGPU ~110 MB (fp16) · WASM ~214 MB (fp32) · Finer hair / edges, slower';
   body.innerHTML = ''
     + '<div class="edit-bg-card">'
-    +   '<div class="bg-icon">✂️</div>'
+    +   '<div class="bg-icon"><svg class="ico ico-lg" aria-hidden="true"><use href="#i-scissors"/></svg></div>'
     +   '<h3>Remove Background</h3>'
     +   '<p id="bgModelTag">' + (mode === 'hq'
           ? 'BiRefNet_lite-ONNX · MIT'
@@ -6604,7 +6641,7 @@ function _renderBackgroundTab(body){
     const origThumb = document.getElementById('bgOrigThumb');
     if (origThumb) origThumb.src = f.url;
   } else {
-    successMsg.textContent = '✓ Background removed — click Save to apply.';
+    successMsg.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Background removed — click Save to apply.';
     successMsg.style.color = '#6fcf97';
     successMsg.style.display = '';
     _initBgRefine().catch(e => console.warn('[bg-refine]', e));
@@ -6676,7 +6713,7 @@ function _renderBackgroundTab(body){
       setTimeout(() => {
         progressWr.style.display = 'none';
         runBtn.disabled = false;
-        runBtn.textContent = '↺ Remove Again';
+        runBtn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>Remove again';
         _reRenderEditTab();
       }, 500);
 
@@ -6977,7 +7014,7 @@ function _renderAdjustTab(body){
   const _aeOn = !!_editState.pendingEdits.autoEnhanced;
   body.innerHTML = `
     <div class="edit-auto-enhance-row">
-      <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'✓ Auto Enhanced':'✨ Auto Enhance'}</button>
+      <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Auto enhanced':'<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance'}</button>
       ${_aeOn?'<button type="button" class="edit-auto-enhance-undo" id="adjAutoEnhanceUndo">Undo</button>':''}
     </div>
     <div class="edit-adjust-sliders">
@@ -7055,7 +7092,7 @@ function _renderAdjustTab(body){
       } catch (err) {
         console.warn('[auto-enhance]', err);
         alert('Auto enhance failed: ' + (err.message || err));
-        aeBtn.disabled = false; aeBtn.textContent = '✨ Auto Enhance';
+        aeBtn.disabled = false; aeBtn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance';
       }
     });
   }
@@ -7229,7 +7266,7 @@ async function _renderCropTab(body){
       aspect: crop.aspect
     };
     const btn = document.getElementById('editCropApplyBtn');
-    if (btn){ btn.textContent = '✓ Crop applied'; btn.style.background='rgba(60,160,60,.2)'; btn.style.borderColor='rgba(60,200,60,.3)'; }
+    if (btn){ btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Crop applied'; btn.style.background='rgba(60,160,60,.2)'; btn.style.borderColor='rgba(60,200,60,.3)'; }
   });
   drawCrop();
 }
@@ -9954,8 +9991,8 @@ function doClear(){
           <span class="edit-size-info" id="editSizeInfo"></span>
           <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
           <div class="edit-history-btns">
-            <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)">↶</button>
-            <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)">↷</button>
+            <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
+            <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
           </div>
           <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
           <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
