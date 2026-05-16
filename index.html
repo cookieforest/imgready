@@ -5772,12 +5772,14 @@ function _editHasAnyEdit(){
   if (r.deg || r.angle || r.flipH || r.flipV) return true;
   const pe = _editState.pendingEdits || {};
   if (pe.bgRemoved || pe.bgRefine) return true;
-  if (pe.adjust && (pe.adjust.brightness || pe.adjust.contrast || pe.adjust.saturation || (pe.adjust.preset && pe.adjust.preset !== 'original'))) return true;
-  if (pe.crop) return true;
+  if (pe.photoAdjust && (pe.photoAdjust.brightness || pe.photoAdjust.contrast || pe.photoAdjust.saturation || (pe.photoAdjust.preset && pe.photoAdjust.preset !== 'original'))) return true;
+  if (pe.photoCrop) return true;
+  if (pe.rotate) return true;
   if (pe.autoEnhanced) return true;
   if (pe.pixelate && Array.isArray(pe.pixelate.strokes) && pe.pixelate.strokes.length) return true;
   if (pe.textOverlays && Array.isArray(pe.textOverlays) && pe.textOverlays.length) return true;
-  /* For GIF: any frame structure mutation counts. */
+  /* GIF: any frame-level mutation surfaces as pendingEdits.gifEdit OR a dirty flag on framesState. */
+  if (pe.gifEdit) return true;
   if (_editState.framesState && _editState.framesState.dirty) return true;
   return false;
 }
