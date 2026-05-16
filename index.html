@@ -2383,6 +2383,46 @@
     font-size:.9rem;font-weight:700;cursor:pointer;
   }
   .edit-bg-run:disabled{opacity:.5;cursor:not-allowed;}
+  /* Round 2 — Adjust tab */
+  .edit-adjust-preview-wrap{
+    flex:1;min-height:180px;max-height:48vh;
+    display:flex;align-items:center;justify-content:center;
+    background:#0a0a0c;border-radius:10px;margin-bottom:14px;overflow:hidden;
+  }
+  .edit-adjust-preview{
+    max-width:100%;max-height:48vh;object-fit:contain;
+    display:block;transition:filter .1s ease;
+  }
+  .edit-adjust-sliders{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+  .adj-row{display:grid;grid-template-columns:88px 1fr 44px;gap:8px;align-items:center;}
+  .adj-label{font-size:.8rem;color:rgba(255,255,255,.65);}
+  .adj-val{font-size:.8rem;color:#fff;text-align:right;font-variant-numeric:tabular-nums;}
+  .adj-row input[type=range]{width:100%;}
+  .edit-preset-strip{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+  .edit-angle-row{
+    display:flex;align-items:center;gap:8px;
+    margin:0 0 14px;padding:10px 14px;
+    background:rgba(255,255,255,.03);border-radius:8px;
+  }
+  .edit-angle-row input[type=range]{flex:1;}
+  .edit-preset-btn{
+    padding:7px 13px;border-radius:7px;
+    background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);
+    border:1px solid rgba(255,255,255,.12);cursor:pointer;
+    font-size:.78rem;transition:background .1s,color .1s,border-color .1s;
+  }
+  .edit-preset-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
+  .edit-preset-btn.active{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.28);}
+  /* Round 2 — Crop tab */
+  .edit-crop-presets{
+    display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px;
+  }
+  .edit-crop-canvas-wrap{
+    display:flex;align-items:center;justify-content:center;
+    background:#0a0a0c;border-radius:10px;overflow:hidden;min-height:140px;
+    flex:1;
+  }
+
   body[data-edit-open="true"] .menu-card,
   body[data-edit-open="true"] .pi-actions{pointer-events:none;}
   @media (max-width: 600px){
@@ -5125,7 +5165,7 @@ const _editState = {
   active: false, idx: -1,
   originalFile: null, originalUrl: null, fileType: null,
   pendingEdits: {},
-  rotateState: { deg: 0, flipH: false, flipV: false },
+  rotateState: { deg: 0, flipH: false, flipV: false, angle: 0 },
   framesState: null, bgState: null,
 };
 function _detectEditFileType(file){
@@ -5144,9 +5184,13 @@ function _detectEditFileType(file){
   return 'other';
 }
 function _editTabsForType(t){
-  const tabs = [{ id: 'rotate', label: 'Rotate' }];
-  if (t === 'gif') tabs.unshift({ id: 'frames', label: 'Frames' });
-  if (t === 'png' || t === 'jpg' || t === 'webp' || t === 'avif' || t === 'heic') {
+  const isPhoto = (t === 'png' || t === 'jpg' || t === 'webp' || t === 'avif' || t === 'heic');
+  const tabs = [];
+  if (t === 'gif') tabs.push({ id: 'frames', label: 'Frames' });
+  if (isPhoto) tabs.push({ id: 'adjust', label: 'Adjust' });
+  tabs.push({ id: 'rotate', label: 'Rotate' });
+  if (isPhoto) {
+    tabs.push({ id: 'crop', label: 'Crop' });
     tabs.push({ id: 'bg', label: 'Background' });
   }
   return tabs;
@@ -5166,7 +5210,7 @@ function openEditMode(idx){
   _editState.originalUrl = f.url;
   _editState.fileType = _detectEditFileType(f.file);
   _editState.pendingEdits = {};
-  _editState.rotateState = { deg: 0, flipH: false, flipV: false };
+  _editState.rotateState = { deg: 0, flipH: false, flipV: false, angle: 0 };
   _editState.framesState = null;
   _editState.bgState = null;
   document.body.dataset.editOpen = 'true';
@@ -5198,6 +5242,8 @@ function _switchEditTab(tabId){
   if (tabId === 'rotate') _renderRotateTab(body);
   else if (tabId === 'frames') _renderFramesTab(body);
   else if (tabId === 'bg') _renderBackgroundTab(body);
+  else if (tabId === 'adjust') _renderAdjustTab(body);
+  else if (tabId === 'crop') { _renderCropTab(body).catch(e => console.warn('[crop]', e)); }
 }
 function cancelEdit(){
   document.body.dataset.editOpen = 'false';
@@ -5219,13 +5265,23 @@ async function saveEdit(){
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving\u2026'; }
   let newBlob = null;
   try {
-    if (_editState.pendingEdits.rotate) {
-      newBlob = await _applyRotation(f.file, _editState.pendingEdits.rotate);
-    } else if (_editState.pendingEdits.gifEdit) {
-      newBlob = await _applyGifEdit(f.file, _editState.pendingEdits.gifEdit);
+    let workingBlob = f.file;
+    if (_editState.pendingEdits.gifEdit) {
+      workingBlob = await _applyGifEdit(f.file, _editState.pendingEdits.gifEdit);
     } else if (_editState.pendingEdits.bgRemoved) {
-      newBlob = _editState.pendingEdits.bgRemoved;
+      workingBlob = _editState.pendingEdits.bgRemoved;
+    } else {
+      if (_editState.pendingEdits.rotate) {
+        workingBlob = await _applyRotation(workingBlob, _editState.pendingEdits.rotate);
+      }
+      if (_editState.pendingEdits.photoAdjust && _editState.pendingEdits.photoAdjust._dirty) {
+        workingBlob = await _applyPhotoAdjust(workingBlob, _editState.pendingEdits.photoAdjust);
+      }
+      if (_editState.pendingEdits.photoCrop) {
+        workingBlob = await _applyPhotoCrop(workingBlob, _editState.pendingEdits.photoCrop);
+      }
     }
+    newBlob = (workingBlob !== f.file) ? workingBlob : null;
   } catch (err) {
     console.warn('[edit] save failed', err);
     alert('Edit failed: ' + (err.message || err));
@@ -5277,7 +5333,22 @@ function _renderRotateTab(body){
     </div>
     <div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${f.url}');"></div>
   `;
+  // Inject angle slider below the button row
+  const angleRow = document.createElement('div');
+  angleRow.className = 'edit-angle-row';
+  angleRow.innerHTML = `<label class="adj-label" style="min-width:52px;">Angle</label>
+    <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
+    <span id="editAngleVal" class="adj-val" style="min-width:42px;">${_editState.rotateState.angle}°</span>`;
+  body.querySelector('.edit-rotate-row').after(angleRow);
   const preview = body.querySelector('#editRotatePreview');
+  function _updateRot(){
+    const rs = _editState.rotateState;
+    const total = (rs.deg + rs.angle + 360) % 360;
+    const tx = `rotate(${total}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`;
+    preview.style.transform = tx;
+    const dirty = rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0;
+    _editState.pendingEdits.rotate = dirty ? { deg: total, flipH: rs.flipH, flipV: rs.flipV } : null;
+  }
   body.querySelectorAll('.edit-rotate-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const rs = _editState.rotateState;
@@ -5287,27 +5358,42 @@ function _renderRotateTab(body){
         case '180':   rs.deg = (rs.deg + 180) % 360; break;
         case 'fh':    rs.flipH = !rs.flipH; break;
         case 'fv':    rs.flipV = !rs.flipV; break;
-        case 'reset': rs.deg = 0; rs.flipH = false; rs.flipV = false; break;
+        case 'reset': rs.deg = 0; rs.flipH = false; rs.flipV = false; rs.angle = 0;
+          const sl2 = body.querySelector('#editAngleSlider');
+          const vl2 = body.querySelector('#editAngleVal');
+          if (sl2) sl2.value = 0;
+          if (vl2) vl2.textContent = '0°';
+          break;
       }
-      const tx = `rotate(${rs.deg}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`;
-      preview.style.transform = tx;
-      const dirty = rs.deg !== 0 || rs.flipH || rs.flipV;
-      _editState.pendingEdits.rotate = dirty ? { deg: rs.deg, flipH: rs.flipH, flipV: rs.flipV } : null;
+      _updateRot();
     });
   });
+  const slider = body.querySelector('#editAngleSlider');
+  const valLabel = body.querySelector('#editAngleVal');
+  if (slider) {
+    slider.addEventListener('input', () => {
+      _editState.rotateState.angle = parseInt(slider.value, 10);
+      if (valLabel) valLabel.textContent = slider.value + '°';
+      _updateRot();
+    });
+  }
 }
 async function _applyRotation(file, rotation){
   const bmp = await createImageBitmap(file);
   const w = bmp.width, h = bmp.height;
   const deg = rotation.deg || 0;
-  const swap = (deg === 90 || deg === 270);
+  const rad = deg * Math.PI / 180;
+  const sinA = Math.abs(Math.sin(rad));
+  const cosA = Math.abs(Math.cos(rad));
+  const newW = Math.round(w * cosA + h * sinA);
+  const newH = Math.round(w * sinA + h * cosA);
   const canvas = document.createElement('canvas');
-  canvas.width = swap ? h : w;
-  canvas.height = swap ? w : h;
+  canvas.width = newW;
+  canvas.height = newH;
   const ctx = canvas.getContext('2d');
   ctx.save();
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate(deg * Math.PI / 180);
+  ctx.translate(newW / 2, newH / 2);
+  ctx.rotate(rad);
   ctx.scale(rotation.flipH ? -1 : 1, rotation.flipV ? -1 : 1);
   ctx.drawImage(bmp, -w / 2, -h / 2);
   ctx.restore();
@@ -5703,6 +5789,259 @@ function _renderBackgroundTab(body){
       <p style="margin-top:10px;font-size:.74rem;color:rgba(255,255,255,.4);">First run downloads the model (~42 MB) and caches it. Subsequent runs are instant.</p>
     </div>
   `;
+}
+
+
+/* ---- ADJUST TAB (photo: brightness / contrast / saturation / filter presets) ---- */
+function _renderAdjustTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  if (!_editState.pendingEdits.photoAdjust) {
+    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false };
+  }
+  const adj = _editState.pendingEdits.photoAdjust;
+  const PRESETS = [
+    { id: 'none',    label: 'Original', css: '' },
+    { id: 'bw',      label: 'B&W',      css: 'grayscale(100%)' },
+    { id: 'sepia',   label: 'Sepia',    css: 'sepia(100%)' },
+    { id: 'vintage', label: 'Vintage',  css: 'sepia(40%) contrast(110%) brightness(90%) saturate(130%)' },
+    { id: 'invert',  label: 'Invert',   css: 'invert(100%)' },
+    { id: 'cool',    label: 'Cool',     css: 'hue-rotate(200deg) saturate(140%) brightness(105%)' },
+    { id: 'warm',    label: 'Warm',     css: 'sepia(30%) saturate(180%) brightness(105%)' },
+  ];
+  const fmt = v => (v - 100 >= 0 ? '+' : '') + (v - 100);
+  body.innerHTML = `
+    <div class="edit-adjust-preview-wrap">
+      <img id="editAdjPreview" src="${f.url}" class="edit-adjust-preview" draggable="false">
+    </div>
+    <div class="edit-adjust-sliders">
+      <div class="adj-row">
+        <span class="adj-label">Brightness</span>
+        <input type="range" id="adjBrightness" min="0" max="200" step="1" value="${adj.brightness}">
+        <span class="adj-val" id="adjBrightnessVal">${fmt(adj.brightness)}</span>
+      </div>
+      <div class="adj-row">
+        <span class="adj-label">Contrast</span>
+        <input type="range" id="adjContrast" min="0" max="200" step="1" value="${adj.contrast}">
+        <span class="adj-val" id="adjContrastVal">${fmt(adj.contrast)}</span>
+      </div>
+      <div class="adj-row">
+        <span class="adj-label">Saturation</span>
+        <input type="range" id="adjSaturation" min="0" max="200" step="1" value="${adj.saturation}">
+        <span class="adj-val" id="adjSaturationVal">${fmt(adj.saturation)}</span>
+      </div>
+    </div>
+    <div class="edit-preset-strip">
+      ${PRESETS.map(p => `<button type="button" class="edit-preset-btn${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}">${p.label}</button>`).join('')}
+    </div>
+  `;
+  const previewImg = body.querySelector('#editAdjPreview');
+  function _getAdjFilter(){
+    const a = _editState.pendingEdits.photoAdjust;
+    const pre = (a.preset !== 'none' && a.presetCss) ? a.presetCss + ' ' : '';
+    return pre + `brightness(${a.brightness}%) contrast(${a.contrast}%) saturate(${a.saturation}%)`;
+  }
+  function _markDirty(){
+    const a = _editState.pendingEdits.photoAdjust;
+    a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none');
+    previewImg.style.filter = _getAdjFilter();
+  }
+  _markDirty();
+  [['adjBrightness','brightness','adjBrightnessVal'],
+   ['adjContrast','contrast','adjContrastVal'],
+   ['adjSaturation','saturation','adjSaturationVal']].forEach(([id, key, valId]) => {
+    const sl = body.querySelector('#' + id);
+    const vl = body.querySelector('#' + valId);
+    if (!sl) return;
+    sl.addEventListener('input', () => {
+      const v = parseInt(sl.value, 10);
+      _editState.pendingEdits.photoAdjust[key] = v;
+      if (vl) vl.textContent = fmt(v);
+      _markDirty();
+    });
+  });
+  body.querySelectorAll('.edit-preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      body.querySelectorAll('.edit-preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _editState.pendingEdits.photoAdjust.preset = btn.dataset.preset;
+      _editState.pendingEdits.photoAdjust.presetCss = btn.dataset.css;
+      _markDirty();
+    });
+  });
+}
+async function _applyPhotoAdjust(file, adjInfo){
+  const bmp = await createImageBitmap(file);
+  const canvas = document.createElement('canvas');
+  canvas.width = bmp.width; canvas.height = bmp.height;
+  const ctx = canvas.getContext('2d');
+  const pre = (adjInfo.preset !== 'none' && adjInfo.presetCss) ? adjInfo.presetCss + ' ' : '';
+  ctx.filter = pre + `brightness(${adjInfo.brightness}%) contrast(${adjInfo.contrast}%) saturate(${adjInfo.saturation}%)`;
+  ctx.drawImage(bmp, 0, 0);
+  ctx.filter = 'none';
+  try { bmp.close && bmp.close(); } catch(_){}
+  const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
+  return await new Promise((res, rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('adjust encode failed')), mime, 0.95);
+  });
+}
+
+/* ---- CROP TAB (photo: aspect presets + drag handles) ---- */
+async function _renderCropTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  body.innerHTML = `
+    <div class="edit-crop-presets" id="editCropPresets">
+      <span style="font-size:.8rem;color:rgba(255,255,255,.55);margin-right:2px;">Aspect:</span>
+      ${[{l:'Free',v:'free'},{l:'1:1',v:'1:1'},{l:'4:3',v:'4:3'},{l:'3:2',v:'3:2'},{l:'16:9',v:'16:9'}]
+        .map(p=>`<button type="button" class="edit-preset-btn${p.v==='free'?' active':''}" data-aspect="${p.v}">${p.l}</button>`).join('')}
+    </div>
+    <div class="edit-crop-canvas-wrap" id="editCropWrap">
+      <canvas id="editCropCanvas"></canvas>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+      <p style="font-size:.74rem;color:rgba(255,255,255,.4);margin:0;">Drag corners or edges to crop.</p>
+      <button type="button" class="edit-frames-action-btn" id="editCropApplyBtn">Apply crop</button>
+    </div>
+  `;
+  const canvas = body.querySelector('#editCropCanvas');
+  const ctx = canvas.getContext('2d');
+  const wrap = body.querySelector('#editCropWrap');
+  let bmp;
+  try { bmp = await createImageBitmap(f.file); }
+  catch(e) { body.innerHTML = '<p style="color:rgba(255,120,120,.85);">Could not load image for crop.</p>'; return; }
+  const imgW = bmp.width, imgH = bmp.height;
+  const maxW = Math.min((wrap.clientWidth || 640) - 4, 900);
+  const maxH = Math.min(Math.round(window.innerHeight * 0.48), 520);
+  const scale = Math.min(maxW / imgW, maxH / imgH, 1);
+  const dispW = Math.round(imgW * scale), dispH = Math.round(imgH * scale);
+  canvas.width = dispW; canvas.height = dispH;
+  canvas.style.cssText = `width:${dispW}px;height:${dispH}px;display:block;cursor:crosshair;`;
+  const HSIZE = 9;
+  const pad = 12;
+  let crop = { x: pad, y: pad, w: dispW - pad*2, h: dispH - pad*2, aspect: null };
+  if (_editState.pendingEdits.photoCrop) {
+    const pc = _editState.pendingEdits.photoCrop;
+    crop = { x: Math.round(pc.x * scale), y: Math.round(pc.y * scale),
+              w: Math.round(pc.w * scale), h: Math.round(pc.h * scale), aspect: pc.aspect };
+  }
+  function drawCrop(){
+    ctx.clearRect(0, 0, dispW, dispH);
+    ctx.drawImage(bmp, 0, 0, dispW, dispH);
+    ctx.fillStyle = 'rgba(0,0,0,0.52)';
+    ctx.fillRect(0, 0, dispW, dispH);
+    // Clear and redraw image inside crop box
+    ctx.save();
+    ctx.beginPath(); ctx.rect(crop.x, crop.y, crop.w, crop.h); ctx.clip();
+    ctx.drawImage(bmp, 0, 0, dispW, dispH);
+    ctx.restore();
+    // Border
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(crop.x + 0.5, crop.y + 0.5, crop.w, crop.h);
+    // Rule-of-thirds
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 0.5;
+    for (let i = 1; i <= 2; i++){
+      const gx = crop.x + crop.w * i / 3, gy = crop.y + crop.h * i / 3;
+      ctx.beginPath(); ctx.moveTo(gx, crop.y); ctx.lineTo(gx, crop.y + crop.h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(crop.x, gy); ctx.lineTo(crop.x + crop.w, gy); ctx.stroke();
+    }
+    // Handles
+    const { x, y, w, h } = crop;
+    const cx = x + w/2, cy = y + h/2;
+    [[x,y],[cx,y],[x+w,y],[x,cy],[x+w,cy],[x,y+h],[cx,y+h],[x+w,y+h]].forEach(([hx,hy]) => {
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(hx, hy, 5, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(hx, hy, 5, 0, Math.PI*2); ctx.stroke();
+    });
+  }
+  function getZone(mx, my){
+    const { x, y, w, h } = crop;
+    const cx = x+w/2, cy = y+h/2;
+    const pts = {nw:[x,y],n:[cx,y],ne:[x+w,y],w:[x,cy],e:[x+w,cy],sw:[x,y+h],s:[cx,y+h],se:[x+w,y+h]};
+    for (const [name,[hx,hy]] of Object.entries(pts)){
+      if (Math.abs(mx-hx)<=HSIZE+2 && Math.abs(my-hy)<=HSIZE+2) return name;
+    }
+    if (mx>x && mx<x+w && my>y && my<y+h) return 'move';
+    return null;
+  }
+  const CMAP = {nw:'nw-resize',n:'n-resize',ne:'ne-resize',w:'w-resize',e:'e-resize',sw:'sw-resize',s:'s-resize',se:'se-resize',move:'move'};
+  function clamp(c){
+    const MIN=20;
+    if (c.w < MIN) c.w = MIN; if (c.h < MIN) c.h = MIN;
+    if (c.x < 0) c.x = 0; if (c.y < 0) c.y = 0;
+    if (c.x + c.w > dispW) { if (c.w < dispW) c.x = dispW - c.w; else c.w = dispW - c.x; }
+    if (c.y + c.h > dispH) { if (c.h < dispH) c.y = dispH - c.h; else c.h = dispH - c.y; }
+    return c;
+  }
+  let dragZ = null, dsx = 0, dsy = 0, dsc = null;
+  function getEvtXY(e){
+    const r = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return [src.clientX - r.left, src.clientY - r.top];
+  }
+  canvas.addEventListener('mousemove', e => {
+    const [mx,my] = getEvtXY(e);
+    if (dragZ) {
+      const dx = mx-dsx, dy = my-dsy;
+      const sc = Object.assign({},dsc);
+      if (dragZ==='move'){sc.x+=dx;sc.y+=dy;}
+      else if (dragZ==='se'){sc.w+=dx;sc.h+=dy;}
+      else if (dragZ==='nw'){sc.x+=dx;sc.y+=dy;sc.w-=dx;sc.h-=dy;}
+      else if (dragZ==='ne'){sc.w+=dx;sc.y+=dy;sc.h-=dy;}
+      else if (dragZ==='sw'){sc.x+=dx;sc.w-=dx;sc.h+=dy;}
+      else if (dragZ==='n'){sc.y+=dy;sc.h-=dy;}
+      else if (dragZ==='s'){sc.h+=dy;}
+      else if (dragZ==='e'){sc.w+=dx;}
+      else if (dragZ==='w'){sc.x+=dx;sc.w-=dx;}
+      if (crop.aspect && dragZ!=='move'){sc.h=Math.round(sc.w/crop.aspect);}
+      crop=clamp(sc); drawCrop();
+    } else {
+      const z=getZone(mx,my); canvas.style.cursor=CMAP[z]||'crosshair';
+    }
+  });
+  canvas.addEventListener('mousedown', e => {
+    const [mx,my]=getEvtXY(e); dragZ=getZone(mx,my);
+    if (dragZ){dsx=mx;dsy=my;dsc=Object.assign({},crop);e.preventDefault();}
+  });
+  const stopDrag = () => { dragZ = null; };
+  document.addEventListener('mouseup', stopDrag);
+  // Clean up listener when tab switches
+  const obs = new MutationObserver(() => { if (!canvas.isConnected){ document.removeEventListener('mouseup',stopDrag); obs.disconnect(); try{bmp.close&&bmp.close();}catch(_){} } });
+  obs.observe(body, {childList:true});
+  body.querySelectorAll('[data-aspect]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      body.querySelectorAll('[data-aspect]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const v = btn.dataset.aspect;
+      if (v === 'free') { crop.aspect = null; }
+      else { const [a,b2]=v.split(':').map(Number); crop.aspect=a/b2; crop.h=Math.round(crop.w/crop.aspect); crop=clamp(crop); }
+      drawCrop();
+    });
+  });
+  body.querySelector('#editCropApplyBtn').addEventListener('click', () => {
+    _editState.pendingEdits.photoCrop = {
+      x: Math.round(crop.x / scale), y: Math.round(crop.y / scale),
+      w: Math.max(1,Math.round(crop.w / scale)), h: Math.max(1,Math.round(crop.h / scale)),
+      aspect: crop.aspect
+    };
+    const btn = body.querySelector('#editCropApplyBtn');
+    if (btn){ btn.textContent = '✓ Crop applied'; btn.style.background='rgba(60,160,60,.2)'; btn.style.borderColor='rgba(60,200,60,.3)'; }
+  });
+  drawCrop();
+}
+async function _applyPhotoCrop(file, cropInfo){
+  const bmp = await createImageBitmap(file);
+  const sx=Math.max(0,cropInfo.x), sy=Math.max(0,cropInfo.y);
+  const sw=Math.min(cropInfo.w, bmp.width-sx), sh=Math.min(cropInfo.h, bmp.height-sy);
+  const canvas = document.createElement('canvas');
+  canvas.width = sw; canvas.height = sh;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bmp, sx, sy, sw, sh, 0, 0, sw, sh);
+  try { bmp.close && bmp.close(); } catch(_){}
+  const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
+  return await new Promise((res,rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('crop encode failed')), mime, 0.95);
+  });
 }
 
 function piDelete(){
