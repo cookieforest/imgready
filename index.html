@@ -2590,6 +2590,25 @@
   .edit-bg-progress-label{font-size:.7rem;color:rgba(255,255,255,.4);}
   .edit-bg-success-msg{margin:4px 0;font-size:.76rem;color:#6fcf97;}
   .edit-bg-hint{margin-top:7px;font-size:.66rem;color:rgba(255,255,255,.22);line-height:1.4;}
+  /* Round 8: Background refinement brushes */
+  .edit-preview-col .bg-refine-canvas{
+    max-width:100%;max-height:100%;display:block;touch-action:none;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08);
+  }
+  .bg-refine-section{
+    margin-top:10px;padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.06);
+    display:flex;flex-direction:column;gap:9px;
+  }
+  .bg-refine-section h4{
+    margin:0;font-size:.78rem;font-weight:600;
+    color:rgba(255,255,255,.86);letter-spacing:.01em;
+  }
+  .bg-refine-tool-strip{display:flex;gap:4px;}
+  .bg-refine-tool-strip .edit-preset-btn{flex:1;text-align:center;}
+  .bg-refine-help{
+    margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
+  }
   @media (max-width:640px){
     .edit-layout{grid-template-columns:1fr;grid-template-rows:45vw 1fr;}
     .edit-panel-col{border-left:none;border-top:1px solid rgba(255,255,255,.07);}
@@ -5438,6 +5457,10 @@ function cancelEdit(){
     _editState.framesState.frames.forEach(fr => { try { fr.bitmap && fr.bitmap.close && fr.bitmap.close(); } catch(_){} });
   }
   _editState.framesState = null;
+  if (_editState.bgState){
+    if (_editState.bgState._refineBgBmp){ try { _editState.bgState._refineBgBmp.close && _editState.bgState._refineBgBmp.close(); } catch(_){} _editState.bgState._refineBgBmp = null; }
+    if (_editState.bgState._refineOrigBmp){ try { _editState.bgState._refineOrigBmp.close && _editState.bgState._refineOrigBmp.close(); } catch(_){} _editState.bgState._refineOrigBmp = null; }
+  }
   _editState.bgState = null;
   if (_editState.pendingEdits && _editState.pendingEdits.autoEnhancedUrl){
     try { URL.revokeObjectURL(_editState.pendingEdits.autoEnhancedUrl); } catch(_){}
@@ -5468,6 +5491,9 @@ async function saveEdit(){
       workingBlob = await _applyGifEdit(f.file, _editState.pendingEdits.gifEdit);
     } else if (_editState.pendingEdits.bgRemoved) {
       workingBlob = _editState.pendingEdits.bgRemoved;
+      if (_editState.pendingEdits.bgRefine && _editState.pendingEdits.bgRefine.strokes && _editState.pendingEdits.bgRefine.strokes.length) {
+        workingBlob = await _applyBgRefine(workingBlob, _editState.originalFile, _editState.pendingEdits.bgRefine);
+      }
     } else {
       if (_editState.pendingEdits.autoEnhanced) {
         workingBlob = _editState.pendingEdits.autoEnhanced;
@@ -5530,6 +5556,7 @@ function _editSnapshot(){
     photoAdjust: pe.photoAdjust ? { ...pe.photoAdjust } : null,
     photoCrop: pe.photoCrop ? { ...pe.photoCrop } : null,
     bgRemoved: pe.bgRemoved || null,
+    bgRefine: pe.bgRefine ? JSON.parse(JSON.stringify(pe.bgRefine)) : null,
     autoEnhanced: pe.autoEnhanced || null,
     autoEnhancedUrl: pe.autoEnhancedUrl || null,
     pixelate: pe.pixelate ? JSON.parse(JSON.stringify(pe.pixelate)) : null,
@@ -5544,6 +5571,7 @@ function _editRestore(snap){
   if (snap.photoAdjust) _editState.pendingEdits.photoAdjust = snap.photoAdjust;
   if (snap.photoCrop) _editState.pendingEdits.photoCrop = snap.photoCrop;
   if (snap.bgRemoved) _editState.pendingEdits.bgRemoved = snap.bgRemoved;
+  if (snap.bgRefine) _editState.pendingEdits.bgRefine = snap.bgRefine;
   if (snap.autoEnhanced) {
     _editState.pendingEdits.autoEnhanced = snap.autoEnhanced;
     _editState.pendingEdits.autoEnhancedUrl = snap.autoEnhancedUrl;
@@ -5580,6 +5608,10 @@ function _editResetAll(){
   _editState.rotateState = { deg: 0, flipH: false, flipV: false, angle: 0 };
   if (_editState.bgState && _editState.bgState.previewUrl){
     try { URL.revokeObjectURL(_editState.bgState.previewUrl); } catch(_){}
+  }
+  if (_editState.bgState){
+    if (_editState.bgState._refineBgBmp){ try { _editState.bgState._refineBgBmp.close && _editState.bgState._refineBgBmp.close(); } catch(_){} _editState.bgState._refineBgBmp = null; }
+    if (_editState.bgState._refineOrigBmp){ try { _editState.bgState._refineOrigBmp.close && _editState.bgState._refineOrigBmp.close(); } catch(_){} _editState.bgState._refineOrigBmp = null; }
   }
   _editState.bgState = null;
   if (_editState._pxBitmap){
@@ -6181,50 +6213,72 @@ function _renderBackgroundTab(body){
   const state = _editState.bgState;
   const hasDone = !!_editState.pendingEdits.bgRemoved;
 
-  /* Preview in left column */
+  /* Preview in left column — swap to interactive canvas once a mask exists */
   const bgPreviewCol = document.getElementById('editPreviewCol');
   if (bgPreviewCol) {
-    bgPreviewCol.innerHTML = `
-      <div class="bg-checkerboard" id="bgCheckboard">
-        <img id="bgResultImg" class="bg-result-img" alt="Result" style="display:none">
-        <img id="bgOrigThumb" class="bg-orig-thumb" alt="Original">
-      </div>`;
+    if (hasDone) {
+      bgPreviewCol.innerHTML = '<div class="bg-checkerboard" id="bgCheckboard"><canvas id="bgRefineCanvas" class="bg-refine-canvas"></canvas></div>';
+    } else {
+      bgPreviewCol.innerHTML = '<div class="bg-checkerboard" id="bgCheckboard">'
+        + '<img id="bgResultImg" class="bg-result-img" alt="Result" style="display:none">'
+        + '<img id="bgOrigThumb" class="bg-orig-thumb" alt="Original">'
+        + '</div>';
+    }
   }
   /* Controls in right panel */
-  body.innerHTML = `
-    <div class="edit-bg-card">
-      <div class="bg-icon">✂️</div>
-      <h3>Remove Background</h3>
-      <p>BEN2-ONNX · Apache-2.0/MIT</p>
-    </div>
-    <div id="bgProgressWrap" class="edit-bg-progress-wrap" style="display:none">
-      <div class="edit-bg-progress-bar"><div id="bgFill" class="edit-bg-progress-fill" style="width:0%"></div></div>
-      <span id="bgProgLabel" class="edit-bg-progress-label">Loading model…</span>
-    </div>
-    <p id="bgSuccessMsg" class="edit-bg-success-msg" style="display:none"></p>
-    <button type="button" class="edit-bg-run" id="bgRunBtn">
-      ${hasDone ? '↺ Remove Again' : '✂️ Remove Background'}
-    </button>
-    <p class="edit-bg-hint">WASM ~56 MB · WebGPU ~223 MB · Saves as PNG</p>
-  `;
+  const ref = _editState.pendingEdits.bgRefine || { brushPx: 48, hardness: 0.5, mode: 'erase' };
+  const refineHTML = hasDone ? (''
+    + '<div class="bg-refine-section">'
+    +   '<h4>Refine mask</h4>'
+    +   '<div class="bg-refine-tool-strip">'
+    +     '<button type="button" class="edit-preset-btn' + (ref.mode==='erase'?' active':'') + '" data-bgr-mode="erase">Erase</button>'
+    +     '<button type="button" class="edit-preset-btn' + (ref.mode==='restore'?' active':'') + '" data-bgr-mode="restore">Restore</button>'
+    +   '</div>'
+    +   '<div class="adj-row">'
+    +     '<span class="adj-label">Brush</span>'
+    +     '<input type="range" id="bgrBrush" min="6" max="160" step="1" value="' + ref.brushPx + '">'
+    +     '<span class="adj-val" id="bgrBrushVal">' + ref.brushPx + '</span>'
+    +   '</div>'
+    +   '<div class="adj-row">'
+    +     '<span class="adj-label">Soft</span>'
+    +     '<input type="range" id="bgrHardness" min="0" max="100" step="1" value="' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '">'
+    +     '<span class="adj-val" id="bgrHardnessVal">' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '%</span>'
+    +   '</div>'
+    +   '<button type="button" class="edit-frames-action-btn" id="bgrClear">Clear refinements</button>'
+    +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft for feathered edges, higher for crisp.</p>'
+    + '</div>'
+  ) : '';
+  body.innerHTML = ''
+    + '<div class="edit-bg-card">'
+    +   '<div class="bg-icon">✂️</div>'
+    +   '<h3>Remove Background</h3>'
+    +   '<p>BEN2-ONNX · Apache-2.0/MIT</p>'
+    + '</div>'
+    + '<div id="bgProgressWrap" class="edit-bg-progress-wrap" style="display:none">'
+    +   '<div class="edit-bg-progress-bar"><div id="bgFill" class="edit-bg-progress-fill" style="width:0%"></div></div>'
+    +   '<span id="bgProgLabel" class="edit-bg-progress-label">Loading model…</span>'
+    + '</div>'
+    + '<p id="bgSuccessMsg" class="edit-bg-success-msg" style="display:none"></p>'
+    + '<button type="button" class="edit-bg-run" id="bgRunBtn">'
+    +   (hasDone ? '↺ Remove Again' : '✂️ Remove Background')
+    + '</button>'
+    + '<p class="edit-bg-hint">WASM ~56 MB · WebGPU ~223 MB · Saves as PNG</p>'
+    + refineHTML;
 
-  const resultImg  = document.getElementById('bgResultImg');
-  const origThumb  = document.getElementById('bgOrigThumb');
   const progressWr = document.getElementById('bgProgressWrap');
   const fill       = document.getElementById('bgFill');
   const progLabel  = document.getElementById('bgProgLabel');
   const successMsg = document.getElementById('bgSuccessMsg');
   const runBtn     = document.getElementById('bgRunBtn');
 
-  origThumb.src = f.url;
-
-  if (hasDone && state.previewUrl) {
-    resultImg.src = state.previewUrl;
-    resultImg.style.display = '';
-    origThumb.style.display = 'none';
+  if (!hasDone) {
+    const origThumb = document.getElementById('bgOrigThumb');
+    if (origThumb) origThumb.src = f.url;
+  } else {
     successMsg.textContent = '✓ Background removed — click Save to apply.';
     successMsg.style.color = '#6fcf97';
     successMsg.style.display = '';
+    _initBgRefine().catch(e => console.warn('[bg-refine]', e));
   }
 
   runBtn.addEventListener('click', async () => {
@@ -6258,6 +6312,10 @@ function _renderBackgroundTab(body){
 
       _editPushUndo();
       _editState.pendingEdits.bgRemoved = blob;
+      /* New mask invalidates prior refinement strokes */
+      delete _editState.pendingEdits.bgRefine;
+      if (state._refineBgBmp){ try { state._refineBgBmp.close && state._refineBgBmp.close(); } catch(_){} state._refineBgBmp = null; }
+      if (state._refineOrigBmp){ try { state._refineOrigBmp.close && state._refineOrigBmp.close(); } catch(_){} state._refineOrigBmp = null; }
 
       if (state.previewUrl) { try { URL.revokeObjectURL(state.previewUrl); } catch(_){} }
       state.previewUrl = URL.createObjectURL(blob);
@@ -6267,14 +6325,9 @@ function _renderBackgroundTab(body){
 
       setTimeout(() => {
         progressWr.style.display = 'none';
-        resultImg.src = state.previewUrl;
-        resultImg.style.display = '';
-        origThumb.style.display = 'none';
-        successMsg.textContent = '✓ Background removed — click Save to apply.';
-        successMsg.style.color = '#6fcf97';
-        successMsg.style.display = '';
         runBtn.disabled = false;
         runBtn.textContent = '↺ Remove Again';
+        _reRenderEditTab();
       }, 500);
 
     } catch(err) {
@@ -6286,6 +6339,265 @@ function _renderBackgroundTab(body){
       runBtn.disabled = false;
     }
   });
+}
+
+
+/* ---- ROUND 8: BACKGROUND REFINE BRUSHES (erase / restore over BEN2 alpha) ---- */
+function _bgMakeBrushSprite(radius, hardness){
+  const r = Math.max(0.5, radius);
+  const size = Math.max(2, Math.ceil(r * 2) + 2);
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  const cx = size / 2, cy = size / 2;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  const h = Math.max(0, Math.min(0.99, hardness != null ? hardness : 0.5));
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  if (h > 0) g.addColorStop(h, 'rgba(255,255,255,1)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  return c;
+}
+function _bgRingCursor(diameterPx){
+  const d = Math.max(8, Math.min(220, Math.round(diameterPx)));
+  const r = Math.max(2, d / 2 - 1);
+  const cx = d / 2;
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + d + '" height="' + d + '">'
+    + '<circle cx="' + cx + '" cy="' + cx + '" r="' + r + '" fill="none" stroke="white" stroke-width="1.6" />'
+    + '<circle cx="' + cx + '" cy="' + cx + '" r="' + r + '" fill="none" stroke="black" stroke-width="1" stroke-dasharray="3 3" />'
+    + '</svg>';
+  return 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg) + '") ' + cx + ' ' + cx + ', crosshair';
+}
+function _bgStampStrokeInto(maskCtx, stk, dw, dh){
+  if (!stk.pts || !stk.pts.length) return;
+  const minD = Math.min(dw, dh);
+  const r = (stk.pts[0].r != null ? stk.pts[0].r : 0.04) * minD;
+  const sprite = _bgMakeBrushSprite(r, stk.hardness != null ? stk.hardness : 0.5);
+  const half = sprite.width / 2;
+  let last = null;
+  for (let i = 0; i < stk.pts.length; i++){
+    const p = stk.pts[i];
+    const x = p.x * dw, y = p.y * dh;
+    maskCtx.drawImage(sprite, x - half, y - half);
+    if (last){
+      const dx = x - last.x, dy = y - last.y;
+      const dist = Math.hypot(dx, dy);
+      const step = Math.max(1, r / 3);
+      const n = Math.ceil(dist / step);
+      for (let k = 1; k < n; k++){
+        const t = k / n;
+        maskCtx.drawImage(sprite, last.x + dx * t - half, last.y + dy * t - half);
+      }
+    }
+    last = { x: x, y: y };
+  }
+}
+async function _initBgRefine(){
+  const state = _editState.bgState;
+  if (!_editState.pendingEdits.bgRemoved) return;
+  if (!_editState.pendingEdits.bgRefine){
+    _editState.pendingEdits.bgRefine = { strokes: [], brushPx: 48, hardness: 0.5, mode: 'erase' };
+  }
+  const ref = _editState.pendingEdits.bgRefine;
+  const canvas = document.getElementById('bgRefineCanvas');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  if (!state._refineBgBmp){
+    state._refineBgBmp = await createImageBitmap(_editState.pendingEdits.bgRemoved);
+  }
+  if (!state._refineOrigBmp){
+    state._refineOrigBmp = await createImageBitmap(_editState.originalFile);
+  }
+  const bgBmp = state._refineBgBmp;
+  const origBmp = state._refineOrigBmp;
+  function fitDims(){
+    const cw = (wrap.clientWidth  || 800);
+    const ch = (wrap.clientHeight || 600);
+    const ratio = bgBmp.width / bgBmp.height;
+    let dw = cw, dh = cw / ratio;
+    if (dh > ch){ dh = ch; dw = ch * ratio; }
+    return { dw: Math.max(1, Math.floor(dw)), dh: Math.max(1, Math.floor(dh)) };
+  }
+  const dims = fitDims();
+  const dw = dims.dw, dh = dims.dh;
+  canvas.width = dw; canvas.height = dh;
+  canvas.style.width = dw + 'px'; canvas.style.height = dh + 'px';
+  const ctx = canvas.getContext('2d');
+  const eraseMask = document.createElement('canvas');
+  eraseMask.width = dw; eraseMask.height = dh;
+  const emctx = eraseMask.getContext('2d');
+  const restoreMask = document.createElement('canvas');
+  restoreMask.width = dw; restoreMask.height = dh;
+  const rmctx = restoreMask.getContext('2d');
+  const origFit = document.createElement('canvas');
+  origFit.width = dw; origFit.height = dh;
+  origFit.getContext('2d').drawImage(origBmp, 0, 0, dw, dh);
+
+  function refreshCursor(){ canvas.style.cursor = _bgRingCursor(ref.brushPx); }
+  refreshCursor();
+
+  function replayAll(){
+    emctx.clearRect(0, 0, dw, dh);
+    rmctx.clearRect(0, 0, dw, dh);
+    ref.strokes.forEach(stk => {
+      _bgStampStrokeInto(stk.mode === 'erase' ? emctx : rmctx, stk, dw, dh);
+    });
+  }
+  function render(){
+    ctx.clearRect(0, 0, dw, dh);
+    ctx.drawImage(bgBmp, 0, 0, dw, dh);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.drawImage(eraseMask, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    const tmp = document.createElement('canvas');
+    tmp.width = dw; tmp.height = dh;
+    const tctx = tmp.getContext('2d');
+    tctx.drawImage(origFit, 0, 0);
+    tctx.globalCompositeOperation = 'destination-in';
+    tctx.drawImage(restoreMask, 0, 0);
+    ctx.drawImage(tmp, 0, 0);
+  }
+  replayAll(); render();
+
+  let painting = false, curStroke = null, curSprite = null, curHalf = 0, curR = 0, curMaskCtx = null, lastXY = null;
+  let pendingRender = false;
+  function scheduleRender(){
+    if (pendingRender) return;
+    pendingRender = true;
+    requestAnimationFrame(function(){ pendingRender = false; render(); });
+  }
+  function ptFromClient(cx, cy){
+    const rect = canvas.getBoundingClientRect();
+    const x = cx - rect.left, y = cy - rect.top;
+    return { x: x / dw, y: y / dh, r: (ref.brushPx / 2) / Math.min(dw, dh) };
+  }
+  function stampIncrement(p){
+    curStroke.pts.push(p);
+    const x = p.x * dw, y = p.y * dh;
+    curMaskCtx.drawImage(curSprite, x - curHalf, y - curHalf);
+    if (lastXY){
+      const dx = x - lastXY.x, dy = y - lastXY.y;
+      const dist = Math.hypot(dx, dy);
+      const step = Math.max(1, curR / 3);
+      const n = Math.ceil(dist / step);
+      for (let k = 1; k < n; k++){
+        const t = k / n;
+        curMaskCtx.drawImage(curSprite, lastXY.x + dx * t - curHalf, lastXY.y + dy * t - curHalf);
+      }
+    }
+    lastXY = { x: x, y: y };
+  }
+  function down(ev){
+    if (ev.button != null && ev.button !== 0) return;
+    ev.preventDefault();
+    try { canvas.setPointerCapture(ev.pointerId); } catch(_){}
+    _editPushUndo();
+    painting = true;
+    curStroke = { mode: ref.mode, hardness: ref.hardness, pts: [] };
+    ref.strokes.push(curStroke);
+    const p = ptFromClient(ev.clientX, ev.clientY);
+    curR = p.r * Math.min(dw, dh);
+    curSprite = _bgMakeBrushSprite(curR, ref.hardness);
+    curHalf = curSprite.width / 2;
+    curMaskCtx = (curStroke.mode === 'erase') ? emctx : rmctx;
+    lastXY = null;
+    stampIncrement(p);
+    scheduleRender();
+    _updateEditHistoryUI();
+  }
+  function move(ev){
+    if (!painting) return;
+    ev.preventDefault();
+    let events;
+    try { events = ev.getCoalescedEvents && ev.getCoalescedEvents().length ? ev.getCoalescedEvents() : [ev]; }
+    catch(_){ events = [ev]; }
+    for (let i = 0; i < events.length; i++){
+      stampIncrement(ptFromClient(events[i].clientX, events[i].clientY));
+    }
+    scheduleRender();
+  }
+  function up(ev){
+    if (!painting) return;
+    painting = false;
+    curStroke = null; curSprite = null; curMaskCtx = null; lastXY = null;
+    try { canvas.releasePointerCapture(ev.pointerId); } catch(_){}
+    scheduleRender();
+  }
+  canvas.addEventListener('pointerdown', down);
+  canvas.addEventListener('pointermove', move);
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  document.querySelectorAll('#editBody [data-bgr-mode]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#editBody [data-bgr-mode]').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      ref.mode = b.dataset.bgrMode;
+    });
+  });
+  const bSl  = document.getElementById('bgrBrush');
+  const bVal = document.getElementById('bgrBrushVal');
+  if (bSl){
+    bSl.addEventListener('input', () => {
+      ref.brushPx = parseInt(bSl.value, 10);
+      bVal.textContent = ref.brushPx;
+      refreshCursor();
+    });
+  }
+  const hSl  = document.getElementById('bgrHardness');
+  const hVal = document.getElementById('bgrHardnessVal');
+  if (hSl){
+    hSl.addEventListener('input', () => {
+      ref.hardness = parseInt(hSl.value, 10) / 100;
+      hVal.textContent = Math.round(ref.hardness * 100) + '%';
+    });
+  }
+  const clearBtn = document.getElementById('bgrClear');
+  if (clearBtn){
+    clearBtn.addEventListener('click', () => {
+      if (!ref.strokes.length) return;
+      _editPushUndo();
+      ref.strokes = [];
+      replayAll();
+      render();
+      _updateEditHistoryUI();
+    });
+  }
+}
+async function _applyBgRefine(bgRemovedBlob, originalBlob, refInfo){
+  if (!refInfo || !refInfo.strokes || !refInfo.strokes.length) return bgRemovedBlob;
+  const [bgBmp, origBmp] = await Promise.all([
+    createImageBitmap(bgRemovedBlob),
+    createImageBitmap(originalBlob)
+  ]);
+  const W = bgBmp.width, H = bgBmp.height;
+  const eraseMask = document.createElement('canvas');
+  eraseMask.width = W; eraseMask.height = H;
+  const emctx = eraseMask.getContext('2d');
+  const restoreMask = document.createElement('canvas');
+  restoreMask.width = W; restoreMask.height = H;
+  const rmctx = restoreMask.getContext('2d');
+  refInfo.strokes.forEach(stk => {
+    _bgStampStrokeInto(stk.mode === 'erase' ? emctx : rmctx, stk, W, H);
+  });
+  const out = document.createElement('canvas');
+  out.width = W; out.height = H;
+  const octx = out.getContext('2d');
+  octx.drawImage(bgBmp, 0, 0);
+  octx.globalCompositeOperation = 'destination-out';
+  octx.drawImage(eraseMask, 0, 0);
+  octx.globalCompositeOperation = 'source-over';
+  const rest = document.createElement('canvas');
+  rest.width = W; rest.height = H;
+  const rctx = rest.getContext('2d');
+  rctx.drawImage(origBmp, 0, 0, W, H);
+  rctx.globalCompositeOperation = 'destination-in';
+  rctx.drawImage(restoreMask, 0, 0);
+  octx.drawImage(rest, 0, 0);
+  try { bgBmp.close && bgBmp.close(); } catch(_){}
+  try { origBmp.close && origBmp.close(); } catch(_){}
+  return await new Promise(res => out.toBlob(b => res(b), 'image/png'));
 }
 
 
