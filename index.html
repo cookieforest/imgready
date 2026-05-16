@@ -2278,6 +2278,77 @@
     font-size:.62rem;color:rgba(255,255,255,.7);
     background:rgba(0,0,0,.55);padding:1px 4px;border-radius:3px;
   }
+  /* Round 1 — frame strip extras: drag indicator, duplicate button,
+     per-frame delay input. Drag-reorder uses HTML5 DnD; mobile gets the
+     ordering UI but reorder via long-press isn't shipped (deferred). */
+  .edit-frame-thumb{display:flex;flex-direction:column;align-items:stretch;width:auto;height:auto;aspect-ratio:auto;}
+  .edit-frame-thumb .frame-canvas-wrap{
+    position:relative;width:80px;aspect-ratio:1/1;border-radius:6px;
+    overflow:hidden;background:#1a1a1f;
+  }
+  .edit-frame-thumb .frame-delay-input{
+    margin-top:4px;width:80px;padding:3px 6px;border-radius:5px;
+    background:rgba(255,255,255,.06);color:#fff;
+    border:1px solid rgba(255,255,255,.12);
+    font-size:.7rem;text-align:center;
+  }
+  .edit-frame-thumb .frame-delay-input:focus{
+    outline:none;border-color:rgba(255,255,255,.32);
+  }
+  .edit-frame-thumb.dragging{opacity:.5;cursor:grabbing;}
+  .edit-frame-thumb.drop-before::before,
+  .edit-frame-thumb.drop-after::after{
+    content:'';position:absolute;top:0;bottom:0;
+    width:3px;background:var(--accent);
+    box-shadow:0 0 4px rgba(255,255,255,.4);
+    pointer-events:none;z-index:2;
+  }
+  .edit-frame-thumb.drop-before::before{left:-4px;}
+  .edit-frame-thumb.drop-after::after{right:-4px;}
+  .edit-frame-thumb .frame-dup{
+    position:absolute;top:2px;left:2px;
+    width:18px;height:18px;border-radius:50%;
+    background:rgba(60,60,60,.85);color:#fff;
+    border:none;cursor:pointer;font-size:.7rem;
+    display:none;align-items:center;justify-content:center;
+  }
+  .edit-frame-thumb:hover .frame-dup{display:flex;}
+  .edit-frame-thumb .frame-dup:hover{background:rgba(80,160,80,.85);}
+  /* Top action row above the strip. */
+  .edit-frames-actions{
+    display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;
+  }
+  .edit-frames-action-btn{
+    padding:7px 12px;border-radius:7px;
+    background:rgba(255,255,255,.06);color:#fff;
+    border:1px solid rgba(255,255,255,.12);cursor:pointer;
+    font-size:.78rem;
+  }
+  .edit-frames-action-btn:hover{background:rgba(255,255,255,.12);}
+  /* Optimize panel — collapsible advanced section. */
+  .edit-frames-optimize{
+    margin-top:18px;padding-top:14px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .edit-frames-optimize h4{
+    margin:0 0 10px;font-size:.82rem;
+    color:rgba(255,255,255,.78);font-weight:600;
+  }
+  .edit-frames-optimize .opt-row{
+    display:grid;grid-template-columns:130px 1fr 50px;gap:8px;
+    align-items:center;margin-bottom:8px;font-size:.76rem;
+    color:rgba(255,255,255,.65);
+  }
+  .edit-frames-optimize input[type=range]{width:100%;}
+  .edit-frames-optimize select{
+    padding:5px 8px;border-radius:5px;
+    background:rgba(255,255,255,.06);color:#fff;
+    border:1px solid rgba(255,255,255,.12);font-size:.78rem;
+  }
+  .edit-frames-optimize input[type=checkbox]{margin:0;}
+  .edit-frames-optimize .opt-val{
+    color:rgba(255,255,255,.85);text-align:right;
+  }
   .edit-frame-thumb .frame-del{
     position:absolute;top:2px;right:2px;
     width:18px;height:18px;border-radius:50%;
@@ -5264,11 +5335,23 @@ async function _renderFramesTab(body){
     }
   }
   const fs = _editState.framesState;
+  /* Initialize optimize state if missing (first time opening this tab
+     for this file). Defaults match gifenc's defaults so toggling on
+     the optimize panel without changing anything is a no-op. */
+  if (!fs.opt) fs.opt = { paletteSize: 256, colorFormat: 'rgb565', dedupe: false };
   body.innerHTML = `
+    <div class="edit-frames-actions">
+      <button type="button" class="edit-frames-action-btn" data-act="reverse">\u21bb Reverse all frames</button>
+      <button type="button" class="edit-frames-action-btn" data-act="resetDelays">Reset delays to original</button>
+    </div>
     <div class="edit-frames-strip" id="editFramesStrip"></div>
     <div class="edit-frames-controls">
-      <label>FPS
-        <input type="number" id="editFramesFps" min="1" max="60" value="${fs.fps}">
+      <label>Set all frames to
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="number" id="editFramesUniformMs" min="20" max="65535" value="${Math.round(1000/fs.fps)}" style="flex:1;">
+          <span style="font-size:.7rem;color:rgba(255,255,255,.5);">ms</span>
+          <button type="button" class="edit-frames-action-btn" id="editFramesUniformApply" style="padding:4px 10px;">Apply</button>
+        </div>
       </label>
       <label>Loop count <span style="color:rgba(255,255,255,.45);font-weight:400;">(0 = forever)</span>
         <input type="number" id="editFramesLoop" min="0" max="999" value="${fs.loop}">
@@ -5282,42 +5365,171 @@ async function _renderFramesTab(body){
         <span id="editFramesTrimEndVal" style="font-size:.78rem;color:rgba(255,255,255,.7);">${fs.trimEnd}</span>
       </label>
     </div>
-    <p style="margin-top:14px;font-size:.78rem;color:rgba(255,255,255,.55);">Hover a frame to delete it. The remaining frames are encoded into a new GIF on Save.</p>
+    <p style="margin-top:14px;font-size:.78rem;color:rgba(255,255,255,.55);">Drag frames to reorder. Hover a frame for delete (\u00d7) and duplicate (\u2756) buttons. The remaining frames are encoded into a new GIF on Save.</p>
+    <div class="edit-frames-optimize">
+      <h4>Optimize \u2014 reduce file size on Save</h4>
+      <div class="opt-row">
+        <span>Palette size</span>
+        <input type="range" id="editFramesPalette" min="16" max="256" step="8" value="${fs.opt.paletteSize}">
+        <span class="opt-val" id="editFramesPaletteVal">${fs.opt.paletteSize}</span>
+      </div>
+      <div class="opt-row">
+        <span>Color precision</span>
+        <select id="editFramesColorFormat">
+          <option value="rgb565" ${fs.opt.colorFormat==='rgb565'?'selected':''}>RGB 5-6-5 (best balance)</option>
+          <option value="rgb444" ${fs.opt.colorFormat==='rgb444'?'selected':''}>RGB 4-4-4 (smaller)</option>
+          <option value="rgba4444" ${fs.opt.colorFormat==='rgba4444'?'selected':''}>RGBA 4-4-4-4 (alpha)</option>
+        </select>
+        <span></span>
+      </div>
+      <div class="opt-row">
+        <span>Dedupe duplicates</span>
+        <label style="display:flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="editFramesDedupe" ${fs.opt.dedupe?'checked':''}>
+          <span style="font-size:.72rem;color:rgba(255,255,255,.55);">Merge near-identical adjacent frames</span>
+        </label>
+        <span></span>
+      </div>
+    </div>
   `;
   const strip = body.querySelector('#editFramesStrip');
-  fs.frames.forEach((frame, i) => {
-    const div = document.createElement('div');
-    div.className = 'edit-frame-thumb' + (frame.deleted ? ' deleted' : ' kept');
-    div.dataset.fi = String(i);
-    const c = document.createElement('canvas');
-    c.width = 80; c.height = 80;
-    const cx = c.getContext('2d');
-    const rb = Math.min(80 / frame.bitmap.width, 80 / frame.bitmap.height);
-    const dw = frame.bitmap.width * rb, dh = frame.bitmap.height * rb;
-    cx.drawImage(frame.bitmap, (80 - dw) / 2, (80 - dh) / 2, dw, dh);
-    div.appendChild(c);
-    const num = document.createElement('span');
-    num.className = 'frame-num';
-    num.textContent = String(i + 1);
-    div.appendChild(num);
-    const del = document.createElement('button');
-    del.className = 'frame-del';
-    del.textContent = '\u00d7';
-    del.title = 'Delete frame';
-    del.addEventListener('click', e => {
-      e.stopPropagation();
-      frame.deleted = !frame.deleted;
-      div.classList.toggle('deleted', frame.deleted);
-      div.classList.toggle('kept', !frame.deleted);
+  function _renderStrip(){
+    strip.innerHTML = '';
+    fs.frames.forEach((frame, i) => {
+      const div = document.createElement('div');
+      div.className = 'edit-frame-thumb' + (frame.deleted ? ' deleted' : ' kept');
+      div.dataset.fi = String(i);
+      div.draggable = true;
+      const wrap = document.createElement('div');
+      wrap.className = 'frame-canvas-wrap';
+      const c = document.createElement('canvas');
+      c.width = 80; c.height = 80;
+      const cx = c.getContext('2d');
+      const rb = Math.min(80 / frame.bitmap.width, 80 / frame.bitmap.height);
+      const dw = frame.bitmap.width * rb, dh = frame.bitmap.height * rb;
+      cx.drawImage(frame.bitmap, (80 - dw) / 2, (80 - dh) / 2, dw, dh);
+      wrap.appendChild(c);
+      const num = document.createElement('span');
+      num.className = 'frame-num';
+      num.textContent = String(i + 1);
+      wrap.appendChild(num);
+      const del = document.createElement('button');
+      del.className = 'frame-del';
+      del.textContent = '\u00d7';
+      del.title = 'Delete frame';
+      del.addEventListener('click', e => {
+        e.stopPropagation();
+        frame.deleted = !frame.deleted;
+        div.classList.toggle('deleted', frame.deleted);
+        div.classList.toggle('kept', !frame.deleted);
+        _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+      });
+      wrap.appendChild(del);
+      const dup = document.createElement('button');
+      dup.className = 'frame-dup';
+      dup.textContent = '\u2756';
+      dup.title = 'Duplicate frame';
+      dup.addEventListener('click', e => {
+        e.stopPropagation();
+        /* Clone the frame — shares the bitmap reference (no need to
+           re-decode), copies delay + deleted flag. Insert immediately
+           after the source, matching ezgif's per-frame Copy behavior. */
+        const clone = { bitmap: frame.bitmap, delay: frame.delay, deleted: false, originalIdx: frame.originalIdx };
+        fs.frames.splice(i + 1, 0, clone);
+        _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+        _renderStrip();
+      });
+      wrap.appendChild(dup);
+      div.appendChild(wrap);
+      /* Per-frame delay input — ms (gifenc native unit). Show a hint
+         in centiseconds for ezgif veterans via tooltip. */
+      const delay = document.createElement('input');
+      delay.type = 'number';
+      delay.className = 'frame-delay-input';
+      delay.min = '20'; delay.max = '65535'; delay.step = '10';
+      delay.value = String(Math.max(20, Math.round(frame.delay)));
+      delay.title = `Delay in milliseconds (\u2248 ${Math.round(frame.delay/10)}/100 s)`;
+      delay.addEventListener('input', e => {
+        const v = parseInt(e.target.value, 10);
+        if (isFinite(v) && v >= 20) {
+          frame.delay = v;
+          _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+        }
+      });
+      div.appendChild(delay);
+      /* Drag-reorder events — HTML5 DnD. Mobile fallback: long-press
+         not shipped this round (deferred to round 2 of frames work
+         since touch already lets users tap delete/dup/delay). */
+      div.addEventListener('dragstart', e => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(i));
+        div.classList.add('dragging');
+      });
+      div.addEventListener('dragend', () => {
+        strip.querySelectorAll('.drop-before, .drop-after').forEach(el => el.classList.remove('drop-before','drop-after'));
+        div.classList.remove('dragging');
+      });
+      div.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const rect = div.getBoundingClientRect();
+        const mid = rect.left + rect.width / 2;
+        const before = e.clientX < mid;
+        strip.querySelectorAll('.drop-before, .drop-after').forEach(el => el.classList.remove('drop-before','drop-after'));
+        div.classList.add(before ? 'drop-before' : 'drop-after');
+      });
+      div.addEventListener('drop', e => {
+        e.preventDefault();
+        const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        const toRect = div.getBoundingClientRect();
+        const before = e.clientX < (toRect.left + toRect.width / 2);
+        let toIdx = parseInt(div.dataset.fi, 10);
+        if (!before) toIdx++;
+        /* Splice: remove from source, re-insert at target (account for
+           index shift if source < target). */
+        if (fromIdx === toIdx || fromIdx === toIdx - 1) {
+          strip.querySelectorAll('.drop-before, .drop-after').forEach(el => el.classList.remove('drop-before','drop-after'));
+          return;
+        }
+        const [moved] = fs.frames.splice(fromIdx, 1);
+        const realTo = fromIdx < toIdx ? toIdx - 1 : toIdx;
+        fs.frames.splice(realTo, 0, moved);
+        _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+        _renderStrip();
+      });
+      strip.appendChild(div);
+    });
+  }
+  _renderStrip();
+  /* Action buttons: Reverse all / Reset delays. */
+  body.querySelectorAll('.edit-frames-action-btn[data-act]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const act = btn.dataset.act;
+      if (act === 'reverse') {
+        /* Reverse the frames array — preserves per-frame delay + deleted
+           per ezgif's contract. */
+        fs.frames = fs.frames.slice().reverse();
+        _renderStrip();
+      } else if (act === 'resetDelays') {
+        fs.frames.forEach(fr => { fr.delay = fr.originalDelay || fr.delay; });
+        _renderStrip();
+      }
       _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
     });
-    div.appendChild(del);
-    strip.appendChild(div);
   });
-  body.querySelector('#editFramesFps').addEventListener('input', e => {
-    fs.fps = parseInt(e.target.value, 10) || 10;
-    _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+  /* Set-all-frames uniform delay applier. */
+  const uniformBtn = body.querySelector('#editFramesUniformApply');
+  const uniformInp = body.querySelector('#editFramesUniformMs');
+  uniformBtn.addEventListener('click', () => {
+    const ms = parseInt(uniformInp.value, 10);
+    if (isFinite(ms) && ms >= 20) {
+      fs.frames.forEach(fr => { fr.delay = ms; });
+      fs.fps = Math.max(1, Math.min(60, Math.round(1000 / ms)));
+      _renderStrip();
+      _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+    }
   });
+  /* Loop + trim handlers unchanged from prior shipment. */
   body.querySelector('#editFramesLoop').addEventListener('input', e => {
     fs.loop = Math.max(0, parseInt(e.target.value, 10) || 0);
     _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
@@ -5336,14 +5548,43 @@ async function _renderFramesTab(body){
     body.querySelector('#editFramesTrimEndVal').textContent = String(fs.trimEnd);
     _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
   });
+  /* Optimize panel handlers. */
+  const paletteEl = body.querySelector('#editFramesPalette');
+  const paletteValEl = body.querySelector('#editFramesPaletteVal');
+  paletteEl.addEventListener('input', e => {
+    fs.opt.paletteSize = parseInt(e.target.value, 10) || 256;
+    paletteValEl.textContent = String(fs.opt.paletteSize);
+    _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+  });
+  body.querySelector('#editFramesColorFormat').addEventListener('change', e => {
+    fs.opt.colorFormat = e.target.value || 'rgb565';
+    _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+  });
+  body.querySelector('#editFramesDedupe').addEventListener('change', e => {
+    fs.opt.dedupe = !!e.target.checked;
+    _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
+  });
   _editState.pendingEdits.gifEdit = _gifEditPayload(fs);
 }
 function _gifEditPayload(fs){
+  /* keepIndices reflects the CURRENT order of fs.frames (post-reorder /
+     duplicate). Trim is applied as a positional window over the
+     reordered array. Per-frame delays live on fs.frames[i].delay; the
+     legacy `delay` field is kept as a fallback for older code paths. */
+  const len = fs.frames.length;
+  const trimStart = Math.max(0, Math.min(fs.trimStart, len - 1));
+  const trimEnd = Math.max(trimStart, Math.min(fs.trimEnd, len - 1));
+  const keepIndices = [];
+  for (let i = trimStart; i <= trimEnd; i++) {
+    if (!fs.frames[i].deleted) keepIndices.push(i);
+  }
   return {
-    keepIndices: fs.frames.map((f, i) => f.deleted ? -1 : i).filter(i => i >= fs.trimStart && i <= fs.trimEnd),
-    delay: Math.round(1000 / Math.max(1, fs.fps)),
+    keepIndices,
+    delays: keepIndices.map(i => Math.max(20, Math.round(fs.frames[i].delay || 100))),
+    delay: Math.round(1000 / Math.max(1, fs.fps)),  /* legacy fallback */
     loop: fs.loop,
     width: fs.width, height: fs.height,
+    opt: fs.opt || { paletteSize: 256, colorFormat: 'rgb565', dedupe: false },
   };
 }
 async function _decodeGifFramesForEdit(file){
@@ -5366,7 +5607,7 @@ async function _decodeGifFramesForEdit(file){
     const bmp = await createImageBitmap(c);
     const dur = (r.image.duration || 0) / 1000;
     if (dur > 0) { delaySum += dur; delayN++; }
-    frames.push({ bitmap: bmp, delay: dur || 100, deleted: false, originalIdx: i });
+    frames.push({ bitmap: bmp, delay: dur || 100, originalDelay: dur || 100, deleted: false, originalIdx: i });
     try { r.image.close && r.image.close(); } catch(_){}
   }
   try { dec.close && dec.close(); } catch(_){}
@@ -5393,18 +5634,58 @@ async function _applyGifEdit(file, edits){
   const keep = edits.keepIndices;
   if (!keep || !keep.length) throw new Error('No frames left after edits');
   const w = edits.width, h = edits.height;
-  const enc = GIFEncoder();
-  for (const idx of keep) {
+  const opt = edits.opt || { paletteSize: 256, colorFormat: 'rgb565', dedupe: false };
+  const paletteSize = Math.max(16, Math.min(256, opt.paletteSize || 256));
+  const colorFormat = opt.colorFormat || 'rgb565';
+  /* Pre-rasterize every kept frame to {data, delay}. Optional dedupe
+     pass collapses near-identical adjacent frames into one and sums
+     their delays. Threshold: mean per-pixel absolute diff < 4 (subtle
+     compression-level variations get merged; visible motion preserved). */
+  const rastered = [];
+  for (let k = 0; k < keep.length; k++) {
+    const idx = keep[k];
     const fr = fs.frames[idx];
     const c = document.createElement('canvas');
     c.width = w; c.height = h;
     const cx = c.getContext('2d');
     cx.drawImage(fr.bitmap, 0, 0, w, h);
     const data = cx.getImageData(0, 0, w, h).data;
-    const palette = quantize(data, 256);
-    const indexed = applyPalette(data, palette);
+    const delay = edits.delays && edits.delays[k] ? edits.delays[k] : Math.max(20, edits.delay);
+    rastered.push({ data, delay });
+  }
+  /* Dedupe — merge adjacent frames whose mean per-pixel absolute diff
+     in RGB is below threshold. Combined frame keeps the EARLIER pixel
+     data + the SUM of their delays. Walks linearly; safe even after
+     reorder. */
+  let frames = rastered;
+  if (opt.dedupe && rastered.length > 1) {
+    const merged = [rastered[0]];
+    const THRESHOLD = 4;  /* empirical: catches LZW noise, leaves real motion */
+    for (let i = 1; i < rastered.length; i++) {
+      const prev = merged[merged.length - 1];
+      const cur = rastered[i];
+      let sum = 0;
+      const len = Math.min(prev.data.length, cur.data.length);
+      for (let j = 0; j < len; j += 16) {
+        sum += Math.abs(prev.data[j] - cur.data[j]);
+        sum += Math.abs(prev.data[j+1] - cur.data[j+1]);
+        sum += Math.abs(prev.data[j+2] - cur.data[j+2]);
+      }
+      const avg = sum / (len / 16 * 3);
+      if (avg < THRESHOLD) {
+        prev.delay = Math.min(65535, prev.delay + cur.delay);
+      } else {
+        merged.push(cur);
+      }
+    }
+    frames = merged;
+  }
+  const enc = GIFEncoder();
+  for (const fr of frames) {
+    const palette = quantize(fr.data, paletteSize, { format: colorFormat });
+    const indexed = applyPalette(fr.data, palette, colorFormat);
     enc.writeFrame(indexed, w, h, {
-      palette, delay: Math.max(20, edits.delay),
+      palette, delay: Math.max(20, fr.delay),
       dispose: 2, transparent: false, repeat: edits.loop,
     });
   }
