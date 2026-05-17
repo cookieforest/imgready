@@ -6098,8 +6098,8 @@ function _renderRotateTab(body){
       <button type="button" class="edit-rotate-btn" data-rot="cw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>90\u00b0 CW</button>
       <button type="button" class="edit-rotate-btn" data-rot="ccw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>90\u00b0 CCW</button>
       <button type="button" class="edit-rotate-btn" data-rot="180"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>180\u00b0</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fh"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg>Flip H</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fv"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg>Flip V</button>
+      <button type="button" class="edit-rotate-btn" data-rot="fh"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg>Flip horizontal</button>
+      <button type="button" class="edit-rotate-btn" data-rot="fv"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg>Flip vertical</button>
       <button type="button" class="edit-rotate-btn" data-rot="reset">Reset</button>
     </div>
   `;
@@ -6700,20 +6700,20 @@ function _renderBackgroundTab(body){
     +     '<span class="adj-val" id="bgrHardnessVal">' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '%</span>'
     +   '</div>'
     +   '<button type="button" class="edit-frames-action-btn" id="bgrClear">Clear refinements</button>'
-    +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft for feathered edges, higher for crisp.</p>'
+    +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft = feathered edges, higher = crisp.</p>'
     + '</div>'
   ) : '';
   if (!state.mode) state.mode = 'std';
   const mode = state.mode;
-  const stdHint = 'WASM ~56 MB · WebGPU ~223 MB · Saves as PNG';
-  const hqHint  = 'WebGPU ~110 MB (fp16) · WASM ~214 MB (fp32) · Finer hair / edges, slower';
+  const stdHint = 'First use downloads an AI model (~60 MB, one-time). Runs offline after.';
+  const hqHint  = 'First use downloads a larger model (~110 MB, one-time). Finer hair and edges.';
   body.innerHTML = ''
     + '<div class="edit-bg-card">'
     +   '<div class="bg-icon"><svg class="ico ico-lg" aria-hidden="true"><use href="#i-scissors"/></svg></div>'
-    +   '<h3>Remove Background</h3>'
-    +   '<p id="bgModelTag">' + (mode === 'hq'
-          ? 'BiRefNet_lite-ONNX · MIT'
-          : 'BEN2-ONNX · Apache-2.0/MIT') + '</p>'
+    +   '<h3>Remove background</h3>'
+    +   '<p id="bgModelTag" class="bg-subtitle">' + (mode === 'hq'
+          ? 'High quality — slower, sharper edges'
+          : 'Cuts out the subject. Saves as transparent PNG.') + '</p>'
     + '</div>'
     + '<div class="bg-mode-toggle" role="tablist" aria-label="Background-removal model quality">'
     +   '<button type="button" class="bg-mode-btn' + (mode==="std"?" active":"") + '" data-bg-mode="std" role="tab" aria-selected="' + (mode==="std") + '">Standard</button>'
@@ -6725,7 +6725,7 @@ function _renderBackgroundTab(body){
     + '</div>'
     + '<p id="bgSuccessMsg" class="edit-bg-success-msg" style="display:none"></p>'
     + '<button type="button" class="edit-bg-run" id="bgRunBtn">'
-    +   (hasDone ? '↺ Remove Again' : '✂️ Remove Background')
+    +   (hasDone ? '<svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>Remove again' : '<svg class="ico" aria-hidden="true"><use href="#i-scissors"/></svg>Remove background')
     + '</button>'
     + '<p class="edit-bg-hint" id="bgHint">' + (mode === 'hq' ? hqHint : stdHint) + '</p>'
     + refineHTML;
@@ -6762,8 +6762,8 @@ function _renderBackgroundTab(body){
       if (hint) hint.textContent = (m === 'hq') ? hqHint : stdHint;
       const tag = document.getElementById('bgModelTag');
       if (tag) tag.textContent = (m === 'hq')
-        ? 'BiRefNet_lite-ONNX · MIT'
-        : 'BEN2-ONNX · Apache-2.0/MIT';
+        ? 'High quality — slower, sharper edges'
+        : 'Cuts out the subject. Saves as transparent PNG.';
     });
   });
 
@@ -7108,7 +7108,7 @@ function _renderAdjustTab(body){
     { id: 'cool',    label: 'Cool',     css: 'hue-rotate(200deg) saturate(140%) brightness(105%)' },
     { id: 'warm',    label: 'Warm',     css: 'sepia(30%) saturate(180%) brightness(105%)' },
   ];
-  const fmt = v => (v - 100 >= 0 ? '+' : '') + (v - 100);
+  const fmt = v => { const d = v - 100; return d > 0 ? ('+' + d) : ('' + d); };
   const adjPreviewCol = document.getElementById('editPreviewCol');
   if (adjPreviewCol) {
     const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || f.url;
@@ -7149,7 +7149,7 @@ function _renderAdjustTab(body){
         <div class="adj-row">
           <span class="adj-label">Amount</span>
           <input type="range" id="vigAmount" min="-100" max="100" step="1" value="${vig.amount}">
-          <span class="adj-val" id="vigAmountVal">${(vig.amount>=0?'+':'')+vig.amount}</span>
+          <span class="adj-val" id="vigAmountVal">${vig.amount>0?'+'+vig.amount:String(vig.amount)}</span>
         </div>
         <div class="adj-row">
           <span class="adj-label">Midpoint</span>
@@ -7255,7 +7255,7 @@ function _renderAdjustTab(body){
     if (vigReset) vigReset.disabled = !(_editState.pendingEdits.vignette._dirty);
   }
   _vigUpdateResetState();
-  [['vigAmount','amount','vigAmountVal', v => (v>=0?'+':'')+v],
+  [['vigAmount','amount','vigAmountVal', v => (v>0?'+'+v:String(v))],
    ['vigMid','midpoint','vigMidVal', v => String(v)]].forEach(([id, key, valId, fmtFn]) => {
     const sl = document.getElementById(id);
     const vl = document.getElementById(valId);
@@ -7276,7 +7276,7 @@ function _renderAdjustTab(body){
       _editPushUndo();
       v.amount = 0; v.midpoint = 50; v._dirty = false;
       const a = document.getElementById('vigAmount'); if (a) a.value = '0';
-      const av = document.getElementById('vigAmountVal'); if (av) av.textContent = '+0';
+      const av = document.getElementById('vigAmountVal'); if (av) av.textContent = '0';
       const m = document.getElementById('vigMid'); if (m) m.value = '50';
       const mv = document.getElementById('vigMidVal'); if (mv) mv.textContent = '50';
       _vigPaintPreview();
@@ -7354,12 +7354,12 @@ async function _renderCropTab(body){
   }
   body.innerHTML = `
     <div class="edit-crop-presets" id="editCropPresets">
-      <span style="font-size:.74rem;color:rgba(255,255,255,.5);margin-right:2px;">Aspect:</span>
+      <span style="font-size:.74rem;color:rgba(255,255,255,.5);margin-right:2px;">Ratio</span>
       ${[{l:'Free',v:'free'},{l:'1:1',v:'1:1'},{l:'4:3',v:'4:3'},{l:'3:2',v:'3:2'},{l:'16:9',v:'16:9'}]
         .map(p=>`<button type="button" class="edit-preset-btn${p.v==='free'?' active':''}" data-aspect="${p.v}">${p.l}</button>`).join('')}
     </div>
-    <p style="font-size:.7rem;color:rgba(255,255,255,.35);margin:0;">Drag corners or edges to crop</p>
-    <button type="button" class="edit-frames-action-btn" id="editCropApplyBtn" style="width:100%;margin-top:auto;">Apply crop</button>
+    <p style="font-size:.7rem;color:rgba(255,255,255,.35);margin:0;">Drag the corners or edges to crop</p>
+    <button type="button" class="edit-frames-action-btn" id="editCropApplyBtn" style="width:100%;margin-top:auto;">Apply</button>
   `;
   const canvas = document.getElementById('editCropCanvas');
   const ctx = canvas.getContext('2d');
@@ -7632,12 +7632,12 @@ async function _renderPixelateTab(body){
     +     '<span class="adj-val" id="pxBrushVal">' + px.brushPx + '</span>'
     +   '</div>'
     +   '<div class="adj-row">'
-    +     '<span class="adj-label">Block</span>'
+    +     '<span class="adj-label">Cell size</span>'
     +     '<input type="range" id="pxBlock" min="4" max="60" step="1" value="' + px.blockSize + '">'
     +     '<span class="adj-val" id="pxBlockVal">' + px.blockSize + '</span>'
     +   '</div>'
     +   '<button type="button" class="edit-frames-action-btn" id="pxClear">Clear all</button>'
-    +   '<p class="edit-pixelate-help">Drag over the image to redact regions. Switch to Erase to clear pixelation from areas.</p>'
+    +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation.</p>'
     + '</div>';
   /* Build preview source (applies upstream edits) */
   await _pxBaseBlob();
@@ -7909,15 +7909,15 @@ async function _renderBlurTab(body){
     +     '<span class="adj-val" id="blBrushVal">' + bl.brushPx + '</span>'
     +   '</div>'
     +   '<div class="adj-row">'
-    +     '<span class="adj-label">Radius</span>'
+    +     '<span class="adj-label">Amount</span>'
     +     '<input type="range" id="blRadius" min="2" max="40" step="1" value="' + bl.radius + '">'
     +     '<span class="adj-val" id="blRadiusVal">' + bl.radius + '</span>'
     +   '</div>'
     +   '<div class="edit-blur-actions">'
-    +     '<button type="button" class="edit-frames-action-btn" id="blApplyAll">' + (bl.full ? 'Brush only' : 'Apply to all') + '</button>'
+    +     '<button type="button" class="edit-frames-action-btn" id="blApplyAll">' + (bl.full ? 'Brush only' : 'Whole image') + '</button>'
     +     '<button type="button" class="edit-frames-action-btn" id="blClear">Clear all</button>'
     +   '</div>'
-    +   '<p class="edit-blur-help">Drag over the image to blur regions. Switch to Erase to clear blur from areas. <strong>Apply to all</strong> blurs the entire image (depth-of-field effect).</p>'
+    +   '<p class="edit-blur-help">Drag over areas you want to soften. Switch to Erase to clear blur. <strong>Whole image</strong> blurs everything (depth-of-field style).</p>'
     + '</div>';
   /* Build preview source */
   await _blurBaseBlob();
@@ -8085,7 +8085,7 @@ async function _renderBlurTab(body){
   document.getElementById('blApplyAll').addEventListener('click', (ev) => {
     _editPushUndo();
     bl.full = !bl.full;
-    ev.target.textContent = bl.full ? 'Brush only' : 'Apply to all';
+    ev.target.textContent = bl.full ? 'Brush only' : 'Whole image';
     render();
     _updateEditHistoryUI();
   });
@@ -8095,7 +8095,7 @@ async function _renderBlurTab(body){
     bl.strokes = [];
     bl.full = false;
     const btn = document.getElementById('blApplyAll');
-    if (btn) btn.textContent = 'Apply to all';
+    if (btn) btn.textContent = 'Whole image';
     render();
     _updateEditHistoryUI();
   });
@@ -8448,7 +8448,7 @@ async function _renderTextTab(body){
     const list = document.getElementById('txItemList');
     if (!list) return;
     if (!state.items.length){
-      list.innerHTML = '<div class="tx-empty">No text or logos yet. Add one above.</div>';
+      list.innerHTML = '<div class="tx-empty">Nothing added yet — pick Text, Watermark, or Logo above to start.</div>';
     } else {
       list.innerHTML = state.items.map(it => {
         const lbl = it.type === 'image' ? 'Logo' : (it.text || '(empty)').slice(0, 26);
