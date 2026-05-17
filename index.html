@@ -2459,6 +2459,44 @@
   }
   .edit-preset-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
   .edit-preset-btn.active{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.28);}
+  /* Round 14 — Vignette (lives inside the Adjust tab) */
+  .edit-vignette-section{
+    display:flex;flex-direction:column;gap:8px;
+    padding:9px 9px 10px;margin-top:2px;
+    background:rgba(255,255,255,.03);border-radius:7px;
+  }
+  .edit-vignette-head{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+  }
+  .edit-vignette-title{
+    font-size:.74rem;color:rgba(255,255,255,.78);letter-spacing:.02em;
+    display:flex;align-items:center;gap:5px;
+  }
+  .edit-vignette-reset{
+    background:transparent;border:0;color:rgba(255,255,255,.55);
+    font-size:.7rem;padding:2px 6px;border-radius:5px;cursor:pointer;
+  }
+  .edit-vignette-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .edit-vignette-reset:disabled{opacity:.35;cursor:not-allowed;}
+  .edit-vignette-sliders{display:flex;flex-direction:column;gap:8px;}
+  .edit-vignette-sliders .adj-row{grid-template-columns:62px 1fr 36px;}
+  /* image frame wraps the adjust preview so the vignette overlay can sit on the image bbox */
+  .edit-preview-col .edit-adjust-img-frame{
+    position:relative;display:inline-flex;max-width:100%;max-height:100%;
+    line-height:0; /* kill img inline-baseline gap */
+  }
+  .edit-preview-col .edit-adjust-img-frame .edit-adjust-preview{
+    max-width:100%;max-height:100%;object-fit:contain;display:block;
+  }
+  .edit-vignette-overlay{
+    position:absolute;inset:0;pointer-events:none;
+    background:var(--vig-bg, transparent);
+    transition:background .08s linear;
+  }
+  @media (max-width: 640px){
+    .edit-vignette-section{padding:7px 8px 8px;}
+    .edit-vignette-sliders .adj-row{grid-template-columns:58px 1fr 32px;}
+  }
   .edit-crop-presets{display:flex;flex-wrap:wrap;gap:4px;}
   .edit-frames-strip{
     display:flex;gap:5px;overflow-x:auto;
@@ -5696,6 +5734,9 @@ async function saveEdit(){
       if (_editState.pendingEdits.photoCrop) {
         workingBlob = await _applyPhotoCrop(workingBlob, _editState.pendingEdits.photoCrop);
       }
+      if (_editState.pendingEdits.vignette && _editState.pendingEdits.vignette._dirty) {
+        workingBlob = await _applyVignette(workingBlob, _editState.pendingEdits.vignette);
+      }
       if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length) {
         workingBlob = await _applyPixelate(workingBlob, _editState.pendingEdits.pixelate);
       }
@@ -5755,6 +5796,7 @@ function _editSnapshot(){
     autoEnhancedUrl: pe.autoEnhancedUrl || null,
     pixelate: pe.pixelate ? JSON.parse(JSON.stringify(pe.pixelate)) : null,
     blur: pe.blur ? JSON.parse(JSON.stringify(pe.blur)) : null,
+    vignette: pe.vignette ? { ...pe.vignette } : null,
     textOverlays: pe.textOverlays ? JSON.parse(JSON.stringify(pe.textOverlays)) : null,
     gifEdit: pe.gifEdit ? JSON.parse(JSON.stringify(pe.gifEdit)) : null,
     rotateState: { ..._editState.rotateState },
@@ -5773,6 +5815,7 @@ function _editRestore(snap){
   }
   if (snap.pixelate) _editState.pendingEdits.pixelate = snap.pixelate;
   if (snap.blur) _editState.pendingEdits.blur = snap.blur;
+  if (snap.vignette) _editState.pendingEdits.vignette = snap.vignette;
   if (snap.textOverlays) _editState.pendingEdits.textOverlays = snap.textOverlays;
   if (snap.gifEdit) _editState.pendingEdits.gifEdit = snap.gifEdit;
   _editState.rotateState = { ...snap.rotateState };
@@ -5873,6 +5916,7 @@ function _editHasAnyEdit(){
   if (pe.autoEnhanced) return true;
   if (pe.pixelate && Array.isArray(pe.pixelate.strokes) && pe.pixelate.strokes.length) return true;
   if (pe.blur && ((Array.isArray(pe.blur.strokes) && pe.blur.strokes.length) || pe.blur.full)) return true;
+  if (pe.vignette && pe.vignette._dirty) return true;
   if (pe.textOverlays && Array.isArray(pe.textOverlays) && pe.textOverlays.length) return true;
   /* GIF: frame-level mutation surfaces as pendingEdits.gifEdit. */
   if (pe.gifEdit) return true;
@@ -7051,6 +7095,10 @@ function _renderAdjustTab(body){
     _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false };
   }
   const adj = _editState.pendingEdits.photoAdjust;
+  if (!_editState.pendingEdits.vignette) {
+    _editState.pendingEdits.vignette = { amount: 0, midpoint: 50, _dirty: false };
+  }
+  const vig = _editState.pendingEdits.vignette;
   const PRESETS = [
     { id: 'none',    label: 'Original', css: '' },
     { id: 'bw',      label: 'B&W',      css: 'grayscale(100%)' },
@@ -7064,7 +7112,7 @@ function _renderAdjustTab(body){
   const adjPreviewCol = document.getElementById('editPreviewCol');
   if (adjPreviewCol) {
     const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || f.url;
-    adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false"></div>`;
+    adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false"><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>`;
   }
   const _aeOn = !!_editState.pendingEdits.autoEnhanced;
   body.innerHTML = `
@@ -7091,6 +7139,24 @@ function _renderAdjustTab(body){
     </div>
     <div class="edit-preset-strip">
       ${PRESETS.map(p => `<button type="button" class="edit-preset-btn${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}">${p.label}</button>`).join('')}
+    </div>
+    <div class="edit-vignette-section">
+      <div class="edit-vignette-head">
+        <span class="edit-vignette-title">Vignette</span>
+        <button type="button" class="edit-vignette-reset" id="vigReset" aria-label="Reset vignette">Reset</button>
+      </div>
+      <div class="edit-vignette-sliders">
+        <div class="adj-row">
+          <span class="adj-label">Amount</span>
+          <input type="range" id="vigAmount" min="-100" max="100" step="1" value="${vig.amount}">
+          <span class="adj-val" id="vigAmountVal">${(vig.amount>=0?'+':'')+vig.amount}</span>
+        </div>
+        <div class="adj-row">
+          <span class="adj-label">Midpoint</span>
+          <input type="range" id="vigMid" min="0" max="100" step="1" value="${vig.midpoint}">
+          <span class="adj-val" id="vigMidVal">${vig.midpoint}</span>
+        </div>
+      </div>
     </div>
   `;
   const previewImg = document.getElementById('editAdjPreview');
@@ -7164,6 +7230,60 @@ function _renderAdjustTab(body){
       _reRenderEditTab();
     });
   }
+  /* Vignette wiring */
+  const _vigEl = document.getElementById('editAdjVignette');
+  function _vigBuildBg(){
+    const v = _editState.pendingEdits.vignette;
+    if (!v || v.amount === 0) return 'transparent';
+    const amt = Math.abs(v.amount) / 100;
+    const start = Math.max(0, Math.min(100, v.midpoint));
+    const col = v.amount > 0 ? '0,0,0' : '255,255,255';
+    return `radial-gradient(ellipse at center, rgba(${col},0) ${start}%, rgba(${col},${amt.toFixed(3)}) 100%)`;
+  }
+  function _vigPaintPreview(){
+    if (_vigEl) _vigEl.style.background = _vigBuildBg();
+  }
+  function _vigMarkDirty(){
+    const v = _editState.pendingEdits.vignette;
+    v._dirty = v.amount !== 0;
+    _vigPaintPreview();
+    _updateEditHistoryUI();
+  }
+  _vigPaintPreview();
+  const vigReset = document.getElementById('vigReset');
+  function _vigUpdateResetState(){
+    if (vigReset) vigReset.disabled = !(_editState.pendingEdits.vignette._dirty);
+  }
+  _vigUpdateResetState();
+  [['vigAmount','amount','vigAmountVal', v => (v>=0?'+':'')+v],
+   ['vigMid','midpoint','vigMidVal', v => String(v)]].forEach(([id, key, valId, fmtFn]) => {
+    const sl = document.getElementById(id);
+    const vl = document.getElementById(valId);
+    if (!sl) return;
+    sl.addEventListener('input', () => {
+      const val = parseInt(sl.value, 10);
+      _editState.pendingEdits.vignette[key] = val;
+      if (vl) vl.textContent = fmtFn(val);
+      _vigMarkDirty();
+      _vigUpdateResetState();
+    });
+    sl.addEventListener('change', () => { _editPushUndo(); });
+  });
+  if (vigReset){
+    vigReset.addEventListener('click', () => {
+      const v = _editState.pendingEdits.vignette;
+      if (!v._dirty) return;
+      _editPushUndo();
+      v.amount = 0; v.midpoint = 50; v._dirty = false;
+      const a = document.getElementById('vigAmount'); if (a) a.value = '0';
+      const av = document.getElementById('vigAmountVal'); if (av) av.textContent = '+0';
+      const m = document.getElementById('vigMid'); if (m) m.value = '50';
+      const mv = document.getElementById('vigMidVal'); if (mv) mv.textContent = '50';
+      _vigPaintPreview();
+      _updateEditHistoryUI();
+      _vigUpdateResetState();
+    });
+  }
 }
 async function _applyPhotoAdjust(file, adjInfo){
   const bmp = await createImageBitmap(file);
@@ -7178,6 +7298,49 @@ async function _applyPhotoAdjust(file, adjInfo){
   const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
   return await new Promise((res, rej) => {
     canvas.toBlob(b => b ? res(b) : rej(new Error('adjust encode failed')), mime, 0.95);
+  });
+}
+
+/* Round 14 — Vignette: radial gradient composited on top of the photo.
+   info = { amount: -100..+100, midpoint: 0..100, _dirty }
+   Positive amount = darken corners; negative = lighten corners.
+   Ellipse follows the image aspect ratio so the falloff feels natural. */
+async function _applyVignette(file, info){
+  if (!info || !info._dirty || info.amount === 0) return file;
+  const bmp = await createImageBitmap(file);
+  const W = bmp.width, H = bmp.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bmp, 0, 0);
+  try { bmp.close && bmp.close(); } catch(_){}
+  const cx = W / 2, cy = H / 2;
+  const minHalf = Math.min(W, H) / 2;
+  /* Build an elliptical gradient by scaling the canvas before drawing a circular one. */
+  const sx = (W / 2) / minHalf;
+  const sy = (H / 2) / minHalf;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(sx, sy);
+  ctx.translate(-cx, -cy);
+  const inner = minHalf * (Math.max(0, Math.min(100, info.midpoint)) / 100);
+  const outer = minHalf;
+  const g = ctx.createRadialGradient(cx, cy, inner, cx, cy, outer);
+  const amt = Math.abs(info.amount) / 100;
+  if (info.amount > 0){
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(1, `rgba(0,0,0,${amt})`);
+  } else {
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(1, `rgba(255,255,255,${amt})`);
+  }
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+  /* Preserve transparency where present (PNG/WEBP); else stick with input mime. */
+  const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
+  return await new Promise((res, rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('vignette encode failed')), mime, 0.95);
   });
 }
 
@@ -7426,7 +7589,8 @@ async function _pxBaseBlob(){
     a: !!pe.autoEnhanced,
     r: pe.rotate || null,
     j: pe.photoAdjust && pe.photoAdjust._dirty ? pe.photoAdjust : null,
-    c: pe.photoCrop || null
+    c: pe.photoCrop || null,
+    v: pe.vignette && pe.vignette._dirty ? pe.vignette : null
   });
   if (_editState._pxBaseSig === sig && _editState._pxBaseBlob){
     return _editState._pxBaseBlob;
@@ -7436,6 +7600,7 @@ async function _pxBaseBlob(){
   if (pe.rotate) blob = await _applyRotation(blob, pe.rotate);
   if (pe.photoAdjust && pe.photoAdjust._dirty) blob = await _applyPhotoAdjust(blob, pe.photoAdjust);
   if (pe.photoCrop) blob = await _applyPhotoCrop(blob, pe.photoCrop);
+  if (pe.vignette && pe.vignette._dirty) blob = await _applyVignette(blob, pe.vignette);
   if (_editState._pxBaseUrl){ try { URL.revokeObjectURL(_editState._pxBaseUrl); } catch(_){} }
   _editState._pxBaseBlob = blob;
   _editState._pxBaseUrl = URL.createObjectURL(blob);
@@ -7698,6 +7863,7 @@ async function _blurBaseBlob(){
     r: pe.rotate || null,
     j: pe.photoAdjust && pe.photoAdjust._dirty ? pe.photoAdjust : null,
     c: pe.photoCrop || null,
+    v: pe.vignette && pe.vignette._dirty ? pe.vignette : null,
     p: pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length ? pe.pixelate : null
   });
   if (_editState._blurBaseSig === sig && _editState._blurBaseBlob){
@@ -7708,6 +7874,7 @@ async function _blurBaseBlob(){
   if (pe.rotate) blob = await _applyRotation(blob, pe.rotate);
   if (pe.photoAdjust && pe.photoAdjust._dirty) blob = await _applyPhotoAdjust(blob, pe.photoAdjust);
   if (pe.photoCrop) blob = await _applyPhotoCrop(blob, pe.photoCrop);
+  if (pe.vignette && pe.vignette._dirty) blob = await _applyVignette(blob, pe.vignette);
   if (pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length) blob = await _applyPixelate(blob, pe.pixelate);
   _editState._blurBaseBlob = blob;
   _editState._blurBaseSig = sig;
@@ -8050,6 +8217,7 @@ async function _txBaseBlob(){
     r: pe.rotate || null,
     j: pe.photoAdjust && pe.photoAdjust._dirty ? pe.photoAdjust : null,
     c: pe.photoCrop || null,
+    v: pe.vignette && pe.vignette._dirty ? pe.vignette : null,
     p: pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length ? pe.pixelate : null,
     b: pe.blur && ((pe.blur.strokes && pe.blur.strokes.length) || pe.blur.full) ? pe.blur : null
   });
@@ -8061,6 +8229,7 @@ async function _txBaseBlob(){
   if (pe.rotate) blob = await _applyRotation(blob, pe.rotate);
   if (pe.photoAdjust && pe.photoAdjust._dirty) blob = await _applyPhotoAdjust(blob, pe.photoAdjust);
   if (pe.photoCrop) blob = await _applyPhotoCrop(blob, pe.photoCrop);
+  if (pe.vignette && pe.vignette._dirty) blob = await _applyVignette(blob, pe.vignette);
   if (pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length) blob = await _applyPixelate(blob, pe.pixelate);
   if (pe.blur && ((pe.blur.strokes && pe.blur.strokes.length) || pe.blur.full)) blob = await _applyBlur(blob, pe.blur);
   if (_editState._txBaseUrl){ try { URL.revokeObjectURL(_editState._txBaseUrl); } catch(_){} }
