@@ -5620,7 +5620,18 @@ function openEditMode(idx){
    * (stored as f.decodedBlob). Use that here. f.file remains the original
    * HEIC for metadata + encoder-level use. */
   _editState.originalFile = f.decodedBlob || f.file;
-  _editState.originalUrl = f.url;
+  /* Round 17 HEIC fix: f.url is a blob URL for the RAW HEIC, which
+   * Chrome/Firefox/Edge can't decode. When we have a decoded JPEG blob,
+   * mint a dedicated URL for it so every Edit-mode preview (<img>, CSS
+   * background-image) and the transformers.js BG pipeline see a real,
+   * renderable image. cancelEdit revokes it via _decodedOwnUrl. */
+  if (f.decodedBlob && f.decodedBlob !== f.file){
+    _editState._decodedOwnUrl = URL.createObjectURL(f.decodedBlob);
+    _editState.originalUrl = _editState._decodedOwnUrl;
+  } else {
+    _editState._decodedOwnUrl = null;
+    _editState.originalUrl = f.url;
+  }
   _editState.fileType = _detectEditFileType(f.file);
   _editState.pendingEdits = {};
   _editState.rotateState = { deg: 0, flipH: false, flipV: false, angle: 0 };
@@ -5674,6 +5685,12 @@ function _switchEditTab(tabId){
 function cancelEdit(){
   if (_editState._blurBitmap){ try { _editState._blurBitmap.close && _editState._blurBitmap.close(); } catch(_){} _editState._blurBitmap = null; }
   _editState._blurBaseBlob = null; _editState._blurBaseSig = null;
+  /* Round 17 HEIC fix: release the decoded-JPEG blob URL we minted in
+   * openEditMode so it doesn't leak between Edit sessions. */
+  if (_editState._decodedOwnUrl){
+    try { URL.revokeObjectURL(_editState._decodedOwnUrl); } catch(_){}
+    _editState._decodedOwnUrl = null;
+  }
   document.body.dataset.editOpen = 'false';
   const modal = document.getElementById('editModal');
   if (modal) modal.setAttribute('hidden', '');
@@ -5713,7 +5730,12 @@ async function saveEdit(){
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving\u2026'; }
   let newBlob = null;
   try {
-    let workingBlob = f.file;
+    /* Round 17 HEIC fix: the photo-edit chain feeds workingBlob into
+     * createImageBitmap() in every _applyX helper. For HEIC entries
+     * f.file is the raw HEIC (un-decodable by Chrome/Firefox/Edge),
+     * so start from the decoded JPEG blob the round-11 fix stashes
+     * in _editState.originalFile. Non-HEIC: originalFile === f.file. */
+    let workingBlob = _editState.originalFile || f.file;
     if (_editState.pendingEdits.gifEdit) {
       workingBlob = await _applyGifEdit(f.file, _editState.pendingEdits.gifEdit);
     } else if (_editState.pendingEdits.bgRemoved) {
@@ -5761,6 +5783,12 @@ async function saveEdit(){
     let newName = f.file.name || 'image';
     if (_editState.pendingEdits.bgRemoved && newBlob === _editState.pendingEdits.bgRemoved) {
       newName = newName.replace(/\.[^.]+$/, '') + '.png';
+    } else if (/\.(heic|heif)$/i.test(newName)){
+      /* Round 17 HEIC fix: every Edit path encodes via canvas.toBlob,
+       * which can only emit image/png or image/jpeg. Keep the file name
+       * honest so downloads match the bytes inside. */
+      const ext = (newBlob.type === 'image/png') ? '.png' : '.jpg';
+      newName = newName.replace(/\.[^.]+$/, '') + ext;
     }
     f.file = new File([newBlob], newName, { type: newBlob.type || f.file.type });
     f.url = URL.createObjectURL(newBlob);
@@ -6091,7 +6119,7 @@ function _renderRotateTab(body){
   if (!f) return;
   const previewCol = document.getElementById('editPreviewCol');
   if (previewCol) {
-    previewCol.innerHTML = `<div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${f.url}');"></div>`;
+    previewCol.innerHTML = `<div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${_editState.originalUrl || f.url}');"></div>`;
   }
   body.innerHTML = `
     <div class="edit-rotate-row">
@@ -6738,7 +6766,7 @@ function _renderBackgroundTab(body){
 
   if (!hasDone) {
     const origThumb = document.getElementById('bgOrigThumb');
-    if (origThumb) origThumb.src = f.url;
+    if (origThumb) origThumb.src = _editState.originalUrl || f.url;
   } else {
     successMsg.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Background removed — click Save to apply.';
     successMsg.style.color = '#6fcf97';
@@ -6793,7 +6821,7 @@ function _renderBackgroundTab(body){
       fill.style.width = '90%';
       progLabel.textContent = 'Removing background…';
 
-      const [res] = await pipe(f.url);
+      const [res] = await pipe(_editState.originalUrl || f.url);
       const blob = await res.toBlob('image/png');
 
       _editPushUndo();
@@ -7111,7 +7139,7 @@ function _renderAdjustTab(body){
   const fmt = v => { const d = v - 100; return d > 0 ? ('+' + d) : ('' + d); };
   const adjPreviewCol = document.getElementById('editPreviewCol');
   if (adjPreviewCol) {
-    const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || f.url;
+    const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
     adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false"><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>`;
   }
   const _aeOn = !!_editState.pendingEdits.autoEnhanced;
@@ -7365,7 +7393,7 @@ async function _renderCropTab(body){
   const ctx = canvas.getContext('2d');
   const wrap = document.getElementById('editCropWrap');
   let bmp;
-  try { bmp = await createImageBitmap(f.file); }
+  try { bmp = await createImageBitmap(_editState.originalFile || f.file); }
   catch(e) { body.innerHTML = '<p style="color:rgba(255,120,120,.85);">Could not load image for crop.</p>'; return; }
   const imgW = bmp.width, imgH = bmp.height;
   const pcEl = document.getElementById('editPreviewCol');
