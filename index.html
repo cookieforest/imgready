@@ -7661,6 +7661,9 @@ async function _renderPixelateTab(body){
   const dw = dims.dw, dh = dims.dh;
   canvas.width = dw; canvas.height = dh;
   canvas.style.width = dw + 'px'; canvas.style.height = dh + 'px';
+  /* Round 15 — show a sized ring cursor so the brush footprint is visible */
+  function _pxRefreshCursor(){ canvas.style.cursor = _bgRingCursor(px.brushPx); }
+  _pxRefreshCursor();
   function buildPixelatedPreview(blockSrc){
     const sx = dw / bmp.width;
     const block = Math.max(2, Math.round(blockSrc * sx));
@@ -7766,6 +7769,7 @@ async function _renderPixelateTab(body){
   brushSl.addEventListener('input', () => {
     px.brushPx = parseInt(brushSl.value, 10);
     brushVal.textContent = px.brushPx;
+    _pxRefreshCursor();
   });
   const blockSl = document.getElementById('pxBlock');
   const blockVal = document.getElementById('pxBlockVal');
@@ -7937,6 +7941,9 @@ async function _renderBlurTab(body){
   const dw = dims.dw, dh = dims.dh;
   canvas.width = dw; canvas.height = dh;
   canvas.style.width = dw + 'px'; canvas.style.height = dh + 'px';
+  /* Round 15 — show a sized ring cursor so the brush footprint is visible */
+  function _blRefreshCursor(){ canvas.style.cursor = _bgRingCursor(bl.brushPx); }
+  _blRefreshCursor();
   /* Pre-render a fully blurred copy (preview-resolution). Use ctx.filter when
      available; fall back to nearest-neighbour downsample-upsample for old Safari. */
   let blurCache = null, blurCacheR = -1;
@@ -8064,6 +8071,7 @@ async function _renderBlurTab(body){
   brushSl.addEventListener('input', () => {
     bl.brushPx = parseInt(brushSl.value, 10);
     brushVal.textContent = bl.brushPx;
+    _blRefreshCursor();
   });
   const radiusSl = document.getElementById('blRadius');
   const radiusVal = document.getElementById('blRadiusVal');
