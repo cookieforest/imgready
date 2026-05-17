@@ -2245,13 +2245,29 @@
   .edit-modal .edit-tabs{
     display:flex;gap:2px;padding:6px 10px;
     border-bottom:1px solid rgba(255,255,255,.05);
-    flex-shrink:0;flex-wrap:wrap;
+    flex-shrink:0;flex-wrap:nowrap;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;position:relative;
+  }
+  .edit-tabs::-webkit-scrollbar{display:none;}
+  .edit-tabs.edit-tabs--overflow-r{
+    -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),rgba(0,0,0,0.25) 100%);
+            mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),rgba(0,0,0,0.25) 100%);
+  }
+  .edit-tabs.edit-tabs--overflow-l{
+    -webkit-mask-image:linear-gradient(to right,rgba(0,0,0,0.25) 0,#000 18px,#000 100%);
+            mask-image:linear-gradient(to right,rgba(0,0,0,0.25) 0,#000 18px,#000 100%);
+  }
+  .edit-tabs.edit-tabs--overflow-l.edit-tabs--overflow-r{
+    -webkit-mask-image:linear-gradient(to right,rgba(0,0,0,0.25) 0,#000 18px,#000 calc(100% - 18px),rgba(0,0,0,0.25) 100%);
+            mask-image:linear-gradient(to right,rgba(0,0,0,0.25) 0,#000 18px,#000 calc(100% - 18px),rgba(0,0,0,0.25) 100%);
   }
   .edit-modal .edit-tab{
-    padding:5px 10px;border-radius:6px;
+    padding:5px 8px;border-radius:6px;
     background:transparent;color:rgba(255,255,255,.5);
-    border:none;cursor:pointer;font-size:.78rem;font-weight:500;
+    border:none;cursor:pointer;font-size:.75rem;font-weight:500;
     transition:background .12s,color .12s;
+    flex-shrink:0;white-space:nowrap;
   }
   .edit-modal .edit-tab:hover{color:rgba(255,255,255,.85);}
   .edit-modal .edit-tab.active{background:rgba(255,255,255,.1);color:#fff;}
@@ -5663,10 +5679,41 @@ function openEditMode(idx){
   _switchEditTab(tabs[0].id);
   _updateEditHistoryUI();
 }
+function _updateTabsOverflow(){
+  const bar = document.querySelector('.edit-modal .edit-tabs');
+  if (!bar) return;
+  const hasRight = bar.scrollLeft + bar.clientWidth < bar.scrollWidth - 1;
+  const hasLeft  = bar.scrollLeft > 1;
+  bar.classList.toggle('edit-tabs--overflow-r', hasRight);
+  bar.classList.toggle('edit-tabs--overflow-l', hasLeft);
+}
+function _scrollActiveTabIntoView(){
+  const a = document.querySelector('.edit-modal .edit-tab.active');
+  if (a && a.scrollIntoView){
+    try { a.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'}); }
+    catch(e){ a.scrollIntoView(false); }
+  }
+  _updateTabsOverflow();
+  setTimeout(_updateTabsOverflow, 280);
+}
+let _tabsOverflowWired = false;
+function _wireTabsOverflowWatcher(){
+  if (_tabsOverflowWired) return;
+  _tabsOverflowWired = true;
+  document.addEventListener('scroll', (e)=>{
+    const t = e.target;
+    if (t && t.classList && t.classList.contains('edit-tabs')) _updateTabsOverflow();
+  }, true);
+  window.addEventListener('resize', ()=>{
+    if (document.querySelector('.edit-modal')) _updateTabsOverflow();
+  });
+}
 function _switchEditTab(tabId){
   document.querySelectorAll('.edit-modal .edit-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.tab === tabId);
   });
+  if (typeof _wireTabsOverflowWatcher === 'function') _wireTabsOverflowWatcher();
+  requestAnimationFrame(()=>{ if (typeof _scrollActiveTabIntoView === 'function') _scrollActiveTabIntoView(); });
   const body = document.getElementById('editBody');
   body.innerHTML = '';
   const previewCol = document.getElementById('editPreviewCol');
