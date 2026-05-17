@@ -2282,6 +2282,64 @@
      the row). Reassert intrinsic width with a minimum so the primary
      action stays visually prominent. */
   .edit-modal .edit-actions .btn-primary{flex:initial;min-width:78px;padding:7px 18px;}
+  /* Round 18 — header "?" help button + native <dialog> shortcuts panel.
+     Discoverable single-key bindings (Photopea/Pixlr/Photoshop convention).
+     The <dialog> escapes the edit-modal's overflow:hidden via the top-layer
+     when shown with showModal(), so positioning is purely page-relative. */
+  .edit-modal .edit-help-btn{
+    background:transparent;color:rgba(255,255,255,.7);
+    border:1px solid rgba(255,255,255,.18);border-radius:6px;
+    width:26px;height:26px;padding:0;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+    font:600 .82rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    flex-shrink:0;
+  }
+  .edit-modal .edit-help-btn:hover{background:rgba(255,255,255,.1);color:#fff;}
+  .edit-help-dialog{
+    position:fixed;inset:0;margin:auto;
+    max-width:520px;width:calc(100% - 32px);max-height:80vh;
+    padding:0;border:1px solid rgba(255,255,255,.12);border-radius:12px;
+    background:#15151a;color:#e2e8f0;
+    box-shadow:0 20px 60px rgba(0,0,0,.55);
+  }
+  .edit-help-dialog::backdrop{background:rgba(0,0,0,.55);backdrop-filter:blur(2px);}
+  .edit-help-dialog header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .edit-help-dialog h3{margin:0;font-size:.95rem;font-weight:600;color:#fff;}
+  .edit-help-dialog .edit-help-close{
+    background:transparent;border:0;color:rgba(255,255,255,.7);
+    font-size:1.4rem;line-height:1;cursor:pointer;padding:2px 8px;border-radius:4px;
+  }
+  .edit-help-dialog .edit-help-close:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .edit-help-body{padding:12px 16px 16px;overflow-y:auto;}
+  .edit-help-body section{margin:0 0 14px;}
+  .edit-help-body section:last-child{margin-bottom:0;}
+  .edit-help-body h4{
+    margin:0 0 6px;font-size:.7rem;color:rgba(255,255,255,.55);
+    text-transform:uppercase;letter-spacing:.06em;font-weight:600;
+  }
+  .edit-help-body dl{
+    margin:0;display:grid;grid-template-columns:max-content 1fr;
+    column-gap:14px;row-gap:6px;align-items:center;
+  }
+  .edit-help-body dt{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+  .edit-help-body dd{margin:0;font-size:.85rem;color:rgba(255,255,255,.85);}
+  .edit-help-body kbd{
+    display:inline-block;background:#0a0a0c;border:1px solid rgba(255,255,255,.15);
+    border-bottom-width:2px;border-radius:4px;padding:2px 6px;
+    font:600 .74rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    color:#cbd5e1;min-width:14px;text-align:center;
+  }
+  .edit-help-body .edit-help-note{
+    margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);
+    font-size:.75rem;color:rgba(255,255,255,.5);
+  }
+  @media (max-width: 640px){
+    .edit-help-dialog{width:calc(100% - 16px);max-height:85vh;}
+    .edit-modal .edit-help-btn{width:24px;height:24px;font-size:.76rem;}
+  }
   .edit-modal .btn{
     padding:7px 14px;border-radius:7px;
     background:rgba(255,255,255,.08);color:#fff;
@@ -6093,9 +6151,29 @@ function _toggleEditCompare(){
     if (btn){ btn.textContent = 'View original'; btn.classList.remove('active'); }
   }
 }
+/* Round 18 — discoverable keyboard shortcuts + native <dialog> help panel.
+   Toggles the dialog opened/closed. open=true shows; open=false hides;
+   omit to flip current state. Wrapped in try because Safari < 15.4 lacks
+   showModal — falls back to setAttribute('open') which renders inline. */
+function _toggleEditHelp(open){
+  const d = document.getElementById('editHelpDialog');
+  if (!d) return;
+  const want = (typeof open === 'boolean') ? open : !d.open;
+  if (want){
+    try { d.showModal(); } catch(_){ d.setAttribute('open',''); }
+  } else {
+    try { d.close(); } catch(_){ d.removeAttribute('open'); }
+  }
+}
 document.addEventListener('keydown', e => {
   if (document.body.dataset.editOpen !== 'true') return;
+  /* Round 18 — let the native <dialog> handle its own Escape first.
+     If the help dialog is open OR the event originated inside it,
+     defer to the dialog's built-in cancel/close handling. */
+  const helpDlg = document.getElementById('editHelpDialog');
+  const helpOpen = !!(helpDlg && (helpDlg.open || (e.target && e.target.closest && e.target.closest('#editHelpDialog'))));
   if (e.key === 'Escape'){
+    if (helpOpen) return;
     const overlay = document.getElementById('editCompareOverlay');
     if (overlay && overlay.style.display === 'flex'){
       _toggleEditCompare(); e.preventDefault(); return;
@@ -6106,11 +6184,66 @@ document.addEventListener('keydown', e => {
     }
     cancelEdit(); e.preventDefault(); return;
   }
-  const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
+  const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || (e.target.isContentEditable === true);
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'z' || e.key === 'Z') && !isInput){
-    _editUndo(); e.preventDefault();
+    _editUndo(); e.preventDefault(); return;
   } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey) || (e.key === 'Z' && e.shiftKey)) && !isInput){
-    _editRedo(); e.preventDefault();
+    _editRedo(); e.preventDefault(); return;
+  }
+  /* Round 18 — single-key shortcuts. Skip when typing or composing IME,
+     skip when any modifier is held (those belong to Ctrl/Cmd combos),
+     skip when help dialog is open (so users can read it freely). */
+  if (helpOpen) return;
+  if (isInput || e.isComposing) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  // "?" — Shift+/ on US layout; e.key === '?' regardless of shift state
+  if (e.key === '?'){
+    _toggleEditHelp(true); e.preventDefault(); return;
+  }
+  // 1..7 — switch tabs by index (matches tab order in current file type)
+  if (/^[1-7]$/.test(e.key)){
+    const tabs = document.querySelectorAll('#editTabs .edit-tab');
+    const idx = parseInt(e.key, 10) - 1;
+    if (idx >= 0 && idx < tabs.length){
+      tabs[idx].click();
+      e.preventDefault();
+      return;
+    }
+  }
+  // B / E — paint / erase mode on whichever brush tab is currently rendered.
+  // Pixelate uses data-px-mode, Blur uses data-bl-mode, BG-Refine uses
+  // data-bgr-mode (modes there are "erase"/"restore"; B is a no-op there).
+  if (e.key === 'b' || e.key === 'B' || e.key === 'e' || e.key === 'E'){
+    const isPaint = e.key === 'b' || e.key === 'B';
+    const want = isPaint ? 'paint' : 'erase';
+    let btn = document.querySelector('#editBody [data-px-mode="' + want + '"]')
+           || document.querySelector('#editBody [data-bl-mode="' + want + '"]');
+    if (!btn && !isPaint){
+      // BG-Refine: E -> Erase
+      btn = document.querySelector('#editBody [data-bgr-mode="erase"]');
+    }
+    if (btn){ btn.click(); e.preventDefault(); return; }
+  }
+  // [ / ] — brush size step on whichever brush slider is currently rendered.
+  // Step is 8 px so 1-2 taps gives a perceptible change; clamped to slider min/max.
+  if (e.key === '[' || e.key === ']'){
+    const delta = e.key === '[' ? -8 : 8;
+    const ids = ['pxBrush','blBrush','bgrBrush'];
+    for (const id of ids){
+      const sl = document.getElementById(id);
+      if (sl){
+        const min = parseInt(sl.min, 10);
+        const max = parseInt(sl.max, 10);
+        const cur = parseInt(sl.value, 10);
+        const next = Math.max(min, Math.min(max, cur + delta));
+        if (next !== cur){
+          sl.value = next;
+          sl.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        e.preventDefault();
+        return;
+      }
+    }
   }
 });
 /* ---- ROTATE TAB ---- */
@@ -10497,132 +10630,4 @@ function doClear(){
     window.addEventListener('load', function(){
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .catch(function(err){ console.warn('[imgready] SW register failed:', err); });
-    });
-  }
-  var deferredInstall = null;
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    deferredInstall = e;
-  });
-  window.addEventListener('appinstalled', function(){
-    deferredInstall = null;
-    var b = document.getElementById('installBanner');
-    if (b) b.classList.remove('show');
-    try { localStorage.setItem('imgready_installed', '1'); } catch(_){}
-  });
-  function isStandalone(){
-    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
-    if (window.navigator.standalone === true) return true;
-    return false;
-  }
-  function dismissedRecently(){
-    try {
-      var v = localStorage.getItem('imgready_install_dismissed');
-      if (!v) return false;
-      var ts = parseInt(v, 10);
-      if (!ts) return false;
-      return (Date.now() - ts) < 30 * 24 * 60 * 60 * 1000;
-    } catch(_) { return false; }
-  }
-  window.maybeShowInstallPrompt = function(){
-    if (!deferredInstall) return;
-    if (isStandalone()) return;
-    try { if (localStorage.getItem('imgready_installed') === '1') return; } catch(_){}
-    if (dismissedRecently()) return;
-    var b = document.getElementById('installBanner');
-    if (b) b.classList.add('show');
-  };
-  window.dismissInstall = function(){
-    var b = document.getElementById('installBanner');
-    if (b) b.classList.remove('show');
-    try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
-  };
-})();
-</script>
-
-<!-- Big-batch confirm modal — port of stable's >200-file safeguard. -->
-<div class="bigbatch-overlay" id="bigBatchOverlay" onclick="if(event.target===this)cancelBigBatch()" role="dialog" aria-modal="true" aria-labelledby="bigBatchTitle">
-  <div class="bigbatch-modal">
-    <h3 id="bigBatchTitle">That's a lot of files</h3>
-    <p>You've added <strong><span id="bigBatchCount">0</span></strong> files. Browsers usually handle 200–500 fine; over that, things slow down and your tab can run out of memory. Continue?</p>
-    <div class="bigbatch-actions">
-      <button class="btn btn-clear" onclick="cancelBigBatch()">Cancel</button>
-      <button class="btn btn-primary" onclick="acceptBigBatch()">Continue</button>
-    </div>
-  </div>
-</div>
-
-<!-- PROTOTYPE_EOF -->
-
-<!-- Keyboard shortcuts modal — opened by '?' key, closed by Esc or
-     outside-click. Hidden until first invocation. -->
-<div id="kbShortcuts" class="kb-shortcuts" hidden role="dialog" aria-labelledby="kbShortcutsTitle" aria-modal="true">
-  <div class="kb-shortcuts-card">
-    <h2 id="kbShortcutsTitle">Keyboard shortcuts</h2>
-    <table class="kb-shortcuts-table">
-      <tbody>
-        <tr><td><kbd>?</kbd></td><td>Show / hide this list</td></tr>
-        <tr><td><kbd>Esc</kbd></td><td>Close menus or this list</td></tr>
-        <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Previous / next image</td></tr>
-        <tr><td><kbd>Cmd</kbd> + <kbd>V</kbd></td><td>Paste an image</td></tr>
-        <tr><td><kbd>Cmd</kbd> + <kbd>S</kbd></td><td>Download current image</td></tr>
-        <tr><td><kbd>Delete</kbd></td><td>Remove current image</td></tr>
-      </tbody>
-    </table>
-    <button type="button" class="kb-shortcuts-close" aria-label="Close shortcuts">×</button>
-  </div>
-</div>
-
-<!-- ============================================================
-     Edit modal — the second workflow surface. Opened by the Edit
-     pi-icon. File-type-aware tabs: Rotate (universal), Frames (GIF),
-     Background removal (raster photos). Edits write a NEW source
-     file to FILES[idx].file; the optimize/convert pipeline then re-
-     encodes from the edited source. Optimize-side settings (Format
-     / Quality / Resize / Crop / Privacy) stay encode-time and are
-     unaffected.
-     ============================================================ -->
-<div id="editModal" class="edit-modal" hidden role="dialog" aria-modal="true" aria-labelledby="editTitle">
-  <div class="edit-modal-card">
-    <header class="edit-header">
-      <h2 id="editTitle">Edit</h2>
-      <button type="button" class="edit-compare-btn" id="editCompareBtn" onclick="_toggleEditCompare()">View original</button>
-    </header>
-    <div class="edit-layout">
-      <div class="edit-preview-col" id="editPreviewCol"></div>
-      <div class="edit-panel-col">
-        <nav class="edit-tabs" role="tablist" id="editTabs"></nav>
-        <main class="edit-body" id="editBody"></main>
-        <footer class="edit-actions">
-          <span class="edit-size-info" id="editSizeInfo"></span>
-          <div class="edit-actions-row">
-            <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
-            <div class="edit-history-btns">
-              <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
-              <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
-            </div>
-            <span class="edit-actions-spacer" aria-hidden="true"></span>
-            <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
-            <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
-          </div>
-        </footer>
-      </div>
-    </div>
-    <div id="editCompareOverlay" class="edit-compare-overlay" style="display:none">
-      <img id="editCompareImg" src="" alt="Original" draggable="false">
-      <div class="edit-compare-label">Original</div>
-      <button type="button" class="edit-compare-dismiss" onclick="_toggleEditCompare()">Back to editing</button>
-    </div>
-  </div>
-</div>
-
-<!-- Bulk batch progress — top-right floating indicator. Shows when
-     2+ files are encoding, auto-hides when done. No buttons, no
-     dismiss needed; appears + disappears with the encode lifecycle. -->
-<div id="batchProgress" class="batch-progress" hidden aria-live="polite">
-  <span class="batch-progress-text"></span>
-  <span class="batch-progress-bar"><span class="batch-progress-fill"></span></span>
-</div>
-
-</body>
-</html>
+ 
