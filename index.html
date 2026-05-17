@@ -2572,6 +2572,28 @@
   .edit-pixelate-help{
     margin:0;font-size:.7rem;color:rgba(255,255,255,.5);line-height:1.4;
   }
+  /* Round 13: Blur tab — brush + full-image blur
+     ctx.filter='blur(Npx)' is browser-native (no new deps).
+     MDN: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter */
+  .edit-preview-col .edit-blur-wrap{
+    width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:#0a0a0c;
+  }
+  .edit-blur-canvas{
+    max-width:100%;max-height:100%;
+    cursor:crosshair;touch-action:none;
+    display:block;
+    box-shadow:0 0 0 1px rgba(255,255,255,.06);
+  }
+  .edit-blur-controls{display:flex;flex-direction:column;gap:10px;}
+  .blur-tool-strip{display:flex;gap:4px;}
+  .blur-tool-strip .edit-preset-btn{flex:1;text-align:center;}
+  .edit-blur-actions{display:flex;gap:6px;}
+  .edit-blur-actions .edit-frames-action-btn{flex:1;}
+  .edit-blur-help{
+    margin:0;font-size:.7rem;color:rgba(255,255,255,.5);line-height:1.4;
+  }
   /* Round 7: Text overlay + Watermark */
   .edit-preview-col .edit-text-wrap{
     width:100%;height:100%;
@@ -5536,6 +5558,7 @@ function _editTabsForType(t){
   if (isPhoto) {
     tabs.push({ id: 'crop', label: 'Crop' });
     tabs.push({ id: 'pixelate', label: 'Pixelate' });
+    tabs.push({ id: 'blur', label: 'Blur' });
     tabs.push({ id: 'text', label: 'Text' });
     tabs.push({ id: 'bg', label: 'Background' });
   }
@@ -5605,11 +5628,14 @@ function _switchEditTab(tabId){
   else if (tabId === 'adjust') _renderAdjustTab(body);
   else if (tabId === 'crop') { _renderCropTab(body).catch(e => console.warn('[crop]', e)); }
   else if (tabId === 'pixelate') { _renderPixelateTab(body).catch(e => console.warn('[pixelate]', e)); }
+  else if (tabId === 'blur') { _renderBlurTab(body).catch(e => console.warn('[blur]', e)); }
   else if (tabId === 'text') { _renderTextTab(body).catch(e => console.warn('[text]', e)); }
   /* Round 10: ensure split-compare UI persists across tab switches. */
   try { _ensureSplitUi(); } catch(_) {}
 }
 function cancelEdit(){
+  if (_editState._blurBitmap){ try { _editState._blurBitmap.close && _editState._blurBitmap.close(); } catch(_){} _editState._blurBitmap = null; }
+  _editState._blurBaseBlob = null; _editState._blurBaseSig = null;
   document.body.dataset.editOpen = 'false';
   const modal = document.getElementById('editModal');
   if (modal) modal.setAttribute('hidden', '');
@@ -5673,6 +5699,11 @@ async function saveEdit(){
       if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length) {
         workingBlob = await _applyPixelate(workingBlob, _editState.pendingEdits.pixelate);
       }
+      if (_editState.pendingEdits.blur && (
+            (_editState.pendingEdits.blur.strokes && _editState.pendingEdits.blur.strokes.length) ||
+            _editState.pendingEdits.blur.full)) {
+        workingBlob = await _applyBlur(workingBlob, _editState.pendingEdits.blur);
+      }
       if (_editState.pendingEdits.textOverlays && _editState.pendingEdits.textOverlays.items && _editState.pendingEdits.textOverlays.items.length) {
         workingBlob = await _applyTextOverlays(workingBlob, _editState.pendingEdits.textOverlays);
       }
@@ -5723,6 +5754,7 @@ function _editSnapshot(){
     autoEnhanced: pe.autoEnhanced || null,
     autoEnhancedUrl: pe.autoEnhancedUrl || null,
     pixelate: pe.pixelate ? JSON.parse(JSON.stringify(pe.pixelate)) : null,
+    blur: pe.blur ? JSON.parse(JSON.stringify(pe.blur)) : null,
     textOverlays: pe.textOverlays ? JSON.parse(JSON.stringify(pe.textOverlays)) : null,
     gifEdit: pe.gifEdit ? JSON.parse(JSON.stringify(pe.gifEdit)) : null,
     rotateState: { ..._editState.rotateState },
@@ -5740,6 +5772,7 @@ function _editRestore(snap){
     _editState.pendingEdits.autoEnhancedUrl = snap.autoEnhancedUrl;
   }
   if (snap.pixelate) _editState.pendingEdits.pixelate = snap.pixelate;
+  if (snap.blur) _editState.pendingEdits.blur = snap.blur;
   if (snap.textOverlays) _editState.pendingEdits.textOverlays = snap.textOverlays;
   if (snap.gifEdit) _editState.pendingEdits.gifEdit = snap.gifEdit;
   _editState.rotateState = { ...snap.rotateState };
@@ -5766,6 +5799,8 @@ function _editRedo(){
   _reRenderEditTab();
 }
 function _editResetAll(){
+  if (_editState._blurBitmap){ try { _editState._blurBitmap.close && _editState._blurBitmap.close(); } catch(_){} _editState._blurBitmap = null; }
+  _editState._blurBaseBlob = null; _editState._blurBaseSig = null;
   if (!_editState.active) return;
   _editPushUndo();
   _editState.pendingEdits = {};
@@ -5837,6 +5872,7 @@ function _editHasAnyEdit(){
   if (pe.rotate) return true;
   if (pe.autoEnhanced) return true;
   if (pe.pixelate && Array.isArray(pe.pixelate.strokes) && pe.pixelate.strokes.length) return true;
+  if (pe.blur && ((Array.isArray(pe.blur.strokes) && pe.blur.strokes.length) || pe.blur.full)) return true;
   if (pe.textOverlays && Array.isArray(pe.textOverlays) && pe.textOverlays.length) return true;
   /* GIF: frame-level mutation surfaces as pendingEdits.gifEdit. */
   if (pe.gifEdit) return true;
@@ -7640,6 +7676,350 @@ async function _applyPixelate(file, pixInfo){
 }
 
 /* ============================================================
+   BLUR TAB (Round 13)
+   - Brush-based blur over a pre-rendered ctx.filter='blur(Npx)' canvas
+   - "Apply to all" toggle for full-image gaussian blur (DoF aesthetic)
+   - Same architecture as Pixelate (Round 6): strokes stored as normalized
+     [0..1] coords + per-stroke mode/radius, so they replay at full source
+     resolution on save via _applyBlur(blob, blurInfo)
+   - Zero new external deps; Canvas2D ctx.filter is browser-native:
+     https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
+   - Cross-browser support: Chrome 52+, Firefox 49+, Safari 16.4+. For older
+     Safari (iOS <16.4) ctx.filter returns undefined; the apply path falls
+     back to downsample-upsample bilinear approximation (cheap, acceptable
+     visual fidelity for redaction use cases).
+   ============================================================ */
+async function _blurBaseBlob(){
+  /* Compose upstream edits (auto-enhance + rotate + adjust + crop + pixelate)
+     so the blur brush previews land on the same image the user will save. */
+  const pe = _editState.pendingEdits;
+  const sig = JSON.stringify({
+    a: !!pe.autoEnhanced,
+    r: pe.rotate || null,
+    j: pe.photoAdjust && pe.photoAdjust._dirty ? pe.photoAdjust : null,
+    c: pe.photoCrop || null,
+    p: pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length ? pe.pixelate : null
+  });
+  if (_editState._blurBaseSig === sig && _editState._blurBaseBlob){
+    return _editState._blurBaseBlob;
+  }
+  let blob = _editState.originalFile;
+  if (pe.autoEnhanced) blob = pe.autoEnhanced;
+  if (pe.rotate) blob = await _applyRotation(blob, pe.rotate);
+  if (pe.photoAdjust && pe.photoAdjust._dirty) blob = await _applyPhotoAdjust(blob, pe.photoAdjust);
+  if (pe.photoCrop) blob = await _applyPhotoCrop(blob, pe.photoCrop);
+  if (pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length) blob = await _applyPixelate(blob, pe.pixelate);
+  _editState._blurBaseBlob = blob;
+  _editState._blurBaseSig = sig;
+  if (_editState._blurBitmap){ try { _editState._blurBitmap.close && _editState._blurBitmap.close(); } catch(_){} }
+  _editState._blurBitmap = null;
+  return blob;
+}
+async function _renderBlurTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  if (!_editState.pendingEdits.blur){
+    _editState.pendingEdits.blur = { strokes: [], radius: 14, brushPx: 50, mode: 'paint', full: false };
+  }
+  const bl = _editState.pendingEdits.blur;
+  const previewCol = document.getElementById('editPreviewCol');
+  if (previewCol){
+    previewCol.innerHTML = '<div class="edit-blur-wrap"><canvas id="editBlurCanvas" class="edit-blur-canvas"></canvas></div>';
+  }
+  body.innerHTML = ''
+    + '<div class="edit-blur-controls">'
+    +   '<div class="blur-tool-strip">'
+    +     '<button type="button" class="edit-preset-btn' + (bl.mode==='paint'?' active':'') + '" data-bl-mode="paint">Paint</button>'
+    +     '<button type="button" class="edit-preset-btn' + (bl.mode==='erase'?' active':'') + '" data-bl-mode="erase">Erase</button>'
+    +   '</div>'
+    +   '<div class="adj-row">'
+    +     '<span class="adj-label">Brush</span>'
+    +     '<input type="range" id="blBrush" min="6" max="160" step="1" value="' + bl.brushPx + '">'
+    +     '<span class="adj-val" id="blBrushVal">' + bl.brushPx + '</span>'
+    +   '</div>'
+    +   '<div class="adj-row">'
+    +     '<span class="adj-label">Radius</span>'
+    +     '<input type="range" id="blRadius" min="2" max="40" step="1" value="' + bl.radius + '">'
+    +     '<span class="adj-val" id="blRadiusVal">' + bl.radius + '</span>'
+    +   '</div>'
+    +   '<div class="edit-blur-actions">'
+    +     '<button type="button" class="edit-frames-action-btn" id="blApplyAll">' + (bl.full ? 'Brush only' : 'Apply to all') + '</button>'
+    +     '<button type="button" class="edit-frames-action-btn" id="blClear">Clear all</button>'
+    +   '</div>'
+    +   '<p class="edit-blur-help">Drag over the image to blur regions. Switch to Erase to clear blur from areas. <strong>Apply to all</strong> blurs the entire image (depth-of-field effect).</p>'
+    + '</div>';
+  /* Build preview source */
+  await _blurBaseBlob();
+  let bmp = _editState._blurBitmap;
+  if (!bmp){
+    bmp = await createImageBitmap(_editState._blurBaseBlob);
+    _editState._blurBitmap = bmp;
+  }
+  const canvas = document.getElementById('editBlurCanvas');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  function fitDims(){
+    const cw = (wrap.clientWidth || 800);
+    const ch = (wrap.clientHeight || 600);
+    const ratio = bmp.width / bmp.height;
+    let dw = cw, dh = cw / ratio;
+    if (dh > ch){ dh = ch; dw = ch * ratio; }
+    return { dw: Math.max(1, Math.floor(dw)), dh: Math.max(1, Math.floor(dh)) };
+  }
+  const dims = fitDims();
+  const dw = dims.dw, dh = dims.dh;
+  canvas.width = dw; canvas.height = dh;
+  canvas.style.width = dw + 'px'; canvas.style.height = dh + 'px';
+  /* Pre-render a fully blurred copy (preview-resolution). Use ctx.filter when
+     available; fall back to nearest-neighbour downsample-upsample for old Safari. */
+  let blurCache = null, blurCacheR = -1;
+  function buildBlurredPreview(radiusSrc){
+    /* Scale the source-resolution radius to preview pixels so brush-preview
+       blur strength matches what _applyBlur produces at full res. */
+    const sx = dw / bmp.width;
+    const radius = Math.max(1, radiusSrc * sx);
+    const out = document.createElement('canvas');
+    out.width = dw; out.height = dh;
+    const octx = out.getContext('2d');
+    if (typeof octx.filter !== 'undefined'){
+      octx.filter = 'blur(' + radius.toFixed(2) + 'px)';
+      octx.drawImage(bmp, 0, 0, dw, dh);
+      octx.filter = 'none';
+    } else {
+      /* Fallback: scale-down then scale-up (cheap pseudo-gaussian). */
+      const k = Math.max(2, Math.floor(radius));
+      const tw = Math.max(1, Math.floor(dw / k));
+      const th = Math.max(1, Math.floor(dh / k));
+      const tiny = document.createElement('canvas');
+      tiny.width = tw; tiny.height = th;
+      const tctx = tiny.getContext('2d');
+      tctx.imageSmoothingEnabled = true;
+      tctx.drawImage(bmp, 0, 0, tw, th);
+      octx.imageSmoothingEnabled = true;
+      octx.drawImage(tiny, 0, 0, tw, th, 0, 0, dw, dh);
+    }
+    return out;
+  }
+  function getBlur(){
+    if (blurCache && blurCacheR === bl.radius) return blurCache;
+    blurCache = buildBlurredPreview(bl.radius);
+    blurCacheR = bl.radius;
+    return blurCache;
+  }
+  const mask = document.createElement('canvas');
+  mask.width = dw; mask.height = dh;
+  const mctx = mask.getContext('2d');
+  function drawStrokeAt(ctxM, stk, scaleX, scaleY){
+    ctxM.fillStyle = '#fff';
+    ctxM.strokeStyle = '#fff';
+    ctxM.globalCompositeOperation = (stk.mode === 'erase') ? 'destination-out' : 'source-over';
+    const minD = Math.min(scaleX, scaleY);
+    for (let i = 0; i < stk.pts.length; i++){
+      const p = stk.pts[i];
+      const x = p.x * scaleX, y = p.y * scaleY, r = p.r * minD;
+      ctxM.beginPath(); ctxM.arc(x, y, r, 0, Math.PI * 2); ctxM.fill();
+      if (i > 0){
+        const prev = stk.pts[i-1];
+        const px0 = prev.x * scaleX, py0 = prev.y * scaleY;
+        ctxM.lineWidth = r * 2; ctxM.lineCap = 'round';
+        ctxM.beginPath(); ctxM.moveTo(px0, py0); ctxM.lineTo(x, y); ctxM.stroke();
+      }
+    }
+    ctxM.globalCompositeOperation = 'source-over';
+  }
+  function replay(){
+    mctx.clearRect(0, 0, dw, dh);
+    if (bl.full){
+      /* full-image: fill the entire mask so the blurred copy is composited everywhere */
+      mctx.fillStyle = '#fff';
+      mctx.fillRect(0, 0, dw, dh);
+      /* but still respect erase strokes (let user punch sharp holes) */
+      bl.strokes.forEach(stk => {
+        if (stk.mode === 'erase') drawStrokeAt(mctx, stk, dw, dh);
+      });
+    } else {
+      bl.strokes.forEach(stk => drawStrokeAt(mctx, stk, dw, dh));
+    }
+  }
+  const ctx = canvas.getContext('2d');
+  function render(){
+    ctx.clearRect(0, 0, dw, dh);
+    ctx.drawImage(bmp, 0, 0, dw, dh);
+    replay();
+    const bcanvas = getBlur();
+    const tmp = document.createElement('canvas');
+    tmp.width = dw; tmp.height = dh;
+    const tctx = tmp.getContext('2d');
+    tctx.drawImage(bcanvas, 0, 0);
+    tctx.globalCompositeOperation = 'destination-in';
+    tctx.drawImage(mask, 0, 0);
+    ctx.drawImage(tmp, 0, 0);
+  }
+  render();
+  let painting = false, curStroke = null;
+  function ptFromEv(ev){
+    const rect = canvas.getBoundingClientRect();
+    const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+    const cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - rect.top;
+    return { x: cx / dw, y: cy / dh, r: (bl.brushPx / 2) / Math.min(dw, dh) };
+  }
+  function down(ev){
+    ev.preventDefault();
+    _editPushUndo();
+    painting = true;
+    curStroke = { mode: bl.mode, pts: [ptFromEv(ev)] };
+    bl.strokes.push(curStroke);
+    render();
+    _updateEditHistoryUI();
+  }
+  function move(ev){
+    if (!painting) return;
+    ev.preventDefault();
+    curStroke.pts.push(ptFromEv(ev));
+    render();
+  }
+  function up(){ painting = false; curStroke = null; }
+  canvas.addEventListener('mousedown', down);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', up);
+  canvas.addEventListener('touchstart', down, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  window.addEventListener('touchend', up);
+  document.querySelectorAll('#editBody [data-bl-mode]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#editBody [data-bl-mode]').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      bl.mode = b.dataset.blMode;
+    });
+  });
+  const brushSl = document.getElementById('blBrush');
+  const brushVal = document.getElementById('blBrushVal');
+  brushSl.addEventListener('input', () => {
+    bl.brushPx = parseInt(brushSl.value, 10);
+    brushVal.textContent = bl.brushPx;
+  });
+  const radiusSl = document.getElementById('blRadius');
+  const radiusVal = document.getElementById('blRadiusVal');
+  radiusSl.addEventListener('input', () => {
+    bl.radius = parseInt(radiusSl.value, 10);
+    radiusVal.textContent = bl.radius;
+    blurCache = null;
+    render();
+  });
+  radiusSl.addEventListener('change', () => { _editPushUndo(); });
+  document.getElementById('blApplyAll').addEventListener('click', (ev) => {
+    _editPushUndo();
+    bl.full = !bl.full;
+    ev.target.textContent = bl.full ? 'Brush only' : 'Apply to all';
+    render();
+    _updateEditHistoryUI();
+  });
+  document.getElementById('blClear').addEventListener('click', () => {
+    if (!bl.strokes.length && !bl.full) return;
+    _editPushUndo();
+    bl.strokes = [];
+    bl.full = false;
+    const btn = document.getElementById('blApplyAll');
+    if (btn) btn.textContent = 'Apply to all';
+    render();
+    _updateEditHistoryUI();
+  });
+}
+async function _applyBlur(file, blurInfo){
+  if (!blurInfo) return file;
+  const hasStrokes = blurInfo.strokes && blurInfo.strokes.length;
+  if (!hasStrokes && !blurInfo.full) return file;
+  const bmp = await createImageBitmap(file);
+  const W = bmp.width, H = bmp.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bmp, 0, 0);
+  const radius = Math.max(1, blurInfo.radius | 0);
+  /* Pre-render a fully blurred copy at full resolution. */
+  const blurC = document.createElement('canvas');
+  blurC.width = W; blurC.height = H;
+  const bctx = blurC.getContext('2d');
+  if (typeof bctx.filter !== 'undefined'){
+    bctx.filter = 'blur(' + radius + 'px)';
+    bctx.drawImage(bmp, 0, 0);
+    bctx.filter = 'none';
+  } else {
+    /* Fallback for old Safari: scale-down then scale-up (pseudo-gaussian). */
+    const k = Math.max(2, Math.floor(radius));
+    const tw = Math.max(1, Math.floor(W / k));
+    const th = Math.max(1, Math.floor(H / k));
+    const tiny = document.createElement('canvas');
+    tiny.width = tw; tiny.height = th;
+    const tctx = tiny.getContext('2d');
+    tctx.imageSmoothingEnabled = true;
+    tctx.drawImage(bmp, 0, 0, tw, th);
+    bctx.imageSmoothingEnabled = true;
+    bctx.drawImage(tiny, 0, 0, tw, th, 0, 0, W, H);
+  }
+  /* Build mask at full resolution */
+  const mask = document.createElement('canvas');
+  mask.width = W; mask.height = H;
+  const mctx = mask.getContext('2d');
+  if (blurInfo.full){
+    mctx.fillStyle = '#fff';
+    mctx.fillRect(0, 0, W, H);
+    /* respect erase strokes */
+    (blurInfo.strokes || []).forEach(stk => {
+      if (stk.mode !== 'erase') return;
+      mctx.fillStyle = '#fff';
+      mctx.strokeStyle = '#fff';
+      mctx.globalCompositeOperation = 'destination-out';
+      const minD = Math.min(W, H);
+      for (let i = 0; i < stk.pts.length; i++){
+        const p = stk.pts[i];
+        const x = p.x * W, y = p.y * H, r = p.r * minD;
+        mctx.beginPath(); mctx.arc(x, y, r, 0, Math.PI * 2); mctx.fill();
+        if (i > 0){
+          const prev = stk.pts[i-1];
+          const px0 = prev.x * W, py0 = prev.y * H;
+          mctx.lineWidth = r * 2; mctx.lineCap = 'round';
+          mctx.beginPath(); mctx.moveTo(px0, py0); mctx.lineTo(x, y); mctx.stroke();
+        }
+      }
+      mctx.globalCompositeOperation = 'source-over';
+    });
+  } else {
+    (blurInfo.strokes || []).forEach(stk => {
+      mctx.fillStyle = '#fff';
+      mctx.strokeStyle = '#fff';
+      mctx.globalCompositeOperation = (stk.mode === 'erase') ? 'destination-out' : 'source-over';
+      const minD = Math.min(W, H);
+      for (let i = 0; i < stk.pts.length; i++){
+        const p = stk.pts[i];
+        const x = p.x * W, y = p.y * H, r = p.r * minD;
+        mctx.beginPath(); mctx.arc(x, y, r, 0, Math.PI * 2); mctx.fill();
+        if (i > 0){
+          const prev = stk.pts[i-1];
+          const px0 = prev.x * W, py0 = prev.y * H;
+          mctx.lineWidth = r * 2; mctx.lineCap = 'round';
+          mctx.beginPath(); mctx.moveTo(px0, py0); mctx.lineTo(x, y); mctx.stroke();
+        }
+      }
+      mctx.globalCompositeOperation = 'source-over';
+    });
+  }
+  /* Composite: blurred-copy masked by mask, drawn on top of original. */
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = H;
+  const ttctx = tmp.getContext('2d');
+  ttctx.drawImage(blurC, 0, 0);
+  ttctx.globalCompositeOperation = 'destination-in';
+  ttctx.drawImage(mask, 0, 0);
+  ctx.drawImage(tmp, 0, 0);
+  try { bmp.close && bmp.close(); } catch(_){}
+  const mime = (file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
+  return await new Promise((res, rej) => {
+    canvas.toBlob(b => b ? res(b) : rej(new Error('blur encode failed')), mime, 0.95);
+  });
+}
+
+/* ============================================================
    TEXT OVERLAY + WATERMARK (Round 7)
    - System-font stack only (zero new deps, zero license risk)
    - Canvas2D + Pointer Events
@@ -7670,7 +8050,8 @@ async function _txBaseBlob(){
     r: pe.rotate || null,
     j: pe.photoAdjust && pe.photoAdjust._dirty ? pe.photoAdjust : null,
     c: pe.photoCrop || null,
-    p: pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length ? pe.pixelate : null
+    p: pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length ? pe.pixelate : null,
+    b: pe.blur && ((pe.blur.strokes && pe.blur.strokes.length) || pe.blur.full) ? pe.blur : null
   });
   if (_editState._txBaseSig === sig && _editState._txBaseBlob){
     return _editState._txBaseBlob;
@@ -7681,6 +8062,7 @@ async function _txBaseBlob(){
   if (pe.photoAdjust && pe.photoAdjust._dirty) blob = await _applyPhotoAdjust(blob, pe.photoAdjust);
   if (pe.photoCrop) blob = await _applyPhotoCrop(blob, pe.photoCrop);
   if (pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length) blob = await _applyPixelate(blob, pe.pixelate);
+  if (pe.blur && ((pe.blur.strokes && pe.blur.strokes.length) || pe.blur.full)) blob = await _applyBlur(blob, pe.blur);
   if (_editState._txBaseUrl){ try { URL.revokeObjectURL(_editState._txBaseUrl); } catch(_){} }
   _editState._txBaseBlob = blob;
   _editState._txBaseUrl = URL.createObjectURL(blob);
