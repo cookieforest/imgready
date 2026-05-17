@@ -5688,13 +5688,16 @@ function _updateTabsOverflow(){
   bar.classList.toggle('edit-tabs--overflow-l', hasLeft);
 }
 function _scrollActiveTabIntoView(){
-  const a = document.querySelector('.edit-modal .edit-tab.active');
-  if (a && a.scrollIntoView){
-    try { a.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'}); }
-    catch(e){ a.scrollIntoView(false); }
+  const bar = document.querySelector('.edit-modal .edit-tabs');
+  const a   = document.querySelector('.edit-modal .edit-tab.active');
+  if (bar && a){
+    const aL = a.offsetLeft, aR = aL + a.offsetWidth;
+    const cw = bar.clientWidth, sl = bar.scrollLeft;
+    if (aR > sl + cw)      bar.scrollLeft = aR - cw + 6;
+    else if (aL < sl)      bar.scrollLeft = Math.max(0, aL - 6);
   }
   _updateTabsOverflow();
-  setTimeout(_updateTabsOverflow, 280);
+  setTimeout(_updateTabsOverflow, 60);
 }
 let _tabsOverflowWired = false;
 function _wireTabsOverflowWatcher(){
