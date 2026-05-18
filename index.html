@@ -2242,52 +2242,61 @@
     border-left:1px solid rgba(255,255,255,.07);
     background:#15151a;overflow:hidden;
   }
+  /* R20 - categorized icon+label tabs.
+     Was: 7 flat photo tabs in a horizontally-scrolling row with edge-
+     fade mask. At 380px panel width the labels overflowed and forced
+     scroll, the canonical "toolbar overflow" anti-pattern (Pixlr X,
+     Apple Photos, Canva all use grouped tabs instead). Now: 5 equal-
+     width tabs each with a Lucide glyph + short label, no scroll. */
   .edit-modal .edit-tabs{
-    display:flex;gap:2px;padding:6px 10px;
-    border-bottom:1px solid rgba(255,255,255,.05);
+    display:flex;gap:3px;padding:7px 10px;
+    border-bottom:1px solid rgba(255,255,255,.06);
     flex-shrink:0;flex-wrap:nowrap;
-    overflow-x:auto;-webkit-overflow-scrolling:touch;
-    scrollbar-width:none;position:relative;
-  }
-  .edit-tabs::-webkit-scrollbar{display:none;}
-  .edit-tabs.edit-tabs--overflow-r{
-    -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),rgba(0,0,0,0.25) 100%);
-            mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),rgba(0,0,0,0.25) 100%);
-  }
-  .edit-tabs.edit-tabs--overflow-l{
-    -webkit-mask-image:linear-gradient(to right,rgba(0,0,0,0.25) 0,#000 18px,#000 100%);
-            mask-image:linear-gradient(to right,rgba(0,0,0,0.25) 0,#000 18px,#000 100%);
-  }
-  .edit-tabs.edit-tabs--overflow-l.edit-tabs--overflow-r{
-    -webkit-mask-image:linear-gradient(to right,rgba(0,0,0,0.25) 0,#000 18px,#000 calc(100% - 18px),rgba(0,0,0,0.25) 100%);
-            mask-image:linear-gradient(to right,rgba(0,0,0,0.25) 0,#000 18px,#000 calc(100% - 18px),rgba(0,0,0,0.25) 100%);
   }
   .edit-modal .edit-tab{
-    padding:5px 8px;border-radius:6px;
-    background:transparent;color:rgba(255,255,255,.5);
-    border:none;cursor:pointer;font-size:.75rem;font-weight:500;
+    flex:1 1 0;min-width:0;
+    padding:7px 6px;border-radius:7px;
+    background:transparent;color:rgba(255,255,255,.55);
+    border:none;cursor:pointer;font-size:.72rem;font-weight:500;
     transition:background .12s,color .12s;
-    flex-shrink:0;white-space:nowrap;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .edit-modal .edit-tab:hover{color:rgba(255,255,255,.85);}
+  .edit-modal .edit-tab .ico{width:1.15em;height:1.15em;margin:0;}
+  .edit-modal .edit-tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.04);}
   .edit-modal .edit-tab.active{background:rgba(255,255,255,.1);color:#fff;}
+  .edit-modal .edit-tab.active .ico{color:var(--accent);}
+  .edit-modal .edit-subtoggle{
+    display:flex;gap:3px;padding:3px;border-radius:8px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+    margin:0 0 10px 0;
+  }
+  .edit-modal .edit-subtab{
+    flex:1 1 0;padding:6px 10px;border-radius:6px;
+    background:transparent;color:rgba(255,255,255,.55);
+    border:none;cursor:pointer;font-size:.76rem;font-weight:500;
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    transition:background .12s,color .12s;line-height:1;
+  }
+  .edit-modal .edit-subtab .ico{width:1em;height:1em;margin:0;}
+  .edit-modal .edit-subtab:hover{color:rgba(255,255,255,.9);}
+  .edit-modal .edit-subtab.active{background:rgba(255,255,255,.12);color:#fff;}
+  .edit-modal .edit-subtab.active .ico{color:var(--accent);}
+  .edit-modal .edit-subbody{display:flex;flex-direction:column;gap:12px;}
   .edit-modal .edit-body{
     flex:1;overflow-y:auto;overflow-x:hidden;
     padding:14px 12px;
     display:flex;flex-direction:column;gap:12px;
   }
-  /* Round 12 — single-row action footer.
-     Was: flex-wrap:wrap with 5 direct children — at any panel width
-     <320px the buttons stacked to 5 rows (172px tall on desktop / 162
-     on mobile, eating 20–25% of modal height). Now size-info is its
-     own row above a single .edit-actions-row that lays Reset+Undo/Redo
-     on the left and Cancel/Save on the right via a flex:1 spacer.
-     Footer collapses to ~60px tall, ~110px reclaimed for the preview
-     at every breakpoint. */
+  /* R20 - single-row footer (further compaction from R12).
+     size-info is no longer its own row - it lives inline left of the
+     history controls, ellipsis-truncated so it never pushes buttons.
+     This reclaims ~12px more vertical for the canvas. */
   .edit-modal .edit-actions{
-    display:flex;flex-direction:column;align-items:stretch;gap:5px;
+    display:flex;align-items:center;gap:6px;width:100%;
     padding:8px 12px;border-top:1px solid rgba(255,255,255,.07);
-    flex-shrink:0;
+    flex-shrink:0;flex-wrap:nowrap;
   }
   .edit-modal .edit-actions-row{
     display:flex;align-items:center;gap:6px;width:100%;
@@ -2334,9 +2343,9 @@
   }
   .edit-modal .edit-history-btns{display:flex;gap:3px;flex-shrink:0;}
   .edit-modal .edit-size-info{
-    font-size:.7rem;color:rgba(255,255,255,.3);
+    font-size:.7rem;color:rgba(255,255,255,.35);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    text-align:center;width:100%;min-width:0;
+    flex:1 1 auto;min-width:0;text-align:left;
   }
   .edit-compare-overlay{
     position:absolute;inset:0;z-index:20;background:#0a0a0c;
@@ -2805,14 +2814,11 @@
       max-height:60vh;
     }
     .edit-compare-btn{display:none;}
-    /* Tabs become a horizontal scrolling strip so they never wrap. */
-    .edit-modal .edit-tabs{
-      padding:5px 8px;gap:2px;flex-wrap:nowrap;
-      overflow-x:auto;-webkit-overflow-scrolling:touch;
-      scrollbar-width:none;
-    }
-    .edit-modal .edit-tabs::-webkit-scrollbar{display:none;}
-    .edit-modal .edit-tab{padding:5px 10px;font-size:.74rem;flex-shrink:0;white-space:nowrap;}
+    /* R20 - equal-width tabs already fit 5 across at any width. */
+    .edit-modal .edit-tabs{padding:5px 8px;gap:2px;flex-wrap:nowrap;}
+    .edit-modal .edit-tab{padding:6px 4px;font-size:.66rem;gap:2px;}
+    .edit-modal .edit-tab .ico{width:1.05em;height:1.05em;}
+    .edit-modal .edit-subtab{padding:5px 8px;font-size:.72rem;}
     .edit-modal .edit-body{padding:10px 10px;gap:10px;min-height:0;}
     /* Preset / filter / aspect / mode buttons share .edit-preset-btn — shrink so they fit in one row. */
     .edit-modal .edit-preset-btn{padding:5px 9px;font-size:.72rem;}
@@ -3013,6 +3019,9 @@
     <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
     <symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11"/></symbol>
     <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13"/></symbol>
+    <symbol id="i-sliders-horizontal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></symbol>
+    <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
 </svg>
 <!-- Polite live region for screen-reader announcements (file added,
@@ -5603,18 +5612,25 @@ function _detectEditFileType(file){
   if (ext === 'ico') return 'ico';
   return 'other';
 }
+/* R20 - 5 categorized photo tabs (Apple Photos / Pixlr X pattern).
+   Transform groups Rotate+Crop; Retouch groups Pixelate+Blur. Each
+   group exposes a sub-toggle inside the panel body so the surface is
+   identical to the previous flat layout, just nested one level. */
 function _editTabsForType(t){
   const isPhoto = (t === 'png' || t === 'jpg' || t === 'webp' || t === 'avif' || t === 'heic');
   const tabs = [];
-  if (t === 'gif') tabs.push({ id: 'frames', label: 'Frames' });
-  if (isPhoto) tabs.push({ id: 'adjust', label: 'Adjust' });
-  tabs.push({ id: 'rotate', label: 'Rotate' });
+  if (t === 'gif') {
+    tabs.push({ id: 'frames', label: 'Frames', icon: 'i-arrow-left-right' });
+    return tabs;
+  }
   if (isPhoto) {
-    tabs.push({ id: 'crop', label: 'Crop' });
-    tabs.push({ id: 'pixelate', label: 'Pixelate' });
-    tabs.push({ id: 'blur', label: 'Blur' });
-    tabs.push({ id: 'text', label: 'Text' });
-    tabs.push({ id: 'bg', label: 'Background' });
+    tabs.push({ id: 'adjust',    label: 'Adjust',    icon: 'i-sliders-horizontal' });
+    tabs.push({ id: 'transform', label: 'Transform', icon: 'i-rotate-cw' });
+    tabs.push({ id: 'retouch',   label: 'Retouch',   icon: 'i-brush' });
+    tabs.push({ id: 'add',       label: 'Add',       icon: 'i-type' });
+    tabs.push({ id: 'bg',        label: 'Background',icon: 'i-scissors' });
+  } else {
+    tabs.push({ id: 'transform', label: 'Transform', icon: 'i-rotate-cw' });
   }
   return tabs;
 }
@@ -5672,7 +5688,8 @@ function openEditMode(idx){
     btn.type = 'button';
     btn.className = 'edit-tab' + (i === 0 ? ' active' : '');
     btn.dataset.tab = t.id;
-    btn.textContent = t.label;
+    /* R20 - every tab gets an icon + label. */
+    btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#' + (t.icon || 'i-arrow-left-right') + '"/></svg><span>' + t.label + '</span>';
     btn.addEventListener('click', () => _switchEditTab(t.id));
     tabBar.appendChild(btn);
   });
@@ -5721,16 +5738,75 @@ function _switchEditTab(tabId){
   body.innerHTML = '';
   const previewCol = document.getElementById('editPreviewCol');
   if (previewCol) previewCol.innerHTML = '';
-  if (tabId === 'rotate') _renderRotateTab(body);
-  else if (tabId === 'frames') _renderFramesTab(body);
+  /* R20 routing - grouped tabs delegate to existing renderers via a
+     sub-toggle wrapper. Legacy IDs still route for backward-compat. */
+  if (tabId === 'frames') _renderFramesTab(body);
   else if (tabId === 'bg') _renderBackgroundTab(body);
   else if (tabId === 'adjust') _renderAdjustTab(body);
+  else if (tabId === 'transform') _renderTransformTab(body);
+  else if (tabId === 'retouch') _renderRetouchTab(body);
+  else if (tabId === 'add') { _renderTextTab(body).catch(e => console.warn('[add]', e)); }
+  else if (tabId === 'rotate') _renderRotateTab(body);
   else if (tabId === 'crop') { _renderCropTab(body).catch(e => console.warn('[crop]', e)); }
   else if (tabId === 'pixelate') { _renderPixelateTab(body).catch(e => console.warn('[pixelate]', e)); }
   else if (tabId === 'blur') { _renderBlurTab(body).catch(e => console.warn('[blur]', e)); }
   else if (tabId === 'text') { _renderTextTab(body).catch(e => console.warn('[text]', e)); }
   /* Round 10: ensure split-compare UI persists across tab switches. */
   try { _ensureSplitUi(); } catch(_) {}
+}
+/* R20 wrappers - Transform (Rotate|Crop) and Retouch (Pixelate|Blur). */
+function _renderSubToggle(body, items, activeId, onSwitch){
+  const wrap = document.createElement('div');
+  wrap.className = 'edit-subtoggle';
+  wrap.setAttribute('role', 'tablist');
+  items.forEach(it => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'edit-subtab' + (it.id === activeId ? ' active' : '');
+    b.dataset.subtab = it.id;
+    b.setAttribute('role', 'tab');
+    b.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#' + it.icon + '"/></svg><span>' + it.label + '</span>';
+    b.addEventListener('click', () => {
+      if (it.id === activeId) return;
+      onSwitch(it.id);
+    });
+    wrap.appendChild(b);
+  });
+  body.appendChild(wrap);
+  const sub = document.createElement('div');
+  sub.className = 'edit-subbody';
+  sub.id = 'editSubBody';
+  body.appendChild(sub);
+  return sub;
+}
+function _renderTransformTab(body){
+  const sub = _editState._transformSub || 'rotate';
+  _editState._transformSub = sub;
+  const subBody = _renderSubToggle(body, [
+    { id: 'rotate', label: 'Rotate', icon: 'i-rotate-cw' },
+    { id: 'crop',   label: 'Crop',   icon: 'i-scissors' }
+  ], sub, (newSub) => {
+    _editState._transformSub = newSub;
+    body.innerHTML = '';
+    _renderTransformTab(body);
+    if (typeof _updateSplitBtnState === 'function') _updateSplitBtnState();
+  });
+  if (sub === 'rotate') _renderRotateTab(subBody);
+  else if (sub === 'crop') _renderCropTab(subBody).catch(e => console.warn('[crop]', e));
+}
+function _renderRetouchTab(body){
+  const sub = _editState._retouchSub || 'pixelate';
+  _editState._retouchSub = sub;
+  const subBody = _renderSubToggle(body, [
+    { id: 'pixelate', label: 'Pixelate', icon: 'i-x' },
+    { id: 'blur',     label: 'Blur',     icon: 'i-brush' }
+  ], sub, (newSub) => {
+    _editState._retouchSub = newSub;
+    body.innerHTML = '';
+    _renderRetouchTab(body);
+  });
+  if (sub === 'pixelate') _renderPixelateTab(subBody).catch(e => console.warn('[pixelate]', e));
+  else if (sub === 'blur') _renderBlurTab(subBody).catch(e => console.warn('[blur]', e));
 }
 function cancelEdit(){
   if (_editState._blurBitmap){ try { _editState._blurBitmap.close && _editState._blurBitmap.close(); } catch(_){} _editState._blurBitmap = null; }
@@ -6056,8 +6132,9 @@ function _ensureSplitUi(){
 function _updateSplitBtnState(){
   const btn = document.getElementById('editSplitBtn');
   if (!btn) return;
-  /* Hide on Crop tab — the crop handles overlap the compare handle. */
-  const onCrop = !!document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]');
+  /* R20 - hide on Crop, whether legacy direct tab or Transform-Crop sub-tab. */
+  const onCrop = !!document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')
+              || !!document.querySelector('.edit-modal .edit-subtab.active[data-subtab="crop"]');
   if (onCrop){
     btn.style.display = 'none';
     /* If split is active and user navigated to crop, force-off so handles don't conflict. */
@@ -10636,25 +10713,28 @@ function doClear(){
   <div class="edit-modal-card">
     <header class="edit-header">
       <h2 id="editTitle">Edit</h2>
-      <button type="button" class="edit-compare-btn" id="editCompareBtn" onclick="_toggleEditCompare()">View original</button>
     </header>
     <div class="edit-layout">
       <div class="edit-preview-col" id="editPreviewCol"></div>
       <div class="edit-panel-col">
         <nav class="edit-tabs" role="tablist" id="editTabs"></nav>
         <main class="edit-body" id="editBody"></main>
+        <!-- R20 footer: single row, size-info inline-left, history
+             cluster (Reset / Undo / Redo / Compare) groups all
+             non-destructive history ops together per Apple Photos and
+             Pixlr E patterns; primary actions (Cancel / Save) on
+             the right with the spacer between. -->
         <footer class="edit-actions">
           <span class="edit-size-info" id="editSizeInfo"></span>
-          <div class="edit-actions-row">
-            <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
-            <div class="edit-history-btns">
-              <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
-              <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
-            </div>
-            <span class="edit-actions-spacer" aria-hidden="true"></span>
-            <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
-            <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
+          <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
+          <div class="edit-history-btns">
+            <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
+            <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
+            <button type="button" class="btn btn-icon" id="editCompareBtn" onclick="_toggleEditCompare()" title="View original" aria-label="View original"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg></button>
           </div>
+          <span class="edit-actions-spacer" aria-hidden="true"></span>
+          <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
+          <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
         </footer>
       </div>
     </div>
