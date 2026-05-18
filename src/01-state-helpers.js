@@ -600,7 +600,36 @@ function getSettings(fmt){
   var stripExifEl=G('stripExif');
   var stripExif=stripExifEl?!!stripExifEl.checked:true;
   var mimeMap={webp:'image/webp',avif:'image/avif',png:'image/png',jpg:'image/jpeg',gif:'image/gif'};
-  return{mime:mimeMap[fmt]||'image/webp',quality:fmt==='gif'?undefined:q,maxDim:maxDim,resizePct:resizePct,stripExif:stripExif};
+  /* R23 — read live Advanced encoder controls if present (set up in
+     the home settings panel). Falls back to {} so the worker continues
+     with its own defaults. */
+  var advanced = _r23ReadAdvanced();
+  /* R23 — when png advanced has been touched (non-default level or interlace on),
+   auto-enable extraOptimize so oxipng actually runs. Otherwise leave it off
+   to preserve the original "fast PNG by default" UX. */
+  var _extraOpt = false;
+  if (fmt === 'png' && advanced.png) {
+    if ((advanced.png.level != null && advanced.png.level !== 2) || advanced.png.interlace) {
+      _extraOpt = true;
+    }
+  }
+  return{mime:mimeMap[fmt]||'image/webp',quality:fmt==='gif'?undefined:q,maxDim:maxDim,resizePct:resizePct,stripExif:stripExif,advanced:advanced,extraOptimize:_extraOpt};
+}
+function _r23ReadAdvanced(){
+  function readPanel(fmt){
+    var panel = document.querySelector('.r23-adv-panel[data-fmt="' + fmt + '"]');
+    if (!panel) return null;
+    var inputs = panel.querySelectorAll('input,select');
+    var out = {};
+    Array.prototype.forEach.call(inputs, function(el){
+      var n = el.name; if (!n) return;
+      if (el.type === 'checkbox') out[n] = el.checked;
+      else if (el.type === 'range') out[n] = parseInt(el.value, 10);
+      else out[n] = el.value;
+    });
+    return out;
+  }
+  return { webp: readPanel('webp'), avif: readPanel('avif'), jpg: readPanel('jpg'), png: readPanel('png') };
 }
 
 /* ========================================

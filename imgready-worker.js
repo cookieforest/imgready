@@ -588,14 +588,34 @@ async function processOne(file, fmt, settings){
   if (fmt === 'avif') {
     const enc = await ensureAvif();
     const id = ctx.getImageData(0, 0, w, h);
-    const buf = await enc(id, { quality: Math.round((q ?? 0.5) * 100) });
+    /* R23 — Advanced AVIF params from settings.advanced.avif (UI effort
+       0..10 maps to jsquash speed = 10 - effort; lossless and subsample
+       passed through). Defaults preserve prior behavior. */
+    const advA = (settings.advanced && settings.advanced.avif) || {};
+    const _effort = (advA.effort != null) ? Math.max(0, Math.min(10, advA.effort)) : 4;
+    const avifOpts = {
+      quality: advA.lossless ? 100 : Math.round((q ?? 0.5) * 100),
+      speed: 10 - _effort,
+      subsample: (advA.subsample === '444') ? 3 : 1,
+      lossless: !!advA.lossless,
+    };
+    const buf = await enc(id, avifOpts);
     return new Blob([buf], { type: 'image/avif' });
   }
 
   if (fmt === 'webp') {
     const enc = await ensureWebp();
     const id = ctx.getImageData(0, 0, w, h);
-    const buf = await enc(id, { quality: Math.round((q ?? 0.82) * 100) });
+    /* R23 — Advanced WebP params from settings.advanced.webp. effort 0..6
+       maps to libwebp method; lossless toggles lossless mode. */
+    const advW = (settings.advanced && settings.advanced.webp) || {};
+    const _method = (advW.effort != null) ? Math.max(0, Math.min(6, advW.effort)) : 4;
+    const webpOpts = {
+      quality: Math.round((q ?? 0.82) * 100),
+      method: _method,
+      lossless: advW.lossless ? 1 : 0,
+    };
+    const buf = await enc(id, webpOpts);
     return new Blob([buf], { type: 'image/webp' });
   }
 
@@ -615,7 +635,13 @@ async function processOne(file, fmt, settings){
       if (settings.extraOptimize) {
         try {
           const optimise = await ensureOxipng();
-          const opt = await optimise(pngBuf, { level: 2, interlace: false });
+          /* R23 — OxiPNG advanced: level 0..6, interlace toggle. */
+          const advP = (settings.advanced && settings.advanced.png) || {};
+          const oxiOpts = {
+            level: (advP.level != null) ? Math.max(0, Math.min(6, advP.level)) : 2,
+            interlace: !!advP.interlace,
+          };
+          const opt = await optimise(pngBuf, oxiOpts);
           if (opt && opt.byteLength < pngBuf.byteLength) pngBuf = opt;
         } catch (e) { /* keep un-optimized */ }
       }
@@ -627,7 +653,13 @@ async function processOne(file, fmt, settings){
       const buf = await blob.arrayBuffer();
       try {
         const optimise = await ensureOxipng();
-        const opt = await optimise(buf, { level: 2, interlace: false });
+        /* R23 — OxiPNG advanced (lossless PNG path). */
+        const advP2 = (settings.advanced && settings.advanced.png) || {};
+        const oxiOpts2 = {
+          level: (advP2.level != null) ? Math.max(0, Math.min(6, advP2.level)) : 2,
+          interlace: !!advP2.interlace,
+        };
+        const opt = await optimise(buf, oxiOpts2);
         if (opt && opt.byteLength < buf.byteLength) return new Blob([opt], { type: 'image/png' });
       } catch (e) { /* keep un-optimized */ }
       return new Blob([buf], { type: 'image/png' });
@@ -644,11 +676,22 @@ async function processOne(file, fmt, settings){
       const enc = await ensureJpeg();
       const id = ctx.getImageData(0, 0, w, h);
       /* MozJPEG quality is 0-100, our slider is 0-1. */
-      const buf = await enc(id, {
+      /* R23 — Advanced JPEG params from settings.advanced.jpg.
+         progressive/optimize_coding are user toggles. Chroma subsampling:
+         'auto' lets MozJPEG decide; '444'/'422'/'420' force the mode by
+         passing auto_subsample=false plus the explicit chroma_subsample. */
+      const advJ = (settings.advanced && settings.advanced.jpg) || {};
+      const _jpgOpts = {
         quality: Math.round((q ?? 0.82) * 100),
-        progressive: true,    /* progressive JPGs render top-down on slow connections */
-        optimize_coding: true /* Huffman optimization — small extra savings */
-      });
+        progressive: advJ.progressive !== false,
+        optimize_coding: advJ.optimize_coding !== false,
+      };
+      if (advJ.subsample && advJ.subsample !== 'auto') {
+        _jpgOpts.auto_subsample = false;
+        _jpgOpts.chroma_subsample = (advJ.subsample === '444') ? 1
+                                  : (advJ.subsample === '422') ? 2 : 3;
+      }
+      const buf = await enc(id, _jpgOpts);
       return new Blob([buf], { type: 'image/jpeg' });
     } catch (e) {
       /* Fallback path — canvas.toBlob is universally supported */

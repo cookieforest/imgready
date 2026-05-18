@@ -2833,6 +2833,89 @@
 
 
   
+
+  /* R23 — Advanced encoder controls section. Native <details>, per-format
+     tabs, simple form controls. No JS framework, no animations beyond the
+     browser-native details expand. Persists per format to localStorage. */
+  .r23-adv-section .r23-adv-details{
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .r23-adv-summary{
+    cursor:pointer;list-style:none;
+    padding:10px 12px;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:.82rem;font-weight:600;color:rgba(255,255,255,.85);
+    user-select:none;
+  }
+  .r23-adv-summary::-webkit-details-marker{display:none;}
+  .r23-adv-summary::after{
+    content:"";display:inline-block;width:8px;height:8px;
+    border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+    transform:rotate(45deg);transition:transform .15s ease;
+    margin-left:auto;flex-shrink:0;
+  }
+  .r23-adv-details[open] .r23-adv-summary::after{transform:rotate(-135deg);}
+  .r23-adv-hint{
+    font-size:.7rem;font-weight:500;color:rgba(255,255,255,.45);
+    margin-right:auto;
+  }
+  .r23-adv-body{
+    padding:12px 12px 14px;
+    border-top:1px solid rgba(255,255,255,.06);
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .r23-adv-tabs{
+    display:flex;gap:4px;padding:4px;border-radius:8px;
+    background:rgba(0,0,0,.18);
+  }
+  .r23-adv-tab{
+    flex:1 1 0;padding:6px 10px;border-radius:6px;
+    background:transparent;border:none;color:rgba(255,255,255,.55);
+    font-size:.74rem;font-weight:600;cursor:pointer;
+    transition:background .12s,color .12s;
+  }
+  .r23-adv-tab:hover{color:rgba(255,255,255,.9);}
+  .r23-adv-tab.active{background:rgba(255,255,255,.1);color:#fff;}
+  .r23-adv-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .r23-adv-panel{display:flex;flex-direction:column;gap:10px;}
+  .r23-adv-panel[hidden]{display:none !important;}
+  .r23-adv-row{
+    display:flex;align-items:center;gap:10px;
+    font-size:.78rem;color:rgba(255,255,255,.85);
+  }
+  .r23-adv-name{flex:0 0 90px;color:rgba(255,255,255,.65);}
+  .r23-adv-row input[type="range"]{flex:1 1 auto;min-width:0;accent-color:var(--accent);}
+  .r23-adv-row select{
+    flex:1 1 auto;min-width:0;
+    background:rgba(0,0,0,.3);color:#fff;
+    border:1px solid rgba(255,255,255,.14);border-radius:6px;
+    padding:5px 8px;font-size:.78rem;font-family:inherit;
+  }
+  .r23-adv-row select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .r23-adv-val{
+    flex:0 0 34px;text-align:right;
+    font-size:.74rem;font-variant-numeric:tabular-nums;
+    color:rgba(255,255,255,.7);
+  }
+  .r23-adv-check{flex-wrap:nowrap;gap:8px;}
+  .r23-adv-check input[type="checkbox"]{flex:0 0 auto;accent-color:var(--accent);}
+  .r23-adv-help{
+    margin:2px 0 0;font-size:.68rem;color:rgba(255,255,255,.4);line-height:1.45;
+  }
+  .r23-adv-reset{
+    background:transparent;border:1px solid rgba(255,255,255,.14);
+    color:rgba(255,255,255,.55);
+    padding:6px 12px;border-radius:6px;
+    font-size:.72rem;font-weight:600;cursor:pointer;
+    align-self:flex-start;margin-top:4px;
+    transition:background .12s,color .12s;
+  }
+  .r23-adv-reset:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);}
+  .r23-adv-reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
   /* R22 — precise crosshair override during active drag OR when
      Caps Lock is engaged (Photoshop convention). Uses !important
      to beat the inline cursor:url(...) set by each brush's
@@ -3334,7 +3417,7 @@
         <div class="adjust-section"><span class="adjust-label">Format</span>
           <div class="adjust-pills"><button class="active">WebP</button><button>AVIF</button><button>JPG</button><button>PNG</button></div></div>
         <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
-          <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span></div></div>
+          <div class="quality-row"><input type="range" id="qualitySlider" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val" id="qualityValLabel">82</span></div></div>
         <div class="adjust-section"><span class="adjust-label">Resize</span>
           <div class="resize-presets resize-dropdown" data-resize-current="0">
             <button type="button" class="resize-presets-trigger">
@@ -3354,7 +3437,89 @@
           </div>
           </div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
-          <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label></div>
+          <label class="switch"><input type="checkbox" id="stripExif" checked><span class="switch-track"></span><span>Strip metadata</span></label></div>
+        <!-- R23 Advanced encoder section — surfaces codec params already
+             loaded in WASM. Defaults preserve current behavior (no
+             behavior change unless user opens & changes). Native
+             <details> + per-format tabs; localStorage-persisted per
+             format under imgready.encoder.<fmt>.v1. -->
+        <div class="adjust-section r23-adv-section">
+          <details class="r23-adv-details">
+            <summary class="r23-adv-summary"><span>Advanced encoder</span><span class="r23-adv-hint">codec settings</span></summary>
+            <div class="r23-adv-body">
+              <div class="r23-adv-tabs" role="tablist" aria-label="Format">
+                <button type="button" class="r23-adv-tab active" data-r23-tab="webp" role="tab" aria-selected="true">WebP</button>
+                <button type="button" class="r23-adv-tab" data-r23-tab="avif" role="tab" aria-selected="false">AVIF</button>
+                <button type="button" class="r23-adv-tab" data-r23-tab="jpg" role="tab" aria-selected="false">JPG</button>
+                <button type="button" class="r23-adv-tab" data-r23-tab="png" role="tab" aria-selected="false">PNG</button>
+              </div>
+              <div class="r23-adv-panel" data-fmt="webp" role="tabpanel">
+                <label class="r23-adv-row">
+                  <span class="r23-adv-name">Effort</span>
+                  <input type="range" name="effort" min="0" max="6" value="4" aria-label="WebP effort 0 to 6">
+                  <output class="r23-adv-val">4</output>
+                </label>
+                <label class="r23-adv-row r23-adv-check">
+                  <input type="checkbox" name="lossless">
+                  <span>Lossless</span>
+                </label>
+                <p class="r23-adv-help">Higher effort = smaller file, slower encode. Lossless ignores Quality.</p>
+              </div>
+              <div class="r23-adv-panel" data-fmt="avif" role="tabpanel" hidden>
+                <label class="r23-adv-row">
+                  <span class="r23-adv-name">Effort</span>
+                  <input type="range" name="effort" min="0" max="10" value="4" aria-label="AVIF effort 0 to 10">
+                  <output class="r23-adv-val">4</output>
+                </label>
+                <label class="r23-adv-row r23-adv-check">
+                  <input type="checkbox" name="lossless">
+                  <span>Lossless</span>
+                </label>
+                <label class="r23-adv-row">
+                  <span class="r23-adv-name">Chroma</span>
+                  <select name="subsample" aria-label="AVIF chroma subsampling">
+                    <option value="420" selected>4:2:0 (smaller)</option>
+                    <option value="444">4:4:4 (sharper)</option>
+                  </select>
+                </label>
+                <p class="r23-adv-help">AVIF is slow — effort 0 is fast but larger; 10 is small but slow. 4:4:4 helps fine text and lines.</p>
+              </div>
+              <div class="r23-adv-panel" data-fmt="jpg" role="tabpanel" hidden>
+                <label class="r23-adv-row r23-adv-check">
+                  <input type="checkbox" name="progressive" checked>
+                  <span>Progressive rendering</span>
+                </label>
+                <label class="r23-adv-row">
+                  <span class="r23-adv-name">Chroma</span>
+                  <select name="subsample" aria-label="JPEG chroma subsampling">
+                    <option value="auto" selected>Auto</option>
+                    <option value="444">4:4:4 (sharpest)</option>
+                    <option value="422">4:2:2</option>
+                    <option value="420">4:2:0 (smallest)</option>
+                  </select>
+                </label>
+                <label class="r23-adv-row r23-adv-check">
+                  <input type="checkbox" name="optimize_coding" checked>
+                  <span>Optimize Huffman tables</span>
+                </label>
+                <p class="r23-adv-help">Progressive renders top-down on slow connections. 4:4:4 keeps text crisp; 4:2:0 is smallest.</p>
+              </div>
+              <div class="r23-adv-panel" data-fmt="png" role="tabpanel" hidden>
+                <label class="r23-adv-row">
+                  <span class="r23-adv-name">Optimization</span>
+                  <input type="range" name="level" min="0" max="6" value="2" aria-label="OxiPNG level 0 to 6">
+                  <output class="r23-adv-val">2</output>
+                </label>
+                <label class="r23-adv-row r23-adv-check">
+                  <input type="checkbox" name="interlace">
+                  <span>Interlace</span>
+                </label>
+                <p class="r23-adv-help">Level 0 = no extra work; 6 = aggressive (slow on large batches). Interlace = progressive PNG.</p>
+              </div>
+              <button type="button" class="r23-adv-reset" id="r23AdvReset">Reset to defaults</button>
+            </div>
+          </details>
+        </div>
       </div>
       <div class="actions">
         <button class="btn btn-primary">Download</button>
@@ -10891,6 +11056,112 @@ function doClear(){
   <span class="batch-progress-text"></span>
   <span class="batch-progress-bar"><span class="batch-progress-fill"></span></span>
 </div>
+
+<script>
+/* R23 — Advanced encoder controls glue. Vanilla JS, no framework. */
+(function(){
+  'use strict';
+  var DEFAULTS = {
+    webp: { effort: 4, lossless: false },
+    avif: { effort: 4, lossless: false, subsample: '420' },
+    jpg:  { progressive: true, subsample: 'auto', optimize_coding: true },
+    png:  { level: 2, interlace: false }
+  };
+  function $(sel, root){ return (root || document).querySelector(sel); }
+  function $$(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function key(fmt){ return 'imgready.encoder.' + fmt + '.v1'; }
+
+  function applyToPanel(fmt){
+    var panel = $('.r23-adv-panel[data-fmt="' + fmt + '"]');
+    if (!panel) return;
+    var stored;
+    try { stored = JSON.parse(localStorage.getItem(key(fmt)) || 'null'); } catch(_) { stored = null; }
+    var vals = Object.assign({}, DEFAULTS[fmt] || {}, stored || {});
+    Object.keys(vals).forEach(function(name){
+      var el = panel.querySelector('[name="' + name + '"]');
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = !!vals[name];
+      else el.value = String(vals[name]);
+      if (el.type === 'range') {
+        var out = el.parentElement.querySelector('output.r23-adv-val');
+        if (out) out.textContent = el.value;
+      }
+    });
+  }
+  function persist(fmt){
+    var panel = $('.r23-adv-panel[data-fmt="' + fmt + '"]');
+    if (!panel) return;
+    var out = {};
+    $$('input,select', panel).forEach(function(el){
+      var n = el.name; if (!n) return;
+      if (el.type === 'checkbox') out[n] = el.checked;
+      else if (el.type === 'range') out[n] = parseInt(el.value, 10);
+      else out[n] = el.value;
+    });
+    try { localStorage.setItem(key(fmt), JSON.stringify(out)); } catch(_){}
+  }
+
+  function wireTabs(){
+    var tabs = $$('.r23-adv-tab');
+    tabs.forEach(function(t){
+      t.addEventListener('click', function(){
+        var fmt = t.getAttribute('data-r23-tab');
+        tabs.forEach(function(x){
+          x.classList.toggle('active', x === t);
+          x.setAttribute('aria-selected', x === t ? 'true' : 'false');
+        });
+        $$('.r23-adv-panel').forEach(function(p){
+          p.hidden = p.getAttribute('data-fmt') !== fmt;
+        });
+      });
+    });
+  }
+  function wireInputs(){
+    $$('.r23-adv-panel').forEach(function(panel){
+      var fmt = panel.getAttribute('data-fmt');
+      panel.addEventListener('input', function(e){
+        var el = e.target;
+        if (el.type === 'range') {
+          var out = el.parentElement.querySelector('output.r23-adv-val');
+          if (out) out.textContent = el.value;
+        }
+        persist(fmt);
+      });
+      panel.addEventListener('change', function(){ persist(fmt); });
+    });
+  }
+  function wireReset(){
+    var btn = $('#r23AdvReset');
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+      Object.keys(DEFAULTS).forEach(function(fmt){
+        try { localStorage.removeItem(key(fmt)); } catch(_){}
+        applyToPanel(fmt);
+      });
+    });
+  }
+  function syncQualityLabel(){
+    var s = document.getElementById('qualitySlider');
+    var lbl = document.getElementById('qualityValLabel');
+    if (!s || !lbl) return;
+    s.addEventListener('input', function(){
+      lbl.textContent = s.value;
+      var hdr = s.closest('.adjust-section') && s.closest('.adjust-section').querySelector('.adjust-label');
+      if (hdr) hdr.textContent = 'Quality · ' + s.value;
+    });
+  }
+
+  function init(){
+    Object.keys(DEFAULTS).forEach(applyToPanel);
+    wireTabs();
+    wireInputs();
+    wireReset();
+    syncQualityLabel();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 
 </body>
 </html>
