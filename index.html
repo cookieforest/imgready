@@ -6239,6 +6239,50 @@ document.addEventListener('keydown', e => {
   } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey) || (e.key === 'Z' && e.shiftKey)) && !isInput){
     _editRedo(); e.preventDefault();
   }
+  /* R21 — Photoshop-style bracket keys for brush size + Shift-bracket for
+     Blur radius. Variable increment per Adobe's Photoshop convention
+     (https://helpx.adobe.com/photoshop/using/default-keyboard-shortcuts.html):
+     1px below 10, 5px below 50, 10px below 100, 20px above. Native key-repeat
+     works because we tap the existing slider input via dispatchEvent, which
+     means each repeated keydown fires one update — cursor + UI refresh for
+     free via the slider's own change listener. */
+  else if ((e.key === '[' || e.key === ']') && !isInput){
+    const dir = (e.key === ']') ? 1 : -1;
+    /* Shift+bracket routes to Blur radius if Blur sub-tab is active. */
+    if (e.shiftKey){
+      const radEl = document.getElementById('blRadius');
+      if (radEl){
+        const cur = parseInt(radEl.value, 10);
+        const step = (cur < 5) ? 1 : (cur < 15) ? 2 : 5;
+        const next = Math.max(parseInt(radEl.min,10), Math.min(parseInt(radEl.max,10), cur + dir * step));
+        if (next !== cur){
+          radEl.value = String(next);
+          radEl.dispatchEvent(new Event('input', { bubbles: true }));
+          radEl.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        e.preventDefault();
+      }
+      return;
+    }
+    /* Plain bracket: find the active brush slider, mutate, dispatch. */
+    const brushIds = ['bgrBrush', 'pxBrush', 'blBrush'];
+    let slider = null;
+    for (let i = 0; i < brushIds.length; i++){
+      const el = document.getElementById(brushIds[i]);
+      if (el){ slider = el; break; }
+    }
+    if (slider){
+      const cur = parseInt(slider.value, 10);
+      const step = (cur < 10) ? 1 : (cur < 50) ? 5 : (cur < 100) ? 10 : 20;
+      const next = Math.max(parseInt(slider.min,10), Math.min(parseInt(slider.max,10), cur + dir * step));
+      if (next !== cur){
+        slider.value = String(next);
+        slider.dispatchEvent(new Event('input', { bubbles: true }));
+        slider.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      e.preventDefault();
+    }
+  }
 });
 /* ---- ROTATE TAB ---- */
 function _renderRotateTab(body){
@@ -6846,7 +6890,7 @@ function _renderBackgroundTab(body){
     +   '</div>'
     +   '<div class="adj-row">'
     +     '<span class="adj-label">Brush</span>'
-    +     '<input type="range" id="bgrBrush" min="6" max="160" step="1" value="' + ref.brushPx + '">'
+    +     '<input type="range" id="bgrBrush" min="6" max="160" step="1" value="' + ref.brushPx + '" title="Brush size — [ and ]">'
     +     '<span class="adj-val" id="bgrBrushVal">' + ref.brushPx + '</span>'
     +   '</div>'
     +   '<div class="adj-row">'
@@ -6855,7 +6899,7 @@ function _renderBackgroundTab(body){
     +     '<span class="adj-val" id="bgrHardnessVal">' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '%</span>'
     +   '</div>'
     +   '<button type="button" class="edit-frames-action-btn" id="bgrClear">Clear refinements</button>'
-    +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft = feathered edges, higher = crisp.</p>'
+    +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft = feathered edges, higher = crisp. Use [ and ] to resize.</p>'
     + '</div>'
   ) : '';
   if (!state.mode) state.mode = 'std';
@@ -7783,7 +7827,7 @@ async function _renderPixelateTab(body){
     +   '</div>'
     +   '<div class="adj-row">'
     +     '<span class="adj-label">Brush</span>'
-    +     '<input type="range" id="pxBrush" min="6" max="160" step="1" value="' + px.brushPx + '">'
+    +     '<input type="range" id="pxBrush" min="6" max="160" step="1" value="' + px.brushPx + '" title="Brush size — [ and ]">'
     +     '<span class="adj-val" id="pxBrushVal">' + px.brushPx + '</span>'
     +   '</div>'
     +   '<div class="adj-row">'
@@ -7792,7 +7836,7 @@ async function _renderPixelateTab(body){
     +     '<span class="adj-val" id="pxBlockVal">' + px.blockSize + '</span>'
     +   '</div>'
     +   '<button type="button" class="edit-frames-action-btn" id="pxClear">Clear all</button>'
-    +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation.</p>'
+    +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation. Use [ and ] to resize the brush.</p>'
     + '</div>';
   /* Build preview source (applies upstream edits) */
   await _pxBaseBlob();
@@ -8060,19 +8104,19 @@ async function _renderBlurTab(body){
     +   '</div>'
     +   '<div class="adj-row">'
     +     '<span class="adj-label">Brush</span>'
-    +     '<input type="range" id="blBrush" min="6" max="160" step="1" value="' + bl.brushPx + '">'
+    +     '<input type="range" id="blBrush" min="6" max="160" step="1" value="' + bl.brushPx + '" title="Brush size — [ and ]">'
     +     '<span class="adj-val" id="blBrushVal">' + bl.brushPx + '</span>'
     +   '</div>'
     +   '<div class="adj-row">'
     +     '<span class="adj-label">Amount</span>'
-    +     '<input type="range" id="blRadius" min="2" max="40" step="1" value="' + bl.radius + '">'
+    +     '<input type="range" id="blRadius" min="2" max="40" step="1" value="' + bl.radius + '" title="Blur strength — Shift+[ and Shift+]">'
     +     '<span class="adj-val" id="blRadiusVal">' + bl.radius + '</span>'
     +   '</div>'
     +   '<div class="edit-blur-actions">'
     +     '<button type="button" class="edit-frames-action-btn" id="blApplyAll">' + (bl.full ? 'Brush only' : 'Whole image') + '</button>'
     +     '<button type="button" class="edit-frames-action-btn" id="blClear">Clear all</button>'
     +   '</div>'
-    +   '<p class="edit-blur-help">Drag over areas you want to soften. Switch to Erase to clear blur. <strong>Whole image</strong> blurs everything (depth-of-field style).</p>'
+    +   '<p class="edit-blur-help">Drag over areas you want to soften. Switch to Erase to clear blur. Use [ and ] to resize.<strong>Whole image</strong> blurs everything (depth-of-field style).</p>'
     + '</div>';
   /* Build preview source */
   await _blurBaseBlob();
