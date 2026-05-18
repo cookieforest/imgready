@@ -2219,8 +2219,8 @@
   }
   .edit-modal .edit-header{
     height:48px;flex-shrink:0;
-    display:flex;align-items:center;gap:10px;
-    padding:0 14px 0 18px;
+    display:flex;align-items:center;gap:12px;
+    padding:0 16px 0 20px;
     border-bottom:1px solid rgba(255,255,255,.07);
   }
   .edit-modal .edit-header h2{
@@ -2249,17 +2249,17 @@
      Apple Photos, Canva all use grouped tabs instead). Now: 5 equal-
      width tabs each with a Lucide glyph + short label, no scroll. */
   .edit-modal .edit-tabs{
-    display:flex;gap:3px;padding:7px 10px;
+    display:flex;gap:4px;padding:8px 12px;
     border-bottom:1px solid rgba(255,255,255,.06);
     flex-shrink:0;flex-wrap:nowrap;
   }
   .edit-modal .edit-tab{
     flex:1 1 0;min-width:0;
-    padding:7px 6px;border-radius:7px;
+    padding:8px 8px;border-radius:8px;
     background:transparent;color:rgba(255,255,255,.55);
     border:none;cursor:pointer;font-size:.72rem;font-weight:500;
     transition:background .12s,color .12s;
-    display:flex;flex-direction:column;align-items:center;gap:3px;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
     line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
   .edit-modal .edit-tab .ico{width:1.15em;height:1.15em;margin:0;}
@@ -2267,16 +2267,16 @@
   .edit-modal .edit-tab.active{background:rgba(255,255,255,.1);color:#fff;}
   .edit-modal .edit-tab.active .ico{color:var(--accent);}
   .edit-modal .edit-subtoggle{
-    display:flex;gap:3px;padding:3px;border-radius:8px;
+    display:flex;gap:4px;padding:4px;border-radius:8px;
     background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.06);
-    margin:0 0 10px 0;
+    margin:0 0 12px 0;
   }
   .edit-modal .edit-subtab{
-    flex:1 1 0;padding:6px 10px;border-radius:6px;
+    flex:1 1 0;padding:8px 12px;border-radius:6px;
     background:transparent;color:rgba(255,255,255,.55);
     border:none;cursor:pointer;font-size:.76rem;font-weight:500;
-    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
     transition:background .12s,color .12s;line-height:1;
   }
   .edit-modal .edit-subtab .ico{width:1em;height:1em;margin:0;}
@@ -2286,29 +2286,29 @@
   .edit-modal .edit-subbody{display:flex;flex-direction:column;gap:12px;}
   .edit-modal .edit-body{
     flex:1;overflow-y:auto;overflow-x:hidden;
-    padding:14px 12px;
-    display:flex;flex-direction:column;gap:12px;
+    padding:16px 16px;
+    display:flex;flex-direction:column;gap:16px;
   }
   /* R20 - single-row footer (further compaction from R12).
      size-info is no longer its own row - it lives inline left of the
      history controls, ellipsis-truncated so it never pushes buttons.
      This reclaims ~12px more vertical for the canvas. */
   .edit-modal .edit-actions{
-    display:flex;align-items:center;gap:6px;width:100%;
-    padding:8px 12px;border-top:1px solid rgba(255,255,255,.07);
+    display:flex;align-items:center;gap:8px;width:100%;
+    padding:12px 16px;border-top:1px solid rgba(255,255,255,.07);
     flex-shrink:0;flex-wrap:nowrap;
   }
   .edit-modal .edit-actions-row{
-    display:flex;align-items:center;gap:6px;width:100%;
+    display:flex;align-items:center;gap:8px;width:100%;
     flex-wrap:nowrap;
   }
   .edit-modal .edit-actions-spacer{flex:1 1 auto;min-width:0;}
   /* In the new layout Save no longer needs flex:1 (the spacer fills
      the row). Reassert intrinsic width with a minimum so the primary
      action stays visually prominent. */
-  .edit-modal .edit-actions .btn-primary{flex:initial;min-width:78px;padding:7px 18px;}
+  .edit-modal .edit-actions .btn-primary{flex:initial;min-width:80px;padding:8px 20px;}
   .edit-modal .btn{
-    padding:7px 14px;border-radius:7px;
+    padding:8px 16px;border-radius:8px;
     background:rgba(255,255,255,.08);color:#fff;
     border:1px solid rgba(255,255,255,.14);
     font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;
@@ -2325,7 +2325,7 @@
   .edit-modal .btn-ghost:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);}
   .edit-modal .btn-ghost:disabled{opacity:.28;cursor:default;pointer-events:none;}
   .edit-modal .btn-icon{
-    width:28px;height:28px;padding:0;border-radius:6px;flex-shrink:0;
+    width:32px;height:32px;padding:0;border-radius:8px;flex-shrink:0;
     background:transparent;border:1px solid rgba(255,255,255,.12);
     color:rgba(255,255,255,.55);font-size:.85rem;line-height:1;cursor:pointer;
     display:inline-flex;align-items:center;justify-content:center;
@@ -2341,7 +2341,7 @@
   .edit-modal .edit-compare-btn:hover,.edit-modal .edit-compare-btn.active{
     background:rgba(255,255,255,.15);color:#fff;
   }
-  .edit-modal .edit-history-btns{display:flex;gap:3px;flex-shrink:0;}
+  .edit-modal .edit-history-btns{display:flex;gap:4px;flex-shrink:0;}
   .edit-modal .edit-size-info{
     font-size:.7rem;color:rgba(255,255,255,.35);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -2806,7 +2806,7 @@
   }
   @media (max-width:640px){
     /* Mobile layout overhaul: preview hogs vertical space; controls compact. */
-    .edit-modal .edit-header{height:42px;padding:0 12px;gap:8px;}
+    .edit-modal .edit-header{height:44px;padding:0 16px;gap:12px;}
     .edit-modal .edit-header h2{font-size:.86rem;}
     .edit-layout{grid-template-columns:1fr;grid-template-rows:minmax(36vh,1fr) auto;}
     .edit-panel-col{
@@ -2815,22 +2815,65 @@
     }
     .edit-compare-btn{display:none;}
     /* R20 - equal-width tabs already fit 5 across at any width. */
-    .edit-modal .edit-tabs{padding:5px 8px;gap:2px;flex-wrap:nowrap;}
-    .edit-modal .edit-tab{padding:6px 4px;font-size:.66rem;gap:2px;}
+    .edit-modal .edit-tabs{padding:8px 12px;gap:4px;flex-wrap:nowrap;}
+    .edit-modal .edit-tab{padding:8px 4px;font-size:.66rem;gap:4px;}
     .edit-modal .edit-tab .ico{width:1.05em;height:1.05em;}
     .edit-modal .edit-subtab{padding:5px 8px;font-size:.72rem;}
-    .edit-modal .edit-body{padding:10px 10px;gap:10px;min-height:0;}
+    .edit-modal .edit-body{padding:12px 12px;gap:12px;min-height:0;}
     /* Preset / filter / aspect / mode buttons share .edit-preset-btn — shrink so they fit in one row. */
     .edit-modal .edit-preset-btn{padding:5px 9px;font-size:.72rem;}
-    .edit-modal .edit-actions{padding:6px 10px;gap:4px;}
-    .edit-modal .edit-actions-row{gap:5px;}
-    .edit-modal .btn{padding:6px 12px;font-size:.78rem;}
-    .edit-modal .btn-icon{width:28px;height:28px;}
-    .edit-modal .edit-actions .btn-primary{min-width:70px;padding:6px 14px;}
+    .edit-modal .edit-actions{padding:8px 12px;gap:8px;}
+    .edit-modal .edit-actions-row{gap:8px;}
+    .edit-modal .btn{padding:8px 14px;font-size:.78rem;}
+    .edit-modal .btn-icon{width:32px;height:32px;}
+    .edit-modal .edit-actions .btn-primary{min-width:80px;padding:8px 16px;}
     .edit-modal .edit-size-info{font-size:.66rem;}
   }
 
 
+
+  
+  /* R22 — precise crosshair override during active drag OR when
+     Caps Lock is engaged (Photoshop convention). Uses !important
+     to beat the inline cursor:url(...) set by each brush's
+     refreshCursor function. Selectors cover Pixelate, Blur, and
+     BG-Refine canvases. */
+  body[data-edit-dragging="on"] .edit-pixelate-canvas,
+  body[data-edit-dragging="on"] .edit-blur-canvas,
+  body[data-edit-dragging="on"] .bg-refine-canvas,
+  body[data-edit-precise="on"] .edit-pixelate-canvas,
+  body[data-edit-precise="on"] .edit-blur-canvas,
+  body[data-edit-precise="on"] .bg-refine-canvas{
+    cursor: crosshair !important;
+  }
+
+  
+  /* R22 — focus-visible keyboard a11y across the Edit modal and the
+     main app's pi-icon row. WCAG 2.1 SC 2.4.7 (Focus Visible) compliance.
+     Uses :focus-visible (not :focus) so mouse clicks don't trigger the
+     outline — only keyboard nav (Tab) does. */
+  .edit-modal button:focus-visible,
+  .edit-modal input[type="range"]:focus-visible,
+  .edit-modal .edit-tab:focus-visible,
+  .edit-modal .edit-subtab:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .edit-modal input[type="text"]:focus-visible,
+  .edit-modal input[type="number"]:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+  .pi-icon:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .dz-format-pre button:focus-visible,
+  .adjust-pills button:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 
   body[data-edit-open="true"] .menu-card,
   body[data-edit-open="true"] .pi-actions{pointer-events:none;}
@@ -4313,6 +4356,19 @@ function hideCenterStatus(){
   if (el) el.hidden = true;
   document.body.dataset.encoding = '';
   document.body.dataset.qualityEncoding = '';
+  /* R22 — discoverability: when a first encode lands in solo mode and
+     the user hasn't yet seen the pi-action icons this session, reveal
+     them once. The existing 3s auto-close timer dismisses naturally
+     so the icons don't linger past the discovery moment. */
+  if (!window._r22PiSeen
+      && document.body.dataset.state === 'solo'
+      && document.body.dataset.editOpen !== 'true'
+      && document.body.dataset.piActions !== 'open'){
+    window._r22PiSeen = true;
+    setTimeout(() => {
+      if (typeof openPiActions === 'function') openPiActions();
+    }, 400);
+  }
   /* DON'T clear data-reencoding here. It's tied to "the selected image
      is still encoding"; the hideCenterStatus call only signals that the
      overlay should disappear (encode landed OR cancelled). The
@@ -5688,8 +5744,9 @@ function openEditMode(idx){
     btn.type = 'button';
     btn.className = 'edit-tab' + (i === 0 ? ' active' : '');
     btn.dataset.tab = t.id;
-    /* R20 - every tab gets an icon + label. */
+    /* R20 - every tab gets an icon + label. R22 - title carries shortcut hint. */
     btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#' + (t.icon || 'i-arrow-left-right') + '"/></svg><span>' + t.label + '</span>';
+    btn.title = t.label + ' — ' + (i + 1);
     btn.addEventListener('click', () => _switchEditTab(t.id));
     tabBar.appendChild(btn);
   });
@@ -6283,7 +6340,44 @@ document.addEventListener('keydown', e => {
       e.preventDefault();
     }
   }
+  /* R22 — number keys 1-5 jump to Edit modal tabs. Adobe convention. */
+  else if (/^[1-5]$/.test(e.key) && !isInput && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey){
+    const tabIds = ['adjust', 'transform', 'retouch', 'add', 'bg'];
+    const idx = parseInt(e.key, 10) - 1;
+    const target = document.querySelector('.edit-modal .edit-tab[data-tab="' + tabIds[idx] + '"]');
+    if (target){ target.click(); e.preventDefault(); }
+  }
+  /* R22 — Caps Lock toggle for precise crosshair (Photoshop standard). */
+  if (e.getModifierState && e.getModifierState('CapsLock')){
+    document.body.dataset.editPrecise = 'on';
+  } else {
+    document.body.dataset.editPrecise = '';
+  }
 });
+/* R22 — track Caps Lock state on keyup too (the key itself doesn't always
+   fire a keydown for CapsLock toggles in all browsers; checking
+   getModifierState on every keyup catches the state change reliably). */
+document.addEventListener('keyup', e => {
+  if (document.body.dataset.editOpen !== 'true') return;
+  if (e.getModifierState && e.getModifierState('CapsLock')){
+    document.body.dataset.editPrecise = 'on';
+  } else {
+    document.body.dataset.editPrecise = '';
+  }
+});
+/* R22 — track active brush drag globally so the cursor swaps to a thin
+   crosshair during a stroke (CSS rule above does the actual swap). */
+document.addEventListener('pointerdown', e => {
+  if (document.body.dataset.editOpen !== 'true') return;
+  const t = e.target;
+  if (t && t.classList && (t.classList.contains('edit-pixelate-canvas')
+                       || t.classList.contains('edit-blur-canvas')
+                       || t.classList.contains('bg-refine-canvas'))){
+    document.body.dataset.editDragging = 'on';
+  }
+}, true);
+document.addEventListener('pointerup',   () => { document.body.dataset.editDragging = ''; }, true);
+document.addEventListener('pointercancel', () => { document.body.dataset.editDragging = ''; }, true);
 /* ---- ROTATE TAB ---- */
 function _renderRotateTab(body){
   const f = FILES[_editState.idx];
@@ -10777,7 +10871,7 @@ function doClear(){
             <button type="button" class="btn btn-icon" id="editCompareBtn" onclick="_toggleEditCompare()" title="View original" aria-label="View original"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg></button>
           </div>
           <span class="edit-actions-spacer" aria-hidden="true"></span>
-          <button type="button" class="btn" onclick="cancelEdit()">Cancel</button>
+          <button type="button" class="btn" onclick="cancelEdit()" title="Cancel — Esc">Cancel</button>
           <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
         </footer>
       </div>
