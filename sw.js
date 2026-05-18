@@ -277,4 +277,5 @@ self.addEventListener('fetch', (event) => {
 
   // Other cross-origin (analytics, ads): pass through to the network as-is.
 });
+/* r20 retrigger 2026-05-18T17:10Z */
 /* SW_EOF */
