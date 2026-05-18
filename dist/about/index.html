@@ -12,45 +12,6 @@
 <meta property="og:url" content="https://imgready.app/about/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://imgready.app/about/">
-<!-- AdSense: uncomment when slot ID is approved
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
--->
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
@@ -93,7 +54,7 @@
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"About","item":"https://imgready.app/about/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"About imgready — Free In-Browser Image Tool","description":"imgready is a free, private, browser-based image optimizer. No uploads, no accounts. Learn how it works, who built it, and why files never leave your device.","url":"https://imgready.app/about/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is imgready completely free?","acceptedAnswer":{"@type":"Answer","text":"Yes — imgready is free to use with no limits, no feature paywalls, and no accounts required. It runs on Google AdSense ads and optional Ko-fi contributions."}},{"@type":"Question","name":"Who built imgready?","acceptedAnswer":{"@type":"Answer","text":"imgready was built by Jeffrey, a web developer and designer based in California. It started as a personal tool and grew into something useful enough to share."}},{"@type":"Question","name":"Does imgready work offline?","acceptedAnswer":{"@type":"Answer","text":"Once the page has loaded, imgready works without a network connection for formats that don't require the HEIC or AVIF WebAssembly decoders. Those libraries (~1.5 MB each) are cached after first use."}},{"@type":"Question","name":"Is there a mobile app?","acceptedAnswer":{"@type":"Answer","text":"No dedicated app — imgready works in any modern mobile browser. Add it to your home screen for quick access. On iOS, tap Share → Add to Home Screen."}},{"@type":"Question","name":"Can I convert TIFF and other professional formats?","acceptedAnswer":{"@type":"Answer","text":"Yes. imgready accepts TIFF (with uncompressed, LZW, and PackBits compression), SVG, BMP, and GIF in addition to JPEG, PNG, WebP, AVIF, and HEIC. It's designed to handle formats that most online tools cannot."}},{"@type":"Question","name":"Does imgready preserve metadata like EXIF data?","acceptedAnswer":{"@type":"Answer","text":"No — imgready strips all metadata including EXIF, IPTC, and XMP when converting images. This protects your privacy by removing location, camera settings, and other embedded information from your photos before download."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is imgready completely free?","acceptedAnswer":{"@type":"Answer","text":"Yes — imgready is free to use with no limits, no feature paywalls, and no accounts required. Supported by voluntary Ko-fi contributions. No ads, no tracking."}},{"@type":"Question","name":"Who built imgready?","acceptedAnswer":{"@type":"Answer","text":"imgready was built by Jeffrey, a web developer and designer based in California. It started as a personal tool and grew into something useful enough to share."}},{"@type":"Question","name":"Does imgready work offline?","acceptedAnswer":{"@type":"Answer","text":"Once the page has loaded, imgready works without a network connection for formats that don't require the HEIC or AVIF WebAssembly decoders. Those libraries (~1.5 MB each) are cached after first use."}},{"@type":"Question","name":"Is there a mobile app?","acceptedAnswer":{"@type":"Answer","text":"No dedicated app — imgready works in any modern mobile browser. Add it to your home screen for quick access. On iOS, tap Share → Add to Home Screen."}},{"@type":"Question","name":"Can I convert TIFF and other professional formats?","acceptedAnswer":{"@type":"Answer","text":"Yes. imgready accepts TIFF (with uncompressed, LZW, and PackBits compression), SVG, BMP, and GIF in addition to JPEG, PNG, WebP, AVIF, and HEIC. It's designed to handle formats that most online tools cannot."}},{"@type":"Question","name":"Does imgready preserve metadata like EXIF data?","acceptedAnswer":{"@type":"Answer","text":"No — imgready strips all metadata including EXIF, IPTC, and XMP when converting images. This protects your privacy by removing location, camera settings, and other embedded information from your photos before download."}}]}</script>
 </head>
 <body>
 <div class="wrap">
@@ -177,7 +138,7 @@
   <p>imgready works in any modern browser: Chrome, Firefox, Safari (desktop and mobile), and Edge. iOS Safari is fully supported, including HEIC conversion on iPhone. No extensions, plugins, or software downloads are required.</p>
 
     <h2>Frequently asked questions</h2>
-  <details class="faq-item"><summary>Is imgready completely free?</summary><p>Yes — imgready is free to use with no limits, no feature paywalls, and no accounts required. It runs on Google AdSense ads and optional Ko-fi contributions.</p></details>
+  <details class="faq-item"><summary>Is imgready completely free?</summary><p>Yes — imgready is free to use with no limits, no feature paywalls, and no accounts required. Supported by voluntary Ko-fi contributions. No ads, no tracking.</p></details>
   <details class="faq-item"><summary>Who built imgready?</summary><p>imgready was built by Jeffrey, a web developer and designer based in California. It started as a personal tool and grew into something useful enough to share.</p></details>
   <details class="faq-item"><summary>Does imgready work offline?</summary><p>Once the page has loaded, imgready works without a network connection for formats that don't require the HEIC or AVIF WebAssembly decoders. Those libraries (~1.5 MB each) are cached after first use.</p></details>
   <details class="faq-item"><summary>Is there a mobile app?</summary><p>No dedicated app — imgready works in any modern mobile browser. Add it to your home screen for quick access. On iOS, tap Share → Add to Home Screen.</p></details>
@@ -191,11 +152,6 @@
     </div>
     <div style="margin-top:4px;">
       <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
-    </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:#d6cebb;margin:0 4px">|</span>
-      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
     <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
   </footer>

@@ -16,7 +16,7 @@
 
 // Bump on every deploy. Tag is just for humans; what matters is that the
 // string changes so old caches get evicted in the activate step.
-const CACHE_VERSION = 'imgready-2026-05-17-edit-r19-single-row-tabs-fit';
+const CACHE_VERSION = 'imgready-2026-05-18-edit-r20-grouped-tabs';
 const PRECACHE  = `${CACHE_VERSION}-precache`;
 const RUNTIME   = `${CACHE_VERSION}-runtime`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -277,5 +277,4 @@ self.addEventListener('fetch', (event) => {
 
   // Other cross-origin (analytics, ads): pass through to the network as-is.
 });
-/* r20 retrigger 2026-05-18T17:10Z */
 /* SW_EOF */

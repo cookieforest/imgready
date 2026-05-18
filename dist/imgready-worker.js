@@ -24,7 +24,11 @@
 const LIBHEIF_URL = '/vendor/libheif.js';
 const UPNG_URL    = '/vendor/UPNG.min.js';
 const PAKO_URL    = '/vendor/pako.min.js';
-// jsquash WebP/AVIF/JPEG/OxiPNG loaded from esm.sh. The previous self-host
+// jsquash WebP/AVIF/JPEG/OxiPNG loaded from esm.sh because
+// jsDelivr's /+esm wrapper doesn't resolve the `new URL('xyz.wasm',
+// import.meta.url)` sidecar pattern that jsquash uses — WASM modules
+// 404 with a "Coul..." HTML response instead of bytes. esm.sh's
+// ?bundle flag handles WASM correctly (verified 2026-05-14). The previous self-host
 // attempt referenced /vendor/jsquash/*.mjs but those binaries were never
 // committed to the repo, which broke encoding on every format. Reverted to
 // esm.sh until we ship a real, verified vendor bundle.
@@ -102,6 +106,19 @@ async function ensureJpeg(){
   const m = await import(JPEG_ESM);
   jpegEncode = m.encode;
   return jpegEncode;
+}
+
+/* gifenc loader — quantize + apply-palette + GIF encoder. ~13KB ESM.
+   Used only when input is an animated GIF and output is GIF. */
+/* jsDelivr's +esm wrapper preserves named exports correctly (verified
+   2026-05-14 — esm.sh's ?bundle wrapper only exposed `default`, silently
+   broke destructuring; unpkg works but is single-origin via Cloudflare).
+   jsDelivr: multi-CDN failover, 99.99% uptime, P95 2.5x faster than unpkg. */
+const GIFENC_ESM = 'https://cdn.jsdelivr.net/npm/gifenc@1.0.3/+esm';
+let gifencMod = null;
+async function ensureGifenc(){
+  if (!gifencMod) gifencMod = await import(GIFENC_ESM);
+  return gifencMod;
 }
 
 async function ensureOxipng(){
@@ -297,8 +314,239 @@ function qualityToColors(q){
   return 16;
 }
 
+/* ---------- animated GIF detection + encode ---------- */
+
+/* Probe a GIF blob with ImageDecoder. Reads the file into an
+   ArrayBuffer so frameCount is FINAL when tracks.ready resolves —
+   with a streaming input, frameCount grows over time and reading
+   it too early returns 1 even for animated GIFs.
+   Returns { frameCount, buffer } so encodeAnimatedGif can reuse the
+   same buffer instead of reading the file twice. */
+async function getGifFrameCount(file){
+  if (typeof ImageDecoder !== 'function') return { frameCount: 1, buffer: null };
+  try {
+    const buffer = await file.arrayBuffer();
+    const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
+    /* Per MDN: frameCount isn't stable until decoder.complete === true.
+       Even with ArrayBuffer input, parsing happens asynchronously.
+       Await both tracks.ready (metadata) AND completed (full parse). */
+    await decoder.tracks.ready;
+    await decoder.completed;
+    const t = decoder.tracks.selectedTrack;
+    const n = t ? t.frameCount : 1;
+    try { decoder.close(); } catch(_){}
+    return { frameCount: n || 1, buffer };
+  } catch (_) {
+    return { frameCount: 1, buffer: null };
+  }
+}
+
+/* Map quality (0..1) → { paletteSize, frameSkip, dither } for animated
+   GIFs. Logarithmic-ish curve: palette drops faster than frame skip
+   so users still get smooth animation at lower quality. */
+function gifQualityParams(q){
+  q = Math.max(0, Math.min(1, q ?? 0.85));
+  /* Curve calibrated for delta-aware encoding (global palette +
+     transparency markers). Lower values get more aggressive
+     palette+frame-skip combinations because delta encoding makes the
+     per-frame cost much cheaper, so each frame skipped saves more. */
+  let paletteSize, frameSkip;
+  if (q >= 0.95)      { paletteSize = 255; frameSkip = 1; }
+  else if (q >= 0.80) { paletteSize = 200; frameSkip = 1; }
+  else if (q >= 0.65) { paletteSize = 128; frameSkip = 1; }
+  else if (q >= 0.50) { paletteSize = 96;  frameSkip = 2; }
+  else if (q >= 0.35) { paletteSize = 64;  frameSkip = 2; }
+  else if (q >= 0.20) { paletteSize = 48;  frameSkip = 3; }
+  else                { paletteSize = 32;  frameSkip = 4; }
+  return { paletteSize, frameSkip };
+}
+
+/* Multi-frame GIF encoder with frame-delta optimization.
+   Two-pass pipeline:
+     1. Decode all frames (with crop+resize applied) into RGBA buffers
+     2. Compute one GLOBAL palette by quantizing all frames combined
+     3. Encode per-frame deltas: for each frame after the first, mark
+        unchanged pixels (vs. the previously composited frame) as
+        transparent. dispose:1 keeps prior pixels visible underneath.
+   LZW compresses long runs of the transparent index very efficiently,
+   so frames with mostly-static regions become tiny.
+   Returns a Blob (image/gif) on success, throws on unsupported. */
+async function encodeAnimatedGif(file, settings, prereadBuffer){
+  if (typeof ImageDecoder !== 'function') {
+    throw new Error('ImageDecoder unsupported');
+  }
+  const mod = await ensureGifenc();
+  const GIFEncoder = mod.GIFEncoder, quantize = mod.quantize, applyPalette = mod.applyPalette;
+  if (!GIFEncoder || !quantize || !applyPalette) {
+    throw new Error('gifenc exports not found at ' + GIFENC_ESM);
+  }
+
+  const buffer = prereadBuffer || await file.arrayBuffer();
+  const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
+  /* MDN: frameCount isn't final until decoder.complete is true even
+     with ArrayBuffer input. Await both. */
+  await decoder.tracks.ready;
+  await decoder.completed;
+  const track = decoder.tracks.selectedTrack;
+  const frameCount = track.frameCount;
+  if (!frameCount || frameCount < 2) {
+    try { decoder.close(); } catch(_){}
+    throw new Error('NotAnimated');
+  }
+
+  /* Frame 0 establishes source dimensions; crop+resize derived once. */
+  const r0 = await decoder.decode({ frameIndex: 0 });
+  const srcW = r0.image.displayWidth, srcH = r0.image.displayHeight;
+  let sx = 0, sy = 0, sw = srcW, sh = srcH;
+  const ratio = CROP_RATIOS[settings.crop || 'none'];
+  if (ratio) {
+    if (srcW/srcH > ratio) { sw = Math.round(srcH*ratio); sx = Math.round((srcW-sw)/2); }
+    else                   { sh = Math.round(srcW/ratio); sy = Math.round((srcH-sh)/2); }
+  }
+  let outW = sw, outH = sh;
+  if (settings.maxDim) {
+    const longest = Math.max(outW, outH);
+    if (longest > settings.maxDim) {
+      const scale = settings.maxDim / longest;
+      outW = Math.round(outW*scale); outH = Math.round(outH*scale);
+    }
+  } else if (settings.resizePct && settings.resizePct > 0 && settings.resizePct < 100) {
+    const scale = settings.resizePct / 100;
+    outW = Math.max(1, Math.round(outW*scale));
+    outH = Math.max(1, Math.round(outH*scale));
+  }
+  r0.image.close && r0.image.close();
+
+  const q = (settings.quality !== undefined) ? settings.quality : 0.85;
+  const { paletteSize, frameSkip } = gifQualityParams(q);
+
+  /* Pass 1: decode every kept frame's RGBA. Sum skipped-frame
+     durations into the kept frame's delay so playback timing stays
+     roughly accurate. */
+  const canvas = new OffscreenCanvas(outW, outH);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const frames = [];
+  for (let i = 0; i < frameCount; i += frameSkip) {
+    const result = await decoder.decode({ frameIndex: i });
+    const frame = result.image;
+    ctx.clearRect(0, 0, outW, outH);
+    ctx.drawImage(frame, sx, sy, sw, sh, 0, 0, outW, outH);
+    const id = ctx.getImageData(0, 0, outW, outH);
+    let durationUs = frame.duration || 100000;
+    for (let k = 1; k < frameSkip && i+k < frameCount; k++) {
+      try {
+        const pk = await decoder.decode({ frameIndex: i+k });
+        durationUs += pk.image.duration || 100000;
+        pk.image.close && pk.image.close();
+      } catch (_) {}
+    }
+    frames.push({
+      rgba: new Uint8ClampedArray(id.data),
+      delayMs: Math.max(20, Math.round(durationUs / 1000))
+    });
+    frame.close && frame.close();
+  }
+  try { decoder.close(); } catch(_){}
+
+  /* Pass 2: compute global palette across all frames combined. We
+     quantize to paletteSize-1 colors so the highest index in
+     applyPalette's output is paletteSize-2 — the last index is
+     reserved as the transparency sentinel. */
+  const usableColors = Math.max(8, paletteSize - 1);
+  const pixelCount = outW * outH;
+  const combined = new Uint8ClampedArray(frames.length * pixelCount * 4);
+  for (let i = 0; i < frames.length; i++) {
+    combined.set(frames[i].rgba, i * pixelCount * 4);
+  }
+  const globalPalette = quantize(combined, usableColors);
+  /* Guarantee the last slot is reserved (quantize may return fewer
+     entries than requested if the image has very few unique colors). */
+  while (globalPalette.length <= usableColors) {
+    globalPalette.push([0, 0, 0]);
+  }
+  const TRANSPARENT_IDX = globalPalette.length - 1;
+
+  /* Encode with deltas. composited[] = the actually-displayed indices
+     after each frame is drawn. We compare each new frame's indices to
+     this composited state, NOT to the raw previous frame, because
+     transparent pixels leave the composited state unchanged. */
+  const enc = GIFEncoder();
+  const composited = new Uint8Array(pixelCount);
+  let _framesWritten = 0;
+  let _changedPixelsTotal = 0;
+  for (let i = 0; i < frames.length; i++) {
+    const indexed = applyPalette(frames[i].rgba, globalPalette);
+    const frameToWrite = new Uint8Array(indexed);
+    let changed = pixelCount;
+    if (i > 0) {
+      changed = 0;
+      for (let p = 0; p < pixelCount; p++) {
+        if (frameToWrite[p] === composited[p]) {
+          frameToWrite[p] = TRANSPARENT_IDX;
+        } else {
+          changed++;
+        }
+      }
+    }
+    _changedPixelsTotal += changed;
+    if (i === 0) {
+      composited.set(indexed);
+    } else {
+      for (let p = 0; p < pixelCount; p++) {
+        if (frameToWrite[p] !== TRANSPARENT_IDX) {
+          composited[p] = frameToWrite[p];
+        }
+      }
+    }
+    enc.writeFrame(frameToWrite, outW, outH, {
+      /* First frame writes globalPalette as the Global Color Table.
+         Subsequent frames omit palette → no Local Color Table flag,
+         saves ~3*paletteSize bytes per frame. */
+      palette: i === 0 ? globalPalette : undefined,
+      delay: frames[i].delayMs,
+      dispose: 1,
+      transparent: i > 0,
+      transparentIndex: TRANSPARENT_IDX
+    });
+    _framesWritten++;
+  }
+  enc.finish();
+  const blob = new Blob([enc.bytes()], { type: 'image/gif' });
+  /* Diagnostic: surface frame counts + delta stats so we can verify
+     encoding worked AND measure how much delta saved. changedPct = %
+     of pixels written as opaque (lower = more pixels became
+     transparent = better delta compression). */
+  try {
+    const totalPixels = frames.length * pixelCount;
+    self.postMessage({
+      type: 'gif-diag',
+      sourceFrames: frameCount,
+      framesWritten: _framesWritten,
+      paletteSize: globalPalette.length,
+      frameSkip,
+      outW, outH,
+      bytes: blob.size,
+      changedPct: totalPixels ? Math.round(_changedPixelsTotal / totalPixels * 100) : null
+    });
+  } catch(_){}
+  return blob;
+}
+
 /* ---------- the main encode pipeline ---------- */
 async function processOne(file, fmt, settings){
+  /* Animated GIF → GIF: preserve frames + apply quality-driven palette
+     / frame-skip reduction. Bails on any error to the single-frame path
+     so we never block on browser quirks. */
+  if (fmt === 'gif' && file && file.type === 'image/gif') {
+    try {
+      const probe = await getGifFrameCount(file);
+      if (probe.frameCount > 1) {
+        return await encodeAnimatedGif(file, settings, probe.buffer);
+      }
+    } catch (e) {
+      /* fall through to single-frame canvas path below */
+    }
+  }
   const bmp = await decodeToBitmap(file);
   let w = bmp.width, h = bmp.height, sx = 0, sy = 0, sw = w, sh = h;
 

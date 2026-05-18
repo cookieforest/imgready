@@ -1,0 +1,3860 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>imgready — Free Image Optimizer, Compressor & Resizer</title>
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Compress, resize and convert images online for free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
+<meta property="og:title" content="imgready — Free Image Optimizer, Compressor & Resizer">
+<meta property="og:description" content="Compress, resize and convert any image free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
+<meta property="og:image" content="https://imgready.app/demo.webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="795">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://imgready.app/">
+<meta property="og:site_name" content="imgready">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="imgready — Free Image Optimizer, Compressor & Resizer">
+<meta name="twitter:description" content="Compress, resize and convert any image — free, private, in-browser. HEIC, TIFF, WebP, AVIF and more.">
+<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<link rel="canonical" href="https://imgready.app/">
+
+<!-- Structured data: WebApplication + FAQPage (preserved from stable) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://imgready.app/#app",
+      "name": "imgready",
+      "description": "Free browser-based image compressor, converter and resizer. Supports HEIC, TIFF, WebP, AVIF, PNG, JPG, GIF and more. Files are processed locally in your browser and never uploaded.",
+      "url": "https://imgready.app/",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any (web browser)",
+      "browserRequirements": "Requires HTML5 Canvas and WebAssembly support.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Compress JPG, PNG, WebP, HEIC, TIFF",
+        "Convert between WebP, AVIF, PNG, JPG, GIF",
+        "Resize and crop with platform presets",
+        "Batch processing and ZIP download",
+        "Live quality editor with before/after compare",
+        "100% in-browser — files never uploaded"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://imgready.app/#faq",
+      "mainEntity": [
+        { "@type": "Question", "name": "Are my images uploaded?", "acceptedAnswer": { "@type": "Answer", "text": "No. Encoding runs in your browser. To verify, open DevTools and watch the Network tab while dropping a file — no requests carry image data." } },
+        { "@type": "Question", "name": "What is the difference between WebP and AVIF?", "acceptedAnswer": { "@type": "Answer", "text": "Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly." } },
+        { "@type": "Question", "name": "How big a batch can I drop in?", "acceptedAnswer": { "@type": "Answer", "text": "The soft cap is 200 files with a confirmation prompt above that. There's no hard limit because there's no server queue, only your computer's RAM." } },
+        { "@type": "Question", "name": "Is there a file-size cap?", "acceptedAnswer": { "@type": "Answer", "text": "No. imgready has no caps because there's no server to bill for storage. The only constraint is your browser's available memory." } },
+        { "@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Open Settings, pick a preset, and choose your output format. Crop ratios and EXIF stripping are in the same panel." } },
+        { "@type": "Question", "name": "What if a file fails to convert?", "acceptedAnswer": { "@type": "Answer", "text": "Two common reasons: the file is corrupted, or it uses a TIFF compression imgready does not support. Re-saving the file in any image editor usually fixes it." } },
+        { "@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder. Smaller batches (30 to 50) are recommended on mobile." } },
+        { "@type": "Question", "name": "Is imgready free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free with no caps. Supported by voluntary Ko-fi contributions. Your image data never leaves your device." } }
+      ]
+    }
+  ]
+}
+</script>
+<!-- Production CSS — drives the empty-state styling so beta inherits the
+     stable homepage look. Beta's inline <style> below overrides only when
+     in solo/multi state (the dark workspace) via :root variables scoped
+     to body[data-state]. -->
+<!-- PWA + theme parity with stable: manifest enables install-to-homescreen,
+     theme-color tints the mobile address bar, apple-touch-icon for iOS. -->
+<meta name="theme-color" content="#5a7a5a">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/app.css">
+<style>
+  :root{
+    --bg:#f5f0e8;--text:#2a2a26;--muted:#7a7872;
+    --accent:#7a9a7a;--accent-strong:#5a7a5a;--accent-light:rgba(90,122,90,.10);
+    --card:#fffefb;--border:rgba(0,0,0,.10);
+    --brand-h:48px;
+    --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
+    --thumb-big:75px;--thumb-small:35px;--stride:60px;
+    --action-w:240px;
+  }
+  body[data-state="solo"],body[data-state="multi"]{
+    --bg:#0d0d0d;--text:#ececea;--muted:#9a9a92;
+    --accent:#8aae8a;--accent-strong:#7a9a7a;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  /* Empty state = scrollable marketing page (mirrors stable homepage).
+     Workspace state (solo/multi) = locked viewport for the image canvas. */
+  html{height:auto;}
+  html,body{margin:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    color:var(--text);background:var(--bg);}
+  body[data-state="empty"]{overflow:auto;height:auto;min-height:100vh;}
+  body[data-state="solo"],body[data-state="multi"]{
+    overflow:hidden;height:100%;
+    user-select:none;-webkit-user-select:none;
+  }
+
+  .brand-bar{height:var(--brand-h);display:flex;align-items:center;gap:14px;
+    padding:0 16px;background:var(--bg);position:relative;z-index:10;}
+  .brand{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
+  .brand .g{color:var(--accent);}
+  .beta-badge{
+    display:inline-flex;align-items:center;
+    background:var(--accent);color:#fff;
+    font-size:.6rem;font-weight:700;letter-spacing:.08em;
+    padding:2px 7px;border-radius:4px;text-transform:uppercase;
+  }
+  .brand-spacer{flex:1;}
+  .exit-link{
+    color:var(--muted);font-size:.74rem;text-decoration:none;
+    padding:4px 8px;border-radius:5px;
+  }
+  .exit-link:hover{color:var(--text);background:rgba(255,255,255,.06);}
+  .state-toggle{margin-left:auto;display:flex;gap:6px;align-items:center;}
+  .state-toggle small{color:var(--muted);font-size:.66rem;}
+  .state-toggle button{border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);
+    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;}
+  body[data-state="empty"] .state-toggle button{border-color:var(--border);}
+  .state-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+  /* --- empty state ---
+     NOTE: must NOT use class name `.empty-state` — production app.css already
+     defines that selector at line 596 with `text-align:center` + muted color,
+     which would cascade into our hero/content section. We use `.beta-empty`
+     instead so the production homepage CSS (which keys off `.app`, `.dropzone`,
+     `.content-section`, etc.) renders unchanged. */
+  .beta-empty{display:none;}
+  body[data-state="empty"] .beta-empty{display:block;}
+  body[data-state="empty"] .stage{display:none;}
+  body[data-state="empty"] .brand-bar{position:sticky;top:0;background:var(--bg);}
+  body[data-state="solo"] .beta-empty,
+  body[data-state="multi"] .beta-empty{display:none;}
+  /* Beta does NOT override .dropzone / .dz-icon / .dz-title / .dz-sub / .dz-trust —
+     production app.css owns the empty-state styling so beta inherits the
+     stable homepage look pixel-for-pixel (84px padding, 280px min-height,
+     full content-column width, etc). */
+
+  /* --- stage --- */
+  .stage{display:none;position:relative;height:calc(100vh - var(--brand-h));background:#000;overflow:hidden;}
+  body[data-state="solo"] .stage.solo{display:block;}
+  /* Solo state has no cover-flow — image-canvas fills below the menu-bar */
+  body[data-state="solo"] .stage.solo .image-canvas{
+    bottom:calc(var(--menu-h, 80px) + 12px);
+  }
+  @media(max-width:767px){
+    body[data-state="solo"] .stage.solo .image-canvas{
+      bottom:calc(var(--menu-h, 100px) + 12px);
+    }
+  }
+  body[data-state="multi"] .stage.multi{display:block;}
+  /* Bottom-fade overlay — gradient from semi-transparent black at the
+     bottom up to fully transparent ~280px above. Makes the cover-flow
+     filmstrip thumbnails readable when the underlying image is busy
+     (white skies, bright product shots, etc). Positioned above the
+     image-canvas but below the cover-flow (z:6) and menu-card (z:7). */
+  .canvas-fade{
+    position:absolute;left:0;right:0;bottom:0;height:280px;
+    background:linear-gradient(to top,
+      rgba(0,0,0,.55) 0%,
+      rgba(0,0,0,.42) 25%,
+      rgba(0,0,0,.18) 60%,
+      rgba(0,0,0,0) 100%);
+    pointer-events:none;z-index:4;
+  }
+  /* Image canvas top-anchored, with a dynamic bottom that adapts to the
+     drawer state. --menu-h is the bar's measured height (recomputed by
+     MutationObserver during drawer animation). 172px = cover-flow's 160
+     height + 6 gap + 6 cushion on desktop; mobile overrides below. */
+  .image-canvas{
+    position:absolute;
+    top:0;left:0;right:0;
+    /* Stack: bar (--menu-h) + 42px filename gap + 80 cover-flow + 6 gap = +128.
+       Smaller thumbs (50% reduction) free up ~80px for the canvas. */
+    bottom:calc(var(--menu-h, 80px) + 128px);
+  }
+  .compare-after,.compare-before{position:absolute;inset:0;}
+  .compare-after{clip-path:inset(0 0 0 50%);}
+  .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;
+    background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(0,0,0,.18);
+    transform:translateX(-1px);pointer-events:none;z-index:3;}
+  /* Slider handle — visual match for stable's .fs-handle (44x44, white,
+     gray double-arrow, dramatic drop shadow). The one deviation from
+     stable: pointer-events stays auto (stable uses none) so the handle
+     remains a grabbable target when zoomed in. With pointer-events:none,
+     zoom>1 would steal the click for pan — defeating click-and-drag. */
+  .compare-handle{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:44px;height:44px;border-radius:50%;background:#fff;
+    box-shadow:0 3px 16px rgba(0,0,0,.5);
+    display:flex;align-items:center;justify-content:center;
+    cursor:ew-resize;z-index:5;
+    outline:none;-webkit-tap-highlight-color:transparent;
+    pointer-events:auto;
+    user-select:none;-webkit-user-select:none;
+  }
+  .compare-meta{position:absolute;top:14px;background:var(--card-bg);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:#fff;padding:8px 12px;border-radius:8px;
+    font-size:.74rem;font-weight:600;line-height:1.35;
+    pointer-events:none;z-index:5;display:flex;flex-direction:column;gap:2px;
+    border:1px solid var(--card-border);}
+  .compare-meta.l{left:14px;align-items:flex-start;}
+  .compare-meta.r{right:14px;align-items:flex-end;text-align:right;}
+  .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
+  .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.78rem;}
+  .compare-meta .batch-row{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.18);
+    font-size:.7rem;font-weight:500;color:rgba(255,255,255,.85);}
+  body[data-state="solo"] .compare-meta .batch-row{display:none;}
+
+  /* ---------- UX pass 2: pre-encode states + zoom + per-thumb progress ----------
+     Hide the compare slider, divider, handle, and right-side After meta until
+     a real encoded result exists for the selected file. The user shouldn't see
+     a "compare" UI when there's nothing to compare to. */
+  .image-canvas:not(.has-after) .compare-after{clip-path:none;}
+  .image-canvas:not(.has-after) .compare-divider,
+  .image-canvas:not(.has-after) .compare-handle,
+  .image-canvas:not(.has-after) .compare-meta.r{display:none;}
+
+  /* Drop-anywhere overlay — overrides production CSS to match user spec:
+     dashed border spans the full viewport (inset from edges), all text
+     white, no inner card chrome. The production version drew a small
+     bordered card in the center; this is a full-page treatment. */
+  .window-drop-overlay{
+    background:rgba(0,0,0,.45) !important;
+  }
+  .window-drop-overlay::before{
+    content:'';
+    position:absolute;inset:20px;
+    border:3px dashed rgba(255,255,255,.7);
+    border-radius:14px;
+    pointer-events:none;
+  }
+  .window-drop-overlay .wd-card{
+    position:relative;z-index:1;
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+    color:#fff !important;
+    padding:0 !important;
+    max-width:420px;
+  }
+  .window-drop-overlay .wd-card svg{
+    color:#fff;display:block;margin:0 auto 16px;
+    width:56px;height:56px;
+  }
+  .window-drop-overlay .wd-title{
+    color:#fff !important;font-size:1.5rem;font-weight:700;
+    margin-bottom:6px;letter-spacing:-.3px;
+  }
+  .window-drop-overlay .wd-sub{
+    color:rgba(255,255,255,.85) !important;font-size:.9rem;
+  }
+  @media(max-width:600px){
+    .window-drop-overlay::before{inset:14px;}
+    .window-drop-overlay .wd-title{font-size:1.2rem;}
+  }
+
+  /* Reject toast — file-rejection feedback. Bottom-center, dark, fades. */
+  .reject-toast{
+    position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(8px);
+    background:rgba(20,20,20,.95);color:#fff;
+    padding:10px 16px;border-radius:8px;
+    font-size:.82rem;font-weight:500;
+    box-shadow:0 4px 16px rgba(0,0,0,.4);
+    pointer-events:none;z-index:1100;
+    opacity:0;transition:opacity .2s ease,transform .2s ease;
+  }
+  .reject-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* Big-batch confirm modal */
+  .bigbatch-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;
+    z-index:1000;padding:24px;
+  }
+  body[data-bigbatch="open"] .bigbatch-overlay{display:flex;}
+  .bigbatch-modal{
+    background:#1a1a1a;border:1px solid rgba(255,255,255,.12);
+    border-radius:14px;padding:24px;max-width:420px;width:100%;
+    color:#fff;
+  }
+  .bigbatch-modal h3{margin:0 0 8px;font-size:1.1rem;}
+  .bigbatch-modal p{margin:0 0 16px;color:rgba(255,255,255,.75);font-size:.85rem;line-height:1.5;}
+  .bigbatch-actions{display:flex;gap:8px;justify-content:flex-end;}
+  .bigbatch-actions .btn{padding:8px 16px;}
+
+  /* Filename label — sits BELOW the cover-flow strip, just above the
+     bar. The previous position above the strip read as a header for the
+     image (wrong eyeline) and crowded the Before meta on narrow viewports.
+     Tucking it below the strip ties the label to the active thumb that
+     points at it from above. */
+  .filename-ribbon{
+    position:absolute;
+    bottom:calc(var(--menu-h, 80px) + 14px);
+    left:50%;transform:translateX(-50%);
+    background:transparent;border:none;
+    color:rgba(255,255,255,.7);
+    font-size:.7rem;font-weight:500;letter-spacing:.01em;
+    padding:0 12px;
+    /* min(60vw, 480px) ensures very wide screens still cap, and
+       box-sizing:border-box stops padding from blowing past the cap. */
+    max-width:min(60vw, 480px);
+    box-sizing:border-box;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    pointer-events:none;z-index:6;text-align:center;
+    text-shadow:0 1px 2px rgba(0,0,0,.5);
+  }
+  .filename-ribbon:empty{display:none;}
+  /* Center loading overlay — replaces the corner "Encoding..." status with a
+     prominent middle-of-canvas state. The corner had two problems: (1) easy
+     to miss on big screens, (2) it competed with the After meta box for the
+     same corner. */
+  .center-status{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    z-index:6;display:flex;flex-direction:column;align-items:center;gap:14px;
+    padding:18px 26px;border-radius:14px;
+    background:var(--card-bg);border:1px solid var(--card-border);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    color:#fff;pointer-events:none;
+  }
+  .center-status[hidden]{display:none;}
+  .center-status .cs-spinner{
+    width:34px;height:34px;border-radius:50%;
+    border:3px solid rgba(255,255,255,.16);border-top-color:var(--accent);
+    animation:csSpin .9s linear infinite;
+  }
+  .center-status .cs-stage{font-size:.86rem;font-weight:700;letter-spacing:.02em;}
+  .center-status .cs-name{font-size:.72rem;color:rgba(255,255,255,.6);
+    max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  @keyframes csSpin{to{transform:rotate(360deg);}}
+
+  /* Per-thumb spinner — a tiny ring+pulse overlay so the user sees encoding
+     progress for every file, not just the selected one. Important for batch
+     drops where they want to know "how many are still cooking". */
+  .cflow-thumb .thumb-progress{
+    position:absolute;inset:0;display:none;
+    align-items:center;justify-content:center;
+    background:rgba(0,0,0,.42);border-radius:inherit;pointer-events:none;
+    z-index:2;
+  }
+  .cflow-thumb.encoding .thumb-progress{display:flex;}
+  /* "queued, not yet encoding" — softer overlay so the user can tell the
+     thumb is scheduled to be processed but isn't actively cooking yet. */
+  .cflow-thumb.queued .thumb-progress{display:flex;background:rgba(0,0,0,.22);}
+  .cflow-thumb.queued .thumb-progress::after{
+    border:2px solid rgba(255,255,255,.18);border-top-color:rgba(255,255,255,.55);
+    animation-duration:1.4s;
+  }
+  .cflow-thumb .thumb-progress::after{
+    content:"";width:18px;height:18px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.25);border-top-color:#fff;
+    animation:csSpin .8s linear infinite;
+  }
+
+  /* Zoom: applied to a wrapper inside the image-canvas so we don't fight the
+     compare-after's clip-path. Wheel zooms toward cursor like stable's
+     fullscreen editor; drag pans once zoomed in. */
+  .compare-zoom{position:absolute;inset:0;transform-origin:center;
+    transition:transform 0s;}
+  .image-canvas{
+    cursor:zoom-in;
+    /* touch-action:none lets pointerdown/move/up fire reliably on touch
+       so the compare-slider drag works on mobile. Without this, the
+       browser's default scroll/pinch handling was swallowing the
+       pointer events before our handlers ran. */
+    touch-action:none;
+  }
+  .image-canvas.zoomed{cursor:grab;}
+  .image-canvas.zoomed.zoom-dragging{cursor:grabbing;transition:none;}
+  /* Disable zoom cursor when the compare handle is the target — we want to
+     drag the slider, not start a zoom. */
+  /* compare-handle cursor handled in main rule above */
+
+  /* When the After image isn't available yet, the canvas should feel
+     pre-encode: dimmer and with a quiet pulse so it reads as "working". */
+  .image-canvas:not(.has-after) .compare-before{
+    filter:brightness(.55);
+  }
+
+  /* ---------- UX pass 3: stable-fullscreen feature parity ---------- */
+
+  /* Zoom-level chip — appears in the top corner during a zoom interaction
+     and auto-fades 1.2s after the user stops scrolling/pinching. Without
+     this, the wheel-zoom we shipped is invisible affordance — users can't
+     tell if anything happened or how far in they are. Mirrors stable's
+     fsZoomLevel chip. */
+  .zoom-chip{
+    position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    background:var(--card-bg);border:1px solid var(--card-border);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:#fff;font-size:.78rem;font-weight:700;letter-spacing:.02em;
+    padding:5px 12px;border-radius:8px;
+    pointer-events:none;z-index:7;
+    opacity:0;transition:opacity .18s ease;
+  }
+  .zoom-chip.show{opacity:1;}
+
+  /* Output-larger warning — when the encoded result is BIGGER than the
+     original (rare: PNG-of-photo to JPG-100, or AVIF on a small icon),
+     the savings text should read as warning, not celebration. Stable
+     uses .bad on .fs-lbl-savings with a red color; we mirror that. */
+  .compare-meta .pct.bad{color:#ff8b8b;}
+
+  /* Encoding progress bar — replaces the spinning circle as the primary
+     indicator. Shows real done/total progress for batch (>1 file) and a
+     time-estimate creep for single-file encodes. */
+  .center-status .cs-bar{
+    width:220px;height:5px;border-radius:3px;
+    background:rgba(255,255,255,.14);overflow:hidden;
+    margin-top:6px;display:none;
+  }
+  .center-status .cs-bar-fill{
+    height:100%;background:var(--accent);width:0%;
+    transition:width .25s ease;
+  }
+  /* Spinner-first, bar-after-500ms. Encodes that finish in <500ms only
+     ever show the spinner (avoids the bar flashing "stuck at 0%"); slow
+     encodes promote to the bar so the user sees real progress. The
+     swap is driven by JS adding [data-bar="on"] after the threshold. */
+  .center-status[data-bar="on"] .cs-bar{display:block;}
+  .center-status[data-bar="on"] .cs-spinner{display:none;}
+
+  /* Live size + spinner inline next to the quality slider — closes the
+     "did anything just happen?" gap during re-encodes. The spinner
+     replaces the size text while encoding, so the eye-line is the same. */
+  .quality-row .qr-size{
+    font-size:.7rem;color:var(--muted);font-weight:600;
+    text-align:right;font-variant-numeric:tabular-nums;
+    /* Empty span collapses to 0 — only takes width when there's a size to
+       show. Otherwise it leaves a phantom gap on the right of the slider. */
+  }
+  .quality-row .qr-size:empty{display:none;}
+  .quality-row .qr-spinner{
+    display:none;width:12px;height:12px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.18);border-top-color:var(--accent);
+    animation:csSpin .8s linear infinite;margin-left:4px;
+  }
+  /* Quality-slider spinner only fires when the user adjusts the slider —
+     other settings changes (format, resize, crop) don't trigger the
+     spinner since it's specifically attached to the slider's eyeline. */
+  body[data-quality-encoding="on"] .quality-row .qr-spinner{display:inline-block;}
+  body[data-quality-encoding="on"] .quality-row .qr-size{opacity:.5;}
+
+  /* Click-and-drag affordance: col-resize cursor over the compare canvas
+     when the slider is interactive (has-after + not zoomed). When zoomed,
+     CSS toggles to grab/grabbing for pan. */
+  body[data-state="multi"] .stage.multi .image-canvas.has-after:not(.zoomed) .compare-zoom{cursor:col-resize;}
+  body[data-state="multi"] .stage.multi .image-canvas.slider-dragging .compare-zoom{cursor:col-resize;}
+
+  /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
+  .cover-flow{
+    position:absolute;
+    /* Cover-flow above the bar with a gap that holds the filename.
+       Stack from viewport bottom: bar (var --menu-h) → 14px gap → filename
+       (~16px) → 12px gap → cover-flow. Total ~42px above bar. */
+    bottom:calc(var(--menu-h, 80px) + 42px);left:0;right:0;
+    height:80px;
+    z-index:6;
+    cursor:grab;touch-action:pan-y;
+    /* overflow:visible so the per-image action icons (which sit ABOVE the
+       centered thumb's top edge) aren't clipped. Thumbs that drift far
+       out are positioned past the viewport via translate so they don't
+       visually escape. */
+    overflow:visible;
+  }
+  .cover-flow.dragging{cursor:grabbing;}
+  body[data-state="solo"] .cover-flow{display:none;}
+  .cflow-track{position:absolute;left:50%;top:50%;width:0;height:0;}
+  .cflow-thumb{
+    position:absolute;left:0;top:0;
+    width:var(--thumb-small);aspect-ratio:1/1;
+    border-radius:8px;overflow:hidden;
+    transform-origin:center center;
+    transform:translate(-50%,-50%) translate3d(var(--ox,0),0,0);
+    opacity:.55;
+    box-shadow:0 1px 3px rgba(0,0,0,.22);
+    transition:width .26s cubic-bezier(.22,1,.36,1),
+               height .26s cubic-bezier(.22,1,.36,1),
+               opacity .25s ease,
+               transform .28s cubic-bezier(.22,1,.36,1);
+    cursor:pointer;
+  }
+  .cover-flow.dragging .cflow-thumb{transition:none;}
+  .cflow-thumb.active{z-index:5;}
+  /* Slot is the 1:1 box; content sits centered with letterbox/pillarbox.
+     Light translucent backdrop reads as a subtle elevation in the dark workspace. */
+  .cflow-thumb .thumb-slot{
+    width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.15);border-radius:8px;overflow:hidden;
+  }
+  .cflow-thumb .thumb-content{
+    border-radius:4px;
+    display:flex;align-items:flex-end;justify-content:flex-start;
+    padding:4px;color:#fff;font-weight:700;
+    text-shadow:0 1px 2px rgba(0,0,0,.4);
+    overflow:hidden;
+  }
+  .cflow-thumb .thumb-content-img{
+    max-width:100%;max-height:100%;width:auto;height:auto;
+    object-fit:contain;display:block;
+  }
+  .cflow-thumb .thumb-num{font-size:.78rem;line-height:1;}
+  .cflow-thumb.active .thumb-num{font-size:1rem;}
+  /* Add-more tile — frosted-glass card, thin dashed border, large "+".
+     Pattern researched against Google Photos, Figma, Linear, and macOS
+     Big Sur frosted controls. The previous 3px dotted bold border with
+     solid black fill read as draft/unfinished and competed with image
+     thumbs for visual weight. Goal: clearly secondary affordance, neither
+     loud nor invisible.
+       border-style:dashed (not dotted) — dashed reads as "input/dropzone",
+         dotted reads as "diagram placeholder"
+       border-width:1.5px — thin, refined
+       border-color:rgba(255,255,255,.22) — present but quiet
+       background:rgba(255,255,255,.04) + backdrop-filter:blur — glass
+         layer that picks up subtle context from the workspace bg
+       icon: 26px (larger so the "+" is the primary affordance)
+       text: 0.62rem, normal-case, white at 55% opacity (soft label) */
+  .cflow-thumb.add-more .thumb-slot{
+    background:rgba(255,255,255,.04);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1.5px dashed rgba(255,255,255,.22);
+    color:rgba(255,255,255,.7);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:6px;
+    transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease;
+  }
+  .cflow-thumb.add-more:hover .thumb-slot{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.5);
+    color:#fff;
+    /* Don't translate on hover — the parent .cflow-thumb has overflow:hidden
+       (needed for image-thumb rounding) so any vertical translate gets
+       clipped at the top edge. Use an inset white glow as the "rise" cue
+       instead, which stays entirely within the slot bounds. */
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.3),
+               inset 0 -16px 24px -12px rgba(255,255,255,.12);
+  }
+  .cflow-thumb.add-more svg{width:26px;height:26px;stroke-width:2;}
+  .cflow-thumb.add-more .add-more-label{
+    /* Drop the all-caps tracked-out style — too formal for a small chip */
+    text-transform:none;font-weight:500;letter-spacing:0;
+    font-size:.66rem;color:rgba(255,255,255,.55);
+  }
+  /* Old uppercase add-more-label rule removed — superseded by the soft
+     style further down. */
+  /* Add-more always at full opacity — it's not a navigable image, just an action
+     affordance, so the cover-flow's depth-based dimming doesn't apply. */
+  .cflow-thumb.add-more{opacity:1 !important;}
+  /* Add-more shouldn't be the "selected" main image — exclude from active styling */
+  .cflow-thumb.add-more.active .thumb-slot{
+    border-color:var(--accent);color:var(--accent);
+  }
+
+  /* ---------- per-image action icons ---------- */
+  .pi-actions{
+    position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%) translateY(calc(-1 * var(--thumb-big) / 2 - 32px));
+    display:flex;gap:8px;
+    opacity:0;pointer-events:none;
+    transition:opacity .18s ease,transform .2s ease;
+    z-index:9;
+  }
+  body[data-pi-actions="open"] .pi-actions{
+    opacity:1;pointer-events:auto;
+    transform:translate(-50%,-50%) translateY(calc(-1 * var(--thumb-big) / 2 - 38px));
+  }
+  .pi-icon{width:38px;height:38px;border-radius:50%;
+    background:rgba(20,20,20,.92);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-family:inherit;
+    transition:background .15s,transform .12s;}
+  .pi-icon:hover{background:rgba(50,50,50,.95);transform:translateY(-2px);}
+  .pi-icon.danger:hover{background:rgba(160,60,60,.92);border-color:rgba(220,160,160,.5);}
+  .pi-icon svg{width:16px;height:16px;}
+  /* Click-confirmation: button itself turns green with a checkmark icon
+     for 1.2s, plus a small tooltip above ("Copied!"). The button-state
+     change is the dominant signal — easy to spot in peripheral vision —
+     and the tooltip provides the explicit verb. Mirrors the standard
+     "click → green check" pattern from gh/google/etc copy-buttons. */
+  .pi-icon{position:relative;
+    transition:background .14s ease,border-color .14s ease,color .14s ease;}
+  .pi-icon.confirmed{
+    background:var(--accent) !important;
+    border-color:var(--accent) !important;
+    color:#fff !important;
+  }
+  /* Hide original icon SVG when confirmed; show injected checkmark span */
+  .pi-icon.confirmed > svg{visibility:hidden;}
+  .pi-icon .pi-check{
+    position:absolute;inset:0;display:none;
+    align-items:center;justify-content:center;color:#fff;
+  }
+  .pi-icon.confirmed .pi-check{display:flex;}
+  .pi-icon .pi-check svg{width:18px;height:18px;}
+  /* Tooltip — supplements the button-state change with the explicit verb. */
+  .pi-icon .pi-toast{
+    position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);
+    background:#fff;color:#111;font-size:.7rem;font-weight:700;letter-spacing:.02em;
+    padding:4px 9px;border-radius:6px;white-space:nowrap;
+    opacity:0;pointer-events:none;
+    transition:opacity .14s ease,transform .14s ease;
+    box-shadow:0 4px 12px rgba(0,0,0,.32);
+    z-index:11;
+  }
+  .pi-icon .pi-toast::after{
+    content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:5px solid transparent;border-top-color:#fff;
+  }
+  .pi-icon.confirmed .pi-toast{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- bottom-right action card ---------- */
+  /* Bottom toolbar — moved from right corner to bottom-center per UX
+     research. Matches stable's fs-editor pattern + Lightroom/Photoshop
+     bottom-toolbar convention. The previous corner card overlapped the
+     cover-flow when many thumbs were shown. */
+  /* Bottom toolbar wrapper. Note: NO transform on .menu-wrap — a transform
+     here would create a fixed-position containing block, breaking the
+     preset menu (which uses position:fixed with JS-set viewport coords).
+     Centering is done by flex justify-content on a full-width wrapper. */
+  .menu-wrap{
+    position:absolute;
+    left:0;right:0;bottom:14px;
+    display:flex;align-items:stretch;justify-content:center;
+    padding:0 14px;
+    pointer-events:none;z-index:7;
+  }
+  .menu-card{
+    pointer-events:auto;
+    position:relative;
+    display:flex;align-items:stretch;
+    /* Solid bg, no backdrop-filter. backdrop-filter:blur on this element
+       was the root cause of the drawer-animation white-flash bug —
+       Chrome doesn't re-render backdrop-filter regions during nested
+       size transitions, so each newly-revealed strip painted with the
+       browser's default white before the filter caught up. Removing
+       backdrop-filter removes the bug entirely. */
+    background:#1a1a1a;
+    border:1px solid var(--card-border);border-radius:14px;
+    color:#fff;
+    overflow:hidden;
+  }
+  /* Single-row bar even when drawer is open (per user spec). The Crop
+     section now uses a dropdown trigger instead of 6 inline pills, which
+     reclaims ~200px and lets everything fit horizontally on typical
+     desktop viewports. Mobile retains the column stack via the
+     @media(max-width:767px) block lower in the stylesheet. */
+  /* The drawer is the only piece that needs overflow:hidden for its
+     slide animation. Constrain there, not on the whole card. */
+  .bb-drawer{overflow:hidden;}
+  /* Settings drawer — slides out leftward FROM the gear like a strip of
+     film. The drawer holds the secondary controls (Resize + Privacy)
+     that the user visits less often than format/quality. Width animates
+     0→auto via max-width transition. */
+  .bb-drawer{
+    display:flex;align-items:center;
+    /* Two-stage open: max-width snaps INSTANTLY (layout shifts the
+       actions immediately), and clip-path animates the visual reveal.
+       This avoids transitioning ANY layout property — clip-path is a
+       paint-time operation that composites smoothly without triggering
+       backdrop-filter or size-recalc rendering bugs. */
+    max-width:0;overflow:hidden;
+    height:46px;
+    border-left:1px solid transparent;
+    padding:0;
+    background:#1a1a1a;
+    /* Visual reveal via clip-path: starts fully clipped from the right,
+       animates open to fully visible. */
+    clip-path:inset(0 100% 0 0);
+    -webkit-clip-path:inset(0 100% 0 0);
+    transition:clip-path .32s cubic-bezier(.22,1,.36,1),
+               -webkit-clip-path .32s cubic-bezier(.22,1,.36,1),
+               border-left-color .2s ease,
+               padding .25s ease;
+  }
+  body[data-adjust="open"] .bb-drawer{
+    /* max-width snaps to allocate layout space; clip-path animates the
+       visual reveal from inset(0 100% 0 0) to inset(0 0 0 0). */
+    max-width:1400px;padding:0 4px;
+    border-left-color:rgba(255,255,255,.12);
+    clip-path:inset(0 0 0 0);
+    -webkit-clip-path:inset(0 0 0 0);
+  }
+  /* prefers-reduced-motion: drop the clip-path interpolation entirely so
+     the drawer just snaps open/closed. Some browsers with reduced-motion
+     hold the clip-path at the FROM value rather than jumping to TO,
+     which would leave the drawer invisible after open. Setting clip-path
+     to `none` (no clipping) on both states avoids that trap. */
+  @media (prefers-reduced-motion: reduce){
+    .bb-drawer{
+      clip-path:none;-webkit-clip-path:none;
+      transition:none;
+    }
+    body[data-adjust="open"] .bb-drawer{
+      clip-path:none;-webkit-clip-path:none;
+    }
+  }
+  .bb-drawer-inner{overflow-x:auto;scrollbar-width:thin;}
+  .bb-drawer-inner::-webkit-scrollbar{height:6px;}
+  .bb-drawer-inner::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
+  .bb-drawer-inner{
+    display:flex;align-items:center;gap:14px;
+    padding:8px 12px;white-space:nowrap;
+    background:transparent;
+  }
+  .bb-section{
+    display:flex;align-items:center;gap:8px;
+  }
+  .bb-section-label{
+    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);
+    flex:none;white-space:nowrap;
+  }
+  /* Desktop: row-group wrapper is invisible to layout — its 3 bb-section
+     children participate directly in bb-drawer-inner's flex. The wrapper
+     only kicks in on mobile (see @media block below). */
+  .bb-row-group{display:contents;}
+  /* Multi-output toggle: small switch that lives next to the format pills.
+     When ON, body[data-multiout="on"] applies and format pills behave as
+     multi-toggles. Auto pill hides because "auto" doesn't apply when the
+     user is actively picking N formats. */
+  .multi-out-switch{
+    margin-left:6px;font-size:.66rem;
+    color:rgba(255,255,255,.65);
+  }
+  .multi-out-switch .switch-track{width:24px;height:14px;}
+  .multi-out-switch .switch-track::after{width:10px;height:10px;}
+  .multi-out-switch input:checked + .switch-track::after{transform:translateX(11px);}
+  body[data-multiout="on"] #formatPills button[data-fmt="auto"]{display:none;}
+  body[data-multiout="on"] #formatPills button.active{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+  }
+
+  /* .bb-row — horizontal sub-grouping inside a section. Used for Resize
+     where input + presets dropdown sit side-by-side. */
+  .bb-row{
+    display:flex;flex-direction:row;align-items:center;gap:6px;
+  }
+  /* Cap the resize input width on desktop so it visually balances with
+     the Presets trigger button next to it. Was flex:1 which stretched
+     the input way wider than the dropdown beside it, looking lopsided.
+     Mobile keeps flex:1 so the input fills the row. */
+  .bb-row .resize-input-wrap{flex:none;width:110px;min-width:0;}
+  .bb-row .resize-presets{flex:none;}
+  @media(max-width:767px){
+    .bb-row .resize-input-wrap{flex:1;width:auto;}
+  }
+
+  /* Toolbar baseline — every interactive element targets this height so
+     the bar reads as one cohesive control surface, not a parade of
+     mismatched chips. Format pills, presets dropdown, mode toggle,
+     batch buttons, and the gear all align. */
+  :root{--bb-btn-h:30px;}
+  .bb-core{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 12px;
+  }
+  .bb-core .quality-row{min-width:170px;}
+  /* Quality slider container should be the same height as the buttons */
+  .bb-core .quality-row,
+  .bb-drawer-inner .resize-mode-toggle,
+  .bb-drawer-inner .resize-input-wrap,
+  .bb-drawer-inner .resize-presets,
+  .bb-drawer-inner .switch{
+    height:var(--bb-btn-h);
+  }
+  .bb-divider{
+    width:1px;background:rgba(255,255,255,.12);align-self:stretch;
+    margin:6px 0;
+  }
+  /* Batch actions (right edge of bar) */
+  .menu-card > .actions{
+    padding:8px 10px;flex-direction:row;gap:6px;align-items:center;
+  }
+  .menu-card > .actions .btn{
+    height:var(--bb-btn-h);padding:0 12px;
+    display:inline-flex;align-items:center;
+    font-size:.72rem;
+  }
+  .settings-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:14px;height:14px;flex:none;color:rgba(255,255,255,.7);
+    transition:transform .18s ease,color .18s ease;
+  }
+  .settings-icon svg{width:100%;height:100%;}
+  .menu-card.open .settings-icon,
+  body[data-adjust="open"] .settings-icon{transform:rotate(90deg);color:var(--accent);}
+  /* Gear button — vertical "tab" anchored between drawer and core. Acts
+     as the drawer-pull: clicking rotates the gear and slides the drawer
+     out from its left edge. The text label is hidden in the bottom-bar
+     layout (icon-only, like stable's fs editor); the title attribute
+     gives keyboard/screen-reader access. */
+  .settings-toggle{
+    pointer-events:auto;background:transparent;border:0;
+    display:flex;align-items:center;justify-content:center;
+    width:auto;align-self:stretch;
+    padding:0 12px;
+    color:rgba(255,255,255,.78);font-family:inherit;
+    cursor:pointer;border-radius:0;
+    /* No right-divider — drawer now sits to the gear's right and provides
+       its own border-left when open. Keeps the visual clean both states. */
+  }
+  /* Gear "open" indicator — subtle bg tint instead of full green so the
+     drawer + gear visually read as one continuous panel, not two cards.
+     The icon rotation + (mobile) Close-text label are the explicit
+     state cues. */
+  body[data-adjust="open"] .settings-toggle{
+    background:rgba(255,255,255,.08);color:#fff;
+  }
+  body[data-adjust="open"] .settings-icon{color:var(--accent);}
+  @media(max-width:767px){
+    .settings-toggle{
+      align-self:stretch;padding:10px 12px;width:100%;
+      justify-content:flex-start;gap:10px;
+      /* On mobile (column flex), gear is the TOP row of the bar. Border
+         along its bottom acts as the divider from the drawer below. */
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .settings-toggle::after{
+      /* Affordance text — "Settings" hint visible only on mobile so the
+         user knows the gear opens a panel. Hidden on desktop since the
+         drawer slides out visibly when clicked. */
+      content:"Settings";
+      font-size:.72rem;font-weight:600;letter-spacing:.04em;
+      text-transform:uppercase;color:rgba(255,255,255,.65);
+      margin-left:auto;
+    }
+    body[data-adjust="open"] .settings-toggle::after{color:#fff;content:"Close";}
+  }
+  .settings-toggle > span:not(.settings-icon):not(.toggle-icon){display:none;}
+  .settings-toggle .toggle-icon{display:none;}
+  .settings-toggle:hover{color:#fff;background:rgba(255,255,255,.06);}
+  /* (Removed duplicate body[data-adjust="open"] .settings-toggle rule that
+     was overriding the tone-down at line ~604 with full-green background.
+     The earlier rule with rgba(255,255,255,.08) wins now.) */
+
+  /* .adjust-panel — legacy class kept for any inner sections inside the
+     drawer that referenced it. The drawer itself handles open/close via
+     max-width on .bb-drawer (parent), so no display toggle is needed here. */
+  .adjust-panel{display:contents;}
+  .adjust-section{margin-bottom:12px;}
+  .adjust-section:last-child{margin-bottom:0;}
+  .adjust-label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:6px;}
+  .adjust-pills{
+    display:flex;flex-wrap:nowrap;gap:4px;align-items:center;
+    /* Pills must stay on one line. If the container is narrow the row
+       gets a horizontal scroll instead of wrapping vertically (which
+       made the drawer 5 rows tall on mobile). */
+    overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
+    max-width:100%;
+  }
+  .adjust-pills::-webkit-scrollbar{display:none;}
+  .adjust-pills button{flex:none;}
+  .adjust-pills button{
+    height:var(--bb-btn-h);padding:0 10px;
+    border:1px solid rgba(255,255,255,.18);background:transparent;
+    border-radius:6px;color:rgba(255,255,255,.7);
+    font-family:inherit;font-size:.7rem;font-weight:600;
+    cursor:pointer;text-transform:uppercase;letter-spacing:.02em;
+    display:inline-flex;align-items:center;
+    transition:background .14s ease,border-color .14s ease,color .14s ease;
+  }
+  .adjust-pills button:hover{
+    background:rgba(255,255,255,.08);color:#fff;
+  }
+  .adjust-pills button.active{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+  }
+  .quality-row{display:flex;align-items:center;gap:6px;}
+  /* Quality slider — hand-styled.
+     Why: relying on `accent-color` + the UA-painted track (a) flashed
+     a light gray "white bar" during drawer slide-out as the track
+     revealed pixel-by-pixel, and (b) on mobile the green fill simply
+     didn't render in some browsers/builds. Switching to appearance:none
+     + custom pseudos gives us a fully predictable surface: dark track,
+     accent-filled portion via CSS gradient, custom round thumb. The
+     `--p` custom property is the slider's current value (10-100)
+     updated from the input event handler — drives the gradient stop.
+     Works identically on Chrome/Safari/Firefox/iOS/Android. */
+  .quality-row input[type=range]{
+    --p:82;
+    --pct:calc((var(--p) - 10) / 0.9 * 1%);
+    flex:1;
+    height:18px;
+    cursor:pointer;
+    background:transparent !important;
+    outline:none;border:none;margin:0;padding:0;
+    -webkit-appearance:none;appearance:none;
+  }
+  .quality-row input[type=range]:focus,
+  .quality-row input[type=range]:focus-visible{outline:none;}
+  /* Webkit (Chrome / Safari / Edge / iOS Safari / Android Chrome).
+     IMPORTANT: every visible slider surface uses the ACCENT palette (or a
+     near-black mix), never pure white. White surfaces would flash visibly
+     during the drawer slide-out animation as the slider clip-revealed
+     pixel-by-pixel — even at 14px the thumb's #fff fill read as a small
+     white bar mid-animation. */
+  .quality-row input[type=range]::-webkit-slider-runnable-track{
+    height:4px;border-radius:2px;
+    background:linear-gradient(to right,
+      var(--accent) 0%,
+      var(--accent) var(--pct),
+      rgba(255,255,255,.06) var(--pct),
+      rgba(255,255,255,.06) 100%);
+  }
+  .quality-row input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:12px;height:12px;
+    background:var(--accent);
+    border-radius:50%;
+    border:1px solid var(--accent-strong);
+    margin-top:-4px;
+    cursor:pointer;
+    box-shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+  /* Firefox */
+  .quality-row input[type=range]::-moz-range-track{
+    height:4px;border-radius:2px;
+    background:rgba(255,255,255,.06);
+  }
+  .quality-row input[type=range]::-moz-range-progress{
+    height:4px;border-radius:2px;
+    background:var(--accent);
+  }
+  .quality-row input[type=range]::-moz-range-thumb{
+    width:12px;height:12px;
+    background:var(--accent);
+    border-radius:50%;
+    border:1px solid var(--accent-strong);
+    cursor:pointer;
+    box-shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+  .q-val{color:#fff;font-weight:700;font-size:.7rem;min-width:24px;text-align:center;}
+  /* Resize control — segmented [Pixels | Percent] + numeric input with
+     right-aligned unit suffix. Pattern from Apple Photos export, Lightroom
+     custom size, and Affinity Photo's resize dialog. The native <select>
+     was dropped because (a) browsers can't reliably style the option popup
+     dark, leaving white-on-white text in the dropdown, and (b) the
+     two-step "open menu, pick mode, type value" flow was extra friction
+     for what's a binary choice. */
+  /* Resize-mode-toggle (Pixels|Percent) — REMOVED per user feedback in
+     favor of pixels-only. Selectors kept stub-only so any leftover query
+     in JS doesn't error. */
+  .resize-mode-toggle{display:none;}
+  .resize-input-wrap{
+    position:relative;
+  }
+  .resize-input-wrap input{
+    width:100%;height:var(--bb-btn-h);padding:0 36px 0 10px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;border-radius:6px;
+    font:inherit;font-size:.78rem;
+    outline:none;
+    -moz-appearance:textfield;
+  }
+  .resize-input-wrap input::-webkit-outer-spin-button,
+  .resize-input-wrap input::-webkit-inner-spin-button{
+    -webkit-appearance:none;margin:0;
+  }
+  .resize-input-wrap input:focus{border-color:var(--accent);}
+  .resize-input-wrap .resize-unit{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    color:rgba(255,255,255,.45);font-size:.74rem;font-weight:600;
+    pointer-events:none;
+  }
+  /* Toggle switch — replaces the native checkbox for "Strip metadata".
+     Pattern from iOS / Android settings, Linear, Notion. The
+     <input type="checkbox"> is kept as the actual control (a11y) and
+     hidden via opacity:0; the visual switch is built from the label's
+     pseudo-elements so we get a single click target. */
+  .switch{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    font-size:.78rem;color:rgba(255,255,255,.85);
+  }
+  .switch input{
+    /* Keep the checkbox in the layout for accessibility but visually
+       replace it with the .switch-track + .switch-thumb pseudo. */
+    position:absolute;width:1px;height:1px;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  .switch-track{
+    position:relative;width:30px;height:17px;flex:none;
+    background:rgba(255,255,255,.16);border-radius:999px;
+    transition:background .18s ease;
+  }
+  .switch-track::after{
+    content:"";position:absolute;top:2px;left:2px;
+    width:13px;height:13px;border-radius:50%;background:#fff;
+    transition:transform .18s ease;
+    box-shadow:0 1px 3px rgba(0,0,0,.3);
+  }
+  .switch input:checked + .switch-track{background:var(--accent);}
+  .switch input:checked + .switch-track::after{transform:translateX(13px);}
+  .switch input:focus-visible + .switch-track{
+    box-shadow:0 0 0 2px rgba(122,154,122,.4);
+  }
+
+  /* Quick-pick presets — compact dropdown that opens UPWARD (the toolbar
+     lives at the bottom of the viewport, so popovers open above). The
+     previous inline chip row added vertical bulk to the drawer; this
+     pattern keeps the section compact and the chips a single click away. */
+  .resize-presets{
+    position:relative;display:inline-block;
+  }
+  .resize-presets-trigger{
+    height:var(--bb-btn-h);
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);
+    color:rgba(255,255,255,.75);font:inherit;font-size:.72rem;font-weight:600;
+    padding:0 10px;border-radius:6px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+    transition:background .14s ease,border-color .14s ease,color .14s ease;
+  }
+  .resize-presets-trigger:hover{
+    background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25);
+  }
+  .resize-presets-trigger svg{
+    width:9px;height:9px;opacity:.7;transition:transform .15s ease;
+  }
+  .resize-presets.open .resize-presets-trigger{
+    background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3);
+  }
+  .resize-presets.open .resize-presets-trigger svg{transform:rotate(180deg);}
+  /* Position FIXED instead of absolute — the .bb-drawer parent has
+     overflow:hidden (needed for the slide animation), which was clipping
+     the popover when it tried to open above the trigger. JS computes the
+     fixed position from the trigger's getBoundingClientRect on open. */
+  .resize-presets-menu{
+    /* Position FIXED so the drawer's overflow:hidden can't clip the
+       popover. Always painted (display:flex) but hidden via visibility +
+       opacity so the transition works reliably — display:none → flex
+       in the same frame skips the transition and was leaving the menu
+       invisible on first open. */
+    position:fixed;
+    display:flex;flex-direction:column;min-width:88px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);border-radius:8px;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:0 6px 24px rgba(0,0,0,.5);
+    padding:4px;z-index:9999;
+    visibility:hidden;opacity:0;pointer-events:none;
+    transition:opacity .14s ease,transform .14s ease,visibility 0s linear .14s;
+    /* Menu's left edge anchors to the trigger's left edge (set via JS). No
+       horizontal centering — that caused mobile clipping when the trigger
+       sat near the viewport's left edge (translateX(-50%) pulled the menu
+       half-off-screen). JS additionally right-clamps to prevent overflow
+       on the right side. */
+    transform:translateX(0) translateY(4px);
+    /* Default off-screen so unopened menus don't intercept focus or layout */
+    left:-9999px;
+  }
+  .resize-presets.open .resize-presets-menu,
+  .resize-presets-menu.open{
+    visibility:visible;opacity:1;pointer-events:auto;
+    transform:translateX(0) translateY(0);
+    transition:opacity .14s ease,transform .14s ease,visibility 0s linear 0s;
+  }
+  .resize-presets-menu button{
+    background:transparent;border:none;color:rgba(255,255,255,.85);
+    font:inherit;font-size:.72rem;font-weight:500;
+    padding:6px 12px;border-radius:5px;cursor:pointer;text-align:left;
+    transition:background .12s ease,color .12s ease;
+  }
+  .resize-presets-menu button:hover{
+    background:var(--accent);color:#fff;
+  }
+
+  /* Inline Custom px input row inside the resize dropdown.
+     Visually integrated with menu buttons: same horizontal padding,
+     same row height, no hard border — just a subtle top divider. */
+  .resize-custom-row{
+    display:flex;align-items:center;gap:4px;
+    padding:6px 6px 4px;
+    margin-top:4px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .resize-custom-row .resize-custom-input{
+    flex:1;min-width:0;
+    height:26px;padding:0 8px;
+    background:rgba(255,255,255,.06);
+    border:1px solid transparent;
+    color:rgba(255,255,255,.92);
+    font:inherit;font-size:.72rem;
+    border-radius:5px;outline:none;
+    -moz-appearance:textfield;appearance:textfield;
+    transition:background .12s ease,border-color .12s ease;
+  }
+  .resize-custom-row .resize-custom-input::placeholder{
+    color:rgba(255,255,255,.38);
+  }
+  .resize-custom-row .resize-custom-input:hover{
+    background:rgba(255,255,255,.1);
+  }
+  .resize-custom-row .resize-custom-input:focus{
+    background:rgba(255,255,255,.12);
+    border-color:var(--accent);
+  }
+  /* Hide native number-input spin buttons — the value is committed via
+     Set / Enter, so spinners just add visual noise. */
+  .resize-custom-row .resize-custom-input::-webkit-outer-spin-button,
+  .resize-custom-row .resize-custom-input::-webkit-inner-spin-button{
+    -webkit-appearance:none;margin:0;
+  }
+  .resize-custom-row .resize-custom-set{
+    flex:none;height:26px;padding:0 10px;
+    background:transparent;
+    border:1px solid rgba(255,255,255,.18);
+    color:rgba(255,255,255,.85);
+    font:inherit;font-size:.7rem;font-weight:600;
+    border-radius:5px;cursor:pointer;
+    transition:background .12s ease,color .12s ease,border-color .12s ease;
+  }
+  .resize-custom-row .resize-custom-set:hover{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+
+  .adjust-input,.adjust-select{padding:5px 7px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.04);color:#fff;border-radius:5px;font-family:inherit;font-size:.7rem;width:100%;}
+  .adjust-checkbox{display:flex;align-items:center;gap:6px;font-size:.7rem;color:rgba(255,255,255,.85);cursor:pointer;}
+
+  /* Action area: stacked vertical buttons in narrow card */
+  .actions{display:flex;flex-direction:column;gap:6px;
+    padding:12px 14px max(14px,env(safe-area-inset-bottom,14px));}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    padding:9px 12px;border-radius:7px;font-family:inherit;font-size:.78rem;font-weight:600;
+    border:1px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.92);
+    cursor:pointer;white-space:nowrap;width:100%;}
+  .btn:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+  .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  .btn-clear{color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.16);}
+  .btn-clear:hover{color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);}
+  .btn-icon{width:auto;flex:0 0 auto;padding:8px 9px;}
+  /* Dual-label: desktop shows .lbl-full, mobile (in @media below) swaps to .lbl-short */
+  .lbl-short{display:none;}
+  .lbl-full{display:inline;}
+
+  /* ---------- confirm modal ---------- */
+  .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;z-index:100;padding:24px;}
+  body[data-confirm="open"] .confirm-overlay{display:flex;}
+  .confirm-modal{background:#1f1f1f;border:1px solid rgba(255,255,255,.14);border-radius:14px;
+    color:#fff;padding:24px;max-width:380px;width:100%;
+    box-shadow:0 12px 40px rgba(0,0,0,.5);}
+  .confirm-modal h3{margin:0 0 8px;font-size:1.05rem;}
+  .confirm-modal p{margin:0 0 18px;font-size:.86rem;color:rgba(255,255,255,.78);line-height:1.45;}
+  .confirm-actions{display:flex;gap:10px;justify-content:flex-end;}
+  .confirm-actions .btn{width:auto;}
+
+  /* ---------- mobile ---------- */
+  @media(max-width:767px){
+    /* Smaller cover-flow thumbnails on mobile — frees vertical space
+       for the compare canvas (the actual reason users come to the page).
+       80/42 still keeps the active thumb tappable (>=44px after scale
+       up of small thumbs) without dominating the screen. */
+    :root{--thumb-big:40px;--thumb-small:21px;--action-w:auto;}
+    .cover-flow{
+      bottom:calc(var(--menu-h,80px) + 38px);
+      left:0;right:0;
+      height:60px;
+    }
+    .image-canvas{
+      bottom:calc(var(--menu-h, 100px) + 100px);
+    }
+    .filename-ribbon{
+      /* Mobile filename — same below-cover-flow placement, smaller font.
+         14px above bar matches desktop padding. */
+      bottom:calc(var(--menu-h,80px) + 14px);
+      font-size:.66rem;max-width:80vw;
+    }
+    /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
+       instead of collapsing into overflow chaos. The horizontal "film
+       strip drawer" pattern works on desktop but is too wide for
+       narrow viewports; mobile just stacks the rows. */
+    .menu-wrap{
+      /* Mobile bar with small inset like the Before/After meta cards.
+         Not edge-to-edge — small breathing room from viewport edges. */
+      left:0;right:0;bottom:0;
+      padding:0 8px 8px;
+      display:block;
+    }
+    .menu-card{
+      width:100%;
+      flex-wrap:wrap;flex-direction:column;align-items:stretch;
+      padding:0;gap:0;
+      /* All four corners rounded since the card now sits with padding
+         around it instead of flush to the viewport edge. */
+      border-radius:14px;
+    }
+    /* Drawer becomes a top row (above the core), full-width, vertical
+       stack of sections. No horizontal slide-out — just show/hide block. */
+    /* Mobile drawer INLINE — pushes the menu-card taller when open;
+       the cover-flow + image canvas shift up via --menu-h wiring so
+       the user can keep interacting with both while settings is open. */
+    .bb-drawer{
+      position:relative;left:auto;right:auto;bottom:auto;
+      max-width:none;width:100%;
+      height:auto;
+      max-height:0;overflow:hidden;
+      background:#1a1a1a;
+      border:none;border-bottom:1px solid transparent;
+      border-radius:0;
+      /* Mobile drawer: clip-path reveal from bottom-clipped to fully
+         visible. max-height snaps so the bar grows in height; clip-path
+         is the smooth visual. */
+      clip-path:inset(0 0 100% 0);
+      -webkit-clip-path:inset(0 0 100% 0);
+      transition:clip-path .26s cubic-bezier(.22,1,.36,1),
+                 -webkit-clip-path .26s cubic-bezier(.22,1,.36,1),
+                 padding .2s ease,opacity .18s ease,
+                 border-bottom-color .2s ease;
+      opacity:0;padding:0;
+    }
+    body[data-adjust="open"] .bb-drawer{
+      max-height:280px;opacity:1;padding:8px 0;
+      border-bottom-color:rgba(255,255,255,.12);
+      clip-path:inset(0 0 0 0);
+      -webkit-clip-path:inset(0 0 0 0);
+    }
+    /* Reduced-motion: drop clip-path on mobile too. */
+    @media (prefers-reduced-motion: reduce){
+      .bb-drawer{
+        clip-path:none;-webkit-clip-path:none;
+        transition:none;
+      }
+      body[data-adjust="open"] .bb-drawer{
+        clip-path:none;-webkit-clip-path:none;
+      }
+    }
+    .bb-drawer-inner{
+      /* Mobile: stack the Format / Resize / Privacy SECTIONS vertically
+         (column) but keep the CHILDREN of each section horizontal. */
+      flex-direction:column;gap:10px;width:100%;
+      padding:6px 10px 8px;white-space:normal;
+    }
+    /* Mobile sections: label above controls; controls flow horizontally
+       where possible to reduce vertical space. .bb-row is a horizontal
+       sub-grouping (Resize input + Presets dropdown). */
+    .bb-drawer-inner .bb-section{
+      flex-wrap:nowrap;width:100%;
+      flex-direction:column;align-items:stretch;gap:6px;
+    }
+    .bb-drawer-inner .bb-section > *:not(.bb-section-label):not(.bb-row){
+      width:100%;
+    }
+    .bb-drawer-inner .bb-section .bb-row{
+      display:flex;flex-direction:row;gap:6px;width:100%;align-items:center;
+    }
+    .bb-drawer-inner .bb-section .bb-row .resize-input-wrap{flex:1;}
+    .bb-drawer-inner .bb-section .bb-row .resize-presets{flex:none;}
+    /* Section dividers are horizontal lines between sections on desktop;
+       on mobile the drawer stacks sections vertically so the dividers
+       become irrelevant noise. Replaced by section gap + bb-section-label
+       acting as a visual section header. */
+    .bb-drawer-inner .bb-divider{display:none;}
+    /* Subtle separator below each mobile section instead of vertical dividers */
+    .bb-drawer-inner .bb-section + .bb-section{
+      padding-top:8px;border-top:1px solid rgba(255,255,255,.08);
+    }
+    /* Resize + Crop + Privacy share one horizontal row on mobile (saves
+       vertical space). Format keeps its own row above. On desktop the
+       wrapper uses display:contents (declared outside this @media block)
+       so the bb-drawer-inner flex layout treats the sections as siblings. */
+    .bb-row-group{
+      display:flex;flex-direction:row;gap:10px;width:100%;
+      align-items:flex-start;
+    }
+    .bb-row-group > .bb-section{
+      flex:1;min-width:0;
+    }
+    /* Inside the row group, neighbour bb-sections are SIDE-BY-SIDE not
+       stacked, so the section + section top border / padding rule above
+       would draw a stray underline across the row. Suppress it. */
+    .bb-row-group .bb-section + .bb-section{
+      padding-top:0;border-top:none;
+    }
+    /* Format pills span full drawer width and divide equally — easier
+       to tap than the scroll-row default. */
+    .bb-drawer-inner .adjust-pills{
+      width:100%;overflow:visible;
+    }
+    .bb-drawer-inner .adjust-pills button{
+      flex:1;min-width:0;padding:0 4px;
+      justify-content:center;text-align:center;
+    }
+    /* Core row: gear + format pills + quality slider on one line.
+       Format pills allow horizontal scroll if needed. */
+    .bb-core{
+      width:100%;flex:1;min-width:0;
+      flex-wrap:wrap;gap:8px;padding:6px 8px;
+    }
+    .bb-core .adjust-pills{
+      flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+      -ms-overflow-style:none;
+    }
+    .bb-core .adjust-pills::-webkit-scrollbar{display:none;}
+    .bb-core .quality-row{min-width:0;flex:1;}
+    /* Settings gear on its own — keep visible at left of core. Border-left
+       was the divider hint on desktop; remove on mobile so it's a clean
+       icon button. */
+    .settings-toggle{border-left:none;padding:6px 8px;}
+    /* Batch actions on a separate row, full-width distribution */
+    .actions{
+      width:100%;
+      flex-direction:row;flex-wrap:nowrap;gap:6px;
+      padding:6px 8px max(8px,env(safe-area-inset-bottom,8px));
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .actions .btn{
+      flex:1;min-width:0;width:auto;
+      font-size:.78rem;padding:12px 8px;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .actions .btn-primary{flex:1.4;}
+    .actions .btn-clear{flex:0 0 auto;padding:12px 12px;}
+    .actions .lbl-full{display:none;}
+    .actions .lbl-short{display:inline;}
+    /* Collapsed by default on mobile — only the "Before" / "After" title
+       and the savings % chip are visible. Tap a card to expand and reveal
+       the dims/KB/format details. Tap again to collapse. Saves precious
+       horizontal real estate on the canvas while keeping savings glanceable. */
+    .compare-meta{
+      font-size:.68rem;padding:5px 8px;max-width:42vw;
+      pointer-events:auto;cursor:pointer;
+    }
+    .compare-meta .lbl-title{font-size:.78rem;}
+    /* Hide every span that isn't the title or savings % when collapsed */
+    .compare-meta:not(.expanded) > span:not(.lbl-title):not(.pct){
+      display:none;
+    }
+    /* Subtle "tap to expand" cue: chevron after title */
+    .compare-meta:not(.expanded) .lbl-title::after{
+      content:" \203A";opacity:.5;font-weight:600;
+    }
+    .compare-meta.expanded .lbl-title::after{
+      content:" \2715";opacity:.5;font-weight:600;font-size:.7rem;
+    }
+    .state-toggle small{display:none;}
+    .brand-bar{padding:0 12px;}
+    .pi-icon{width:42px;height:42px;}
+    .cflow-thumb.add-more .add-more-label{display:none;}
+  }
+
+  /* ---------- mock images ---------- */
+  .mock-image{width:100%;height:100%;display:flex;align-items:flex-end;
+    padding:8px;color:#fff;font-weight:700;font-size:1rem;
+    text-shadow:0 1px 3px rgba(0,0,0,.4);}
+  .mock-image.large{font-size:1.4rem;padding:20px;}
+</style>
+</head>
+<body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off">
+
+<div class="brand-bar">
+  <a href="/" class="brand">img<span class="g">ready</span></a>
+  <span class="beta-badge" style="display:none">BETA</span>
+  <div class="brand-spacer"></div>
+  <!-- "Back to stable app" link removed: beta IS the stable app now (cutover complete). -->
+</div>
+
+<section class="beta-empty">
+  <div class="app">
+    <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
+    <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files to compress">
+    <span class="dz-icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </span>
+    <h2>Drop your images here</h2>
+    <p>or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
+         TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
+         in the same eye-line as the action, so first-time visitors don't
+         have to scroll to know what makes this different. Hidden in the
+         compact "Add more images" mode (body.has-images) since returning
+         users don't need re-reassurance mid-batch. -->
+    <div class="dz-trust" aria-hidden="false">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Stays on your device — never uploaded</span>
+    </div>
+    <div class="paste-hint">Tip: paste from clipboard works too.</div>
+  </div>
+
+    <header class="hero-below">
+    <h1 class="brand-h1">
+      The image tool that <span class="brand-ready">never uploads.</span>
+      <span class="sr-tagline">imgready — Free in-browser image compressor, converter and resizer.</span>
+    </h1>
+    <p>Compress, convert and resize photos right in your browser. Free. No accounts. No file size limits.</p>
+  </header>
+
+  <div class="content-section">
+
+    <h2>What imgready does</h2>
+    <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use — WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Use a platform preset. Live-edit quality with the fullscreen compare editor.</p>
+    <p>Encoding runs in your browser. The <a href="/why/">thinking behind it</a> goes deeper into what that means for speed and file-size limits.</p>
+
+    <h3>Supported formats</h3>
+    <table class="format-table"><tr><th>Format</th><th>Best for</th><th>Compression</th></tr><tr><td><strong>WebP</strong></td><td>Modern web — blogs, e-commerce</td><td>25–35% smaller than JPEG</td></tr><tr><td><strong>AVIF</strong></td><td>Maximum compression, photos</td><td>Up to 50% smaller than JPEG</td></tr><tr><td><strong>JPEG / JPG</strong></td><td>Universal compatibility</td><td>Lossy, works everywhere</td></tr><tr><td><strong>PNG</strong></td><td>Screenshots, graphics, transparency</td><td>Lossless at 100, lossy PNG-8 below</td></tr><tr><td><strong>GIF</strong></td><td>Simple animations, flat colour</td><td>Limited to 256 colours</td></tr></table>
+
+    <h3>Common use cases</h3>
+    <p>imgready is designed for the everyday image work that doesn't deserve a separate app. A few of the things it gets used for:</p>
+    <ul class="use-cases">
+      <li><strong>iPhone photos for Windows colleagues.</strong> Drop a HEIC, get a JPG back. No app install, no email back-and-forth about &quot;why won't this open&quot;.</li>
+      <li><strong>Hero images for blog posts.</strong> Resize a 5&nbsp;MB phone photo to 1600&nbsp;px wide WebP under 200&nbsp;KB. Pages load faster, Lighthouse score climbs, no CDN cost.</li>
+      <li><strong>Shopify or Etsy product photography.</strong> Drop a folder of 50 photos, set a platform preset, hit Process All, download a single ZIP. Aspect ratios stay correct.</li>
+      <li><strong>EXIF stripping before sharing.</strong> Phone photos carry GPS coordinates by default. imgready strips them invisibly before you post — no extra step, no extra tool.</li>
+    </ul>
+
+    <!-- Panda demo: shows a before/after compression slider so first-time
+         visitors can SEE the result without dropping a file. Mirrors the
+         stable home page's demo-wrap; CSS lives in /app.css (loaded above);
+         JS init at end of beta script. -->
+    <div class="demo-wrap" id="demoWrap">
+      <div class="demo-header">
+        <span class="demo-title">See the difference — slide to compare</span>
+        <div class="demo-stats" id="demoStats"></div>
+      </div>
+      <div class="demo-slider" id="demoSlider" oncontextmenu="return false">
+        <div class="demo-zoom-wrap">
+          <img id="demoAfter" alt="After compression">
+          <div class="demo-clip" id="demoClip">
+            <img id="demoBefore" alt="Original">
+          </div>
+        </div>
+        <div class="demo-divider" id="demoDivider"></div>
+        <div class="demo-handle">↔</div>
+        <div class="demo-lbl l">ORIGINAL</div>
+        <div class="demo-lbl r">IMGREADY</div>
+        <div class="demo-loading" id="demoLoading"><div class="spin"></div><span>Generating demo…</span></div>
+      </div>
+    </div>
+
+    <h3>How it actually works</h3>
+    <p>When you drop a file, imgready runs the same WebAssembly encoders Squoosh ships — but locally, on your machine. <strong>HEIC and HEIF</strong> decode through libheif (the C++ library Apple uses). <strong>WebP and AVIF</strong> encode with jsquash, Google's reference encoders ported to WebAssembly. <strong>PNG</strong> compression uses OxiPNG and UPNG for size, the browser's canvas for lossless. Resizing and cropping run on the HTML5 canvas API. None of this requires a server because none of it needs one — your machine has the compute.</p>
+
+    <h3>Frequently asked</h3>
+    <details class="faq-item"><summary>Are my images uploaded?</summary><p>No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file — no requests carry image data.</p></details>
+    <details class="faq-item"><summary>What's the difference between WebP and AVIF?</summary><p>Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly. imgready uses WebAssembly encoders for both so every device gets identical output regardless of browser.</p></details>
+    <details class="faq-item"><summary>How big a batch can I drop in?</summary><p>The soft cap is 200 files, with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop.</p></details>
+    <details class="faq-item"><summary>Is there a file-size cap?</summary><p>No. Drop a 100&nbsp;MB TIFF if you have one. imgready has no caps because there's no server to bill for storage.</p></details>
+    <details class="faq-item"><summary>Can I resize and compress at the same time?</summary><p>Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass — no double-encoding.</p></details>
+    <details class="faq-item"><summary>What if the file fails to convert?</summary><p>Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level &quot;Couldn't read this file&quot; error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue.</p></details>
+    <details class="faq-item"><summary>Does imgready work on iPhone or iPad?</summary><p>Yes — imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30–50 files at a time).</p></details>
+    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes — completely, no caps. Supported by voluntary Ko-fi contributions. Your image data never leaves your device.</p></details>
+  </div>
+
+  <!-- Keyboard shortcut hint button (subtle, bottom-right of viewport).
+       Mirrors stable's kbd-help; the toggle + Esc handler are wired
+       below in the script tag. -->
+  <button class="kbd-help" id="kbdHelpBtn" onclick="toggleKbdHelp()" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">⌨</button>
+  <div class="kbd-popover" id="kbdPopover" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <h3>Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>D</kbd></td><td>Download all</td></tr>
+      <tr><td><kbd>/</kbd></td><td>Focus dropzone</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close current dialog</td></tr>
+      <tr><td><kbd>Ctrl+V</kbd></td><td>Paste image from clipboard</td></tr>
+    </table>
+  </div>
+
+    <footer class="site-footer">
+    <div style="font-weight:700;color:var(--text2);">imgready</div>
+    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a><a href="/support/">♥ Support</a>
+    </div>
+    <div style="margin-top:4px;">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div style="margin-top:8px;">
+      <a href="#" id="themeBtn" onclick="event.preventDefault();toggleTheme()">Night mode</a>
+    </div>
+    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
+</div>
+</section>
+
+<!-- ============================ SOLO STATE (1 image) — same canvas as multi ============================ -->
+<section class="stage solo">
+  <div class="image-canvas" id="centerImageSolo">
+    <div class="compare-zoom">
+      <div class="compare-before" id="cbBeforeSolo" style="background:#000;"></div>
+      <div class="compare-after"><div id="cbAfterSolo" style="position:absolute;inset:0;background:#000;"></div></div>
+    </div>
+    <div class="compare-meta l"><span class="lbl-title">Preview</span><span>—</span></div>
+    <div class="compare-meta r"><span class="lbl-title">Beta</span><span>Encoder not yet wired</span></div>
+  </div>
+  <div class="menu-wrap">
+    <div class="menu-card">
+      <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings panel"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
+      <div class="adjust-panel">
+        <div class="adjust-section"><span class="adjust-label">Format</span>
+          <div class="adjust-pills"><button>Auto</button><button>WebP</button><button>AVIF</button><button class="active">JPG</button><button>PNG</button></div></div>
+        <div class="adjust-section"><span class="adjust-label">Quality · 82</span>
+          <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div></div>
+        <div class="adjust-section"><span class="adjust-label">Resize</span>
+          <!-- Solo state is currently unused — kept for backward-compat. -->
+          <div class="resize-mode-toggle" hidden>
+            <button type="button" class="rmt-btn active" data-mode="dim">Pixels</button>
+          </div>
+          <div class="resize-presets resize-dropdown" data-resize-current="0">
+            <button type="button" class="resize-presets-trigger">
+              <span class="resize-current-label">None</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="resize-presets-menu resize-menu">
+              <button type="button" data-resize="0" class="active">None</button>
+              <button type="button" data-resize="1080">1080 px</button>
+              <button type="button" data-resize="1920">1920 px</button>
+              <button type="button" data-resize="4096">4K (4096)</button>
+              <div class="resize-custom-row">
+                <input type="number" class="resize-custom-input" min="1" placeholder="Custom px" inputmode="numeric">
+                <button type="button" class="resize-custom-set" tabindex="-1">Set</button>
+              </div>
+            </div>
+          </div>
+          </div>
+        <div class="adjust-section"><span class="adjust-label">Privacy</span>
+          <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">Download</button>
+        <button class="btn">Share</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MULTI STATE ============================ -->
+<section class="stage multi">
+  <!-- Bottom-fade overlay improves readability of cover-flow thumbnails over
+       busy backgrounds. CSS-driven (.canvas-fade); zero runtime cost. -->
+  <div class="canvas-fade" aria-hidden="true"></div>
+  <div class="image-canvas" id="centerImage">
+    <!-- Zoom wrapper: cbBefore + cbAfter live inside this so a single transform
+         scales/pans the whole compare composition. The compare-after still
+         clips correctly because clip-path applies to the inner element. -->
+    <div class="compare-zoom" id="compareZoom">
+      <div class="mock-image large compare-before" id="cbBefore" style="background:linear-gradient(135deg,#446644,#8aba8a)">photo-1.jpg</div>
+      <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">photo-1.jpg</div></div>
+      <!-- Divider + handle live INSIDE compare-zoom so they receive the
+           same scale/translate as cbBefore/cbAfter. Without this, the clip
+           edge moved with the zoom transform but the divider stayed at
+           canvas-50%, producing two visible lines at different screen
+           positions while zoomed. -->
+      <div class="compare-divider"></div>
+      <div class="compare-handle" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
+    </div>
+    <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
+    <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
+    <div class="center-status" id="centerStatus" hidden aria-live="polite">
+      <div class="cs-spinner" aria-hidden="true"></div>
+      <div class="cs-stage" id="csStage">Decoding…</div>
+      <div class="cs-name" id="csName"></div>
+      <!-- Pulse bar: only enabled for files >5MB (data-bar="on" toggle).
+           Fill animates on a time estimate based on input size + format. -->
+      <div class="cs-bar" aria-hidden="true"><div class="cs-bar-fill" id="csBarFill"></div></div>
+    </div>
+    <!-- Zoom-level chip — only visible during/after zoom changes -->
+    <div class="zoom-chip" id="zoomChip" aria-hidden="true">100%</div>
+  </div>
+
+  <div class="cover-flow" id="coverFlow">
+    <div class="cflow-track" id="cflowTrack">
+      <!-- thumbs injected by JS -->
+      <div class="pi-actions" id="piActions">
+        <button class="pi-icon" title="Share this" onclick="event.stopPropagation();piShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+        <button class="pi-icon" title="Copy to clipboard" onclick="event.stopPropagation();piCopy(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+        <button class="pi-icon" title="Download this" onclick="event.stopPropagation();piDownload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+        <button class="pi-icon danger" title="Delete this" onclick="event.stopPropagation();piDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <!-- Filename ribbon — sibling of image-canvas (NOT a child) so
+       its bottom:var(--menu-h)+8 is relative to the stage, not to the
+       image-canvas which has its own constrained bottom. The previous
+       child placement made the filename render INSIDE the canvas area. -->
+  <div class="filename-ribbon" id="filenameRibbon" aria-live="polite"></div>
+
+  <div class="menu-wrap" id="menuWrap">
+    <div class="menu-card">
+      <!-- Gear FIRST so it visually anchors the "drawer pull". The drawer
+           sits next to the gear (right on desktop, below on mobile) and
+           extends INTO the bar when opened, pushing core+actions further
+           away from the gear. Reads as "gear pulls out the strip". -->
+      <button class="settings-toggle" onclick="toggleAdjust()" aria-label="Toggle settings"><span class="settings-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span><span class="toggle-icon" aria-hidden="true"></span></button>
+      <div class="bb-drawer" aria-hidden="true">
+        <div class="bb-drawer-inner">
+          <div class="bb-section">
+            <span class="bb-section-label">Format</span>
+            <div class="adjust-pills" id="formatPills">
+              <button class="active" data-fmt="auto">Auto</button>
+              <button data-fmt="webp">WebP</button>
+              <button data-fmt="avif">AVIF</button>
+              <button data-fmt="jpg">JPG</button>
+              <button data-fmt="png">PNG</button>
+              <button data-fmt="ico">ICO</button>
+            </div>
+            <label class="switch multi-out-switch" title="Encode every selected format and bundle as a zip on download">
+              <input type="checkbox" id="multiOutToggle">
+              <span class="switch-track"></span>
+              <span>Multi</span>
+            </label>
+          </div>
+          <div class="bb-divider"></div>
+          <!-- Quality lives in the drawer (not the core bar). Most users
+               accept the default; pros open Settings to tweak. Pattern
+               matches TinyPNG / iLoveIMG / Compressor.io / Kraken /
+               ImageOptim — only Squoosh and Optimizilla expose it
+               front-and-center. -->
+          <div class="bb-section">
+            <span class="bb-section-label">Quality</span>
+            <div class="quality-row"><input type="range" min="10" max="100" value="82" aria-label="Encoding quality (10 to 100)"><span class="q-val">82</span><span class="qr-size" id="qrSize"></span><span class="qr-spinner" id="qrSpinner" aria-hidden="true"></span></div>
+          </div>
+          <div class="bb-divider"></div>
+          <div class="bb-row-group">
+          <div class="bb-section">
+            <span class="bb-section-label">Resize</span>
+            <!-- Stub kept for any JS that reads .rmt-btn.active — pixel-only mode. -->
+            <div class="resize-mode-toggle" hidden>
+              <button type="button" class="rmt-btn active" data-mode="dim">Pixels</button>
+            </div>
+            <!-- Single dropdown: trigger shows current value, menu opens upward
+                 with preset rows + an inline Custom input row at the bottom.
+                 Default "None" = no resize (full original dimensions). -->
+            <div class="resize-presets resize-dropdown" data-resize-current="0">
+              <button type="button" class="resize-presets-trigger" data-resize-trigger>
+                <span class="resize-current-label">None</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="resize-presets-menu resize-menu">
+                <button type="button" data-resize="0" class="active">None</button>
+                <button type="button" data-resize="1080">1080 px</button>
+                <button type="button" data-resize="1920">1920 px</button>
+                <button type="button" data-resize="4096">4K (4096)</button>
+                <div class="resize-custom-row">
+                  <input type="number" class="resize-custom-input" min="1" placeholder="Custom px" inputmode="numeric">
+                  <button type="button" class="resize-custom-set" tabindex="-1">Set</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bb-divider"></div>
+          <div class="bb-section">
+            <span class="bb-section-label">Crop</span>
+            <div class="resize-presets crop-dropdown" data-crop-current="none">
+              <button type="button" class="resize-presets-trigger" data-crop-trigger>
+                <span class="crop-current-label">None</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="resize-presets-menu crop-menu">
+                <button type="button" data-crop="none" class="active">None</button>
+                <button type="button" data-crop="1:1">1:1</button>
+                <button type="button" data-crop="4:3">4:3</button>
+                <button type="button" data-crop="3:4">3:4</button>
+                <button type="button" data-crop="16:9">16:9</button>
+                <button type="button" data-crop="9:16">9:16</button>
+              </div>
+            </div>
+          </div>
+          <div class="bb-divider"></div>
+          <div class="bb-section">
+            <span class="bb-section-label">Privacy</span>
+            <label class="switch"><input type="checkbox" checked><span class="switch-track"></span><span>Strip metadata</span></label>
+          </div>
+          </div>
+        </div>
+      </div>
+      <!-- bb-core removed: Quality slider lives in the drawer now. -->
+      <div class="adjust-panel" hidden></div>
+      <div class="actions">
+        <button class="btn btn-clear" onclick="askClear()"><span class="lbl-full">Clear all</span><span class="lbl-short">Clear</span></button>
+        <button class="btn" onclick="shareAll()"><span class="lbl-full">Share all</span><span class="lbl-short">Share</span></button>
+        <button class="btn btn-primary" onclick="downloadAll()"><span class="lbl-full">Download all</span><span class="lbl-short">Download</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<input type="file" id="moreInput" accept="image/*" multiple style="display:none;">
+
+<div class="confirm-overlay" onclick="if(event.target===this)cancelConfirm()">
+  <div class="confirm-modal">
+    <h3>Clear all images?</h3>
+    <p>This removes every image in this batch. You can't undo it.</p>
+    <div class="confirm-actions">
+      <button class="btn" onclick="cancelConfirm()" style="border-color:rgba(255,255,255,.22);">Cancel</button>
+      <button class="btn btn-clear" onclick="doClear()" style="color:#ff9c9c;border-color:rgba(220,120,120,.5);">Clear all</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function setState(s){
+  document.body.dataset.state = s;
+  document.body.dataset.adjust = 'closed';
+  document.body.dataset.piActions = 'closed';
+  if(s==='multi') requestAnimationFrame(layoutCoverFlow);
+}
+function toggleAdjust(){
+  document.body.dataset.adjust = document.body.dataset.adjust==='open' ? 'closed' : 'open';
+}
+
+/* ===== beta: file-based thumb data ===== */
+const FILES = [];  // array of { file, url, name, w, h }
+
+/* ===== cover flow state ===== */
+const CFLOW = {
+  thumbs: [],          // DOM elements
+  selected: 0,         // current centered index
+  drift: 0,            // fractional drift (during drag/momentum)
+  vel: 0,              // velocity (idx/frame)
+  draggingFrom: null,
+  rafId: null,
+  prevSelected: -1,    // last 'committed' selected index (for syncMainImage gating)
+  STRIDE: 120,         // px between thumb centers (matches CSS --stride; updated on resize)
+};
+
+function init(){
+  layoutCoverFlow();
+  updateMenuHeight();
+
+  const flow = document.getElementById('coverFlow');
+  flow.addEventListener('pointerdown', onPointerDown);
+  flow.addEventListener('wheel', onWheel, {passive:false});
+  attachHoverDelegation();
+
+  /* Wire the dropzone's file input (#fileInput from production HTML) */
+  const fi = document.getElementById('fileInput') || document.getElementById('dzFileInput');
+  if (fi) fi.addEventListener('change', onFiles);
+  document.getElementById('moreInput').addEventListener('change', onFiles);
+  /* Note: paste/drop/dragover listeners + MutationObserver for menu-h are
+     wired by the PROD blocks further down (they handle big-batch confirm,
+     the full-window drop overlay, and animation-frame menu-h updates).
+     The duplicates that used to live here were causing every paste + drop
+     to fire twice, double-adding files. Listeners now register exactly
+     once and do the right thing for all states. */
+  window.addEventListener('resize', updateMenuHeight);
+}
+
+function onFiles(e){
+  if (e.target.files && e.target.files.length) {
+    addFilesFromList(e.target.files);
+    e.target.value = '';
+  }
+}
+function addFilesFromList(fileList){
+  const fresh = [];
+  let totalSeen = 0;
+  for (let i = 0; i < fileList.length; i++) {
+    const file = fileList[i];
+    totalSeen++;
+    if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name)) continue;
+    const url = URL.createObjectURL(file);
+    fresh.push({ file, url, name: file.name });
+  }
+  /* Feedback when ALL files were rejected (user dropped non-images).
+     Without this the drop appeared to silently no-op. */
+  if (totalSeen > 0 && fresh.length === 0) {
+    showRejectedToast(totalSeen);
+    return;
+  }
+  if (!fresh.length) return;
+  FILES.push(...fresh);
+  buildThumbs();
+  /* Always use multi state — the cover flow handles 1 image cleanly
+     (one thumb + Add-more) and uses the same image-canvas elements for
+     rendering. Solo state had its own separate IDs that never got
+     wired to syncMainImage. */
+  document.body.dataset.state = 'multi';
+  /* wireZoom is idempotent (data-zoomWired guard) so calling on every drop is safe */
+  if (typeof wireZoom === 'function') wireZoom();
+  /* Kick off the background encode queue. The selected file is encoded
+     first (via syncMainImage's call path) and the rest queue behind it. */
+  if (typeof enqueueAll === 'function') setTimeout(enqueueAll, 60);
+  if (FILES.length === fresh.length) CFLOW.selected = 0;
+  CFLOW.drift = 0;
+  layoutCoverFlow();
+  CFLOW.prevSelected = -1;
+  syncMainImage(true);
+}
+/* Recompute --menu-h whenever drawer toggles or transitions, so the
+   cover-flow + canvas shift up while settings open. Without this the
+   cover-flow stayed pinned at the closed-state position and the drawer
+   covered it. */
+if (typeof window._menuHObserverInstalled === 'undefined') {
+  window._menuHObserverInstalled = true;
+  let _animTicker = null;
+  function _tickMenuH(){
+    if (typeof updateMenuHeight === 'function') updateMenuHeight();
+  }
+  /* On every body data-* change (drawer state, etc), recompute */
+  new MutationObserver(_tickMenuH).observe(document.body, {
+    attributes:true, attributeFilter:['data-adjust','data-state']
+  });
+  /* During drawer transition, tick every animation frame so the
+     cover-flow eases up smoothly with the drawer expansion. */
+  document.addEventListener('transitionrun', e => {
+    if (!e.target.classList || !e.target.classList.contains('bb-drawer')) return;
+    if (_animTicker) cancelAnimationFrame(_animTicker);
+    const loop = () => { _tickMenuH(); _animTicker = requestAnimationFrame(loop); };
+    loop();
+  });
+  document.addEventListener('transitionend', e => {
+    if (!e.target.classList || !e.target.classList.contains('bb-drawer')) return;
+    if (_animTicker) cancelAnimationFrame(_animTicker);
+    _animTicker = null; _tickMenuH();
+  });
+}
+
+function updateMenuHeight(){
+  /* Read the active state's menu-card height and expose as --menu-h */
+  const card = document.querySelector('body[data-state="multi"] .stage.multi .menu-card')
+            || document.querySelector('body[data-state="solo"] .stage.solo .menu-card');
+  if (!card) return;
+  const h = card.offsetHeight || 100;
+  document.documentElement.style.setProperty('--menu-h', h + 'px');
+}
+window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('resize', layoutCoverFlow);
+
+/* Build thumbs from real files. Each thumb shows the file as a contained
+   <img> inside the slot; aspect ratios are preserved with letterboxing. */
+function buildThumbs(){
+  const track = document.getElementById('cflowTrack');
+  Array.from(track.querySelectorAll('.cflow-thumb,.add-more')).forEach(t=>t.remove());
+  CFLOW.thumbs = [];
+  for (let i = 0; i < FILES.length; i++) {
+    const f = FILES[i];
+    const t = document.createElement('div');
+    t.className = 'cflow-thumb';
+    t.dataset.i = String(i);
+    t.dataset.name = f.name;
+    t.innerHTML = `
+      <div class="thumb-slot">
+        <img class="thumb-content-img" src="${f.url}" alt="" loading="lazy">
+        <div class="thumb-progress" aria-hidden="true"></div>
+      </div>`;
+    t.addEventListener('click', e => onThumbClick(i, e));
+    track.insertBefore(t, document.getElementById('piActions'));
+    CFLOW.thumbs.push(t);
+  }
+  /* Add-more tile at the end */
+  const addMore = document.createElement('div');
+  addMore.className = 'cflow-thumb add-more';
+  addMore.dataset.i = String(FILES.length);
+  addMore.innerHTML = `
+    <div class="thumb-slot add-more-slot">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <!-- Add more label removed: thumbnails are 50% smaller now;
+               the + icon alone reads clearly without the text. -->
+    </div>`;
+  addMore.addEventListener('click', () => document.getElementById('moreInput').click());
+  track.insertBefore(addMore, document.getElementById('piActions'));
+  CFLOW.thumbs.push(addMore);
+}
+
+function layoutCoverFlow(){
+  const focal = CFLOW.selected + CFLOW.drift;
+  const cs = getComputedStyle(document.documentElement);
+  const W_BIG = parseInt(cs.getPropertyValue('--thumb-big')) || 150;
+  const W_SMALL = parseInt(cs.getPropertyValue('--thumb-small')) || 70;
+  const GAP = Math.round(W_SMALL / 5);  // 1/5 of small width as spacing
+  /* Variable stride:
+     STEP_TO_BIG = stride between selected (centered) and adjacent thumb
+     STEP_SMALL  = stride between two non-selected adjacent thumbs */
+  const STEP_TO_BIG = (W_BIG + W_SMALL)/2 + GAP;
+  const STEP_SMALL = W_SMALL + GAP;
+  /* Cache STRIDE for drag math: use STEP_TO_BIG since drag movement near focal
+     is dominated by the wider stride. */
+  CFLOW.STRIDE = STEP_TO_BIG;
+
+  CFLOW.thumbs.forEach((thumb, i) => {
+    const delta = i - focal;
+    const sign = Math.sign(delta);
+    const adel = Math.abs(delta);
+    /* Offset: linear from 0..STEP_TO_BIG over delta 0..1, then STEP_SMALL per step */
+    let offset;
+    if (adel < 0.0001) offset = 0;
+    else if (adel <= 1) offset = sign * adel * STEP_TO_BIG;
+    else offset = sign * (STEP_TO_BIG + (adel - 1) * STEP_SMALL);
+    /* Width: interpolate BIG↔SMALL when |delta|<0.5, else SMALL */
+    let w;
+    if (adel >= 0.5) w = W_SMALL;
+    else w = W_BIG + (W_SMALL - W_BIG) * (adel / 0.5);
+    thumb.style.setProperty('--ox', offset.toFixed(1) + 'px');
+    thumb.style.width = w.toFixed(1) + 'px';
+    const isActive = adel < 0.5;
+    thumb.classList.toggle('active', isActive);
+    /* Opacity differential: full at center, .55 outside */
+    thumb.style.opacity = isActive ? (1 - adel * 0.9) : 0.55;
+  });
+}
+
+/* ===== ENCODING via /imgready-worker.js (the same one production uses) ===== */
+const ENCODE = {
+  worker: null,
+  pendingId: 0,
+  pending: {},                  // id -> {resolve, reject, idx, filename}
+  encoded: new Map(),           // file index -> { blob, url, size, format }  (PRIMARY)
+  inflight: new Map(),          // `${idx}:${fmt}` -> Promise<Blob>
+  queue: [],                    // background queue of indices to encode
+  queueRunning: false,          // single-flight guard for processQueue()
+  gen: 0,                       // bumps every invalidateEncoded — stale results dropped
+  /* Sidecar for multi-output mode. Each idx holds a Map of format → encoded.
+     Single-output mode populates it with one entry; multi-output mode
+     populates it with all selected formats. The PRIMARY (in .encoded) is
+     always the FIRST active format and drives the compare canvas. */
+  allEncoded: new Map(),        // idx -> Map<format, {blob, url, size, format}>
+};
+const MULTI_OUT = { enabled: false };
+function getWorker(){
+  if (!ENCODE.worker) {
+    ENCODE.worker = new Worker('/imgready-worker.js');
+    ENCODE.worker.onmessage = (e) => {
+      const m = e.data;
+      const entry = ENCODE.pending[m.id];
+      if (!entry) return;
+      if (m.type === 'result') {
+        delete ENCODE.pending[m.id];
+        if (entry.timer) clearTimeout(entry.timer);
+        entry.resolve(m.blob);
+        /* Refresh the After-meta batch totals as each background-queue
+           encode completes. Without this, the "↓ X MB · N files total"
+           line stays stuck at the count when the user first dropped (or
+           the HTML placeholder) until they manually select another thumb. */
+        try {
+          const sel = (typeof CFLOW !== 'undefined') ? CFLOW.selected : -1;
+          if (sel >= 0 && typeof FILES !== 'undefined' && FILES[sel] && typeof setMetaCorners === 'function') {
+            const selEnc = ENCODE.encoded.get(sel);
+            if (selEnc) setMetaCorners(FILES[sel].file, selEnc);
+          }
+        } catch(_){}
+      } else if (m.type === 'error') {
+        delete ENCODE.pending[m.id];
+        if (entry.timer) clearTimeout(entry.timer);
+        console.warn('[beta encode error]', m.message);
+        entry.reject(new Error(m.message));
+      } else if (m.type === 'progress') {
+        /* Center overlay is reserved for the SELECTED thumb's encode. If a
+           background-queue encode for a different thumb is sending progress
+           events, we ignore them in the center overlay (the per-thumb
+           spinner on that thumb already conveys "this one is cooking").
+           Otherwise the overlay would flash for every queue item even
+           after the selected image's compare is fully rendered. */
+        if (entry.filename && entry.idx === CFLOW.selected) {
+          showCenterStatus(m.stage === 'decoding' ? 'Decoding…' : 'Encoding…', entry.filename);
+        }
+      }
+    };
+    ENCODE.worker.onerror = (err) => {
+      console.warn('[beta worker error]', err && err.message || err);
+      /* Reject every pending so the UI doesn't hang forever */
+      Object.keys(ENCODE.pending).forEach(id => {
+        const entry = ENCODE.pending[id];
+        if (entry) {
+          if (entry.timer) clearTimeout(entry.timer);
+          entry.reject(new Error('Worker crashed'));
+          delete ENCODE.pending[id];
+        }
+      });
+    };
+  }
+  return ENCODE.worker;
+}
+/* Center-canvas loading overlay (replaces corner status). The user asked for
+   a prominent middle-of-canvas state because the top-right corner was easy
+   to miss and competed with the After meta. */
+const CS = { barTimer: null, barEl: null, pct: 0 };
+function showCenterStatus(stage, filename, opts){
+  const el = document.getElementById('centerStatus');
+  if (!el) return;
+  el.hidden = false;
+  const stageEl = document.getElementById('csStage');
+  const nameEl  = document.getElementById('csName');
+  /* Batch counter: when the user dropped >1 file, the stage line reads
+     "Encoding 5/12" so they can see overall progress at a glance. */
+  const total = (typeof FILES !== 'undefined') ? FILES.length : 0;
+  const done  = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.size : 0;
+  const isBatch = total > 1;
+  if (stageEl) {
+    stageEl.textContent = isBatch
+      ? `${stage} ${Math.min(done + 1, total)}/${total}`
+      : stage;
+  }
+  if (nameEl) nameEl.textContent = filename || '';
+  /* Mark the body so settings/toolbar widgets can show their own spinners */
+  document.body.dataset.encoding = 'on';
+  /* Spinner-first, bar-after-500ms. The bar only shows for encodes that
+     actually take a perceptible amount of time — fast (<500ms) encodes
+     keep the spinner only, so the user doesn't see a bar flash from 0%
+     to gone. 500ms threshold is the standard "feels responsive vs. feels
+     slow" cutoff (Microsoft Fluent guidance). */
+  el.dataset.bar = '';
+  if (CS.barShowTimer) clearTimeout(CS.barShowTimer);
+  CS.barShowTimer = setTimeout(() => {
+    el.dataset.bar = 'on';
+    const total2 = (typeof FILES !== 'undefined') ? FILES.length : 0;
+    const done2  = (typeof ENCODE !== 'undefined' && ENCODE.encoded) ? ENCODE.encoded.size : 0;
+    if (total2 > 1) {
+      stopCsBar();
+      const fill = document.getElementById('csBarFill');
+      if (fill) fill.style.width = ((done2 / total2) * 100) + '%';
+    } else {
+      startCsBar(opts && opts.estMs || 4000);
+    }
+  }, 500);
+}
+function hideCenterStatus(){
+  const el = document.getElementById('centerStatus');
+  if (el) el.hidden = true;
+  document.body.dataset.encoding = '';
+  /* Clear the quality-driven flag too — once the encode result lands,
+     the qr-spinner should disappear regardless of what triggered it. */
+  document.body.dataset.qualityEncoding = '';
+  /* Cancel the deferred bar so a fast encode never flashes its bar. */
+  if (CS.barShowTimer) { clearTimeout(CS.barShowTimer); CS.barShowTimer = null; }
+  if (el) el.dataset.bar = '';
+  stopCsBar();
+}
+function startCsBar(estMs){
+  stopCsBar();
+  const fill = document.getElementById('csBarFill');
+  if (!fill) return;
+  CS.pct = 0; fill.style.width = '0%';
+  /* Linear creep, capped at 95%. Real result lands → setMetaCorners triggers
+     hideCenterStatus → bar resets to 0. */
+  const startedAt = performance.now();
+  CS.barTimer = setInterval(() => {
+    const elapsed = performance.now() - startedAt;
+    const target = Math.min(95, (elapsed / estMs) * 100);
+    CS.pct = target;
+    fill.style.width = target + '%';
+  }, 200);
+}
+function stopCsBar(){
+  if (CS.barTimer) { clearInterval(CS.barTimer); CS.barTimer = null; }
+}
+/* Per-thumb encoding badge: small spinner overlay so users see progress for
+   non-selected files in a batch. Toggled by encodeFile / syncMainImage. */
+function markThumbEncoding(idx, on){
+  const t = CFLOW.thumbs[idx];
+  if (!t) return;
+  t.classList.toggle('encoding', !!on);
+}
+/* Compare UI visibility: show divider + handle + After meta only when the
+   currently selected file has a real encoded result. Driven by the
+   .has-after class on the .image-canvas. */
+function setHasAfter(on){
+  const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
+  if (canvas) canvas.classList.toggle('has-after', !!on);
+}
+
+/* Backwards-compat shim — keeps any older callers from breaking. The corner
+   status path is gone; we now route to the center overlay. */
+function showAfterStatus(text){ showCenterStatus(text, ''); }
+/* Normalize a MIME type string to a short format token used throughout
+   the code (filenames, displays, comparisons). Without this, image/x-icon
+   was rendering as 'x-icon' and showing 'X-ICON' in the After meta. */
+function mimeToFmt(mime){
+  if (!mime) return 'img';
+  const m = mime.toLowerCase();
+  if (m === 'image/x-icon' || m === 'image/vnd.microsoft.icon') return 'ico';
+  if (m === 'image/jpeg') return 'jpg';
+  const part = m.split('/')[1] || 'img';
+  return part;
+}
+function getActiveFormats(){
+  /* In single-output mode, returns just the active pill's fmt (or 'auto').
+     In multi-output mode, returns every active pill's fmt. */
+  const pills = document.querySelectorAll('body[data-state="multi"] .stage.multi #formatPills button.active');
+  if (!pills.length) return ['auto'];
+  return Array.from(pills).map(b => b.dataset.fmt || b.textContent.trim().toLowerCase());
+}
+
+function pickAutoFormat(file){
+  const t = (file.type || '').toLowerCase();
+  const e = (file.name.split('.').pop() || '').toLowerCase();
+  if (t.includes('jpeg') || e === 'jpg' || e === 'jpeg') return 'jpg';
+  if (t.includes('png')  || e === 'png')  return 'png';
+  if (t.includes('webp') || e === 'webp') return 'webp';
+  if (t.includes('avif') || e === 'avif') return 'avif';
+  if (t.includes('gif')  || e === 'gif')  return 'gif';
+  if (e === 'svg' || t.includes('svg'))   return 'png';
+  return 'jpg';
+}
+function getActiveSettings(){
+  const formatBtn = document.querySelector('body[data-state="multi"] .stage.multi .adjust-pills button.active');
+  let fmt = formatBtn ? formatBtn.textContent.trim().toLowerCase() : 'auto';
+  const qSlider = document.querySelector('body[data-state="multi"] .stage.multi .quality-row input[type=range]');
+  const quality = qSlider ? parseInt(qSlider.value)/100 : 0.82;
+  const activeMode = document.querySelector('body[data-state="multi"] .stage.multi .resize-mode-toggle .rmt-btn.active');
+  const sizeInp = document.querySelector('body[data-state="multi"] .stage.multi .resize-input');
+  const sizeVal = sizeInp && sizeInp.value ? parseInt(sizeInp.value) : 0;
+  const isPercent = activeMode && activeMode.dataset.mode === 'pct';
+  const stripExifEl = document.querySelector('body[data-state="multi"] .stage.multi .switch input[type=checkbox]');
+  const stripExif = stripExifEl ? stripExifEl.checked : true;
+  const MIME = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif', ico:'image/x-icon' };
+  /* Crop: read the dropdown's currently-selected ratio. Worker maps
+     'none' → null (no crop), other strings to ratio numbers via its
+     CROP_RATIOS constant. */
+  const cropDropdown = document.querySelector('body[data-state="multi"] .stage.multi .crop-dropdown');
+  const crop = (cropDropdown && cropDropdown.dataset.cropCurrent) || 'none';
+  return {
+    fmt,
+    settings: {
+      mime: MIME[fmt] || 'image/webp',
+      quality,
+      maxDim:    !isPercent ? sizeVal : 0,
+      resizePct:  isPercent ? sizeVal : 0,
+      stripExif,
+      crop,
+    },
+  };
+}
+function encodeFile(idx, overrideFmt){
+  const f = FILES[idx];
+  if (!f) return Promise.reject(new Error('no file'));
+  const { fmt: settingsFmt, settings } = getActiveSettings();
+  const fmt = overrideFmt || settingsFmt;
+  const realFmt = fmt === 'auto' ? pickAutoFormat(f.file) : fmt;
+  /* In-flight key now includes the format so two concurrent encodes of
+     the same idx but different formats (multi-output mode) can run
+     without one cancelling the other. */
+  const inflightKey = `${idx}:${realFmt}`;
+  if (ENCODE.inflight.has(inflightKey)) return ENCODE.inflight.get(inflightKey);
+  settings.mime = { webp:'image/webp', avif:'image/avif', png:'image/png', jpg:'image/jpeg', gif:'image/gif', ico:'image/x-icon' }[realFmt] || settings.mime;
+  const id = ++ENCODE.pendingId;
+  /* Mark this thumb as encoding so it shows a per-thumb spinner overlay.
+     Cleared in syncMainImage's success/failure branches. */
+  markThumbEncoding(idx, true);
+  const p = new Promise((resolve, reject) => {
+    const entry = { resolve, reject, format: realFmt, filename: f.name, idx };
+    /* 60s safety timeout: if the worker stalls (rare, but observed in
+       practice) the UI isn't stuck on "Encoding…" forever. */
+    entry.timer = setTimeout(() => {
+      if (ENCODE.pending[id] === entry) {
+        delete ENCODE.pending[id];
+        reject(new Error('Encoding timed out (>60s) — try a different format or smaller image'));
+      }
+    }, 60000);
+    ENCODE.pending[id] = entry;
+    try { getWorker().postMessage({ id, action: 'process', file: f.file, fmt: realFmt, settings }); }
+    catch(e){
+      clearTimeout(entry.timer);
+      delete ENCODE.pending[id];
+      reject(e);
+    }
+  });
+  ENCODE.inflight.set(inflightKey, p);
+  p.finally(() => { ENCODE.inflight.delete(inflightKey); });
+  return p;
+}
+/* Lightweight toast for non-image rejection feedback. Auto-fades after 3s. */
+let _rejectedToastEl = null;
+function showRejectedToast(count){
+  if (!_rejectedToastEl) {
+    _rejectedToastEl = document.createElement('div');
+    _rejectedToastEl.className = 'reject-toast';
+    document.body.appendChild(_rejectedToastEl);
+  }
+  _rejectedToastEl.textContent = count === 1
+    ? "That file isn't an image."
+    : `None of those ${count} files looked like images.`;
+  _rejectedToastEl.classList.add('show');
+  if (_rejectedToastEl._t) clearTimeout(_rejectedToastEl._t);
+  _rejectedToastEl._t = setTimeout(() => {
+    _rejectedToastEl && _rejectedToastEl.classList.remove('show');
+  }, 3000);
+}
+
+function fmtSize(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
+function setMetaCorners(beforeFile, encoded){
+  /* Pull cached dimensions from the FILES entry if available — populated
+     in syncMainImage via createImageBitmap. May be undefined for very
+     fresh selects; we just omit the dimensions in that case rather than
+     blocking the meta paint. */
+  const idx = CFLOW.selected;
+  const dims = (FILES[idx] && FILES[idx].dims) ? FILES[idx].dims : null;
+  const dimsStr = dims ? `${dims.w} × ${dims.h} · ` : '';
+  const beforeMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.l');
+  if (beforeMeta) {
+    const span = beforeMeta.querySelector('span:not(.lbl-title)');
+    if (span) span.textContent = `${dimsStr}${fmtSize(beforeFile.size)} · ${(beforeFile.type.split('/')[1]||'IMG').toUpperCase()}`;
+  }
+  /* Live size readout in the toolbar — mirrors what After meta says, but
+     keeps the user's eye on the slider while they're tuning quality. */
+  const qrSize = document.getElementById('qrSize');
+  if (qrSize) qrSize.textContent = encoded ? fmtSize(encoded.size) : '';
+  const afterMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.r');
+  if (afterMeta) {
+    const sizeSpan = afterMeta.querySelector('span:not(.lbl-title):not(.pct):not(.batch-row)');
+    const pctSpan  = afterMeta.querySelector('.pct');
+    const batchRow = afterMeta.querySelector('.batch-row');
+    if (encoded) {
+      /* If multi-output, list each format's size. Otherwise just the primary. */
+      const bundle = ENCODE.allEncoded.get(idx);
+      if (MULTI_OUT.enabled && bundle && bundle.size > 1) {
+        const parts = Array.from(bundle.values()).map(e =>
+          `${e.format.toUpperCase()} ${fmtSize(e.size)}`).join(' · ');
+        if (sizeSpan) sizeSpan.textContent = `${dimsStr}${parts}`;
+      } else {
+        const fmtUpper = (encoded.format||'').toUpperCase();
+        if (sizeSpan) {
+          sizeSpan.textContent = `${dimsStr}${fmtSize(encoded.size)} · ${fmtUpper}`;
+        }
+      }
+      const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
+      if (pctSpan) {
+        if (Math.abs(pct) < 1) {
+          /* Within ±1% of original — too noisy to call out savings. Hide
+             the savings line entirely (common for ICO which wraps PNG). */
+          pctSpan.style.display = 'none';
+          pctSpan.classList.remove('bad');
+        } else {
+          pctSpan.textContent = `${pct >= 0 ? pct : Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
+          pctSpan.classList.toggle('bad', pct < 0);
+          pctSpan.style.display = '';
+        }
+      }
+      let totalBefore = 0, totalAfter = 0, count = 0;
+      FILES.forEach((f, i) => {
+        const e = ENCODE.encoded.get(i);
+        if (e) { totalBefore += f.file.size; totalAfter += e.size; count++; }
+      });
+      if (batchRow && count > 1) { batchRow.textContent = `↓ ${fmtSize(totalBefore - totalAfter)} · ${count} files total`; batchRow.style.display = ''; }
+      else if (batchRow) batchRow.style.display = 'none';
+    } else {
+      if (sizeSpan) sizeSpan.textContent = 'Encoding…';
+      if (pctSpan) { pctSpan.style.display = 'none'; pctSpan.classList.remove('bad'); }
+      if (batchRow) batchRow.style.display = 'none';
+    }
+  }
+}
+
+/* Sync big image — shows original + (encoded or encoding-in-progress).
+   Pre-encode rules:
+     - Compare slider (divider, handle, After-meta) is hidden via .has-after
+     - cbAfter has no clip-path so no half-image artifact
+     - Center-canvas spinner shows "Decoding…/Encoding…" + filename
+     - Per-thumb spinner pulses on the active thumb
+   Post-encode:
+     - .has-after flips on, slider + After-meta render
+     - Center spinner fades, thumb spinner clears
+     - Setting Before-meta is fine pre-encode (file size is known immediately) */
+async function syncMainImage(force){
+  const idx = CFLOW.selected;
+  if (!force && idx === CFLOW.prevSelected) return;
+  CFLOW.prevSelected = idx;
+  const thumb = CFLOW.thumbs[idx];
+  if (!thumb || thumb.classList.contains('add-more')) return;
+  const f = FILES[idx];
+  if (!f) return;
+
+  const before = document.getElementById('cbBefore');
+  const after = document.getElementById('cbAfter');
+  const setBg = (el, url) => {
+    el.style.backgroundImage = `url("${url}")`;
+    el.style.backgroundSize = 'contain';
+    el.style.backgroundPosition = 'center';
+    el.style.backgroundRepeat = 'no-repeat';
+    el.style.backgroundColor = '#000';
+    el.textContent = '';
+  };
+  setBg(before, f.url);
+  /* Filename ribbon — top-center reference of which file is currently in
+     the viewer. Updated on every selection swap. */
+  const ribbon = document.getElementById('filenameRibbon');
+  if (ribbon) ribbon.textContent = f.name || '';
+  /* Lazy-decode original dimensions once per file (cached on FILES entry).
+     Used by the encode pipeline / Before meta card; no UI hint anymore
+     since dimensions are already shown in the meta corners. */
+  (async () => {
+    try {
+      if (!f.dims) {
+        const bmp = await createImageBitmap(f.file);
+        f.dims = { w: bmp.width, h: bmp.height };
+        try { bmp.close && bmp.close(); } catch(_){}
+      }
+    } catch(_){ /* non-fatal */ }
+  })();
+  /* Reset zoom on every selection swap so the new image starts at 1x */
+  resetZoom();
+  /* Update the Before meta (always known immediately from the file blob) */
+  setMetaCorners(f.file, null);
+  /* Priority lever: if this idx is in the background queue but not yet
+     started, jump it to the head so the next worker slot is ours. */
+  if (typeof bumpToFront === 'function') bumpToFront(idx);
+  /* Cached encoded result wins — render compare immediately, no spinner.
+     ICO is a special case: most browsers don't reliably render PNG-in-ICO
+     via CSS background-image, leaving the After image black. Fall back to
+     the original (cbBefore) for the preview; the ICO blob is still used
+     for download. */
+  const cached = ENCODE.encoded.get(idx);
+  if (cached) {
+    if (cached.format === 'ico') {
+      setBg(after, f.url);
+    } else {
+      setBg(after, cached.url);
+    }
+    setMetaCorners(f.file, cached);
+    setHasAfter(true);
+    hideCenterStatus();
+    markThumbEncoding(idx, false);
+    return;
+  }
+  /* Pre-encode UI state — hide compare, show center loader, mark thumb */
+  after.style.backgroundImage = 'none';
+  after.style.backgroundColor = '#000';
+  setHasAfter(false);
+  /* Pulse bar opt-in for >5MB files — small files don't need it, the bar
+     visual would appear and disappear in <1s and feel jittery. */
+  const big = f.file.size > 5 * 1024 * 1024;
+  /* Rough time estimate: WebP/JPG/PNG ~ 60 MB/s, AVIF ~ 8 MB/s. Doesn't have
+     to be precise — it just paces the bar visually. */
+  const estMs = Math.max(1500, Math.round(f.file.size / (8 * 1024 * 1024) * 1000));
+  /* If this idx already has an encode in flight (user swiped away then back),
+     show the spinner without resetting the pulse-bar timer — feels less
+     jittery than restarting the bar from 0. */
+  const alreadyInflight = ENCODE.inflight.has(idx);
+  if (alreadyInflight) {
+    showCenterStatus('Encoding…', f.name, { bigFile: false });
+  } else {
+    showCenterStatus('Decoding…', f.name, { bigFile: big, estMs });
+  }
+  markThumbEncoding(idx, true);
+  try {
+    /* Encode the PRIMARY format first so the canvas updates fast. The
+       background queue will fill in remaining formats for multi-output. */
+    const blob = await encodeFile(idx);
+    const url = URL.createObjectURL(blob);
+    const fmtFromMime = mimeToFmt(blob.type);
+    const enc = { blob, url, size: blob.size, format: fmtFromMime };
+    ENCODE.encoded.set(idx, enc);
+    if (!ENCODE.allEncoded.has(idx)) ENCODE.allEncoded.set(idx, new Map());
+    ENCODE.allEncoded.get(idx).set(fmtFromMime, enc);
+    markThumbEncoding(idx, false);
+    if (CFLOW.selected === idx) {
+      if (enc.format === 'ico') {
+        setBg(after, f.url);
+      } else {
+        setBg(after, enc.url);
+      }
+      setMetaCorners(f.file, enc);
+      setHasAfter(true);
+      hideCenterStatus();
+    }
+  } catch (err) {
+    console.warn('[beta encode failed]', err);
+    markThumbEncoding(idx, false);
+    /* Show the failure inline in the centered overlay so user knows it
+       didn't hang — much more visible than the corner toast was. */
+    if (CFLOW.selected === idx) {
+      showCenterStatus('Encode failed', err && err.message || String(err));
+    }
+  }
+}
+
+/* ===== Background encode queue =====
+   Drops on N files? We start encoding ALL of them right away (one at a
+   time — the worker is single-threaded). When the user clicks a thumb
+   that hasn't finished yet, we bumpToFront the selected idx so the next
+   slot the worker grabs is the one the user is staring at. The currently
+   in-flight encode can't be cancelled mid-flight, but it'll finish in
+   under a second for typical photos and the bumped idx is next. */
+function enqueueAll(){
+  for (let i = 0; i < FILES.length; i++) {
+    if (ENCODE.encoded.has(i)) continue;
+    if (ENCODE.inflight.has(i)) continue;
+    if (ENCODE.queue.indexOf(i) !== -1) continue;
+    ENCODE.queue.push(i);
+    /* Mark the thumb so the user can see "in line" vs "actively encoding" */
+    const t = CFLOW.thumbs[i];
+    if (t) t.classList.add('queued');
+  }
+  processQueue();
+}
+async function processQueue(){
+  if (ENCODE.queueRunning) return;
+  ENCODE.queueRunning = true;
+  try {
+    while (ENCODE.queue.length > 0) {
+      /* Skip indices that completed since they were enqueued (e.g. user
+         hit them via syncMainImage and the result already landed). */
+      const idx = ENCODE.queue.shift();
+      if (idx == null) continue;
+      /* About to encode — drop the queued badge; encodeFile will set the
+         .encoding badge itself. */
+      const t = CFLOW.thumbs[idx];
+      if (t) t.classList.remove('queued');
+      if (ENCODE.encoded.has(idx)) continue;
+      const myGen = ENCODE.gen;
+      try {
+        /* Multi-output mode: encode every active format for this idx and
+           store the bundle in ENCODE.allEncoded[idx]. PRIMARY (the first
+           active format) populates ENCODE.encoded as before so the compare
+           canvas keeps working. */
+        const formats = MULTI_OUT.enabled ? getActiveFormats() : [null];
+        let primary = null;
+        const bundle = new Map();
+        for (const f of formats) {
+          if (myGen !== ENCODE.gen) break;
+          let blob;
+          try { blob = await encodeFile(idx, f); }
+          catch(e){ console.warn('[queue encode failed]', idx, f, e && e.message || e); continue; }
+          if (myGen !== ENCODE.gen) break;
+          const url = URL.createObjectURL(blob);
+          const fmt = mimeToFmt(blob.type);
+          const entry = { blob, url, size: blob.size, format: fmt };
+          bundle.set(fmt, entry);
+          if (!primary) primary = entry;
+        }
+        if (myGen !== ENCODE.gen) continue;
+        if (primary) {
+          ENCODE.encoded.set(idx, primary);
+          ENCODE.allEncoded.set(idx, bundle);
+        }
+        markThumbEncoding(idx, false);
+        if (CFLOW.selected === idx && typeof syncMainImage === 'function') {
+          syncMainImage(true);
+        }
+      } catch (e) {
+        markThumbEncoding(idx, false);
+        if (myGen === ENCODE.gen) console.warn('[queue encode failed]', idx, e && e.message || e);
+      }
+    }
+  } finally {
+    ENCODE.queueRunning = false;
+  }
+}
+/* bumpToFront — the priority lever. When user selects an unencoded idx,
+   move it to the head of the queue. Doesn't preempt the currently
+   in-flight encode (worker can't cancel) but ensures it's next in line. */
+function bumpToFront(idx){
+  if (ENCODE.encoded.has(idx)) return;       /* already done */
+  if (ENCODE.inflight.has(idx)) return;      /* already encoding */
+  const pos = ENCODE.queue.indexOf(idx);
+  if (pos >= 0) ENCODE.queue.splice(pos, 1);
+  ENCODE.queue.unshift(idx);
+  processQueue();
+}
+
+/* When settings change: invalidate cache + re-render the focused image
+   + restart the background queue with the new settings.
+
+   The generation counter (ENCODE.gen) is the trick that makes mid-flight
+   encodes safe — the queue worker discards any blob whose gen doesn't
+   match. Without it, an in-flight encode using the OLD quality would
+   land in encoded after we've cleared the cache, leaving us with a
+   single stale result that mismatches every other thumb. */
+function invalidateEncoded(){
+  ENCODE.gen++;
+  ENCODE.encoded.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} });
+  ENCODE.allEncoded.forEach(m => m.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} }));
+  ENCODE.encoded.clear();
+  ENCODE.allEncoded.clear();
+  ENCODE.queue.length = 0;
+  CFLOW.prevSelected = -1;
+  /* Re-render the focused image first (it'll bump itself to the front of
+     the queue inside syncMainImage), then enqueue the rest. */
+  syncMainImage(true);
+  enqueueAll();
+}
+
+/* ===== UX-E: scroll/pinch zoom + drag pan on the main canvas =====
+   Same pattern as stable's fullscreen editor: scroll wheel zooms toward the
+   cursor, drag pans once zoomed, double-click toggles 1x ↔ 2x, two-finger
+   pinch on touch. Zoom resets to 1x whenever the selected file changes
+   (handled inside syncMainImage above).
+   The transform is applied to the .compare-zoom wrapper so cbBefore + cbAfter
+   stay perfectly aligned for the compare slider. */
+const ZOOM = { scale: 1, x: 0, y: 0, dragging: false, lastX: 0, lastY: 0, pinchDist: 0, _lastShownScale: 1 };
+function applyZoom(){
+  const wrap = document.querySelector('body[data-state="multi"] .stage.multi .compare-zoom');
+  const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
+  if (!wrap || !canvas) return;
+  wrap.style.transform = `translate(${ZOOM.x}px, ${ZOOM.y}px) scale(${ZOOM.scale})`;
+  canvas.classList.toggle('zoomed', ZOOM.scale > 1.001);
+  /* Slider stays at its SCREEN x while pan/zoom changes the image under
+     it. refreshSliderFromZoom recomputes the LOCAL pct that keeps the
+     divider visually anchored where the user dragged it. */
+  if (typeof window.refreshSliderFromZoom === 'function') {
+    window.refreshSliderFromZoom();
+  }
+  /* Counter-scale the handle and divider so they stay visually consistent
+     size regardless of parent zoom. They're inside .compare-zoom (so they
+     translate with the image), but we don't want a 6x zoom to render a
+     264px handle or a 12px-thick divider. */
+  const inv = 1 / ZOOM.scale;
+  const handle = wrap.querySelector('.compare-handle');
+  const divider = wrap.querySelector('.compare-divider');
+  if (handle) handle.style.transform = `translate(-50%, -50%) scale(${inv})`;
+  if (divider) divider.style.transform = `translateX(-1px) scaleX(${inv})`;
+  /* Zoom-level chip — show + auto-fade ONLY when scale actually changed.
+     Without the change-check, every syncMainImage → resetZoom → applyZoom
+     would flash the chip on selection swaps even though no zoom happened. */
+  const chip = document.getElementById('zoomChip');
+  if (chip && ZOOM._lastShownScale !== ZOOM.scale) {
+    ZOOM._lastShownScale = ZOOM.scale;
+    chip.textContent = Math.round(ZOOM.scale * 100) + '%';
+    chip.classList.add('show');
+    if (ZOOM._chipTimer) clearTimeout(ZOOM._chipTimer);
+    ZOOM._chipTimer = setTimeout(() => chip.classList.remove('show'), 1200);
+  }
+}
+function resetZoom(){
+  ZOOM.scale = 1; ZOOM.x = 0; ZOOM.y = 0;
+  ZOOM.dragging = false; ZOOM.pinchDist = 0;
+  applyZoom();
+}
+function setZoomToward(nextScale, cursorX, cursorY){
+  const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
+  if (!canvas) return;
+  const r = canvas.getBoundingClientRect();
+  const mx = cursorX - r.left - r.width/2;
+  const my = cursorY - r.top  - r.height/2;
+  const nz = Math.max(1, Math.min(6, nextScale));
+  if (nz === ZOOM.scale) return;
+  /* Pan adjustment so the point under the cursor stays under the cursor */
+  const factor = nz / ZOOM.scale;
+  ZOOM.x = mx - (mx - ZOOM.x) * factor;
+  ZOOM.y = my - (my - ZOOM.y) * factor;
+  ZOOM.scale = nz;
+  if (ZOOM.scale <= 1) { ZOOM.x = 0; ZOOM.y = 0; }
+  applyZoom();
+}
+function wireZoom(){
+  const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
+  if (!canvas || canvas.dataset.zoomWired) return;
+  canvas.dataset.zoomWired = '1';
+  /* wheel zoom */
+  canvas.addEventListener('wheel', e => {
+    /* let the cover-flow keep its existing wheel-to-scroll behavior — only
+       zoom when the wheel is over the canvas area, not the cover-flow strip */
+    if (e.target.closest('.cover-flow') || e.target.closest('.menu-card')) return;
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.18 : 0.18;
+    setZoomToward(ZOOM.scale + delta, e.clientX, e.clientY);
+  }, { passive: false });
+  /* double-click toggles 1x ↔ 2.5x at cursor */
+  canvas.addEventListener('dblclick', e => {
+    if (e.target.closest('.compare-handle')) return;
+    if (ZOOM.scale > 1) resetZoom();
+    else setZoomToward(2.5, e.clientX, e.clientY);
+  });
+  /* drag-to-pan when zoomed in. Skip if the user grabbed the slider
+     handle — that gesture belongs to wireSlider regardless of zoom level. */
+  canvas.addEventListener('pointerdown', e => {
+    if (ZOOM.scale <= 1) return;
+    if (e.target.closest('.compare-handle')) return;
+    if (e.target.closest('.menu-card')) return;
+    if (e.target.closest('.compare-meta')) return;
+    if (e.target.closest('.cover-flow')) return;
+    if (e.target.closest('.brand-bar')) return;
+    if (e.target.closest('.pi-actions')) return;
+    if (e.target.closest('button')) return;
+    ZOOM.dragging = true;
+    ZOOM.lastX = e.clientX; ZOOM.lastY = e.clientY;
+    canvas.classList.add('zoom-dragging');
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', e => {
+    if (!ZOOM.dragging) return;
+    ZOOM.x += e.clientX - ZOOM.lastX;
+    ZOOM.y += e.clientY - ZOOM.lastY;
+    ZOOM.lastX = e.clientX; ZOOM.lastY = e.clientY;
+    applyZoom();
+  });
+  const endDrag = (e) => {
+    ZOOM.dragging = false;
+    canvas.classList.remove('zoom-dragging');
+    try { canvas.releasePointerCapture(e.pointerId); } catch(_){}
+  };
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+  /* touch pinch — track 2-finger distance */
+  canvas.addEventListener('touchmove', e => {
+    if (e.touches.length !== 2) return;
+    e.preventDefault();
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (ZOOM.pinchDist > 0) {
+      const sc = dist / ZOOM.pinchDist;
+      const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      setZoomToward(ZOOM.scale * sc, cx, cy);
+    }
+    ZOOM.pinchDist = dist;
+  }, { passive: false });
+  canvas.addEventListener('touchend', e => {
+    if (e.touches.length < 2) ZOOM.pinchDist = 0;
+  });
+  /* Block right-click on the canvas to prevent users from saving the
+     ORIGINAL image through "Save image as…" instead of using the
+     compressed Download button. Same intent as stable's
+     `oncontextmenu="return false"` on .fs-inner. */
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+  /* Click-anywhere divider snap — handled inside wireSlider's pointerdown
+     instead of a separate click handler. The pointerdown approach lets the
+     user keep dragging from the snap point without releasing the mouse,
+     which a click-only handler can't do. */
+
+  /* Keyboard:
+     +/-/0 zoom (existing)
+     Arrow Left/Right cycle thumbs (mirrors stable's fs arrow nav)
+     ESC closes the per-image actions overlay if open */
+  document.addEventListener('keydown', e => {
+    const tag = e.target && e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (document.body.dataset.state !== 'multi' && document.body.dataset.state !== 'solo') return;
+    if (e.key === '+' || e.key === '=') { e.preventDefault(); setZoomToward(ZOOM.scale + 0.4, window.innerWidth/2, window.innerHeight/2); }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); setZoomToward(ZOOM.scale - 0.4, window.innerWidth/2, window.innerHeight/2); }
+    else if (e.key === '0') { e.preventDefault(); resetZoom(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      /* Cycle thumbs (skip the add-more tile at the end). */
+      const dir = e.key === 'ArrowRight' ? 1 : -1;
+      const thumbCount = (typeof CFLOW !== 'undefined' && CFLOW.thumbs) ? CFLOW.thumbs.length : 0;
+      if (thumbCount <= 1) return;
+      let next = CFLOW.selected + dir;
+      const lastImageIdx = thumbCount - 2; /* -1 is add-more, -2 is last image */
+      if (next < 0) next = lastImageIdx;
+      if (next > lastImageIdx) next = 0;
+      e.preventDefault();
+      if (typeof selectIndex === 'function') selectIndex(next);
+    }
+    else if (e.key === 'Escape') {
+      if (document.body.dataset.piActions === 'open') {
+        document.body.dataset.piActions = 'closed';
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+/* ===== thumb click: select OR open per-image actions ===== */
+function onThumbClick(i, e){
+  if (CFLOW._suppressClick) { CFLOW._suppressClick = false; return; }
+  const thumb = CFLOW.thumbs[i];
+  /* Add-more tile: clicking it opens the file picker (mock) — don't select */
+  if (thumb && thumb.classList.contains('add-more')) {
+    /* the click handler set in buildThumbs already fires alert() */
+    return;
+  }
+  if (i === CFLOW.selected && Math.abs(CFLOW.drift) < 0.05) {
+    openPiActions();
+  } else {
+    selectIndex(i);
+  }
+}
+function selectIndex(i){
+  i = Math.max(0, Math.min(CFLOW.thumbs.length - 1, i));
+  CFLOW.selected = i; CFLOW.drift = 0; CFLOW.vel = 0;
+  document.body.dataset.piActions = 'closed';
+  layoutCoverFlow();
+  syncMainImage();
+}
+
+/* ===== per-image actions: hover + 2nd click + 3s timer ===== */
+let piTimer = null;
+function openPiActions(){
+  document.body.dataset.piActions = 'open';
+  resetPiTimer();
+}
+function resetPiTimer(){
+  if (piTimer) clearTimeout(piTimer);
+  piTimer = setTimeout(() => {
+    /* Don't close while a confirm is in flight — piConfirm will restart
+       this timer when the confirm fades. */
+    if (document.body.dataset.piConfirm === 'on') return;
+    document.body.dataset.piActions = 'closed';
+  }, 3000);
+}
+/* Delegated hover: any pointer movement over an active thumb opens pi-actions
+   and refreshes the timer. Uses pointerover for reliable bubbling. */
+function attachHoverDelegation(){
+  const flow = document.getElementById('coverFlow');
+  flow.addEventListener('pointerover', e => {
+    if (CFLOW.draggingFrom) return;
+    if (e.pointerType === 'touch') return;  /* mobile uses 2nd-tap, not hover */
+    const t = e.target.closest('.cflow-thumb');
+    if (!t) return;
+    if (!t.classList.contains('active')) return;
+    if (t.classList.contains('add-more')) return;  /* no per-image actions for the add tile */
+    if (document.body.dataset.piActions === 'open') resetPiTimer();
+    else openPiActions();
+  });
+}
+/* keep open while mouse is anywhere over the pi-actions cluster */
+document.addEventListener('mousemove', e => {
+  if (document.body.dataset.piActions !== 'open') return;
+  const pi = document.getElementById('piActions');
+  if (pi && pi.contains(e.target)) resetPiTimer();
+});
+/* hovering the active thumb again also keeps timer alive */
+document.addEventListener('mouseover', e => {
+  if (document.body.dataset.piActions !== 'open') return;
+  if (e.target.closest && e.target.closest('.cflow-thumb.active')) resetPiTimer();
+});
+document.addEventListener('click', e => {
+  if (document.body.dataset.piActions !== 'open') return;
+  if (e.target.closest('.pi-icon')) return;
+  if (e.target.closest('.cflow-thumb.active')) return;
+  document.body.dataset.piActions = 'closed';
+});
+
+/* ===== drag / momentum ===== */
+function onPointerDown(e){
+  if (e.target.closest('.pi-icon')) return;
+  CFLOW.draggingFrom = { x: e.clientX, t: performance.now(), startSel: CFLOW.selected };
+  CFLOW.lastX = e.clientX; CFLOW.lastT = performance.now();
+  CFLOW.vel = 0; CFLOW._dragMoved = false;
+  document.getElementById('coverFlow').classList.add('dragging');
+  document.body.dataset.piActions = 'closed';
+  cancelAnimationFrame(CFLOW.rafId);
+  document.addEventListener('pointermove', onPointerMove);
+  document.addEventListener('pointerup', onPointerUp, {once:true});
+  e.preventDefault();
+}
+function onPointerMove(e){
+  if (!CFLOW.draggingFrom) return;
+  const dx = e.clientX - CFLOW.draggingFrom.x;
+  const stride = CFLOW.STRIDE;
+  CFLOW.drift = -dx / stride;
+  if (Math.abs(dx) > 4) CFLOW._dragMoved = true;
+  const now = performance.now();
+  const dt = Math.max(1, now - CFLOW.lastT);
+  CFLOW.vel = -(e.clientX - CFLOW.lastX) / stride / dt * 16;
+  CFLOW.lastX = e.clientX; CFLOW.lastT = now;
+  /* clamp at boundaries — last *image* (not Add-more) is the natural end */
+  const LAST_IMG = CFLOW.thumbs.length - 2;
+  const target = CFLOW.draggingFrom.startSel + CFLOW.drift;
+  if (target < 0) CFLOW.drift = -CFLOW.draggingFrom.startSel;
+  if (target > LAST_IMG) CFLOW.drift = LAST_IMG - CFLOW.draggingFrom.startSel;
+  layoutCoverFlow();
+  /* don't sync main image during drag */
+}
+function onPointerUp(){
+  document.removeEventListener('pointermove', onPointerMove);
+  document.getElementById('coverFlow').classList.remove('dragging');
+  CFLOW.draggingFrom = null;
+  CFLOW._suppressClick = CFLOW._dragMoved;
+  if (Math.abs(CFLOW.vel) > 0.02) {
+    runMomentum();
+  } else {
+    settleSelection();
+  }
+}
+function runMomentum(){
+  const LAST_IMG = CFLOW.thumbs.length - 2;
+  const tick = () => {
+    CFLOW.vel *= 0.93;
+    CFLOW.drift += CFLOW.vel;
+    while (CFLOW.drift > 0.5 && CFLOW.selected < LAST_IMG) {
+      CFLOW.selected++; CFLOW.drift -= 1;
+    }
+    while (CFLOW.drift < -0.5 && CFLOW.selected > 0) {
+      CFLOW.selected--; CFLOW.drift += 1;
+    }
+    /* boundary kill */
+    if ((CFLOW.selected <= 0 && CFLOW.drift < 0) || (CFLOW.selected >= LAST_IMG && CFLOW.drift > 0)) {
+      CFLOW.drift = 0; CFLOW.vel = 0;
+    }
+    layoutCoverFlow();
+    if (Math.abs(CFLOW.vel) < 0.02) {
+      settleSelection();
+      return;
+    }
+    CFLOW.rafId = requestAnimationFrame(tick);
+  };
+  cancelAnimationFrame(CFLOW.rafId);
+  CFLOW.rafId = requestAnimationFrame(tick);
+}
+function settleSelection(){
+  /* Snap target is the last *image* (not Add-more); Add-more is click-only */
+  const LAST_IMG = CFLOW.thumbs.length - 2;
+  CFLOW.selected = Math.round(CFLOW.selected + CFLOW.drift);
+  CFLOW.selected = Math.max(0, Math.min(LAST_IMG, CFLOW.selected));
+  CFLOW.drift = 0; CFLOW.vel = 0;
+  layoutCoverFlow();
+  syncMainImage();
+}
+
+/* Wheel: directly accumulate drift instead of feeding into velocity-decay
+   (which snaps too quickly with the tightened 0.02 threshold for small
+   trackpad deltas). After 160ms of no wheel input, settle/snap. */
+let _wheelDebounce = null;
+function onWheel(e){
+  e.preventDefault();
+  document.body.dataset.piActions = 'closed';
+  cancelAnimationFrame(CFLOW.rafId);
+  CFLOW.vel = 0;
+  const delta = (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX);
+  /* ~70px wheel per index step — feels close to one mouse-wheel notch per image */
+  CFLOW.drift += delta / 70;
+  /* Roll drift into selected when it crosses ±0.5 */
+  /* Cap natural cycling at the last actual image (one before Add-more).
+     Add-more is only reachable by direct click — gesture won't carry into it. */
+  const LAST_IMG = CFLOW.thumbs.length - 2;
+  while (CFLOW.drift > 0.5 && CFLOW.selected < LAST_IMG) {
+    CFLOW.selected++; CFLOW.drift -= 1;
+  }
+  while (CFLOW.drift < -0.5 && CFLOW.selected > 0) {
+    CFLOW.selected--; CFLOW.drift += 1;
+  }
+  if (CFLOW.selected <= 0 && CFLOW.drift < 0) CFLOW.drift = 0;
+  if (CFLOW.selected >= LAST_IMG && CFLOW.drift > 0) CFLOW.drift = 0;
+  layoutCoverFlow();
+  clearTimeout(_wheelDebounce);
+  _wheelDebounce = setTimeout(() => settleSelection(), 160);
+}
+
+/* ===== per-image actions ===== */
+/* Tiny tooltip confirmation that pops above a pi-icon button after a
+   successful action. Mirrors stable's per-card "Copied!" feedback so the
+   user has explicit confirmation the click registered. */
+const PI_CONFIRM_MS = 1800;  /* 1.8s — long enough to register, short enough not to feel lazy */
+function piConfirm(btn, message){
+  if (!btn) return;
+  /* Tooltip (the explicit verb) */
+  let toast = btn.querySelector('.pi-toast');
+  if (!toast) {
+    toast = document.createElement('span');
+    toast.className = 'pi-toast';
+    btn.appendChild(toast);
+  }
+  toast.textContent = message;
+  /* Checkmark overlay — same SVG every time, lazy-injected on first
+     confirmation so we don't bloat the initial DOM. */
+  let check = btn.querySelector('.pi-check');
+  if (!check) {
+    check = document.createElement('span');
+    check.className = 'pi-check';
+    check.setAttribute('aria-hidden', 'true');
+    check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    btn.appendChild(check);
+  }
+  btn.classList.add('confirmed');
+  /* Force pi-actions overlay to stay OPEN while the confirm is showing.
+     Without this, the 3s hover timer can close the overlay mid-confirm
+     (especially if user hovered for a bit before clicking) — they'd see
+     a flash of green and then nothing. */
+  document.body.dataset.piActions = 'open';
+  document.body.dataset.piConfirm = 'on';
+  /* Cancel any in-flight pi-actions auto-close while we're confirming */
+  if (typeof piTimer !== 'undefined' && piTimer) clearTimeout(piTimer);
+  if (btn._confirmTimer) clearTimeout(btn._confirmTimer);
+  btn._confirmTimer = setTimeout(() => {
+    btn.classList.remove('confirmed');
+    document.body.dataset.piConfirm = '';
+    /* After confirm fades, restart the normal hover-close timer so the
+       overlay still goes away if the user has moved on. */
+    if (typeof resetPiTimer === 'function') resetPiTimer();
+  }, PI_CONFIRM_MS);
+}
+
+/* piCopy: copy the encoded blob of the focused image to the clipboard. We
+   prefer the modern Clipboard API with image/* support (Chrome, Edge,
+   recent Safari/Firefox). On unsupported browsers we silently fail back
+   to nothing — this is a nice-to-have, not core. */
+async function piCopy(btn){
+  const idx = CFLOW.selected;
+  const enc = ENCODE.encoded.get(idx);
+  if (!enc || !enc.blob) return;
+  try {
+    if (!navigator.clipboard || !window.ClipboardItem) throw new Error('clipboard api unavailable');
+    /* Browser clipboard image support is image/png only (universally —
+       Chrome rejects image/jpeg, Safari only accepts image/png, Firefox
+       same). Always convert to PNG regardless of source. The Promise<Blob>
+       form preserves the user-gesture context across the async conversion. */
+    const blobPromise = enc.blob.type === 'image/png'
+      ? Promise.resolve(enc.blob)
+      : createImageBitmap(enc.blob).then(bmp => {
+          const c = new OffscreenCanvas(bmp.width, bmp.height);
+          const ctx = c.getContext('2d');
+          /* JPEG-style background fill so transparent PNG sources don't
+             come out with checkerboard background after the copy. */
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, bmp.width, bmp.height);
+          ctx.drawImage(bmp, 0, 0);
+          return c.convertToBlob({ type: 'image/png' });
+        });
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blobPromise })]);
+    piConfirm(btn, 'Copied!');
+  } catch (err) {
+    console.warn('[beta piCopy] failed', err && err.message || err);
+    /* Surface the failure so the user knows to try again — silent failure
+       was the original bug report. */
+    piConfirm(btn, 'Copy failed');
+  }
+}
+async function piShare(){
+  const idx = CFLOW.selected;
+  const f = FILES[idx];
+  if (!f) return;
+  let enc = ENCODE.encoded.get(idx);
+  if (!enc) {
+    try { const blob = await encodeFile(idx);
+      const url = URL.createObjectURL(blob);
+      enc = { blob, url, size: blob.size, format: mimeToFmt(blob.type) };
+      ENCODE.encoded.set(idx, enc);
+    } catch(e){ alert('Encode failed: '+e.message); return; }
+  }
+  const base = f.file.name.replace(/\.[^.]+$/, '');
+  const ext = enc.format || 'jpg';
+  const file = new File([enc.blob], `${base}_imgready.${ext}`, { type: enc.blob.type });
+  const shareBtn = document.querySelector('#piActions .pi-icon[title="Share this"]');
+  /* shareBtn may be null if the pi-actions overlay was removed mid-flow
+     (e.g., user clicked Clear All while share was awaiting). piConfirm
+     already null-checks btn but we'd rather not call it at all. */
+  if (navigator.canShare && navigator.canShare({ files:[file] })) {
+    try {
+      await navigator.share({ files:[file], title: 'imgready' });
+      piConfirm(shareBtn, 'Shared');
+    } catch(err){
+      /* AbortError = user dismissed share sheet (no toast). Other errors =
+         actual failure (toast). Distinguishing prevents the green check
+         from showing when the user explicitly cancelled. */
+      if (err && err.name !== 'AbortError') {
+        console.warn('[beta piShare] failed', err && err.message || err);
+        piConfirm(shareBtn, 'Share failed');
+      }
+    }
+  } else {
+    /* Web Share unsupported (most desktop browsers) — fall back to a plain
+       download. Use the Share button to confirm because that's the button
+       the user clicked. */
+    triggerDownload(enc.url, `${base}_imgready.${ext}`);
+    piConfirm(shareBtn, 'Downloaded');
+  }
+}
+async function piDownload(){
+  const idx = CFLOW.selected;
+  const f = FILES[idx];
+  if (!f) return;
+  const base = f.file.name.replace(/\.[^.]+$/, '');
+  const btn = document.querySelector('#piActions .pi-icon[title="Download this"]');
+  /* Multi-output: bundle every encoded format as a zip via JSZip
+     (already self-hosted at /vendor/jszip.min.js for the existing
+     download-all flow). Each entry uses its own _imgready.{ext} name. */
+  if (MULTI_OUT.enabled) {
+    const bundle = ENCODE.allEncoded.get(idx);
+    if (!bundle || bundle.size === 0) {
+      try { await encodeFile(idx); } catch(_){}
+    }
+    const finalBundle = ENCODE.allEncoded.get(idx);
+    if (finalBundle && finalBundle.size > 0) {
+      const JSZipMod = window.JSZip || (await loadJSZip());
+      if (!JSZipMod) { /* fall through to single download */ }
+      else {
+        const zip = new JSZipMod();
+        finalBundle.forEach(e => {
+          zip.file(`${base}_imgready.${e.format}`, e.blob);
+        });
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(blob);
+        triggerDownload(url, `${base}_imgready.zip`);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        piConfirm(btn, 'Downloaded');
+        return;
+      }
+    }
+  }
+  /* Single-format path */
+  let enc = ENCODE.encoded.get(idx);
+  if (!enc) {
+    try { const blob = await encodeFile(idx);
+      const url = URL.createObjectURL(blob);
+      enc = { blob, url, size: blob.size, format: mimeToFmt(blob.type) };
+      ENCODE.encoded.set(idx, enc);
+    } catch(e){ alert('Encode failed: '+e.message); return; }
+  }
+  const ext = enc.format || 'jpg';
+  triggerDownload(enc.url, `${base}_imgready.${ext}`);
+  piConfirm(btn, 'Downloaded');
+}
+/* Lazy-load JSZip from the self-hosted vendor copy. */
+function loadJSZip(){
+  return new Promise(resolve => {
+    if (window.JSZip) return resolve(window.JSZip);
+    const s = document.createElement('script');
+    s.src = '/vendor/jszip.min.js';
+    s.onload = () => resolve(window.JSZip);
+    s.onerror = () => resolve(null);
+    document.head.appendChild(s);
+  });
+}
+function triggerDownload(url, filename){
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { try { a.remove(); } catch(_){} }, 1000);
+}
+function piDelete(){
+  const idx = CFLOW.selected;
+  const f = FILES[idx];
+  if (!f) return;
+  try { URL.revokeObjectURL(f.url); } catch(_){}
+  /* Drop encoded + multi-output bundles for this idx, then reindex
+     remaining entries below. allEncoded is a parallel sidecar that also
+     needs reindexing (was missed before this fix). */
+  const e = ENCODE.encoded.get(idx);
+  if (e) { try { URL.revokeObjectURL(e.url); } catch(_){} }
+  ENCODE.encoded.delete(idx);
+  const bundle = ENCODE.allEncoded.get(idx);
+  if (bundle) { bundle.forEach(b => { try { URL.revokeObjectURL(b.url); } catch(_){} }); }
+  ENCODE.allEncoded.delete(idx);
+  /* shift down indices > idx */
+  const newMap = new Map();
+  ENCODE.encoded.forEach((v, k) => { if (k > idx) newMap.set(k - 1, v); else newMap.set(k, v); });
+  ENCODE.encoded = newMap;
+  FILES.splice(idx, 1);
+  buildThumbs();
+  if (FILES.length === 0) { setState('empty'); return; }
+  if (CFLOW.selected >= FILES.length) CFLOW.selected = FILES.length - 1;
+  if (CFLOW.selected < 0) CFLOW.selected = 0;
+  /* If we deleted the last file, transition to empty state instead of
+     leaving the workspace stuck with a stale CFLOW.selected. */
+  if (FILES.length === 0) {
+    setState('empty');
+    return;
+  }
+  document.body.dataset.piActions = 'closed';
+  if (FILES.length === 1) document.body.dataset.state = 'solo';
+  else document.body.dataset.state = 'multi';
+  /* wireZoom is idempotent (data-zoomWired guard) so calling on every drop is safe */
+  if (typeof wireZoom === 'function') wireZoom();
+  layoutCoverFlow();
+  CFLOW.prevSelected = -1;
+  syncMainImage();
+}
+
+/* ===== Clear all (with confirm) ===== */
+function askClear(){ document.body.dataset.confirm = 'open'; }
+function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
+
+/* ===== before/after slider drag handler ===== */
+(function wireSlider(){
+  /* Click-and-drag slider. Mousemove-follows was discarded because at
+     zoom>1 every cursor move during pan would also drag the divider —
+     two gestures fighting for the same pointer. The drag pattern keeps
+     the divider where the user puts it and frees pointer movement for
+     panning when zoomed.
+
+     Behaviour:
+       pointerdown on canvas (zoom=1, has-after, not on a deadzone)
+         → snap divider to click X, latch dragging
+       pointermove (only when latched)
+         → divider follows cursor X
+       pointerup / pointercancel
+         → unlatch
+     When zoom>1, this handler bails immediately so the existing zoom-pan
+     handler (in wireZoom) takes over the pointer. */
+  function setSplit(canvas, pct){
+    pct = Math.max(0, Math.min(100, pct));
+    const after = canvas.querySelector('.compare-after');
+    const divider = canvas.querySelector('.compare-divider');
+    const handle = canvas.querySelector('.compare-handle');
+    if (after) after.style.clipPath = `inset(0 0 0 ${pct}%)`;
+    if (divider) divider.style.left = pct + '%';
+    if (handle) handle.style.left = pct + '%';
+  }
+  /* The slider's canonical position is its on-SCREEN x percent. Pan/zoom
+     changes recompute the LOCAL pct (what setSplit needs) so the divider
+     stays anchored to the same SCREEN x while the user pans. Lets the
+     user pan the image to find an area of interest and use the slider as
+     a fixed gauge — pan and slider are independent gestures. */
+  window.SLIDER = window.SLIDER || { screenPct: 50 };
+  window.refreshSliderFromZoom = function(){
+    const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
+    if (!canvas || !canvas.classList.contains('has-after')) return;
+    const r = canvas.getBoundingClientRect();
+    if (!r.width) return;
+    const z = (typeof ZOOM !== 'undefined' && ZOOM.scale) || 1;
+    const panPct = (typeof ZOOM !== 'undefined' && ZOOM.x)
+      ? (ZOOM.x / r.width) * 100 : 0;
+    /* Inverse of: screenPct = 50 + (localPct - 50) * z + panPct */
+    const localPct = (window.SLIDER.screenPct - 50 - panPct) / z + 50;
+    setSplit(canvas, localPct);
+  };
+  let dragging = null;
+  function inDeadzone(t){
+    if (!t || !t.closest) return false;
+    return !!(t.closest('.compare-meta') ||
+              t.closest('.menu-card') ||
+              t.closest('.cover-flow') ||
+              t.closest('.brand-bar') ||
+              t.closest('.center-status') ||
+              t.closest('.zoom-chip') ||
+              t.closest('.pi-actions') ||
+              t.closest('button'));
+  }
+  document.addEventListener('pointerdown', e => {
+    /* Find the candidate canvas. */
+    const handle = e.target.closest && e.target.closest('.compare-handle');
+    const ic = e.target.closest && e.target.closest('.image-canvas');
+    const canvas = handle ? handle.closest('.image-canvas') : ic;
+    if (!canvas) return;
+    const stage = canvas.closest('.stage');
+    if (!stage || getComputedStyle(stage).display === 'none') return;
+    if (!canvas.classList.contains('has-after')) return;
+    /* HANDLE-grab works at any zoom level. The handle is the dedicated
+       slider thumb — grabbing it always means "drag the slider", never
+       "start zoom pan". Body-grab only works at zoom=1; at zoom>1 the
+       surrounding canvas belongs to zoom-pan. */
+    if (canvas.classList.contains('zoomed') && !handle) return;
+    /* Deadzones — only matter for body-grab; the handle is its own thing. */
+    if (!handle && inDeadzone(e.target)) return;
+    dragging = canvas;
+    canvas.classList.add('slider-dragging');
+    e.preventDefault();
+    moveFrom(e);
+    try { canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId); } catch(_){}
+  });
+  function moveFrom(e){
+    if (!dragging) return;
+    const rect = dragging.getBoundingClientRect();
+    const cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    /* Screen-space pct is the canonical slider position. Stored on
+       window.SLIDER so applyZoom() can recompute local pct without
+       touching the slider's screen anchor. */
+    let screenPctNew = (cx - rect.left) / rect.width * 100;
+    if (screenPctNew < 0) screenPctNew = 0;
+    if (screenPctNew > 100) screenPctNew = 100;
+    window.SLIDER.screenPct = screenPctNew;
+    window.refreshSliderFromZoom();
+    return;
+    /* (Legacy direct-set path below, kept commented for reference) */
+    const screenPct = (cx - rect.left) / rect.width * 100;
+    /* The compare-zoom wrapper has transform: translate(panX,panY) scale(z)
+       with transform-origin:center. So a LOCAL point at percent p maps to
+       SCREEN percent: 50 + (p - 50) * z + (panX / canvasW * 100).
+       Inverting that gives the local pct from the pointer's screen pct.
+       The clip-path / divider / handle all live inside compare-zoom and
+       use LOCAL pct, so we must feed setSplit the local value — not the
+       raw screen pct that my old code used. */
+    const z = (typeof ZOOM !== 'undefined' && ZOOM.scale) || 1;
+    const panPct = (typeof ZOOM !== 'undefined' && ZOOM.x)
+      ? (ZOOM.x / rect.width) * 100
+      : 0;
+    let localPct = (screenPct - 50 - panPct) / z + 50;
+    if (localPct < 0) localPct = 0;
+    if (localPct > 100) localPct = 100;
+    setSplit(dragging, localPct);
+  }
+  document.addEventListener('pointermove', e => { if (dragging) moveFrom(e); });
+  function endDrag(){
+    if (dragging) dragging.classList.remove('slider-dragging');
+    dragging = null;
+  }
+  document.addEventListener('pointerup', endDrag);
+  document.addEventListener('pointercancel', endDrag);
+})();
+
+/* Keyboard shortcut popover toggle. Esc closes it. '/' focuses dropzone.
+   'D' triggers download-all when in multi state. */
+function toggleKbdHelp(){
+  const pop = document.getElementById('kbdPopover');
+  if (!pop) return;
+  pop.classList.toggle('show');
+}
+window.toggleKbdHelp = toggleKbdHelp;
+document.addEventListener('keydown', e => {
+  /* Skip when the user is typing in an input/textarea or content-editable. */
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  if (e.key === 'Escape') {
+    const pop = document.getElementById('kbdPopover');
+    if (pop && pop.classList.contains('show')) { pop.classList.remove('show'); e.preventDefault(); return; }
+    /* Also close confirm modal if open */
+    if (document.body.dataset.confirm === 'open' && typeof cancelConfirm === 'function') {
+      cancelConfirm(); e.preventDefault(); return;
+    }
+    /* Also close big-batch modal */
+    if (document.body.dataset.bigbatch === 'open' && typeof cancelBigBatch === 'function') {
+      cancelBigBatch(); e.preventDefault(); return;
+    }
+  }
+  if (e.key === '/') {
+    const dz = document.getElementById('dropzone');
+    if (dz) { dz.focus(); e.preventDefault(); }
+  }
+  if ((e.key === 'd' || e.key === 'D') && document.body.dataset.state === 'multi') {
+    if (typeof downloadAll === 'function') { downloadAll(); e.preventDefault(); }
+  }
+});
+/* Footer link stubs: stable's app.js provides toggleTheme + openCmpSettings.
+   Beta doesn't load app.js, so wire minimal versions so the footer links
+   don't error out on click. Theme-toggle flips a class on body that the
+   landing CSS can use to swap to dark; CMP settings shows a brief notice. */
+window.toggleTheme = window.toggleTheme || function(){
+  document.body.classList.toggle('dark-mode');
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = document.body.classList.contains('dark-mode') ? 'Day mode' : 'Night mode';
+};
+window.openCmpSettings = window.openCmpSettings || function(){};
+
+/* Panda demo init: fetch demo-original.png, encode via canvas.toBlob
+   to webp@60, render before/after compare slider with drag handler.
+   Lives in the empty state only. Lightweight (no worker, no JSZip). */
+(function initPandaDemo(){
+  /* Wait for DOM ready so the demo elements exist. */
+  function start(){
+    const slider = document.getElementById('demoSlider');
+    const stats  = document.getElementById('demoStats');
+    const loading= document.getElementById('demoLoading');
+    const before = document.getElementById('demoBefore');
+    const after  = document.getElementById('demoAfter');
+    const clip   = document.getElementById('demoClip');
+    const divider= document.getElementById('demoDivider');
+    const handle = slider && slider.querySelector('.demo-handle');
+    if (!slider || !before || !after) return;
+    /* Hide ornament until ready. */
+    [divider, handle].forEach(el => { if (el) el.style.display = 'none'; });
+    slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = 'none');
+    function fmtSizeDemo(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
+    function setSplit(pct){
+      pct = Math.max(0, Math.min(100, pct));
+      if (clip) clip.style.clipPath = `inset(0 0 0 ${pct}%)`;
+      if (divider) divider.style.left = pct + '%';
+      if (handle) handle.style.left = pct + '%';
+    }
+    /* Use /demo.webp (the panda) as the source. We decode it via Image(),
+       draw to a canvas, then encode the canvas to PNG (the "Original" stat
+       — what the same panda would weigh as a flat PNG) and to WebP@60
+       (the "imgready" stat). Same panda visible on both sides; the savings
+       number is "how much smaller WebP is than PNG of the same panda". */
+    const srcImg = new Image();
+    srcImg.crossOrigin = 'anonymous';
+    srcImg.onload = () => {
+      const cv = document.createElement('canvas');
+      cv.width = srcImg.naturalWidth; cv.height = srcImg.naturalHeight;
+      cv.getContext('2d').drawImage(srcImg, 0, 0);
+      /* Encode as PNG (the "before" / "original" stat). PNG is lossless
+         so this is the apples-to-apples size comparison. */
+      cv.toBlob(pngBlob => {
+        if (!pngBlob) {
+          if (loading) loading.innerHTML = 'Demo unavailable';
+          return;
+        }
+        const pngSize = pngBlob.size;
+        const beforeUrl = URL.createObjectURL(pngBlob);
+        before.src = beforeUrl;
+        /* Encode again as WebP @ quality 60 (the "after" / "imgready" stat). */
+        cv.toBlob(afterBlob => {
+          if (!afterBlob) {
+            if (loading) loading.innerHTML = 'Demo unavailable';
+            return;
+          }
+          const afterUrl = URL.createObjectURL(afterBlob);
+          after.src = afterUrl;
+          const origSize = pngSize;
+          const pct = Math.round((1 - afterBlob.size / origSize) * 100);
+          if (stats) {
+            stats.innerHTML =
+              `<span class="demo-stat"><span class="label">Original PNG:</span><span class="value">${fmtSizeDemo(origSize)}</span></span>` +
+              `<span class="demo-stat"><span class="label">imgready WebP:</span><span class="value">${fmtSizeDemo(afterBlob.size)}</span></span>` +
+              `<span class="demo-stat"><span class="saving">${pct}% smaller</span></span>`;
+          }
+          if (loading) loading.style.display = 'none';
+          [divider, handle].forEach(el => { if (el) el.style.display = ''; });
+          slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = '');
+          setSplit(50);
+          /* Drag handler. Pointer-based for mouse + touch. */
+          let dragging = false;
+          const updatePos = e => {
+            const r = slider.getBoundingClientRect();
+            const x = (e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)) - r.left;
+            setSplit(x / r.width * 100);
+          };
+          slider.addEventListener('pointerdown', e => {
+            dragging = true; updatePos(e); e.preventDefault();
+            try { slider.setPointerCapture && slider.setPointerCapture(e.pointerId); } catch(_){}
+          });
+          slider.addEventListener('pointermove', e => { if (dragging) updatePos(e); });
+          slider.addEventListener('pointerup', () => dragging = false);
+          slider.addEventListener('pointercancel', () => dragging = false);
+        }, 'image/webp', 0.60);
+      }, 'image/png');
+    };
+    srcImg.onerror = () => { if (loading) loading.innerHTML = 'Demo unavailable'; };
+    srcImg.src = '/demo.webp';
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+})();
+
+/* Mobile info-card tap-to-expand. compare-meta's pointer-events are
+   `none` on desktop so they don't intercept slider drags. On mobile we
+   override to `auto` (in CSS) and toggle .expanded on tap. The handler
+   no-ops above 767px so desktop is unaffected. */
+(function wireMobileMetaToggle(){
+  document.addEventListener('click', e => {
+    if (window.innerWidth > 767) return;
+    const card = e.target.closest && e.target.closest('.compare-meta');
+    if (!card) return;
+    const stage = card.closest('.stage');
+    if (!stage || getComputedStyle(stage).display === 'none') return;
+    card.classList.toggle('expanded');
+    e.stopPropagation();
+  }, true);
+})();
+async function ensureAllEncoded(){
+  /* Ensure every file has an encoded blob; encode in parallel-with-cap */
+  const missing = [];
+  for (let i = 0; i < FILES.length; i++) if (!ENCODE.encoded.has(i)) missing.push(i);
+  if (!missing.length) return;
+  /* Sequential to keep memory low; could be parallelised later */
+  for (const i of missing) {
+    try {
+      const blob = await encodeFile(i);
+      const url = URL.createObjectURL(blob);
+      ENCODE.encoded.set(i, { blob, url, size: blob.size, format: ((blob.type||'').split('/')[1]||'img').replace('jpeg','jpg') });
+    } catch(e){ console.warn('encode failed for', i, e); }
+  }
+}
+async function downloadAll(){
+  await ensureAllEncoded();
+  /* Multi-output: bundle every (file × format) combination into a single
+     zip via JSZip. Without this, users with multi-output enabled would
+     only get the PRIMARY format per file — the other formats they
+     selected would be invisible at the global download. */
+  if (MULTI_OUT.enabled) {
+    const JSZipMod = window.JSZip || (await loadJSZip());
+    if (JSZipMod) {
+      const zip = new JSZipMod();
+      let added = 0;
+      for (let i = 0; i < FILES.length; i++) {
+        const f = FILES[i];
+        const bundle = ENCODE.allEncoded.get(i);
+        if (!f || !bundle || !bundle.size) continue;
+        const base = f.file.name.replace(/\.[^.]+$/, '');
+        bundle.forEach(e => {
+          if (e && e.blob) { zip.file(`${base}_imgready.${e.format}`, e.blob); added++; }
+        });
+      }
+      if (added > 0) {
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(blob);
+        const stamp = new Date().toISOString().slice(0,10);
+        triggerDownload(url, `imgready-${stamp}.zip`);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return;
+      }
+    }
+    /* JSZip unavailable — fall through to per-file individual downloads. */
+  }
+  /* Single-format path (or multi-out fallback) */
+  for (let i = 0; i < FILES.length; i++) {
+    const f = FILES[i]; const enc = ENCODE.encoded.get(i);
+    if (!f || !enc) continue;
+    const base = f.file.name.replace(/\.[^.]+$/, '');
+    triggerDownload(enc.url, `${base}_imgready.${enc.format}`);
+    /* Stagger so browsers don't throttle simultaneous downloads */
+    await new Promise(r => setTimeout(r, 80));
+  }
+}
+async function shareAll(){
+  await ensureAllEncoded();
+  const files = [];
+  for (let i = 0; i < FILES.length; i++) {
+    const f = FILES[i]; const enc = ENCODE.encoded.get(i);
+    if (!f || !enc) continue;
+    const base = f.file.name.replace(/\.[^.]+$/, '');
+    files.push(new File([enc.blob], `${base}_imgready.${enc.format}`, { type: enc.blob.type }));
+  }
+  if (navigator.canShare && navigator.canShare({ files })) {
+    try { await navigator.share({ files, title: 'imgready' }); } catch(_){}
+  } else {
+    /* Fallback: trigger downloads (Web Share unavailable) */
+    for (const f of files) triggerDownload(URL.createObjectURL(f), f.name);
+  }
+}
+
+/* Wire settings changes so the focused image re-encodes when user adjusts */
+function attachSettingsListeners(){
+  const root = document.querySelector('.stage.multi .menu-card');
+  if (!root) return;
+  /* Pill click handlers — single vs multi behavior depends on context:
+     - .crop-pills: always single-select
+     - #formatPills + multi-output OFF: single-select (same as before)
+     - #formatPills + multi-output ON: toggle (multi-active) */
+  root.querySelectorAll('.adjust-pills button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const parent = btn.parentElement;
+      const isFormatPills = parent.id === 'formatPills';
+      if (isFormatPills && MULTI_OUT.enabled) {
+        /* Multi-output: toggle THIS button only, but make sure at least
+           one stays active (a no-formats state would mean "encode nothing"). */
+        const wasActive = btn.classList.contains('active');
+        if (wasActive) {
+          const remaining = parent.querySelectorAll('button.active').length;
+          if (remaining > 1) btn.classList.remove('active');
+        } else {
+          /* Auto pill is hidden in multi-mode but if user clicks it via
+             keyboard, treat as "deselect all + activate Auto" (= single
+             mode). Simpler: just no-op the auto pill in multi-mode. */
+          if (btn.dataset.fmt === 'auto') return;
+          btn.classList.add('active');
+        }
+      } else {
+        /* Single-select (default for crop and for format-without-multi) */
+        parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      invalidateEncoded();
+    });
+  });
+  /* Multi-output toggle */
+  const multiToggle = root.querySelector('#multiOutToggle');
+  if (multiToggle) {
+    multiToggle.addEventListener('change', () => {
+      MULTI_OUT.enabled = multiToggle.checked;
+      document.body.dataset.multiout = multiToggle.checked ? 'on' : 'off';
+      /* When turning ON: if "auto" was active, switch to webp (because Auto
+         doesn't make sense when picking multiple). When turning OFF, keep
+         only the FIRST active pill. */
+      const fp = root.querySelector('#formatPills');
+      if (fp) {
+        if (multiToggle.checked) {
+          const auto = fp.querySelector('button[data-fmt="auto"].active');
+          if (auto) {
+            auto.classList.remove('active');
+            const fallback = fp.querySelector('button[data-fmt="webp"]');
+            if (fallback) fallback.classList.add('active');
+          }
+        } else {
+          /* Single mode: keep only first active */
+          const actives = fp.querySelectorAll('button.active');
+          actives.forEach((b, i) => { if (i > 0) b.classList.remove('active'); });
+        }
+      }
+      invalidateEncoded();
+    });
+  }
+  /* Quality slider — re-encode on release (input is too chatty) */
+  const qSlider = root.querySelector('.quality-row input[type=range]');
+  if (qSlider) {
+    /* Sync the --p custom property with the slider's current value so
+       the hand-styled track gradient knows where to stop. Initialize
+       once on attach, then update on every input event. */
+    qSlider.style.setProperty('--p', qSlider.value);
+    qSlider.addEventListener('input', () => {
+      const v = parseInt(qSlider.value);
+      qSlider.style.setProperty('--p', v);
+      const lbl = root.querySelector('.quality-row + .adjust-hint, .adjust-section .adjust-label');
+      const valSpan = root.querySelector('.q-val'); if (valSpan) valSpan.textContent = String(v);
+      const labelEl = root.querySelector('.adjust-section .adjust-label');
+      /* Update label from "Quality · 82" → "Quality · NN" */
+      root.querySelectorAll('.adjust-label').forEach(el => {
+        if (el.textContent.startsWith('Quality')) el.textContent = `Quality · ${v}`;
+      });
+    });
+    qSlider.addEventListener('change', () => {
+      /* Mark this re-encode as quality-driven so the qr-spinner shows
+         next to the slider (and only here, not on format/resize). */
+      document.body.dataset.qualityEncoding = 'on';
+      invalidateEncoded();
+    });
+  }
+  /* Mutex helper for the resize/crop preset dropdowns. Called from each
+     trigger's click handler before opening, so only one popover is ever
+     visible at a time. Handles portalled menus by class-matching:
+       - keep is the dropdown we're about to open
+       - any OTHER .resize-presets.open gets .open removed
+       - any portalled menu whose flavor (crop vs resize) doesn't match
+         keep also gets .open removed. */
+  function closeOtherPresetDropdowns(keep){
+    document.querySelectorAll('.resize-presets.open').forEach(p => {
+      if (p !== keep) p.classList.remove('open');
+    });
+    document.querySelectorAll('.resize-presets-menu.open').forEach(m => {
+      if (!keep) { m.classList.remove('open'); return; }
+      const keepIsCrop = keep.classList.contains('crop-dropdown');
+      const menuIsCrop = m.classList.contains('crop-menu');
+      if (keepIsCrop !== menuIsCrop) m.classList.remove('open');
+    });
+  }
+  /* Resize dropdown — single control with presets + inline custom input.
+     Pattern: trigger button shows current value (or "None"), menu opens
+     upward with preset rows + a custom-input row at the bottom.
+     Selecting None / 1080 / 1920 / 4096 sets data-resize-current and
+     re-encodes immediately. Custom row commits on Enter or Set click.
+     Replaces the old "input + presets dropdown" two-control pattern. */
+  const resizeDropdown = root.querySelector('.resize-dropdown');
+  if (resizeDropdown) {
+    const trig = resizeDropdown.querySelector('.resize-presets-trigger');
+    const menu = resizeDropdown.querySelector('.resize-menu');
+    const labelEl = resizeDropdown.querySelector('.resize-current-label');
+    const customInp = resizeDropdown.querySelector('.resize-custom-input');
+    const customSetBtn = resizeDropdown.querySelector('.resize-custom-set');
+
+    function commitResize(value, label){
+      resizeDropdown.dataset.resizeCurrent = String(value || 0);
+      if (labelEl) labelEl.textContent = label;
+      menu.querySelectorAll('button[data-resize]').forEach(b => {
+        b.classList.toggle('active', String(b.dataset.resize) === String(value));
+      });
+      resizeDropdown.classList.remove('open');
+      menu.classList.remove('open');
+      invalidateEncoded();
+    }
+
+    function portalResizeMenu(){
+      if (menu.parentNode !== document.body) document.body.appendChild(menu);
+    }
+
+    trig.addEventListener('click', e => {
+      e.stopPropagation();
+      const willOpen = !resizeDropdown.classList.contains('open');
+      /* Mutex: only one preset dropdown open at a time. Close any open
+         crop dropdown (and its portalled menu) before opening resize. */
+      if (willOpen) closeOtherPresetDropdowns(resizeDropdown);
+      resizeDropdown.classList.toggle('open');
+      menu.classList.toggle('open', willOpen);
+      if (willOpen) {
+        portalResizeMenu();
+        const r = trig.getBoundingClientRect();
+        /* Left-align menu's left edge with the trigger's left edge,
+           then right-clamp so a near-right-edge trigger doesn't push
+           the menu off-screen. 8px viewport gutter on either side. */
+        const menuW = menu.offsetWidth || 100;
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
+        menu.style.left = left + 'px';
+        menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+        menu.style.top = 'auto';
+      }
+    });
+
+    /* Preset row clicks */
+    menu.querySelectorAll('button[data-resize]').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        const v = parseInt(b.dataset.resize, 10) || 0;
+        commitResize(v, b.textContent);
+      });
+    });
+
+    /* Custom-input row — clicks inside don't close the menu; commit on
+       Enter or Set click. */
+    if (customInp) {
+      [customInp, customSetBtn].forEach(el => {
+        if (el) el.addEventListener('click', e => e.stopPropagation());
+      });
+      customInp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const v = parseInt(customInp.value, 10);
+          if (v > 0) commitResize(v, v + ' px');
+        }
+      });
+      if (customSetBtn) {
+        customSetBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          const v = parseInt(customInp.value, 10);
+          if (v > 0) commitResize(v, v + ' px');
+        });
+      }
+    }
+  }
+  /* Crop dropdown — same open/close pattern as resize-presets. Portals
+     the menu to document.body on open because .menu-card has
+     backdrop-filter:blur, which creates a containing block + stacking
+     context for position:fixed descendants. Without portalling, the menu
+     gets anchored to .menu-card (not the viewport) and stacks below
+     siblings like .cover-flow (z:6), making it invisible. */
+  const cropDropdown = root.querySelector('.crop-dropdown');
+  if (cropDropdown) {
+    const trig = cropDropdown.querySelector('.resize-presets-trigger');
+    const menu = cropDropdown.querySelector('.crop-menu');
+    const labelEl = cropDropdown.querySelector('.crop-current-label');
+    function portalCropMenu(){
+      if (menu.parentNode !== document.body) document.body.appendChild(menu);
+    }
+    trig.addEventListener('click', e => {
+      e.stopPropagation();
+      const willOpen = !cropDropdown.classList.contains('open');
+      /* Mutex: only one preset dropdown open at a time. Close any open
+         resize dropdown (and its portalled menu) before opening crop. */
+      if (willOpen) closeOtherPresetDropdowns(cropDropdown);
+      cropDropdown.classList.toggle('open');
+      menu.classList.toggle('open', willOpen);
+      if (willOpen) {
+        portalCropMenu();
+        const r = trig.getBoundingClientRect();
+        /* Left-align menu's left edge with the trigger's left edge,
+           then right-clamp so a near-right-edge trigger doesn't push
+           the menu off-screen. 8px viewport gutter on either side. */
+        const menuW = menu.offsetWidth || 100;
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
+        menu.style.left = left + 'px';
+        menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+        menu.style.top = 'auto';
+      }
+    });
+    menu.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        const val = b.dataset.crop;
+        cropDropdown.dataset.cropCurrent = val;
+        if (labelEl) labelEl.textContent = b.textContent;
+        menu.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+        cropDropdown.classList.remove('open');
+        menu.classList.remove('open');
+        invalidateEncoded();
+      });
+    });
+  }
+  /* Close presets/crop dropdowns when clicking outside. Bound once globally. */
+  if (!window._presetsOutsideClick) {
+    window._presetsOutsideClick = true;
+    document.addEventListener('click', e => {
+      document.querySelectorAll('.resize-presets.open').forEach(p => {
+        if (!p.contains(e.target)) {
+          p.classList.remove('open');
+          const m = document.querySelector('.resize-presets-menu.open');
+          if (m && !m.contains(e.target)) m.classList.remove('open');
+        }
+      });
+    });
+  }
+  /* (Old mode-toggle + initial sync removed — single dropdown handles state) */
+  /* Privacy switch (was checkbox) */
+  const stripCb = root.querySelector('.switch input[type=checkbox]');
+  if (stripCb) stripCb.addEventListener('change', invalidateEncoded);
+}
+window.addEventListener('DOMContentLoaded', attachSettingsListeners);
+
+/* ============================================================
+   PROD: Big-batch confirm modal — wraps addFilesFromList for >200 file drops
+   ============================================================ */
+let _pendingBigBatch = null;
+function maybeBigBatchConfirm(files){
+  if (!files || files.length <= 200) return Promise.resolve(files);
+  return new Promise(resolve => {
+    _pendingBigBatch = { files, resolve };
+    document.getElementById('bigBatchCount').textContent = files.length;
+    document.body.dataset.bigbatch = 'open';
+  });
+}
+window.acceptBigBatch = function(){
+  document.body.dataset.bigbatch = 'closed';
+  if (_pendingBigBatch) { _pendingBigBatch.resolve(_pendingBigBatch.files); _pendingBigBatch = null; }
+};
+window.cancelBigBatch = function(){
+  document.body.dataset.bigbatch = 'closed';
+  if (_pendingBigBatch) { _pendingBigBatch.resolve([]); _pendingBigBatch = null; }
+};
+
+/* ============================================================
+   PROD: Ctrl+V paste from clipboard
+   ============================================================ */
+document.addEventListener('paste', async e => {
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  const files = [];
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].kind !== 'file') continue;
+    const f = items[i].getAsFile();
+    if (f && f.type.startsWith('image/')) files.push(f);
+  }
+  if (files.length && typeof addFilesFromList === 'function') {
+    e.preventDefault();
+    const accepted = await maybeBigBatchConfirm(files);
+    if (accepted.length) addFilesFromList(accepted);
+  }
+});
+
+/* ============================================================
+   PROD: Full-window drop overlay — drop ANYWHERE on the page
+   ============================================================ */
+let _wdo = null, _wddepth = 0;
+function _ensureWDO(){
+  if (_wdo) return _wdo;
+  _wdo = document.createElement('div');
+  _wdo.className = 'window-drop-overlay';
+  _wdo.setAttribute('aria-hidden', 'true');
+  _wdo.innerHTML = '<div class="wd-card">' +
+    '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+    '<div class="wd-title">Drop anywhere</div>' +
+    '<div class="wd-sub">Stays on your device — never uploaded</div>' +
+  '</div>';
+  document.body.appendChild(_wdo);
+  return _wdo;
+}
+function _hideWDO(){
+  _wddepth = 0;
+  if (_wdo) _wdo.classList.remove('show');
+  document.body.classList.remove('window-dragging');
+}
+document.addEventListener('dragenter', e => {
+  const types = e.dataTransfer && e.dataTransfer.types;
+  if (!types) return;
+  const hasFiles = (typeof types.indexOf === 'function')
+    ? types.indexOf('Files') !== -1
+    : types.contains && types.contains('Files');
+  if (!hasFiles) return;
+  _wddepth++;
+  if (_wddepth === 1) {
+    document.body.classList.add('window-dragging');
+    _ensureWDO().classList.add('show');
+  }
+});
+document.addEventListener('dragover', e => { e.preventDefault(); });
+document.addEventListener('dragleave', () => {
+  if (_wddepth > 0) {
+    _wddepth--;
+    if (_wddepth === 0) _hideWDO();
+  }
+});
+document.addEventListener('drop', async e => {
+  e.preventDefault();
+  _hideWDO();
+  const dt = e.dataTransfer;
+  const list = dt && dt.files;
+  if (!list || !list.length) return;
+  const accepted = await maybeBigBatchConfirm(Array.from(list));
+  if (accepted.length && typeof addFilesFromList === 'function') {
+    addFilesFromList(accepted);
+  }
+});
+
+/* ============================================================
+   PROD: Web Share Target pickup — when a mobile user shares files INTO
+   imgready, the SW intercepts and queues them, redirecting with
+   ?share-pending=1. We dequeue via MessageChannel.
+   ============================================================ */
+(function pickupSharedFiles(){
+  try {
+    const params = new URLSearchParams(location.search);
+    if (!params.get('share-pending')) return;
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.ready.then(reg => {
+      const sw = reg.active || navigator.serviceWorker.controller;
+      if (!sw) return;
+      const ch = new MessageChannel();
+      ch.port1.onmessage = ev => {
+        const files = (ev.data && ev.data.files) || [];
+        if (files.length && typeof addFilesFromList === 'function') {
+          addFilesFromList(files);
+        }
+        try {
+          const u = new URL(location.href);
+          u.searchParams.delete('share-pending');
+          history.replaceState(null, '', u.pathname + (u.search || '') + (u.hash || ''));
+        } catch(_) {}
+      };
+      sw.postMessage({ type: 'pickup-share' }, [ch.port2]);
+    });
+  } catch(_) {}
+})();
+
+function doClear(){
+  document.body.dataset.confirm = 'closed';
+  /* Revoke all blob URLs across BOTH the primary encoded map and the
+     multi-output sidecar. Without the sidecar revoke, Clear-All in
+     multi-output mode leaked encoded blobs across cycles. Also flush
+     the queue + inflight maps so a stale encode can't repopulate
+     ENCODE.encoded after the user has cleared. */
+  FILES.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
+  ENCODE.encoded.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} });
+  ENCODE.allEncoded.forEach(m => m.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} }));
+  ENCODE.encoded.clear();
+  ENCODE.allEncoded.clear();
+  ENCODE.queue.length = 0;
+  ENCODE.inflight.clear();
+  FILES.length = 0;
+  CFLOW.thumbs = [];
+  CFLOW.selected = 0; CFLOW.drift = 0;
+  document.getElementById('cflowTrack').querySelectorAll('.cflow-thumb,.add-more').forEach(t => t.remove());
+  setState('empty');
+}
+</script>
+
+<!-- ============================================================
+     PROD: SW registration + Install prompt — copy of stable's pattern.
+     ============================================================ -->
+<script>
+(function(){
+  'use strict';
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function(err){ console.warn('[imgready] SW register failed:', err); });
+    });
+  }
+  var deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredInstall = e;
+  });
+  window.addEventListener('appinstalled', function(){
+    deferredInstall = null;
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_installed', '1'); } catch(_){}
+  });
+  function isStandalone(){
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.navigator.standalone === true) return true;
+    return false;
+  }
+  function dismissedRecently(){
+    try {
+      var v = localStorage.getItem('imgready_install_dismissed');
+      if (!v) return false;
+      var ts = parseInt(v, 10);
+      if (!ts) return false;
+      return (Date.now() - ts) < 30 * 24 * 60 * 60 * 1000;
+    } catch(_) { return false; }
+  }
+  window.maybeShowInstallPrompt = function(){
+    if (!deferredInstall) return;
+    if (isStandalone()) return;
+    try { if (localStorage.getItem('imgready_installed') === '1') return; } catch(_){}
+    if (dismissedRecently()) return;
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.add('show');
+  };
+  window.dismissInstall = function(){
+    var b = document.getElementById('installBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.setItem('imgready_install_dismissed', String(Date.now())); } catch(_){}
+  };
+})();
+</script>
+
+<!-- Big-batch confirm modal — port of stable's >200-file safeguard. -->
+<div class="bigbatch-overlay" id="bigBatchOverlay" onclick="if(event.target===this)cancelBigBatch()" role="dialog" aria-modal="true" aria-labelledby="bigBatchTitle">
+  <div class="bigbatch-modal">
+    <h3 id="bigBatchTitle">That's a lot of files</h3>
+    <p>You've added <strong><span id="bigBatchCount">0</span></strong> files. Browsers usually handle 200–500 fine; over that, things slow down and your tab can run out of memory. Continue?</p>
+    <div class="bigbatch-actions">
+      <button class="btn btn-clear" onclick="cancelBigBatch()">Cancel</button>
+      <button class="btn btn-primary" onclick="acceptBigBatch()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROTOTYPE_EOF -->
+</body>
+</html>

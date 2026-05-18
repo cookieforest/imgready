@@ -15,43 +15,6 @@
 <link rel="canonical" href="https://imgready.app/terms/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
@@ -127,19 +90,16 @@
   <h2>9. Limitation of liability</h2>
   <p>To the fullest extent permitted by law, imgready and its operator shall not be liable for any indirect, incidental, special, consequential or punitive damages, or any loss of profits, data, or goodwill arising from or related to your use of the Service, including loss or quality degradation of any image processed through the Service. Our total aggregate liability under these Terms shall not exceed US $50, except where such limitation is prohibited by law.</p>
 
-  <h2>10. Advertising</h2>
-  <p>imgready is supported by third-party advertisements provided by Google AdSense. By using the Service you acknowledge that ads may be displayed during your use of the tool. Ads are served by Google and are governed by Google's own terms and privacy practices, summarised in our <a href="/privacy/">privacy policy</a>. No image data is ever sent to ad partners. You can review and change your ad personalisation choices any time via the "Cookie &amp; ad settings" link in the footer.</p>
-
-  <h2>11. Indemnification</h2>
+  <h2>10. Indemnification</h2>
   <p>You agree to indemnify and hold imgready and its operator harmless from any claim, loss or expense (including reasonable legal fees) arising out of your use of the Service in breach of these Terms or applicable law.</p>
 
-  <h2>12. Governing law and disputes</h2>
+  <h2>11. Governing law and disputes</h2>
   <p>These Terms are governed by the laws of the State of California, USA, without regard to conflict-of-law principles. Any dispute arising under these Terms shall be brought in the state or federal courts located in California, and you and we consent to personal jurisdiction in those courts. Nothing in this clause limits any non-waivable consumer rights you may have under your local law.</p>
 
-  <h2>13. Changes to these terms</h2>
+  <h2>12. Changes to these terms</h2>
   <p>We reserve the right to update these Terms at any time. Continued use of the Service after changes constitutes acceptance of the revised Terms. We post the current version at <a href="https://imgready.app/terms/">imgready.app/terms/</a>.</p>
 
-  <h2>14. Contact</h2>
+  <h2>13. Contact</h2>
   <p>If you have questions about these Terms, please contact us at <a href="mailto:hello@imgready.app">hello@imgready.app</a>.</p>
 
   <footer class="site-footer">
@@ -147,11 +107,6 @@
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
-    </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:#d6cebb;margin:0 4px">|</span>
-      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
     <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
   </footer>

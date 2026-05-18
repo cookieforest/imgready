@@ -20,43 +20,6 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Article","headline":"Why we built imgready — the image tool that never uploads","description":"Most online image compressors send your photos to a server. imgready doesn't. Here's why we built it that way, and why it matters for your speed, privacy and file-size limits.","author":{"@type":"Person","name":"Jeffrey","url":"https://imgready.app/about/"},"publisher":{"@type":"Organization","name":"imgready","url":"https://imgready.app/"},"datePublished":"2026-04-27","dateModified":"2026-04-27","mainEntityOfPage":"https://imgready.app/why/","image":"https://imgready.app/demo.webp"}
 </script>
@@ -154,7 +117,7 @@ a{color:#5a7a5a;}
   <p>"My photos stay private" is the obvious benefit. But the architecture also fixes three smaller frustrations that come for free:</p>
   <p><strong>Speed.</strong> A 5&nbsp;MB photo on a typical home connection takes 4–6 seconds to upload to a server before processing can even start. imgready sees the same photo instantly. Local compression typically finishes faster than the upload would have.</p>
   <p><strong>No file-size caps.</strong> TinyPNG caps at 5&nbsp;MB on the free tier. CloudConvert caps at 1&nbsp;GB on its $25/month plan. imgready has no caps because there's no server to rent storage on. Drop a 100&nbsp;MB TIFF if you want.</p>
-  <p><strong>It's free.</strong> Not "free with limits, paid for more." Just free. There's no infrastructure cost on our side because there's no infrastructure. The site runs on Cloudflare's free tier and is paid for by AdSense ads (which don't see your image data) and voluntary Ko-fi contributions.</p>
+  <p><strong>It's free.</strong> Not "free with limits, paid for more." Just free. There's no infrastructure cost on our side because there's no infrastructure. The site runs on Cloudflare's free tier and is supported entirely by voluntary Ko-fi contributions.</p>
 
   <h2>What we give up</h2>
   <p>We're not pretending this approach is universally better. Three honest trade-offs:</p>
@@ -188,11 +151,6 @@ a{color:#5a7a5a;}
     </div>
     <div style="margin-top:4px;">
       <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
-    </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:#d6cebb;margin:0 4px">|</span>
-      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
     <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
   </footer>

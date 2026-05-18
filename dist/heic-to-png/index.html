@@ -21,43 +21,6 @@
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/app.css">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
 body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
@@ -251,8 +214,14 @@ tr:nth-child(even) td{background:#faf7f2;}
     -->
     <div class="adv-group adv-group-resize">
       <label>Resize</label>
-      <input type="number" id="resizeMax" placeholder="Longest side, e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
-      <span class="adv-hint">Aspect ratio is always preserved.</span>
+      <div class="resize-mode-row">
+        <select id="resizeMode" class="resize-mode-select" onchange="setResizeMode(this.value)" aria-label="Resize mode">
+          <option value="dim" selected>Longest side (px)</option>
+          <option value="pct">Percent (%)</option>
+        </select>
+        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
+      </div>
+      <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
     <!-- Metadata strip hidden — defaulted to ON via the checkbox initial
          state, which is the right behaviour for privacy regardless of
@@ -548,6 +517,17 @@ tr:nth-child(even) td{background:#faf7f2;}
     <a class="hero-cta" href="/?fmt=png#dropzone">Convert HEIC to PNG — FREE</a>
   </div>
 
+  <aside class="related-tools" aria-label="Related tools">
+    <h2>Related tools</h2>
+    <ul>
+      <li><a href="/avif-to-png/">AVIF to PNG</a></li>
+      <li><a href="/compress-png/">Compress PNG</a></li>
+      <li><a href="/heic-to-avif/">HEIC to AVIF</a></li>
+      <li><a href="/heic-to-jpg/">HEIC to JPG</a></li>
+      <li><a href="/heic-to-webp/">HEIC to WebP</a></li>
+    </ul>
+  </aside>
+
   <footer class="site-footer">
     <div style="font-weight:700;color:#5a5448;">imgready</div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
@@ -556,11 +536,6 @@ tr:nth-child(even) td{background:#faf7f2;}
     </div>
     <div style="margin-top:4px;">
       <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
-    </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:#d6cebb;margin:0 4px">|</span>
-      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
     <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
   </footer>
