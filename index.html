@@ -108,14 +108,24 @@
     font-display:swap;
     unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
+  /* R25 — skip link visible on focus, hidden otherwise. WCAG 2.4.1. */
+  .r25-skip-link{
+    position:absolute;top:-100px;left:8px;z-index:9999;
+    background:var(--accent-strong);color:#fff;
+    padding:8px 16px;border-radius:6px;
+    text-decoration:none;font-weight:600;font-size:.9rem;
+    transition:top .15s ease;
+  }
+  .r25-skip-link:focus-visible{top:8px;outline:3px solid #fff;outline-offset:2px;}
+
   :root{
-    --bg:#f5f0e8;--text:#2a2a26;--muted:#7a7872;
+    --bg:#f5f0e8;--text:#2a2a26;--muted:#5e5c54;
     /* R24 — type tokens. Body via Inter; display via Fraunces (warm serif
        with opsz + wght axes); mono via JetBrains Mono for byte-count strings. */
     --font-display:"Fraunces",ui-serif,Georgia,"Times New Roman",serif;
     --font-body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
     --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --accent:#7a9a7a;--accent-strong:#5a7a5a;--accent-light:rgba(90,122,90,.10);
+    --accent:#7a9a7a;--accent-strong:#5a7a5a;--accent-ink:#3f5a3f;--accent-light:rgba(90,122,90,.10);
     --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
@@ -141,8 +151,8 @@
     --action-w:240px;
   }
   body[data-state="solo"],body[data-state="multi"]{
-    --bg:#0d0d0d;--text:#ececea;--muted:#9a9a92;
-    --accent:#8aae8a;--accent-strong:#7a9a7a;
+    --bg:#0d0d0d;--text:#ececea;--muted:#b8b5ac;
+    --accent:#8aae8a;--accent-strong:#7a9a7a;--accent-ink:#b8d4b8;
   }
   *,*::before,*::after{box-sizing:border-box;}
   /* Empty state = scrollable marketing page (mirrors stable homepage).
@@ -780,7 +790,7 @@
     opacity:1;pointer-events:auto;
     transform:translate(-50%,-50%) translateY(calc(-1 * var(--thumb-big) / 2 - 38px));
   }
-  .pi-icon{width:40px;height:40px;border-radius:50%;
+  .pi-icon{width:44px;height:44px;border-radius:50%;
     background:rgba(20,20,20,.92);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     border:1px solid rgba(255,255,255,.18);
@@ -2894,6 +2904,46 @@
 
   
 
+  /* R25 — slider thumb touch target. WCAG 2.5.5 calls for >=44px hit
+     areas; default browser thumbs are ~14-16px. Bump visible thumb to
+     22px (still feels precise on desktop) and use ::-webkit-slider-thumb
+     padding to expand the hit zone to ~44px without changing visual size.
+     accent-color browser-native styles cover newer browsers; explicit
+     thumb sizing covers everything else. */
+  input[type="range"]{accent-color:var(--accent-strong);}
+  input[type="range"]::-webkit-slider-thumb{
+    appearance:none;-webkit-appearance:none;
+    width:22px;height:22px;border-radius:50%;
+    background:var(--accent-strong);
+    border:2px solid #fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.25);
+    cursor:pointer;
+    margin-top:-9px;
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:22px;height:22px;border-radius:50%;
+    background:var(--accent-strong);
+    border:2px solid #fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.25);
+    cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-runnable-track{
+    height:4px;border-radius:2px;background:rgba(0,0,0,.15);
+  }
+  input[type="range"]::-moz-range-track{
+    height:4px;border-radius:2px;background:rgba(0,0,0,.15);
+  }
+  body[data-state="solo"] input[type="range"]::-webkit-slider-runnable-track,
+  body[data-state="multi"] input[type="range"]::-webkit-slider-runnable-track,
+  .edit-modal input[type="range"]::-webkit-slider-runnable-track{
+    background:rgba(255,255,255,.16);
+  }
+  body[data-state="solo"] input[type="range"]::-moz-range-track,
+  body[data-state="multi"] input[type="range"]::-moz-range-track,
+  .edit-modal input[type="range"]::-moz-range-track{
+    background:rgba(255,255,255,.16);
+  }
+
   /* R24 — accent harmonization. Carry the sage more confidently into the
      dark editor surfaces. Was: subtle accent ink on hover only. Now:
      accent fills the primary Save action with a saturated tone that
@@ -3044,6 +3094,39 @@
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
+  /* R25 — WCAG contrast fix for primary actions on cream. White on
+     #7a9a7a was 3.12:1 (fail AA). Promote --accent-strong as the base
+     background so the white label clears 4.81:1 (pass AA, pass UI). */
+  .btn-primary{
+    background:var(--accent-strong);color:#fff;
+    border:1px solid var(--accent-strong);
+  }
+  .btn-primary:hover{
+    background:var(--accent-ink);
+    border-color:var(--accent-ink);
+  }
+
+  /* R25 — extend focus-visible accent outlines to all interactive
+     elements outside the Edit modal. R22 covered the modal; this fills
+     in the home page surfaces. WCAG 2.1 SC 2.4.7 compliance for the
+     entire app, not just the editor. */
+  .dz-float-card:focus-visible,
+  .settings-toggle:focus-visible,
+  .resize-presets-trigger:focus-visible,
+  .resize-presets-menu button:focus-visible,
+  .kbd-help:focus-visible,
+  .site-footer a:focus-visible,
+  .legacy-nav a:focus-visible,
+  .nav-hamburger:focus-visible,
+  .cflow-thumb:focus-visible,
+  .state-toggle button:focus-visible,
+  .compare-handle:focus-visible{
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  /* Mobile inherits all the above — no breakpoint override needed. */
+
 
   body[data-edit-open="true"] .menu-card,
   body[data-edit-open="true"] .pi-actions{pointer-events:none;}
@@ -3218,6 +3301,8 @@
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
+<!-- R25 — skip link, visible on focus, WCAG 2.4.1 Bypass Blocks -->
+<a class="r25-skip-link" href="#dropzone">Skip to main content</a>
 <!-- Lucide icon sprite (ISC — https://github.com/lucide-icons/lucide/blob/main/LICENSE). Hidden inert SVG; <use href="#i-name"> references each <symbol>. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
   <defs>
@@ -3351,7 +3436,7 @@
        click-to-open-file-picker handler that would otherwise hijack
        every pill click. Selection persists via window.PREFS.outFormat
        into the workspace's format dropdown. -->
-  <div class="dz-format-pre" id="dzFormatPre" role="group" aria-label="Output format">
+  <div class="dz-format-pre" id="dzFormatPre" role="radiogroup" aria-label="Output format">
     <div class="dz-format-label">Output format <span class="dz-format-hint">— optional, pick one or many</span></div>
     <div class="dz-pills" id="dzPills">
       <button type="button" data-out-fmt="webp" data-tt="WebP — modern web format, broadly supported.">WebP</button>
@@ -11231,11 +11316,39 @@ function doClear(){
     var s = document.getElementById('qualitySlider');
     var lbl = document.getElementById('qualityValLabel');
     if (!s || !lbl) return;
+    /* R25 — ensure slider has aria-valuetext for screen readers; the
+       numeric value alone is meaningless ("quality 82" — out of what?). */
+    function updateAria(){
+      var v = parseInt(s.value, 10);
+      var hint = v >= 95 ? 'near-lossless' : v >= 80 ? 'high quality' : v >= 60 ? 'good balance' : v >= 40 ? 'noticeable compression' : 'heavy compression';
+      s.setAttribute('aria-valuetext', v + ' of 100 — ' + hint);
+    }
     s.addEventListener('input', function(){
       lbl.textContent = s.value;
       var hdr = s.closest('.adjust-section') && s.closest('.adjust-section').querySelector('.adjust-label');
-      if (hdr) hdr.textContent = 'Quality · ' + s.value;
+      if (hdr) hdr.textContent = 'Quality \u00B7 ' + s.value;
+      updateAria();
     });
+    updateAria();
+  }
+  /* R25 — sync aria-checked across dz-format-pre radiogroup so AT users
+     know which format is currently selected. */
+  function wireFormatAria(){
+    var group = document.getElementById('dzFormatPre');
+    if (!group) return;
+    var btns = group.querySelectorAll('button[data-out-fmt]');
+    btns.forEach(function(b){
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', b.classList.contains('active') ? 'true' : 'false');
+    });
+    /* Re-sync on click via mutation observer — the existing JS toggles
+       .active class; we mirror to aria-checked. */
+    var obs = new MutationObserver(function(){
+      btns.forEach(function(b){
+        b.setAttribute('aria-checked', b.classList.contains('active') ? 'true' : 'false');
+      });
+    });
+    btns.forEach(function(b){ obs.observe(b, { attributes: true, attributeFilter: ['class'] }); });
   }
 
   function init(){
@@ -11244,6 +11357,7 @@ function doClear(){
     wireInputs();
     wireReset();
     syncQualityLabel();
+    wireFormatAria();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
