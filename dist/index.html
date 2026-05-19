@@ -2276,51 +2276,92 @@
   /* Buttons that combine icon + label keep a small gap. */
   .edit-modal button .ico{margin-right:5px;}
   .edit-modal button.btn-icon .ico{margin:0;width:1.05em;height:1.05em;}
+  /* R27 — Edit modal layout rebuild. 4 stacked horizontal regions:
+     brand bar (top) → canvas (flex:1) → options strip → tab bar (bottom).
+     Removes the previous 2-col grid (canvas | right panel). Liquid-glass
+     backdrop-filter on the chrome surfaces matches the rest of the app's
+     translucent treatment (already used by .pi-icon). */
   .edit-modal{
     position:fixed;inset:0;z-index:9000;
-    background:#0d0d10;
+    background:#0a0a0c;
     display:flex;flex-direction:column;
     color:#fff;overflow:hidden;
   }
   .edit-modal[hidden]{display:none !important;}
   .edit-modal-card{
-    background:#15151a;width:100%;height:100%;
+    background:#0a0a0c;width:100%;height:100%;
     display:flex;flex-direction:column;overflow:hidden;position:relative;
   }
-  .edit-modal .edit-header{
-    height:48px;flex-shrink:0;
-    display:flex;align-items:center;gap:12px;
-    padding:0 16px 0 20px;
-    border-bottom:1px solid rgba(255,255,255,.07);
+  /* R27 — liquid glass top bar */
+  .edit-modal .edit-brand-bar{
+    height:56px;flex-shrink:0;z-index:10;
+    display:flex;align-items:center;gap:10px;
+    padding:0 16px;
+    background:rgba(15,15,18,.72);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    border-bottom:1px solid rgba(255,255,255,.06);
   }
-  .edit-modal .edit-header h2{
-    margin:0;font-size:.95rem;font-weight:600;
-    flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  .edit-modal .edit-brand{
+    font-family:var(--font-display);
+    font-style:italic;font-weight:600;font-size:1.05rem;
+    color:#fff;text-decoration:none;
+    letter-spacing:-.01em;
+    transition:opacity .12s;
+    flex-shrink:0;
   }
-  .edit-layout{
-    flex:1;min-height:0;
-    display:grid;grid-template-columns:1fr 380px;
-    overflow:hidden;
+  .edit-modal .edit-brand:hover{opacity:.85;}
+  .edit-modal .edit-brand .g{color:var(--accent);}
+  .edit-modal .edit-brand:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+  .edit-modal .edit-filename{
+    font-family:var(--font-mono);
+    font-size:.78rem;color:rgba(255,255,255,.7);
+    background:rgba(255,255,255,.06);
+    padding:5px 10px;border-radius:6px;
+    flex:0 1 auto;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    max-width:380px;
   }
-  .edit-preview-col{
+  .edit-modal .edit-bar-spacer{flex:1 1 auto;min-width:8px;}
+  .edit-modal .edit-brand-bar .edit-size-info{
+    font-family:var(--font-mono);
+    font-size:.7rem;color:rgba(255,255,255,.45);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    max-width:200px;flex:0 1 auto;
+  }
+  /* R27 — canvas area, full-flex middle */
+  .edit-modal .edit-canvas-area{
+    flex:1 1 auto;min-height:0;
     background:#0a0a0c;
     display:flex;align-items:center;justify-content:center;
     overflow:hidden;position:relative;
   }
-  .edit-panel-col{
-    display:flex;flex-direction:column;
-    border-left:1px solid rgba(255,255,255,.07);
-    background:#15151a;overflow:hidden;
+  /* R27 — per-tab options strip. Auto-sizes to content but capped at 240px
+     so the canvas never gets crushed. Overflowing content scrolls
+     vertically within the strip. Empty strip collapses entirely. */
+  .edit-modal .edit-options-strip{
+    flex:0 0 auto;
+    max-height:240px;overflow-y:auto;overflow-x:hidden;
+    padding:12px 16px;
+    background:rgba(15,15,18,.65);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    border-top:1px solid rgba(255,255,255,.06);
+    display:flex;flex-direction:column;gap:12px;
   }
-  /* R20 - categorized icon+label tabs.
-     Was: 7 flat photo tabs in a horizontally-scrolling row with edge-
-     fade mask. At 380px panel width the labels overflowed and forced
-     scroll, the canonical "toolbar overflow" anti-pattern (Pixlr X,
-     Apple Photos, Canva all use grouped tabs instead). Now: 5 equal-
-     width tabs each with a Lucide glyph + short label, no scroll. */
+  .edit-modal .edit-options-strip:empty{display:none;}
+  /* R27 — categorized icon+label tabs, now at BOTTOM of modal as a
+     persistent tab-bar nav (matching iOS/iPadOS pattern). The selector
+     stays .edit-tab-bar for the new structural element; .edit-tabs is
+     also styled the same way as a fallback in case any future render
+     uses the legacy class. */
+  .edit-modal .edit-tab-bar,
   .edit-modal .edit-tabs{
-    display:flex;gap:4px;padding:8px 12px;
-    border-bottom:1px solid rgba(255,255,255,.06);
+    display:flex;gap:4px;padding:10px 16px 12px;
+    background:rgba(15,15,18,.82);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    border-top:1px solid rgba(255,255,255,.08);
     flex-shrink:0;flex-wrap:nowrap;
   }
   .edit-modal .edit-tab{
@@ -2354,25 +2395,19 @@
   .edit-modal .edit-subtab.active{background:rgba(255,255,255,.12);color:#fff;}
   .edit-modal .edit-subtab.active .ico{color:var(--accent);}
   .edit-modal .edit-subbody{display:flex;flex-direction:column;gap:12px;}
+  /* R27 — legacy .edit-body styling kept for any inline references;
+     same rules as .edit-options-strip so nothing breaks. */
   .edit-modal .edit-body{
-    flex:1;overflow-y:auto;overflow-x:hidden;
-    padding:16px 16px;
-    display:flex;flex-direction:column;gap:16px;
+    overflow-y:auto;overflow-x:hidden;
+    padding:0;
+    display:flex;flex-direction:column;gap:12px;
   }
-  /* R20 - single-row footer (further compaction from R12).
-     size-info is no longer its own row - it lives inline left of the
-     history controls, ellipsis-truncated so it never pushes buttons.
-     This reclaims ~12px more vertical for the canvas. */
-  .edit-modal .edit-actions{
-    display:flex;align-items:center;gap:8px;width:100%;
-    padding:12px 16px;border-top:1px solid rgba(255,255,255,.07);
-    flex-shrink:0;flex-wrap:nowrap;
-  }
-  .edit-modal .edit-actions-row{
-    display:flex;align-items:center;gap:8px;width:100%;
-    flex-wrap:nowrap;
-  }
-  .edit-modal .edit-actions-spacer{flex:1 1 auto;min-width:0;}
+  /* R27 — old .edit-actions footer is gone; actions moved to the
+     brand bar. These selectors are kept as no-ops for any
+     accidentally-still-referenced legacy DOM. */
+  .edit-modal .edit-actions,
+  .edit-modal .edit-actions-row{display:contents;}
+  .edit-modal .edit-actions-spacer{display:none;}
   /* In the new layout Save no longer needs flex:1 (the spacer fills
      the row). Reassert intrinsic width with a minimum so the primary
      action stays visually prominent. */
@@ -2875,14 +2910,15 @@
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
   @media (max-width:640px){
-    /* Mobile layout overhaul: preview hogs vertical space; controls compact. */
-    .edit-modal .edit-header{height:44px;padding:0 16px;gap:12px;}
-    .edit-modal .edit-header h2{font-size:.86rem;}
-    .edit-layout{grid-template-columns:1fr;grid-template-rows:minmax(36vh,1fr) auto;}
-    .edit-panel-col{
-      border-left:none;border-top:1px solid rgba(255,255,255,.07);
-      max-height:60vh;
-    }
+    /* R27 — mobile layout. The desktop layout is ALREADY vertical
+       so most adjustments are size tweaks rather than reflow. */
+    .edit-modal .edit-brand-bar{height:48px;padding:0 12px;gap:8px;}
+    .edit-modal .edit-brand{font-size:.95rem;}
+    .edit-modal .edit-filename{font-size:.72rem;padding:4px 8px;max-width:140px;}
+    .edit-modal .edit-options-strip{max-height:180px;padding:10px 12px;gap:10px;}
+    /* legacy .edit-layout / .edit-panel-col selectors no longer exist
+       in markup; explicit display:none on any vestigial appearance. */
+    .edit-modal .edit-layout, .edit-modal .edit-panel-col{display:none !important;}
     .edit-compare-btn{display:none;}
     /* R20 - equal-width tabs already fit 5 across at any width. */
     .edit-modal .edit-tabs{padding:8px 12px;gap:4px;flex-wrap:nowrap;}
@@ -6075,7 +6111,7 @@ function openEditMode(idx){
   modal.removeAttribute('hidden');
   const eb0 = document.getElementById('editBody'); if (eb0) delete eb0.dataset.splitBound;
   const title = document.getElementById('editTitle');
-  if (title) title.textContent = `Edit \u2014 ${f.name || 'image'}`;
+  if (title) title.textContent = (f.name || 'image');
   const tabs = _editTabsForType(_editState.fileType);
   const tabBar = document.getElementById('editTabs');
   tabBar.innerHTML = '';
@@ -11168,33 +11204,35 @@ function doClear(){
      ============================================================ -->
 <div id="editModal" class="edit-modal" hidden role="dialog" aria-modal="true" aria-labelledby="editTitle">
   <div class="edit-modal-card">
-    <header class="edit-header">
-      <h2 id="editTitle">Edit</h2>
-    </header>
-    <div class="edit-layout">
-      <div class="edit-preview-col" id="editPreviewCol"></div>
-      <div class="edit-panel-col">
-        <nav class="edit-tabs" role="tablist" id="editTabs"></nav>
-        <main class="edit-body" id="editBody"></main>
-        <!-- R20 footer: single row, size-info inline-left, history
-             cluster (Reset / Undo / Redo / Compare) groups all
-             non-destructive history ops together per Apple Photos and
-             Pixlr E patterns; primary actions (Cancel / Save) on
-             the right with the spacer between. -->
-        <footer class="edit-actions">
-          <span class="edit-size-info" id="editSizeInfo"></span>
-          <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
-          <div class="edit-history-btns">
-            <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
-            <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
-            <button type="button" class="btn btn-icon" id="editCompareBtn" onclick="_toggleEditCompare()" title="View original" aria-label="View original"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg></button>
-          </div>
-          <span class="edit-actions-spacer" aria-hidden="true"></span>
-          <button type="button" class="btn" onclick="cancelEdit()" title="Cancel — Esc">Cancel</button>
-          <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
-        </footer>
+    <!-- R27 — liquid-glass brand bar at top. Wordmark left, filename
+         chip center-left, history cluster + primary actions right.
+         Matches the home/compress/convert tool top-chrome aesthetic so
+         entering Edit mode reads as the same product, not a different
+         page. -->
+    <header class="edit-brand-bar">
+      <a class="edit-brand" href="#" onclick="event.preventDefault();cancelEdit();" aria-label="Exit edit and return to imgready home">img<span class="g">ready</span></a>
+      <span class="edit-filename" id="editTitle" aria-live="polite">Edit</span>
+      <span class="edit-size-info" id="editSizeInfo"></span>
+      <span class="edit-bar-spacer" aria-hidden="true"></span>
+      <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
+      <div class="edit-history-btns">
+        <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
+        <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
+        <button type="button" class="btn btn-icon" id="editCompareBtn" onclick="_toggleEditCompare()" title="View original" aria-label="View original"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg></button>
       </div>
-    </div>
+      <button type="button" class="btn" onclick="cancelEdit()" title="Cancel — Esc">Cancel</button>
+      <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
+    </header>
+    <!-- R27 — canvas area fills middle. Element ID preserved so existing
+         _renderXxxTab functions still write the image into this slot. -->
+    <main class="edit-canvas-area" id="editPreviewCol"></main>
+    <!-- R27 — per-tab options strip. Was the right-side panel body in
+         R20-R26; now a horizontal strip below the canvas, max ~240px tall
+         with internal scroll. Element ID preserved so JS render fns
+         (Adjust/Transform/Retouch/Add/Background) write controls here. -->
+    <section class="edit-options-strip" id="editBody" role="region" aria-label="Tool options"></section>
+    <!-- R27 — bottom tab bar. 5 categorized tabs (R20) live here. -->
+    <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
     <div id="editCompareOverlay" class="edit-compare-overlay" style="display:none">
       <img id="editCompareImg" src="" alt="Original" draggable="false">
       <div class="edit-compare-label">Original</div>
