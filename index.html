@@ -85,7 +85,7 @@
     font-family:'Fraunces';
     src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),
         url('/fonts/fraunces-latin.woff2') format('woff2');
-    font-weight:100 900;
+    font-weight:400 700;
     font-style:normal;
     font-display:swap;
     unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -94,7 +94,7 @@
     font-family:'Inter';
     src:url('/fonts/inter-latin.woff2') format('woff2-variations'),
         url('/fonts/inter-latin.woff2') format('woff2');
-    font-weight:100 900;
+    font-weight:400 700;
     font-style:normal;
     font-display:swap;
     unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -103,7 +103,7 @@
     font-family:'JetBrains Mono';
     src:url('/fonts/jetbrainsmono-latin.woff2') format('woff2-variations'),
         url('/fonts/jetbrainsmono-latin.woff2') format('woff2');
-    font-weight:100 900;
+    font-weight:400 600;
     font-style:normal;
     font-display:swap;
     unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -2986,7 +2986,10 @@
     display:flex;align-items:center;justify-content:space-between;gap:8px;
     font-size:.82rem;font-weight:600;color:rgba(255,255,255,.85);
     user-select:none;
+    transition:background .12s ease;
   }
+  .r23-adv-summary:hover{background:rgba(255,255,255,.04);}
+  .r23-adv-details[open] .r23-adv-summary{background:rgba(138,174,138,.06);}
   .r23-adv-summary::-webkit-details-marker{display:none;}
   .r23-adv-summary::after{
     content:"";display:inline-block;width:8px;height:8px;
@@ -3357,7 +3360,7 @@
          hamburger dropdown). The .legacy-nav class only exists as a
          scope hook to hide the nav on workspace (solo/multi) states. -->
     <nav class="topnav legacy-nav" aria-label="Primary">
-      <a class="brand" href="/">img<span>ready</span></a>
+      <a class="brand" href="/">img<span class="g">ready</span></a>
       <button class="nav-hamburger" id="navHamburger" type="button"
               onclick="toggleNavMenu()" aria-expanded="false"
               aria-controls="navMenu" aria-label="Toggle navigation menu">
@@ -3383,7 +3386,7 @@
       </div>
     </nav>
     <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
-    <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files to compress">
+    <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files to compress (or take a photo on mobile)">
     <span class="dz-icon" aria-hidden="true">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
@@ -6090,38 +6093,17 @@ function openEditMode(idx){
   _switchEditTab(tabs[0].id);
   _updateEditHistoryUI();
 }
-function _updateTabsOverflow(){
-  const bar = document.querySelector('.edit-modal .edit-tabs');
-  if (!bar) return;
-  const hasRight = bar.scrollLeft + bar.clientWidth < bar.scrollWidth - 1;
-  const hasLeft  = bar.scrollLeft > 1;
-  bar.classList.toggle('edit-tabs--overflow-r', hasRight);
-  bar.classList.toggle('edit-tabs--overflow-l', hasLeft);
-}
-function _scrollActiveTabIntoView(){
-  const bar = document.querySelector('.edit-modal .edit-tabs');
-  const a   = document.querySelector('.edit-modal .edit-tab.active');
-  if (bar && a){
-    const aL = a.offsetLeft, aR = aL + a.offsetWidth;
-    const cw = bar.clientWidth, sl = bar.scrollLeft;
-    if (aR > sl + cw)      bar.scrollLeft = aR - cw + 6;
-    else if (aL < sl)      bar.scrollLeft = Math.max(0, aL - 6);
-  }
-  _updateTabsOverflow();
-  setTimeout(_updateTabsOverflow, 60);
-}
+/* R26 — _updateTabsOverflow + _scrollActiveTabIntoView + _wireTabsOverflowWatcher
+   are dead code from R19's horizontal-scroll tab bar. R20 replaced
+   those tabs with equal-width flex:1 categorized tabs that don't
+   overflow, but these functions were kept calling because the CSS
+   classes they toggle (.edit-tabs--overflow-l/-r) used to have
+   mask-image rules that are now gone. The toggles were no-ops in
+   visible effect. Stub them out to stop the runtime work. */
+function _updateTabsOverflow(){ /* R26: noop — see comment */ }
+function _scrollActiveTabIntoView(){ /* R26: noop — tabs no longer scroll */ }
 let _tabsOverflowWired = false;
-function _wireTabsOverflowWatcher(){
-  if (_tabsOverflowWired) return;
-  _tabsOverflowWired = true;
-  document.addEventListener('scroll', (e)=>{
-    const t = e.target;
-    if (t && t.classList && t.classList.contains('edit-tabs')) _updateTabsOverflow();
-  }, true);
-  window.addEventListener('resize', ()=>{
-    if (document.querySelector('.edit-modal')) _updateTabsOverflow();
-  });
-}
+function _wireTabsOverflowWatcher(){ /* R26: noop — tabs no longer scroll */ }
 function _switchEditTab(tabId){
   document.querySelectorAll('.edit-modal .edit-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.tab === tabId);
