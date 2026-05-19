@@ -2366,13 +2366,85 @@
      Has a border-bottom that separates it visually from the bottom row
      when content is present. :empty collapses entirely, taking the
      border with it (no orphan separator on tabs that have no controls). */
+  /* R29 — strip mirrors home .adjust-panel density. flex-row primary;
+     wraps onto a second line only when controls genuinely don't fit.
+     max-height 22vh ensures the canvas keeps the lion's share of space. */
   .edit-modal .edit-options-strip{
-    padding:12px 16px;
-    display:flex;flex-direction:column;gap:10px;
-    max-height:36vh;overflow-y:auto;overflow-x:hidden;
+    padding:10px 14px;
+    display:flex;flex-direction:row;flex-wrap:wrap;
+    align-items:center;gap:14px 18px;
+    max-height:22vh;overflow-y:auto;overflow-x:hidden;
     border-bottom:1px solid rgba(255,255,255,.06);
   }
   .edit-modal .edit-options-strip:empty{display:none;}
+  /* Direct children become horizontal flex rows by default,
+     overriding tool-specific column layouts. */
+  .edit-modal .edit-options-strip > * {
+    display:flex;flex-direction:row;align-items:center;gap:10px;
+    flex:0 1 auto;
+  }
+  /* R29 — top-level tool control wrappers become horizontal flex rows.
+     Render-fn output unchanged; layout flexes via CSS only. */
+  .edit-pixelate-controls,
+  .edit-blur-controls,
+  .edit-text-controls,
+  .bg-refine-section,
+  .edit-adjust-sliders,
+  .edit-rotate-row{
+    display:inline-flex !important;
+    flex-direction:row !important;
+    align-items:center;
+    gap:10px;
+    flex:0 1 auto;
+    margin:0 !important;
+    padding:0 !important;
+    border:none !important;
+  }
+  .edit-pixelate-controls .px-tool-strip,
+  .edit-blur-controls .bl-tool-strip,
+  .bg-refine-section .bg-refine-tool-strip{
+    display:inline-flex;gap:2px;flex:0 0 auto;
+  }
+  .edit-pixelate-controls .edit-preset-btn,
+  .edit-blur-controls .edit-preset-btn,
+  .bg-refine-section .edit-preset-btn,
+  .edit-rotate-row .edit-rotate-btn{
+    height:28px;padding:0 10px;
+    font-size:.7rem;border-radius:6px;
+  }
+  .edit-pixelate-help,
+  .edit-blur-help,
+  .bg-refine-help,
+  .tx-anchor-help{
+    font-size:.62rem;color:rgba(255,255,255,.4);
+    max-width:240px;line-height:1.35;margin:0;
+    flex:0 1 auto;
+  }
+  .edit-frames-action-btn{
+    height:28px;padding:0 10px;
+    font-size:.7rem;font-weight:600;border-radius:6px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.85);cursor:pointer;
+    flex:0 0 auto;
+  }
+  .edit-frames-action-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
+  .tx-item-list{
+    display:flex;gap:6px;
+    overflow-x:auto;flex:1 1 auto;min-width:0;
+    scrollbar-width:none;
+  }
+  .tx-item-list::-webkit-scrollbar{display:none;}
+  .tx-sel-controls{
+    display:inline-flex;gap:6px;align-items:center;
+    flex:0 1 auto;
+  }
+  .edit-options-strip h4,
+  .bg-refine-section h4{
+    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);
+    margin:0;white-space:nowrap;flex:0 0 auto;
+  }
   .edit-modal .edit-menu-bottom-row{
     display:flex;align-items:stretch;gap:6px;
     padding:6px 8px;
@@ -2474,17 +2546,18 @@
   .edit-modal .edit-tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.04);}
   .edit-modal .edit-tab.active{background:rgba(255,255,255,.1);color:#fff;}
   .edit-modal .edit-tab.active .ico{color:var(--accent);}
+  /* R29 — sub-toggle pill switcher, tighter and inline. */
   .edit-modal .edit-subtoggle{
-    display:flex;gap:4px;padding:4px;border-radius:8px;
+    display:inline-flex;gap:2px;padding:3px;border-radius:7px;
     background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.06);
-    margin:0 0 12px 0;
+    margin:0;flex:0 0 auto;
   }
   .edit-modal .edit-subtab{
-    flex:1 1 0;padding:8px 12px;border-radius:6px;
+    flex:0 0 auto;padding:5px 10px;border-radius:5px;
     background:transparent;color:rgba(255,255,255,.55);
-    border:none;cursor:pointer;font-size:.76rem;font-weight:500;
-    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    border:none;cursor:pointer;font-size:.7rem;font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
     transition:background .12s,color .12s;line-height:1;
   }
   .edit-modal .edit-subtab .ico{width:1em;height:1em;margin:0;}
@@ -2673,11 +2746,33 @@
   }
   .edit-angle-row input[type=range]{flex:1;min-width:0;}
   .edit-adjust-sliders{display:flex;flex-direction:column;gap:10px;}
-  .adj-row{display:grid;grid-template-columns:70px 1fr 34px;gap:6px;align-items:center;}
-  .adj-label{font-size:.74rem;color:rgba(255,255,255,.6);}
-  .adj-val{font-size:.74rem;color:#fff;text-align:right;font-variant-numeric:tabular-nums;}
-  .adj-row input[type=range]{width:100%;}
-  .edit-preset-strip{display:flex;gap:4px;flex-wrap:wrap;}
+  /* R29 — .adj-row compact inline-flex (~220px wide unit). */
+  .adj-row{
+    display:inline-flex;align-items:center;gap:8px;
+    flex:0 0 auto;min-width:0;
+  }
+  .adj-label{
+    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);
+    white-space:nowrap;flex:0 0 auto;
+  }
+  .adj-row input[type=range]{
+    width:120px;min-width:80px;max-width:160px;
+    flex:0 1 auto;
+  }
+  .adj-val{
+    font-family:var(--font-mono);
+    font-size:.7rem;color:rgba(255,255,255,.85);
+    text-align:right;font-variant-numeric:tabular-nums;
+    min-width:30px;flex:0 0 auto;
+  }
+  /* R29 — preset strip horizontal-scroll, no wrap */
+  .edit-preset-strip{
+    display:flex;gap:4px;flex-wrap:nowrap;
+    overflow-x:auto;scrollbar-width:none;
+    max-width:340px;padding:1px;
+  }
+  .edit-preset-strip::-webkit-scrollbar{display:none;}
   .edit-preset-btn{
     padding:5px 9px;border-radius:5px;
     background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);
@@ -2706,7 +2801,19 @@
   .edit-vignette-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
   .edit-vignette-reset:disabled{opacity:.35;cursor:not-allowed;}
   .edit-vignette-sliders{display:flex;flex-direction:column;gap:8px;}
-  .edit-vignette-sliders .adj-row{grid-template-columns:62px 1fr 36px;}
+  /* R29 — vignette uses the new compact .adj-row. */
+  .edit-vignette-section{
+    display:inline-flex;align-items:center;gap:10px;
+    flex:0 0 auto;
+  }
+  .edit-vignette-section h4{
+    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.55);
+    margin:0;white-space:nowrap;
+  }
+  .edit-vignette-sliders{
+    display:inline-flex;align-items:center;gap:8px;
+  }
   /* image frame wraps the adjust preview so the vignette overlay can sit on the image bbox */
   .edit-preview-col .edit-adjust-img-frame{
     position:relative;display:inline-flex;max-width:100%;max-height:100%;
@@ -2798,27 +2905,29 @@
     border:1px solid rgba(255,255,255,.12);font-size:.82rem;
   }
   /* Round 6: Auto Enhance row inside Adjust tab */
+  /* R29 — auto-enhance compact pill in the strip row, not a hero band. */
   .edit-auto-enhance-row{
-    display:flex;align-items:center;gap:6px;
-    padding:8px 9px;border-radius:7px;
-    background:linear-gradient(90deg,rgba(120,180,255,.10),rgba(120,180,255,.04));
-    border:1px solid rgba(120,180,255,.18);
+    display:inline-flex;align-items:center;gap:4px;
+    padding:0;border:none;background:transparent;
+    flex:0 0 auto;
   }
   .edit-auto-enhance-btn{
-    flex:1;padding:7px 10px;border-radius:6px;
-    background:rgba(120,180,255,.18);color:#fff;
-    border:1px solid rgba(120,180,255,.32);cursor:pointer;
-    font-size:.78rem;font-weight:600;
-  }
-  .edit-auto-enhance-btn:hover{background:rgba(120,180,255,.28);}
-  .edit-auto-enhance-btn:disabled{opacity:.5;cursor:default;}
-  .edit-auto-enhance-btn.active{background:rgba(120,180,255,.36);border-color:rgba(120,180,255,.55);}
-  .edit-auto-enhance-undo{
-    padding:6px 9px;border-radius:6px;font-size:.7rem;
-    background:transparent;color:rgba(255,255,255,.6);
+    flex:0 0 auto;height:28px;padding:0 10px;border-radius:6px;
+    background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);
     border:1px solid rgba(255,255,255,.14);cursor:pointer;
+    font-size:.7rem;font-weight:600;
+    display:inline-flex;align-items:center;gap:4px;
+    white-space:nowrap;
   }
-  .edit-auto-enhance-undo:hover{color:#fff;background:rgba(255,255,255,.08);}
+  .edit-auto-enhance-btn:hover{background:rgba(255,255,255,.10);color:#fff;}
+  .edit-auto-enhance-btn:disabled{opacity:.5;cursor:default;}
+  .edit-auto-enhance-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .edit-auto-enhance-undo{
+    padding:3px 6px;border-radius:4px;font-size:.65rem;
+    background:transparent;color:rgba(255,255,255,.55);
+    border:none;cursor:pointer;
+  }
+  .edit-auto-enhance-undo:hover{color:#fff;background:rgba(255,255,255,.06);}
   /* Round 6: Pixelate tab */
   .edit-preview-col .edit-pixelate-wrap{
     width:100%;height:100%;
