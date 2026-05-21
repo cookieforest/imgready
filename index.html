@@ -2495,31 +2495,30 @@ Content-Type: text/html
     text-transform:uppercase;color:rgba(255,255,255,.55);
     margin:0;white-space:nowrap;flex:0 0 auto;
   }
+  /* R32 — Actions cluster lives in its own compact row above the strip.
+     No longer shares space with the tool nav. */
   .edit-modal .edit-menu-bottom-row{
-    /* R30 — match home .bb-core padding exactly (8px 12px) so the
-       bottom toolbar reads at the same density as home. */
-    display:flex;align-items:center;gap:10px;
-    padding:8px 12px;
+    display:flex;align-items:center;justify-content:flex-end;
+    gap:8px;padding:6px 12px;
+    border-bottom:1px solid rgba(255,255,255,.06);
   }
-  /* R31 — Camera-roll tool strip: horizontal-scroll, icon-over-label,
-     mirrors iOS Photos / Lightroom Mobile density.
-     Each tool is a fixed-width button: icon (18px) stacked over a
-     short label (.64rem). Strip scrolls horizontally with momentum,
-     hides the scrollbar, and shows fade-edge masks so users see
-     that more tools exist off-screen. */
+  /* R32 — Camera-roll tool strip: standalone full-width row at the
+     bottom of the card, mirrors iOS Photos / Lightroom Mobile.
+     Strip scrolls horizontally with momentum, hides scrollbar, and
+     shows fade-edge masks so users see off-screen tools. */
   .edit-modal .edit-tab-bar{
     display:flex;
-    flex:1 1 auto;min-width:0;
+    width:100%;
     overflow-x:auto;overflow-y:hidden;
     -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity;
     scrollbar-width:none;
     gap:2px;
-    padding:4px 6px;
+    padding:6px 8px;
     align-items:stretch;
     scroll-behavior:smooth;
-    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);
-    mask-image:linear-gradient(to right,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
   }
   .edit-modal .edit-tab-bar::-webkit-scrollbar{display:none;}
   .edit-modal .edit-tab-bar .edit-tab{
@@ -3414,24 +3413,18 @@ Content-Type: text/html
       left:8px;right:8px;
       bottom:max(8px, env(safe-area-inset-bottom, 8px));
     }
-    .edit-modal .edit-menu-bottom-row{flex-direction:column;align-items:stretch;gap:6px;padding:6px;}
-    .edit-modal .edit-actions-cluster{
-      /* R30 — On mobile the cluster wraps to its own row. Suppress the
-         desktop ::before vertical divider and use a top hairline instead. */
-      border-top:1px solid rgba(255,255,255,.06);
-      padding-left:0;padding-top:6px;margin-left:0;width:100%;
-      justify-content:flex-end;
-    }
+    /* R32 — mobile: actions row is already compact; strip stays full-width. */
+    .edit-modal .edit-menu-bottom-row{padding:5px 10px;gap:6px;}
+    .edit-modal .edit-actions-cluster{gap:4px;}
     .edit-modal .edit-actions-cluster::before{display:none;}
     .edit-modal .edit-options-strip{max-height:32vh;padding:10px 12px;gap:10px;}
     .edit-compare-btn{display:none;}
-    /* R31 — on mobile the strip stays scrollable; shrink buttons slightly. */
-    .edit-modal .edit-tab-bar{padding:3px 4px;gap:1px;}
+    /* R32 — on mobile the strip stays scrollable; shrink buttons slightly. */
+    .edit-modal .edit-tab-bar{padding:4px 6px;gap:1px;}
     .edit-modal .edit-tab-bar .edit-tab,.edit-modal .edit-tab{
       min-width:48px;height:46px;font-size:.60rem;padding:4px 6px;
     }
     .edit-modal .edit-tab-bar .edit-tab .ico,.edit-modal .edit-tab .ico{width:16px;height:16px;}
-    .edit-modal .edit-menu-bottom-row{flex-wrap:wrap;gap:6px;}
     .edit-modal .edit-subtab{padding:5px 8px;font-size:.72rem;}
     .edit-modal .edit-body{padding:12px 12px;gap:12px;min-height:0;}
     /* Preset / filter / aspect / mode buttons share .edit-preset-btn — shrink so they fit in one row. */
@@ -3503,14 +3496,9 @@ Content-Type: text/html
     background:var(--accent);
     filter:brightness(1.04);
   }
-  .edit-modal .edit-tab.active{
-    background:rgba(138,174,138,.12);
-    position:relative;
-  }
-  .edit-modal .edit-tab.active::after{
-    content:"";position:absolute;left:8px;right:8px;bottom:2px;
-    height:2px;background:var(--accent);border-radius:1px;
-  }
+  /* R32 — removed R24 underline indicator; active tab uses background
+     fill only (iOS Photos style), set in the strip rule above. */
+  .edit-modal .edit-tab.active{background:rgba(138,174,138,.12);}
   /* R24 — wordmark on the hero gets the warm sage as the second word's color
      (was already using .g class on the "g" letter; promote to whole accent). */
   .brand .g{color:var(--accent-strong, var(--accent));font-weight:600;}
@@ -11992,7 +11980,6 @@ function doClear(){
     <div class="edit-menu-card">
       <section class="edit-options-strip" id="editBody" role="region" aria-label="Tool options"></section>
       <div class="edit-menu-bottom-row">
-        <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
         <div class="edit-actions-cluster">
           <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
           <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
@@ -12002,6 +11989,7 @@ function doClear(){
           <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
         </div>
       </div>
+      <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
     </div>
   </div>
     <div id="editCompareOverlay" class="edit-compare-overlay" style="display:none">
