@@ -2424,6 +2424,9 @@ Content-Type: text/html
     border-bottom:1px solid rgba(255,255,255,.06);
   }
   .edit-modal .edit-options-strip:empty{display:none;}
+  /* R31 — Slide-up reveal when a tool's controls appear. */
+  @keyframes _editBodyIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .edit-modal .edit-options-strip.anim-in{animation:_editBodyIn .18s ease-out both;}
   /* Direct children become horizontal flex rows by default,
      overriding tool-specific column layouts. */
   .edit-modal .edit-options-strip > * {
@@ -2498,38 +2501,52 @@ Content-Type: text/html
     display:flex;align-items:center;gap:10px;
     padding:8px 12px;
   }
-  /* R30 — Tab bar adopts home button density tokens:
-     - 30px height (--bb-btn-h)
-     - .72rem font, weight 600
-     - icon + label INLINE (was: column-stacked, ate vertical space)
-     - 7px radius
-     - sage tint when active (matches R24 brand accent treatment). */
+  /* R31 — Camera-roll tool strip: horizontal-scroll, icon-over-label,
+     mirrors iOS Photos / Lightroom Mobile density.
+     Each tool is a fixed-width button: icon (18px) stacked over a
+     short label (.64rem). Strip scrolls horizontally with momentum,
+     hides the scrollbar, and shows fade-edge masks so users see
+     that more tools exist off-screen. */
   .edit-modal .edit-tab-bar{
-    display:flex;gap:4px;
+    display:flex;
     flex:1 1 auto;min-width:0;
-    align-items:center;
+    overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    gap:2px;
+    padding:4px 6px;
+    align-items:stretch;
+    scroll-behavior:smooth;
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);
   }
+  .edit-modal .edit-tab-bar::-webkit-scrollbar{display:none;}
   .edit-modal .edit-tab-bar .edit-tab{
-    flex:1 1 0;min-width:0;
-    height:var(--bb-btn-h, 30px);padding:0 10px;
-    border-radius:7px;
-    background:transparent;color:rgba(255,255,255,.70);
+    flex:0 0 auto;
+    min-width:54px;
+    height:50px;
+    padding:5px 8px;
+    border-radius:10px;
+    background:transparent;color:rgba(255,255,255,.52);
     border:none;cursor:pointer;
     font-family:var(--font-body);
-    font-size:.72rem;font-weight:600;
-    letter-spacing:.02em;
-    display:inline-flex;align-items:center;justify-content:center;gap:6px;
-    line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-size:.64rem;font-weight:500;
+    letter-spacing:.01em;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    line-height:1;white-space:nowrap;
     transition:background .12s,color .12s;
+    scroll-snap-align:start;
   }
   .edit-modal .edit-tab-bar .edit-tab .ico{
-    width:1em;height:1em;margin:0;flex:0 0 auto;
+    width:18px;height:18px;margin:0;flex:0 0 auto;
+    transition:color .12s;
   }
   .edit-modal .edit-tab-bar .edit-tab:hover{
-    color:#fff;background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);
   }
   .edit-modal .edit-tab-bar .edit-tab.active{
-    background:rgba(138,174,138,.14);color:#fff;
+    background:rgba(138,174,138,.18);color:#fff;
   }
   .edit-modal .edit-tab-bar .edit-tab.active .ico{color:var(--accent);}
   /* R30 — Actions cluster now matches home .menu-card > .actions:
@@ -2609,22 +2626,23 @@ Content-Type: text/html
   .edit-modal .edit-layout,
   .edit-modal .edit-preview-col,
   .edit-modal .edit-panel-col{display:contents;}
-  /* R28 — .edit-tabs (legacy class) inherits the .edit-tab-bar styles
-     defined above for backward compat with any future render that
-     uses the old class. */
+  /* R31 — .edit-tabs legacy alias kept; individual .edit-tab rule
+     now covered by .edit-tab-bar .edit-tab above.
+     Keep legacy classes intact so existing render code doesn't break. */
   .edit-modal .edit-tabs{display:contents;}
+  /* Fallback outside the strip (e.g. sub-toggle bodies) */
   .edit-modal .edit-tab{
-    flex:1 1 0;min-width:0;
-    padding:8px 8px;border-radius:8px;
-    background:transparent;color:rgba(255,255,255,.55);
-    border:none;cursor:pointer;font-size:.72rem;font-weight:500;
+    min-width:54px;flex:0 0 auto;
+    padding:5px 8px;border-radius:10px;height:50px;
+    background:transparent;color:rgba(255,255,255,.52);
+    border:none;cursor:pointer;font-size:.64rem;font-weight:500;
     transition:background .12s,color .12s;
-    display:flex;flex-direction:column;align-items:center;gap:4px;
-    line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    line-height:1;white-space:nowrap;
   }
-  .edit-modal .edit-tab .ico{width:1.15em;height:1.15em;margin:0;}
-  .edit-modal .edit-tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.04);}
-  .edit-modal .edit-tab.active{background:rgba(255,255,255,.1);color:#fff;}
+  .edit-modal .edit-tab .ico{width:18px;height:18px;margin:0;}
+  .edit-modal .edit-tab:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);}
+  .edit-modal .edit-tab.active{background:rgba(138,174,138,.18);color:#fff;}
   .edit-modal .edit-tab.active .ico{color:var(--accent);}
   /* R29 — sub-toggle pill switcher, tighter and inline. */
   .edit-modal .edit-subtoggle{
@@ -3407,10 +3425,13 @@ Content-Type: text/html
     .edit-modal .edit-actions-cluster::before{display:none;}
     .edit-modal .edit-options-strip{max-height:32vh;padding:10px 12px;gap:10px;}
     .edit-compare-btn{display:none;}
-    /* R20 - equal-width tabs already fit 5 across at any width. */
-    .edit-modal .edit-tabs{padding:8px 12px;gap:4px;flex-wrap:nowrap;}
-    .edit-modal .edit-tab{padding:8px 4px;font-size:.66rem;gap:4px;}
-    .edit-modal .edit-tab .ico{width:1.05em;height:1.05em;}
+    /* R31 — on mobile the strip stays scrollable; shrink buttons slightly. */
+    .edit-modal .edit-tab-bar{padding:3px 4px;gap:1px;}
+    .edit-modal .edit-tab-bar .edit-tab,.edit-modal .edit-tab{
+      min-width:48px;height:46px;font-size:.60rem;padding:4px 6px;
+    }
+    .edit-modal .edit-tab-bar .edit-tab .ico,.edit-modal .edit-tab .ico{width:16px;height:16px;}
+    .edit-modal .edit-menu-bottom-row{flex-wrap:wrap;gap:6px;}
     .edit-modal .edit-subtab{padding:5px 8px;font-size:.72rem;}
     .edit-modal .edit-body{padding:12px 12px;gap:12px;min-height:0;}
     /* Preset / filter / aspect / mode buttons share .edit-preset-btn — shrink so they fit in one row. */
@@ -3845,6 +3866,10 @@ Content-Type: text/html
     <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13"/></symbol>
     <symbol id="i-sliders-horizontal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
     <symbol id="i-type" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></symbol>
+    <symbol id="i-crop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-droplets" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></symbol>
+    <symbol id="i-eraser" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
 </svg>
@@ -6535,21 +6560,29 @@ function _detectEditFileType(file){
    Transform groups Rotate+Crop; Retouch groups Pixelate+Blur. Each
    group exposes a sub-toggle inside the panel body so the surface is
    identical to the previous flat layout, just nested one level. */
+/* R31 — flat camera-roll strip: each tool is a direct top-level
+   button. Removed the grouped Transform/Retouch meta-tabs that hid
+   Rotate, Crop, Pixelate and Blur behind a sub-toggle. The existing
+   renderers (_renderRotateTab, _renderCropTab, etc.) are unchanged;
+   they now get called directly from _switchEditTab. */
 function _editTabsForType(t){
   const isPhoto = (t === 'png' || t === 'jpg' || t === 'webp' || t === 'avif' || t === 'heic');
   const tabs = [];
   if (t === 'gif') {
-    tabs.push({ id: 'frames', label: 'Frames', icon: 'i-arrow-left-right' });
+    tabs.push({ id: 'frames',   label: 'Frames',  icon: 'i-arrow-left-right' });
     return tabs;
   }
   if (isPhoto) {
-    tabs.push({ id: 'adjust',    label: 'Adjust',    icon: 'i-sliders-horizontal' });
-    tabs.push({ id: 'transform', label: 'Transform', icon: 'i-rotate-cw' });
-    tabs.push({ id: 'retouch',   label: 'Retouch',   icon: 'i-brush' });
-    tabs.push({ id: 'add',       label: 'Add',       icon: 'i-type' });
-    tabs.push({ id: 'bg',        label: 'Background',icon: 'i-scissors' });
+    tabs.push({ id: 'adjust',   label: 'Adjust',  icon: 'i-sliders-horizontal' });
+    tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
+    tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
+    tabs.push({ id: 'pixelate', label: 'Pixelate',icon: 'i-grid' });
+    tabs.push({ id: 'blur',     label: 'Blur',    icon: 'i-droplets' });
+    tabs.push({ id: 'text',     label: 'Text',    icon: 'i-type' });
+    tabs.push({ id: 'bg',       label: 'Remove BG',icon: 'i-eraser' });
   } else {
-    tabs.push({ id: 'transform', label: 'Transform', icon: 'i-rotate-cw' });
+    tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
+    tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
   }
   return tabs;
 }
@@ -6623,16 +6656,31 @@ function openEditMode(idx){
    classes they toggle (.edit-tabs--overflow-l/-r) used to have
    mask-image rules that are now gone. The toggles were no-ops in
    visible effect. Stub them out to stop the runtime work. */
-function _updateTabsOverflow(){ /* R26: noop — see comment */ }
-function _scrollActiveTabIntoView(){ /* R26: noop — tabs no longer scroll */ }
+function _updateTabsOverflow(){ /* R26: noop */ }
+/* R31 — revived: scrolls the active tool button into view inside the
+   horizontal strip. Uses scrollIntoView with inline:'nearest' so it
+   nudges the strip just enough without over-scrolling. */
+function _scrollActiveTabIntoView(){
+  const active = document.querySelector('.edit-modal .edit-tab-bar .edit-tab.active');
+  if (active) active.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });
+}
 let _tabsOverflowWired = false;
-function _wireTabsOverflowWatcher(){ /* R26: noop — tabs no longer scroll */ }
+function _wireTabsOverflowWatcher(){ /* R26: noop */ }
 function _switchEditTab(tabId){
   document.querySelectorAll('.edit-modal .edit-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.tab === tabId);
   });
   if (typeof _wireTabsOverflowWatcher === 'function') _wireTabsOverflowWatcher();
-  requestAnimationFrame(()=>{ if (typeof _scrollActiveTabIntoView === 'function') _scrollActiveTabIntoView(); });
+  /* R31 — scroll active tool into view + trigger slide-up animation. */
+  requestAnimationFrame(()=>{
+    _scrollActiveTabIntoView();
+    const body = document.getElementById('editBody');
+    if (body && body.children.length){
+      body.classList.remove('anim-in');
+      void body.offsetWidth;
+      body.classList.add('anim-in');
+    }
+  });
   /* R30 — Remove any portalled adjust-tab dropdowns from a previous tab
      render. The dropdowns are appended to <body> (not #editBody) so the
      normal body.innerHTML='' below doesn't clean them up. */
