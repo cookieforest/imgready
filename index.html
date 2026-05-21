@@ -2405,6 +2405,9 @@ Content-Type: text/html
     color:#fff;
     display:flex;flex-direction:column;
     overflow:hidden;
+    /* R33 — bottom padding gives the pill strip breathing room before
+       the card's overflow:hidden clips it at the rounded corner. */
+    padding-bottom:10px;
     /* R30 — removed max-width:1100px. Home .menu-card has no max-width
        (it fills the wrap with 16px gutters on each side); matching that
        gives the edit toolbar the same on-screen presence on wide displays. */
@@ -2502,21 +2505,28 @@ Content-Type: text/html
     gap:8px;padding:6px 12px;
     border-bottom:1px solid rgba(255,255,255,.06);
   }
-  /* R32 — Camera-roll tool strip: standalone full-width row at the
-     bottom of the card, mirrors iOS Photos / Lightroom Mobile.
-     Strip scrolls horizontally with momentum, hides scrollbar, and
-     shows fade-edge masks so users see off-screen tools. */
+  /* R33 — Camera-roll pill: floating capsule at bottom of card, matches
+     iOS Photos / iOS 26 inset tab-bar pattern. Has its own background
+     and border, side margins so it doesn't touch card edges, and full
+     border-radius. Tools center when they fit; scroll-left when they
+     overflow (safe center fallback). Edge mask hints at off-screen tools. */
   .edit-modal .edit-tab-bar{
     display:flex;
-    width:100%;
+    justify-content:safe center;
     overflow-x:auto;overflow-y:hidden;
     -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity;
     scrollbar-width:none;
     gap:2px;
-    padding:6px 8px;
+    padding:5px 8px;
     align-items:stretch;
     scroll-behavior:smooth;
+    /* Pill container */
+    background:rgba(255,255,255,.05);
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.08);
+    margin:0 10px;
+    /* Edge fade so users see more tools exist off-screen */
     -webkit-mask-image:linear-gradient(to right,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
     mask-image:linear-gradient(to right,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
   }
@@ -2544,8 +2554,17 @@ Content-Type: text/html
   .edit-modal .edit-tab-bar .edit-tab:hover{
     color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);
   }
+  /* R33 — iOS Photos active state: small accent dot above the icon,
+     white text, no background fill (pill is the container, not the tab). */
   .edit-modal .edit-tab-bar .edit-tab.active{
-    background:rgba(138,174,138,.18);color:#fff;
+    background:transparent;color:#fff;
+    position:relative;
+  }
+  .edit-modal .edit-tab-bar .edit-tab.active::before{
+    content:"";position:absolute;
+    top:5px;left:50%;transform:translateX(-50%);
+    width:4px;height:4px;border-radius:50%;
+    background:var(--accent);
   }
   .edit-modal .edit-tab-bar .edit-tab.active .ico{color:var(--accent);}
   /* R30 — Actions cluster now matches home .menu-card > .actions:
@@ -2726,8 +2745,11 @@ Content-Type: text/html
   }
   .edit-compare-overlay img{max-width:100%;max-height:calc(100% - 44px);object-fit:contain;}
   /* Round 10 — Before/After split-slider (lives inside .edit-preview-col). */
+  /* R33 — bottom offset is driven by --split-btn-bottom CSS var, updated
+     by _updateSplitBtnPos() whenever the card height changes (tab switch,
+     resize). Fallback 170px clears a typical compact card (actions+strip). */
   .edit-split-btn{
-    position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+    position:absolute;bottom:var(--split-btn-bottom,170px);left:50%;transform:translateX(-50%);
     z-index:14;padding:7px 14px;
     background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.18);
     border-radius:18px;font-size:.76rem;font-weight:600;cursor:pointer;
@@ -2784,7 +2806,7 @@ Content-Type: text/html
   .edit-split-label.before{left:10px;}
   .edit-split-label.after {right:10px;}
   @media (max-width:640px){
-    .edit-split-btn{bottom:10px;padding:6px 11px;font-size:.7rem;}
+    .edit-split-btn{bottom:var(--split-btn-bottom,130px);padding:6px 11px;font-size:.7rem;}
     .edit-split-handle::before{width:34px;height:34px;}
   }
   .edit-compare-label{
@@ -6636,6 +6658,14 @@ function openEditMode(idx){
   });
   _switchEditTab(tabs[0].id);
   _updateEditHistoryUI();
+  /* R33 — keep split-btn above the card on resize (e.g. virtual keyboard,
+     orientation change). One listener per page session. */
+  if (!window._editResizeBound) {
+    window._editResizeBound = true;
+    window.addEventListener('resize', function(){
+      requestAnimationFrame(_updateSplitBtnPos);
+    }, { passive: true });
+  }
 }
 /* R26 — _updateTabsOverflow + _scrollActiveTabIntoView + _wireTabsOverflowWatcher
    are dead code from R19's horizontal-scroll tab bar. R20 replaced
@@ -7077,6 +7107,18 @@ function _ensureSplitUi(){
     eb.addEventListener('change', refresh, true);
   }
   _updateSplitBtnState();
+  try { _updateSplitBtnPos(); } catch(_) {}
+}
+/* R33 — reposition the floating split-compare button so it always clears
+   the card. The card (edit-menu-wrap) is position:absolute bottom:16px,
+   so the button should sit card_height + 16 + 12px gap above the screen
+   bottom. Called on every tab switch and on window resize. */
+function _updateSplitBtnPos(){
+  const wrap = document.querySelector('.edit-modal .edit-menu-wrap');
+  const modal = document.querySelector('.edit-modal');
+  if (!wrap || !modal) return;
+  const h = wrap.getBoundingClientRect().height;
+  modal.style.setProperty('--split-btn-bottom', (h + 28) + 'px');
 }
 function _updateSplitBtnState(){
   const btn = document.getElementById('editSplitBtn');
