@@ -2321,6 +2321,9 @@ Content-Type: text/html
     position:absolute;inset:0;
     transform-origin:center center;
     will-change:transform;
+    /* flex-center so all tool previews are centered (same behaviour as
+       the old direct-in-editPreviewCol renders before R34). */
+    display:flex;align-items:center;justify-content:center;
   }
   /* R30 — Edit top chrome mirrors home .top-chrome EXACTLY:
      - single flush-at-top bar (NOT two floating pills)
@@ -6864,7 +6867,7 @@ function _switchEditTab(tabId){
     /* R34 — recreate zoom layer; split UI (btn+overlay) will be appended
        by _ensureSplitUi to editPreviewCol directly, outside this layer. */
     const _zl = document.createElement('div');
-    _zl.id = 'editZoomLayer'; _zl.className = 'edit-zoom-layer';
+    _zl.id = 'editZoomLayer'; _zl.className = 'edit-zoom-layer edit-preview-col';
     previewCol.appendChild(_zl);
     _resetEditZoom();
   }
@@ -7296,14 +7299,19 @@ function _updateSplitBtnState(){
               || !!document.querySelector('.edit-modal .edit-subtab.active[data-subtab="crop"]');
   if (onCrop){
     btn.style.display = 'none';
+    const _pC = btn.previousElementSibling, _nC = btn.nextElementSibling;
+    if (_pC && _pC.classList.contains('edit-pill-sep')) _pC.style.display = 'none';
+    if (_nC && _nC.classList.contains('edit-pill-sep')) _nC.style.display = 'none';
     /* If split is active and user navigated to crop, force-off so handles don't conflict. */
     if (_editState._splitActive){ _editState._splitActive = false; _ensureSplitUi(); }
     return;
   }
-  btn.style.display = '';
   const has = _editHasAnyEdit();
+  const _pS = btn.previousElementSibling, _nS = btn.nextElementSibling;
+  /* Hide btn + flanking separators until edits exist — avoids ghost gap. */
+  [btn, _pS, _nS].forEach(el => { if (el) el.style.display = has ? '' : 'none'; });
   btn.disabled = !has;
-  btn.title = has ? 'Drag the divider to compare original vs edited' : 'Make an edit first';
+  btn.title = has ? 'Drag the divider to compare original vs edited' : '';
 }
 function _toggleSplitCompare(){
   if (!_editState || _editState.idx < 0) return;
@@ -12170,7 +12178,7 @@ function doClear(){
   <!-- R28 — image canvas fills the viewport (inset:0). All chrome
        floats over it. Mirrors how the home solo state composes its
        .image-canvas with .top-chrome + .menu-card overlays. -->
-  <main class="edit-canvas-area" id="editPreviewCol"><div id="editZoomLayer" class="edit-zoom-layer"></div></main>
+  <main class="edit-canvas-area" id="editPreviewCol"><div id="editZoomLayer" class="edit-zoom-layer edit-preview-col"></div></main>
   <!-- R28 — floating top chrome: two translucent pills (brand link +
        filename chip). pointer-events:none on container so canvas
        interactions (drag compare slider, etc.) pass through the empty
