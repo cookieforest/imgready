@@ -461,8 +461,8 @@
       "resolved": "2026-05-18 (disk dropped from 100% to 85%; bash + node + npm all functional this session)"
     }
   ],
-  "last_commit": "STAGED_PENDING_PUSH",
-  "last_sw": "STAGED_PENDING_PUSH",
+  "last_commit": "d8c94d6b1f0c",
+  "last_sw": "d8c94d6b1f0c",
   "build_order": [
     "TRIAGE (highest priority \u2014 user-flagged mid-round-14): Edit-mode UX overhaul informed by Photopea/Pixlr/Squoosh fresh-eyes review",
     "TRIAGE: Brush-size cursor ring (Pixelate + Blur + BG Refine) \u2014 make brush size visible at all times",
