@@ -6802,6 +6802,9 @@ function _wireEditZoom(){
   col.addEventListener('dblclick', e => {
     if (e.target.closest('.edit-action-pill,.edit-menu-card')) return;
     if (document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')) return;
+    /* R40 — brush canvases: only zoom-toggle on dblclick when in pan mode. */
+    const _isBrushDbl = e.target.classList.contains('edit-blur-canvas') || e.target.classList.contains('edit-pixelate-canvas');
+    if (_isBrushDbl && !(_editState && _editState.panMode)) return;
     if (EDIT_ZOOM.scale > 1) _resetEditZoom();
     else _setEditZoomToward(2.5, e.clientX, e.clientY);
   });
@@ -6809,6 +6812,9 @@ function _wireEditZoom(){
   col.addEventListener('pointerdown', e => {
     if (EDIT_ZOOM.scale <= 1) return;
     if (e.target.closest('.edit-action-pill,.edit-menu-card,.edit-split-btn,.edit-crop-canvas-wrap,.edit-split-handle')) return;
+    /* R40 — brush canvases own their pointers; only allow pan if user explicitly chose pan mode. */
+    const _isBrush = e.target.classList.contains('edit-blur-canvas') || e.target.classList.contains('edit-pixelate-canvas');
+    if (_isBrush && !(_editState && _editState.panMode)) return;
     EDIT_ZOOM.dragging=true; EDIT_ZOOM.lastX=e.clientX; EDIT_ZOOM.lastY=e.clientY;
     try { col.setPointerCapture(e.pointerId); } catch(_){}
   });
@@ -6873,6 +6879,7 @@ function _switchEditTab(tabId){
     _zl.id = 'editZoomLayer'; _zl.className = 'edit-zoom-layer edit-preview-col';
     previewCol.appendChild(_zl);
     _resetEditZoom();
+    if (_editState) _editState.panMode = false;
   }
   /* R20 routing - grouped tabs delegate to existing renderers via a
      sub-toggle wrapper. Legacy IDs still route for backward-compat. */
@@ -9202,6 +9209,7 @@ async function _renderPixelateTab(body){
     +   '<div class="px-tool-strip">'
     +     '<button type="button" class="edit-preset-btn' + (px.mode==='paint'?' active':'') + '" data-px-mode="paint">Paint</button>'
     +     '<button type="button" class="edit-preset-btn' + (px.mode==='erase'?' active':'') + '" data-px-mode="erase">Erase</button>'
+    +     '<button type="button" class="edit-preset-btn' + (px.mode==='pan'?' active':'') + '" data-px-mode="pan">Pan</button>'
     +   '</div>'
     +   '<div class="edit-tool-dd" id="editPxDD">'
     +     '<span class="adj-label">Brush</span>'
@@ -9223,7 +9231,7 @@ async function _renderPixelateTab(body){
     +     '</div>'
     +   '</div>'
     +   '<button type="button" class="edit-frames-action-btn" id="pxClear">Clear all</button>'
-    +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation. Use [ and ] to resize the brush.</p>'
+    +   '<p class="edit-pixelate-help">Paint to censor · Erase to remove · Pan to navigate when zoomed</p>'
     + '</div>';
   /* Build preview source (applies upstream edits) */
   await _pxBaseBlob();
@@ -9325,9 +9333,11 @@ async function _renderPixelateTab(body){
     const rect = canvas.getBoundingClientRect();
     const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
     const cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - rect.top;
-    return { x: cx / dw, y: cy / dh, r: (px.brushPx / 2) / Math.min(dw, dh) };
+    /* R40 — divide by visual rect size (post-zoom) so strokes land correctly at any zoom level. */
+    return { x: cx / rect.width, y: cy / rect.height, r: (px.brushPx / 2) / Math.min(dw, dh) };
   }
   function down(ev){
+    if (_editState && _editState.panMode) return;
     ev.preventDefault();
     _editPushUndo();
     painting = true;
@@ -9354,6 +9364,9 @@ async function _renderPixelateTab(body){
       document.querySelectorAll('#editBody [data-px-mode]').forEach(x => x.classList.remove('active'));
       b.classList.add('active');
       px.mode = b.dataset.pxMode;
+      _editState.panMode = (px.mode === 'pan');
+      if (_editState.panMode) { canvas.style.cursor = EDIT_ZOOM.scale > 1 ? 'grab' : 'default'; }
+      else { _pxRefreshCursor(); }
     });
   });
   const brushSl = document.getElementById('pxBrush');
@@ -9499,6 +9512,7 @@ async function _renderBlurTab(body){
     +   '<div class="blur-tool-strip">'
     +     '<button type="button" class="edit-preset-btn' + (bl.mode==='paint'?' active':'') + '" data-bl-mode="paint">Paint</button>'
     +     '<button type="button" class="edit-preset-btn' + (bl.mode==='erase'?' active':'') + '" data-bl-mode="erase">Erase</button>'
+    +     '<button type="button" class="edit-preset-btn' + (bl.mode==='pan'?' active':'') + '" data-bl-mode="pan">Pan</button>'
     +   '</div>'
     +   '<div class="edit-tool-dd" id="editBlDD">'
     +     '<span class="adj-label">Brush</span>'
@@ -9523,7 +9537,7 @@ async function _renderBlurTab(body){
     +     '<button type="button" class="edit-frames-action-btn" id="blApplyAll">' + (bl.full ? 'Brush only' : 'Whole image') + '</button>'
     +     '<button type="button" class="edit-frames-action-btn" id="blClear">Clear all</button>'
     +   '</div>'
-    +   '<p class="edit-blur-help">Drag over areas you want to soften. Switch to Erase to clear blur. Use [ and ] to resize.<strong>Whole image</strong> blurs everything (depth-of-field style).</p>'
+    +   '<p class="edit-blur-help">Paint to soften · Erase to remove · Pan to navigate when zoomed</p>'
     + '</div>';
   /* Build preview source */
   await _blurBaseBlob();
@@ -9647,9 +9661,11 @@ async function _renderBlurTab(body){
     const rect = canvas.getBoundingClientRect();
     const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
     const cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - rect.top;
-    return { x: cx / dw, y: cy / dh, r: (bl.brushPx / 2) / Math.min(dw, dh) };
+    /* R40 — divide by visual rect size (post-zoom) so strokes land correctly at any zoom level. */
+    return { x: cx / rect.width, y: cy / rect.height, r: (bl.brushPx / 2) / Math.min(dw, dh) };
   }
   function down(ev){
+    if (_editState && _editState.panMode) return;
     ev.preventDefault();
     _editPushUndo();
     painting = true;
@@ -9676,6 +9692,9 @@ async function _renderBlurTab(body){
       document.querySelectorAll('#editBody [data-bl-mode]').forEach(x => x.classList.remove('active'));
       b.classList.add('active');
       bl.mode = b.dataset.blMode;
+      _editState.panMode = (bl.mode === 'pan');
+      if (_editState.panMode) { canvas.style.cursor = EDIT_ZOOM.scale > 1 ? 'grab' : 'default'; }
+      else { _blRefreshCursor(); }
     });
   });
   const brushSl = document.getElementById('blBrush');
