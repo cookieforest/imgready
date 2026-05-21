@@ -7228,19 +7228,12 @@ function _ensureSplitUi(){
       + '<button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>'
       + '<button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>'
       + '<button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>'
+      + '<span class="edit-pill-sep" id="editPillSepLeft" style="display:none"></span>'
+      + '<button type="button" class="edit-split-btn" id="editSplitBtn" onclick="_toggleSplitCompare()" title="Compare original vs edited \u2014 drag the divider" aria-label="Compare" style="display:none"><svg class="ico" aria-hidden="true" style="width:14px;height:14px"><use href="#i-arrow-left-right"/></svg></button>'
+      + '<span class="edit-pill-sep" id="editPillSepRight" style="display:none"></span>'
       + '<button type="button" class="btn" onclick="cancelEdit()" title="Cancel \u2014 Esc">Cancel</button>'
       + '<button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>';
     col.appendChild(pill);
-    /* R37 — compare chip floats right of the pill, visible when edits exist. */
-    if (!col.querySelector('.edit-compare-chip')){
-      const cc = document.createElement('button');
-      cc.type = 'button';
-      cc.className = 'edit-compare-chip'; cc.id = 'editCompareChip';
-      cc.innerHTML = '<svg class="ico" aria-hidden="true" style="width:13px;height:13px"><use href="#i-arrow-left-right"/></svg>Compare';
-      cc.title = 'Compare original vs edited — drag the divider';
-      cc.addEventListener('click', _toggleSplitCompare);
-      col.appendChild(cc);
-    }
     if (!col.querySelector('.edit-zoom-chip')){
       const zc = document.createElement('div');
       zc.className = 'edit-zoom-chip'; zc.id = 'editZoomChip';
@@ -7294,21 +7287,28 @@ function _updateSplitBtnPos(){
   const wrap = document.querySelector('.edit-modal .edit-menu-wrap');
   const modal = document.querySelector('.edit-modal');
   if (!wrap || !modal) return;
-  const h = wrap.getBoundingClientRect().height;
-  modal.style.setProperty('--split-btn-bottom', (h + 12) + 'px');
+  /* R38 — use actual top of card so pill always clears it regardless of card height. */
+  const r = wrap.getBoundingClientRect();
+  modal.style.setProperty('--split-btn-bottom', (window.innerHeight - r.top + 10) + 'px');
 }
 function _updateSplitBtnState(){
-  /* R37 — compare chip replaces the split-btn in the pill. */
-  const chip = document.getElementById('editCompareChip');
+  const btn = document.getElementById('editSplitBtn');
+  const sepL = document.getElementById('editPillSepLeft');
+  const sepR = document.getElementById('editPillSepRight');
   const onCrop = !!document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')
               || !!document.querySelector('.edit-modal .edit-subtab.active[data-subtab="crop"]');
   if (onCrop){
-    if (chip) chip.classList.remove('visible');
+    if (btn) btn.style.display = 'none';
+    if (sepL) sepL.style.display = 'none';
+    if (sepR) sepR.style.display = 'none';
     if (_editState._splitActive){ _editState._splitActive = false; _ensureSplitUi(); }
     return;
   }
   const has = _editHasAnyEdit();
-  if (chip){ chip.classList.toggle('visible', has); chip.classList.toggle('active', !!_editState._splitActive); }
+  const vis = has ? '' : 'none';
+  if (btn){ btn.style.display = vis; btn.classList.toggle('active', !!_editState._splitActive); }
+  if (sepL) sepL.style.display = vis;
+  if (sepR) sepR.style.display = vis;
 }
 function _toggleSplitCompare(){
   if (!_editState || _editState.idx < 0) return;
