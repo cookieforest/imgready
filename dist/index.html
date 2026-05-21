@@ -1,3 +1,6 @@
+HTTP 200 
+Content-Type: text/html
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -2276,6 +2279,22 @@
   /* Buttons that combine icon + label keep a small gap. */
   .edit-modal button .ico{margin-right:5px;}
   .edit-modal button.btn-icon .ico{margin:0;width:1.05em;height:1.05em;}
+  /* ============================================================
+     R30 — UNIFICATION PASS: bring the Edit modal in line with the
+     home compress toolbar. Four buckets of changes:
+       1. TOP CHROME: flush flat bar (rounded only at bottom) instead
+          of two floating pills. Matches home .top-chrome tokens.
+       2. BUTTONS: every interactive control in the bottom bar
+          adopts --bb-btn-h:30px, .72rem font, 6-7px radius, padding
+          0 12px, matching home .menu-card > .actions buttons.
+       3. DROPDOWN CHIPS: filter presets + vignette controls move
+          from inline-always-visible to compact chevron-trigger
+          dropdowns, mirroring home .resize-presets-trigger pattern.
+       4. TABS: horizontal icon+label inline (was: column-stacked),
+          --bb-btn-h height, sage tint when active.
+     The R28/R29 4-stack layout (canvas / top-chrome / options-strip
+     / bottom-row) is preserved — only the visual tokens change.
+     ============================================================ */
   /* R28 — Edit modal mirrors home solo-state composition:
      image-canvas fills inset:0, chrome (top brand + bottom menu-card)
      floats absolutely above. NO backdrop-filter on the bottom card
@@ -2295,52 +2314,88 @@
     background:#0a0a0c;
     overflow:hidden;
   }
-  /* R28 — floating top chrome. pointer-events:none on the container
-     so the canvas (compare slider, brush canvases) can be interacted
-     with through the gaps between pills; the pills themselves restore
-     pointer-events. Each pill has its own translucent glass treatment. */
-  .edit-modal .edit-top-chrome{
-    position:absolute;top:16px;left:16px;right:16px;
-    z-index:10;
-    display:flex;align-items:center;gap:10px;
-    pointer-events:none;
+  /* R34 — zoom transform target. Tools render into this layer;
+     split-compare overlay/button are appended to editPreviewCol
+     directly (outside the layer) so they stay unscaled. */
+  .edit-modal .edit-zoom-layer{
+    position:absolute;inset:0;
+    transform-origin:center center;
+    will-change:transform;
+    /* flex-center so all tool previews are centered (same behaviour as
+       the old direct-in-editPreviewCol renders before R34). */
+    display:flex;align-items:center;justify-content:center;
   }
+  /* R30 — Edit top chrome mirrors home .top-chrome EXACTLY:
+     - single flush-at-top bar (NOT two floating pills)
+     - rounded only at bottom corners (border-radius:0 0 14px 14px)
+     - same blur/opacity tokens as home (rgba(20,20,20,.55), blur 11px)
+     - same width band (50vw, min 540, max 780)
+     - three column sections: filename | brand | size info
+     so users feel the SAME chrome whether they're compressing or editing. */
+  .edit-modal .edit-top-chrome{
+    display:flex;flex-direction:row;align-items:center;
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:50vw;min-width:540px;max-width:780px;
+    margin:0;
+    padding:0 18px;
+    min-height:42px;
+    background:rgba(20,20,20,.55);
+    backdrop-filter:blur(11px) saturate(180%);
+    -webkit-backdrop-filter:blur(11px) saturate(180%);
+    border:1px solid rgba(255,255,255,.10);
+    border-top:none;
+    border-radius:0 0 14px 14px;
+    box-shadow:0 4px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
+    z-index:50;pointer-events:auto;
+    gap:14px;
+    line-height:1.15;
+  }
+  /* Children render as plain elements INSIDE the bar — no individual
+     pill backgrounds, so the bar reads as one cohesive surface. */
   .edit-modal .edit-top-chrome > *{
     pointer-events:auto;
-    background:rgba(15,15,18,.72);
-    -webkit-backdrop-filter:blur(20px) saturate(180%);
-    backdrop-filter:blur(20px) saturate(180%);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:100px;
-    padding:7px 14px;
-    color:#fff;
-    line-height:1.2;
+    background:transparent;
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+    border:none;border-radius:0;padding:0;
+    color:#fff;line-height:1;
   }
+  /* Filename left (mirrors home .tc-before — left-aligned mono text). */
+  .edit-modal .edit-filename-chip{
+    display:flex;align-items:center;
+    flex:1;min-width:0;
+    text-align:left;
+    font-family:var(--font-mono);
+    font-size:.7rem;
+    color:rgba(255,255,255,.82);
+    font-variant-numeric:tabular-nums;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    order:1;
+  }
+  /* Brand center (mirrors home .tc-brand — centered display serif). */
   .edit-modal .edit-brand-link{
+    flex:0 0 auto;
     font-family:var(--font-display);
     font-style:italic;font-weight:600;
-    font-size:.98rem;
+    font-size:.94rem;
+    letter-spacing:-.01em;
+    color:rgba(255,255,255,.95);
     text-decoration:none;
     transition:opacity .12s;
-    flex-shrink:0;
+    order:2;
   }
   .edit-modal .edit-brand-link:hover{opacity:.85;}
   .edit-modal .edit-brand-link .g{color:var(--accent);}
-  .edit-modal .edit-brand-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
-  .edit-modal .edit-filename-chip{
-    font-family:var(--font-mono);
-    font-size:.74rem;
-    color:rgba(255,255,255,.85);
-    max-width:360px;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-    flex:0 1 auto;min-width:0;
-  }
+  .edit-modal .edit-brand-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+  /* Size info right (mirrors home .tc-after — right-aligned mono stats). */
   .edit-modal .edit-top-chrome .edit-size-info{
+    display:flex;align-items:center;justify-content:flex-end;
+    flex:1;min-width:0;text-align:right;
     font-family:var(--font-mono);
-    font-size:.7rem;
+    font-size:.66rem;
     color:rgba(255,255,255,.55);
+    font-variant-numeric:tabular-nums;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    max-width:180px;
+    order:3;
   }
   .edit-modal .edit-top-chrome .edit-size-info:empty{display:none;}
   /* R28 — bottom menu wrap + card. Mirrors home .menu-wrap / .menu-card
@@ -2358,9 +2413,15 @@
     background:#1a1a1a;
     border:1px solid rgba(255,255,255,.10);
     border-radius:14px;
+    color:#fff;
     display:flex;flex-direction:column;
     overflow:hidden;
-    max-width:1100px;width:100%;
+    /* R33 — bottom padding gives the pill strip breathing room before
+       the card's overflow:hidden clips it at the rounded corner. */
+    /* padding-bottom removed R34 — edit-bottom-pill handles spacing */
+    /* R30 — removed max-width:1100px. Home .menu-card has no max-width
+       (it fills the wrap with 16px gutters on each side); matching that
+       gives the edit toolbar the same on-screen presence on wide displays. */
   }
   /* R28 — options strip lives ABOVE the bottom row inside the card.
      Has a border-bottom that separates it visually from the bottom row
@@ -2377,6 +2438,9 @@
     border-bottom:1px solid rgba(255,255,255,.06);
   }
   .edit-modal .edit-options-strip:empty{display:none;}
+  /* R31 — Slide-up reveal when a tool's controls appear. */
+  @keyframes _editBodyIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .edit-modal .edit-options-strip.anim-in{animation:_editBodyIn .18s ease-out both;}
   /* Direct children become horizontal flex rows by default,
      overriding tool-specific column layouts. */
   .edit-modal .edit-options-strip > * {
@@ -2445,54 +2509,164 @@
     text-transform:uppercase;color:rgba(255,255,255,.55);
     margin:0;white-space:nowrap;flex:0 0 auto;
   }
-  .edit-modal .edit-menu-bottom-row{
-    display:flex;align-items:stretch;gap:6px;
-    padding:6px 8px;
+  /* R35 — floating action pill (injected into editPreviewCol by _ensureSplitUi).
+     All editing actions live here; card now only holds options + tool strip. */
+  .edit-action-pill{
+    position:absolute;bottom:var(--split-btn-bottom,120px);left:50%;transform:translateX(-50%);
+    z-index:14;
+    display:flex;align-items:center;gap:2px;
+    background:rgba(14,14,18,.80);
+    backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:40px;padding:4px 6px;
+    box-shadow:0 4px 20px rgba(0,0,0,.45);
+    white-space:nowrap;
   }
+  .edit-pill-sep{
+    width:1px;height:18px;margin:0 3px;
+    background:rgba(255,255,255,.12);flex-shrink:0;
+  }
+  .edit-action-pill .btn{
+    height:30px;padding:0 11px;
+    font-family:var(--font-body);font-size:.72rem;font-weight:600;
+    border-radius:20px;
+    background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);
+    border:1px solid rgba(255,255,255,.1);
+    cursor:pointer;white-space:nowrap;
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  }
+  .edit-action-pill .btn:hover{background:rgba(255,255,255,.14);color:#fff;}
+  .edit-action-pill .btn-icon{
+    width:30px;height:30px;padding:0;
+    background:transparent;border-color:transparent;
+    color:rgba(255,255,255,.5);border-radius:50%;
+  }
+  .edit-action-pill .btn-icon:hover{background:rgba(255,255,255,.09);color:#fff;}
+  .edit-action-pill .btn-icon:disabled,
+  .edit-action-pill .btn-ghost:disabled{opacity:.3;cursor:default;pointer-events:none;}
+  .edit-action-pill .btn-ghost{
+    background:transparent;border-color:transparent;
+    color:rgba(255,255,255,.5);
+    font-size:.7rem;font-weight:600;padding:0 9px;border-radius:20px;
+  }
+  .edit-action-pill .btn-ghost:hover{color:#fff;background:rgba(255,255,255,.07);}
+  .edit-action-pill .btn-primary{
+    background:var(--accent);color:#0a0a0c;
+    border-color:var(--accent);font-weight:700;
+    min-width:68px;border-radius:20px;
+  }
+  .edit-action-pill .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  .edit-action-pill .edit-split-btn{
+    width:30px;height:30px;padding:0;
+    background:transparent;border:1px solid transparent;
+    color:rgba(255,255,255,.5);border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:background .15s,color .15s;
+    font-family:inherit;
+  }
+  .edit-action-pill .edit-split-btn:hover{background:rgba(255,255,255,.09);color:#fff;}
+  .edit-action-pill .edit-split-btn.active{color:var(--accent);}
+  .edit-action-pill .edit-split-btn[disabled]{opacity:.3;cursor:default;pointer-events:none;}
+  /* Zoom level chip (outside zoom layer so it stays unscaled). */
+  .edit-zoom-chip{
+    position:absolute;top:60px;left:50%;transform:translateX(-50%);
+    background:rgba(14,14,18,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.12);border-radius:20px;
+    padding:3px 10px;
+    font-size:.68rem;font-weight:700;letter-spacing:.02em;color:rgba(255,255,255,.85);
+    pointer-events:none;opacity:0;transition:opacity .18s ease;z-index:12;
+    white-space:nowrap;
+  }
+  .edit-zoom-chip.show{opacity:1;}
+  /* Tool strip — self-contained pill at card bottom. */
   .edit-modal .edit-tab-bar{
-    display:flex;gap:2px;
-    flex:1 1 auto;min-width:0;
+    display:flex;
+    justify-content:safe center;
+    overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    gap:2px;
+    padding:5px 8px;
+    align-items:stretch;
+    scroll-behavior:smooth;
+    background:rgba(255,255,255,.05);
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.08);
+    margin:0 10px 10px;
+    /* Edge fade so users see more tools exist off-screen */
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
   }
+  .edit-modal .edit-tab-bar::-webkit-scrollbar{display:none;}
   .edit-modal .edit-tab-bar .edit-tab{
-    flex:1 1 0;min-width:0;
-    padding:8px 6px;border-radius:8px;
-    background:transparent;color:rgba(255,255,255,.55);
+    flex:0 0 auto;
+    min-width:54px;
+    height:50px;
+    padding:5px 8px;
+    border-radius:10px;
+    background:transparent;color:rgba(255,255,255,.52);
     border:none;cursor:pointer;
     font-family:var(--font-body);
-    font-size:.72rem;font-weight:500;
-    display:flex;flex-direction:column;align-items:center;gap:3px;
-    line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-size:.64rem;font-weight:500;
+    letter-spacing:.01em;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    line-height:1;white-space:nowrap;
     transition:background .12s,color .12s;
+    scroll-snap-align:start;
   }
-  .edit-modal .edit-tab-bar .edit-tab .ico{width:1.15em;height:1.15em;margin:0;}
-  .edit-modal .edit-tab-bar .edit-tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.04);}
-  .edit-modal .edit-tab-bar .edit-tab.active{background:rgba(138,174,138,.12);color:#fff;}
+  .edit-modal .edit-tab-bar .edit-tab .ico{
+    width:18px;height:18px;margin:0;flex:0 0 auto;
+    transition:color .12s;
+  }
+  .edit-modal .edit-tab-bar .edit-tab:hover{
+    color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);
+  }
+  /* R33 — iOS Photos active state: small accent dot above the icon,
+     white text, no background fill (pill is the container, not the tab). */
+  .edit-modal .edit-tab-bar .edit-tab.active{
+    background:transparent;color:#fff;
+    position:relative;
+  }
+  .edit-modal .edit-tab-bar .edit-tab.active::before{
+    content:"";position:absolute;
+    top:5px;left:50%;transform:translateX(-50%);
+    width:4px;height:4px;border-radius:50%;
+    background:var(--accent);
+  }
   .edit-modal .edit-tab-bar .edit-tab.active .ico{color:var(--accent);}
+  /* R30 — Actions cluster now matches home .menu-card > .actions:
+     - same --bb-btn-h:30px height
+     - same .72rem font, weight 600
+     - same border-radius:7px
+     - same padding 0 12px
+     - .bb-divider equivalent (1px vertical, stretch margins) instead
+       of full-height border-left, matching home's section divider. */
+  /* R34 — actions-cluster is now the right side of the pill actions row;
+     no left divider needed (pill-util is left, cluster is right). */
   .edit-modal .edit-actions-cluster{
-    display:flex;align-items:center;gap:4px;
-    padding-left:8px;
-    border-left:1px solid rgba(255,255,255,.08);
+    display:flex;align-items:center;gap:6px;
     flex-shrink:0;
   }
-  /* R28 — actions cluster buttons. Hard-override flex:initial !important
-     to defeat the legacy .edit-modal .btn-primary{flex:1} rule that
-     caused R27's Save button to stretch full-width and break the row. */
   .edit-modal .edit-actions-cluster .btn{
-    height:34px;padding:0 14px;
+    height:var(--bb-btn-h, 30px);padding:0 12px;
     font-family:var(--font-body);
-    font-size:.76rem;font-weight:600;
-    border-radius:8px;
+    font-size:.72rem;font-weight:600;
+    border-radius:7px;
     background:rgba(255,255,255,.08);color:#fff;
     border:1px solid rgba(255,255,255,.14);
     cursor:pointer;white-space:nowrap;
-    flex:initial !important;
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    flex:initial !important;width:auto;
   }
-  .edit-modal .edit-actions-cluster .btn:hover{background:rgba(255,255,255,.14);}
+  .edit-modal .edit-actions-cluster .btn:hover{
+    background:rgba(255,255,255,.14);color:#fff;
+  }
   .edit-modal .edit-actions-cluster .btn-icon{
-    width:34px;height:34px;padding:0;
+    width:var(--bb-btn-h, 30px);height:var(--bb-btn-h, 30px);padding:0;
     background:transparent;border-color:transparent;
     color:rgba(255,255,255,.65);
-    display:inline-flex;align-items:center;justify-content:center;
+    border-radius:7px;
   }
   .edit-modal .edit-actions-cluster .btn-icon:hover{
     background:rgba(255,255,255,.08);color:#fff;
@@ -2503,20 +2677,25 @@
   }
   .edit-modal .edit-actions-cluster .btn-ghost{
     background:transparent;border-color:transparent;
-    color:rgba(255,255,255,.48);
-    font-size:.72rem;
+    color:rgba(255,255,255,.55);
+    font-size:.7rem;font-weight:600;
+    padding:0 8px;
   }
   .edit-modal .edit-actions-cluster .btn-ghost:hover{
-    color:rgba(255,255,255,.88);background:rgba(255,255,255,.06);
+    color:#fff;background:rgba(255,255,255,.06);
   }
+  /* Primary "Save" mirrors home .btn-primary exactly:
+     bg var(--accent), border var(--accent), weight 700, hover accent-strong. */
   .edit-modal .edit-actions-cluster .btn-primary{
-    background:var(--accent-strong);color:#fff;
-    border-color:var(--accent-strong);
+    background:var(--accent);color:#fff;
+    border-color:var(--accent);
+    font-weight:700;
     min-width:80px;
     flex:initial !important;
   }
   .edit-modal .edit-actions-cluster .btn-primary:hover{
-    background:var(--accent);filter:brightness(1.05);
+    background:var(--accent-strong);border-color:var(--accent-strong);
+    filter:none;
   }
   .edit-modal .edit-actions-cluster .btn-primary:focus-visible{
     outline:2px solid var(--accent);outline-offset:2px;
@@ -2529,22 +2708,23 @@
   .edit-modal .edit-layout,
   .edit-modal .edit-preview-col,
   .edit-modal .edit-panel-col{display:contents;}
-  /* R28 — .edit-tabs (legacy class) inherits the .edit-tab-bar styles
-     defined above for backward compat with any future render that
-     uses the old class. */
+  /* R31 — .edit-tabs legacy alias kept; individual .edit-tab rule
+     now covered by .edit-tab-bar .edit-tab above.
+     Keep legacy classes intact so existing render code doesn't break. */
   .edit-modal .edit-tabs{display:contents;}
+  /* Fallback outside the strip (e.g. sub-toggle bodies) */
   .edit-modal .edit-tab{
-    flex:1 1 0;min-width:0;
-    padding:8px 8px;border-radius:8px;
-    background:transparent;color:rgba(255,255,255,.55);
-    border:none;cursor:pointer;font-size:.72rem;font-weight:500;
+    min-width:54px;flex:0 0 auto;
+    padding:5px 8px;border-radius:10px;height:50px;
+    background:transparent;color:rgba(255,255,255,.52);
+    border:none;cursor:pointer;font-size:.64rem;font-weight:500;
     transition:background .12s,color .12s;
-    display:flex;flex-direction:column;align-items:center;gap:4px;
-    line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    line-height:1;white-space:nowrap;
   }
-  .edit-modal .edit-tab .ico{width:1.15em;height:1.15em;margin:0;}
-  .edit-modal .edit-tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.04);}
-  .edit-modal .edit-tab.active{background:rgba(255,255,255,.1);color:#fff;}
+  .edit-modal .edit-tab .ico{width:18px;height:18px;margin:0;}
+  .edit-modal .edit-tab:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);}
+  .edit-modal .edit-tab.active{background:rgba(138,174,138,.18);color:#fff;}
   .edit-modal .edit-tab.active .ico{color:var(--accent);}
   /* R29 — sub-toggle pill switcher, tighter and inline. */
   .edit-modal .edit-subtoggle{
@@ -2628,20 +2808,7 @@
     overflow:hidden;
   }
   .edit-compare-overlay img{max-width:100%;max-height:calc(100% - 44px);object-fit:contain;}
-  /* Round 10 — Before/After split-slider (lives inside .edit-preview-col). */
-  .edit-split-btn{
-    position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
-    z-index:14;padding:7px 14px;
-    background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.18);
-    border-radius:18px;font-size:.76rem;font-weight:600;cursor:pointer;
-    display:inline-flex;align-items:center;gap:6px;
-    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
-    transition:background .15s,color .15s,opacity .15s;
-    font-family:inherit;
-  }
-  .edit-split-btn:hover{background:rgba(0,0,0,.78);color:#fff;}
-  .edit-split-btn.active{background:var(--accent);color:#0a0a0c;border-color:transparent;}
-  .edit-split-btn[disabled]{opacity:.35;cursor:not-allowed;pointer-events:none;}
+  /* R35 — .edit-split-btn lives inside .edit-action-pill (see above). */
   .edit-split-overlay{
     position:absolute;inset:0;display:none;
     pointer-events:none;z-index:15;
@@ -2687,7 +2854,7 @@
   .edit-split-label.before{left:10px;}
   .edit-split-label.after {right:10px;}
   @media (max-width:640px){
-    .edit-split-btn{bottom:10px;padding:6px 11px;font-size:.7rem;}
+    .edit-action-pill{bottom:var(--split-btn-bottom,100px);padding:3px 5px;gap:1px;}
     .edit-split-handle::before{width:34px;height:34px;}
   }
   .edit-compare-label{
@@ -2766,7 +2933,11 @@
     text-align:right;font-variant-numeric:tabular-nums;
     min-width:30px;flex:0 0 auto;
   }
-  /* R29 — preset strip horizontal-scroll, no wrap */
+  /* R29 — preset strip horizontal-scroll, no wrap.
+     R30 — kept as a fallback for tabs that still use inline pills
+     (Crop aspect, Pixelate/Blur tool modes), but the Adjust tab's
+     7 filter presets have been moved to .edit-filter-dd (dropdown
+     chip), matching home's .resize-presets pattern. */
   .edit-preset-strip{
     display:flex;gap:4px;flex-wrap:nowrap;
     overflow-x:auto;scrollbar-width:none;
@@ -2774,13 +2945,201 @@
   }
   .edit-preset-strip::-webkit-scrollbar{display:none;}
   .edit-preset-btn{
-    padding:5px 9px;border-radius:5px;
-    background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);
-    border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:.74rem;
-    transition:background .1s,color .1s;
+    height:var(--bb-btn-h, 30px);padding:0 10px;
+    border-radius:6px;
+    background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);
+    border:1px solid rgba(255,255,255,.18);cursor:pointer;
+    font-family:inherit;font-size:.72rem;font-weight:600;
+    display:inline-flex;align-items:center;
+    transition:background .12s,color .12s,border-color .12s;
+    white-space:nowrap;
   }
-  .edit-preset-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
-  .edit-preset-btn.active{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.28);}
+  .edit-preset-btn:hover{
+    background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25);
+  }
+  .edit-preset-btn.active{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+  }
+  /* R30 — Filter / Vignette dropdown chips. Mirrors home's
+     .resize-presets-trigger pattern exactly: chevron chip on the bar,
+     fixed-position popover opening UPWARD (toolbar is at the bottom). */
+  .edit-filter-dd,.edit-vignette-dd,.edit-adjust-dd,.edit-tool-dd{
+    position:relative;display:inline-flex;align-items:center;
+    flex:0 0 auto;
+  }
+  .edit-filter-dd-trigger,.edit-vignette-dd-trigger,.edit-adjust-dd-trigger,.edit-tool-dd-trigger{
+    height:var(--bb-btn-h, 30px);
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.18);
+    color:rgba(255,255,255,.75);
+    font-family:inherit;font-size:.72rem;font-weight:600;
+    padding:0 10px;border-radius:6px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+    transition:background .14s ease,border-color .14s ease,color .14s ease;
+  }
+  .edit-filter-dd-trigger:hover,.edit-vignette-dd-trigger:hover,.edit-adjust-dd-trigger:hover,.edit-tool-dd-trigger:hover{
+    background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25);
+  }
+  .edit-filter-dd-trigger .chev,.edit-vignette-dd-trigger .chev,.edit-adjust-dd-trigger .chev,.edit-tool-dd-trigger .chev{
+    width:9px;height:9px;opacity:.7;transition:transform .15s ease;
+    flex:0 0 auto;
+  }
+  .edit-filter-dd.open .edit-filter-dd-trigger,
+  .edit-vignette-dd.open .edit-vignette-dd-trigger,
+  .edit-adjust-dd.open .edit-adjust-dd-trigger,
+  .edit-tool-dd.open .edit-tool-dd-trigger{
+    background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3);
+  }
+  .edit-filter-dd.open .edit-filter-dd-trigger .chev,
+  .edit-vignette-dd.open .edit-vignette-dd-trigger .chev,
+  .edit-adjust-dd.open .edit-adjust-dd-trigger .chev,
+  .edit-tool-dd.open .edit-tool-dd-trigger .chev{transform:rotate(180deg);}
+  .edit-filter-dd-trigger .dd-value,
+  .edit-vignette-dd-trigger .dd-value,
+  .edit-adjust-dd-trigger .dd-value,
+  .edit-tool-dd-trigger .dd-value{
+    color:#fff;font-weight:600;
+  }
+  /* R30b — accent dot on trigger when control is in non-default state.
+     Mirrors iOS Photos' "adjusted" indicator. */
+  .edit-adjust-dd-trigger.modified .dd-value::before,
+  .edit-filter-dd-trigger.modified .dd-value::before,
+  .edit-vignette-dd-trigger.modified .dd-value::before,
+  .edit-tool-dd-trigger.modified .dd-value::before{
+    content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--accent);margin-right:6px;vertical-align:middle;
+  }
+  .edit-filter-dd-menu,.edit-vignette-dd-menu,.edit-adjust-dd-menu,.edit-tool-dd-menu{
+    position:fixed;
+    display:flex;flex-direction:column;gap:2px;min-width:140px;
+    background:#1a1a1a;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:8px;
+    box-shadow:0 6px 24px rgba(0,0,0,.5);
+    padding:4px;z-index:9999;
+    visibility:hidden;opacity:0;pointer-events:none;
+    transform:translateY(4px);
+    transition:opacity .14s ease,transform .14s ease,visibility 0s linear .14s;
+    left:-9999px;
+  }
+  /* R34 — menus are portaled to <body> by _editPortalMenu so the
+     ancestor selector (.parent.open .menu) no longer matches.
+     Drive visibility directly from the menu's own .open class. */
+  .edit-filter-dd-menu.open,
+  .edit-vignette-dd-menu.open,
+  .edit-adjust-dd-menu.open,
+  .edit-tool-dd-menu.open{
+    visibility:visible;opacity:1;pointer-events:auto;
+    transform:translateY(0);
+    transition:opacity .14s ease,transform .14s ease,visibility 0s linear 0s;
+  }
+  .edit-filter-dd-menu button{
+    background:transparent;border:none;color:rgba(255,255,255,.85);
+    font:inherit;font-size:.72rem;font-weight:500;
+    padding:6px 12px;border-radius:5px;cursor:pointer;text-align:left;
+    transition:background .12s ease,color .12s ease;
+    white-space:nowrap;
+  }
+  .edit-filter-dd-menu button:hover{background:var(--accent);color:#fff;}
+  .edit-filter-dd-menu button.active{
+    background:rgba(138,174,138,.20);color:#fff;
+  }
+  .edit-vignette-dd-menu{
+    min-width:260px;padding:10px 12px;gap:8px;
+  }
+  .edit-vignette-dd-menu .adj-row{
+    display:flex;flex-direction:row;align-items:center;gap:8px;
+    width:100%;
+  }
+  .edit-vignette-dd-menu .adj-row input[type=range]{
+    flex:1 1 auto;min-width:120px;
+  }
+  .edit-vignette-dd-menu .adj-label{
+    min-width:56px;
+  }
+  .edit-vignette-dd-menu .adj-val{
+    min-width:30px;text-align:right;
+  }
+  .edit-vignette-dd-menu .vig-reset-row{
+    display:flex;justify-content:flex-end;align-items:center;
+    padding-top:6px;margin-top:2px;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  .edit-vignette-dd-menu .vig-reset-row button{
+    background:transparent;border:0;color:rgba(255,255,255,.55);
+    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;
+  }
+  .edit-vignette-dd-menu .vig-reset-row button:hover{
+    color:#fff;background:rgba(255,255,255,.06);
+  }
+  .edit-vignette-dd-menu .vig-reset-row button:disabled{
+    opacity:.35;cursor:default;
+  }
+  /* R30b — Adjust dropdown popover. Mirrors the home quality-dropdown
+     pattern (slider inside the popover, label above). Three rows
+     stacked vertically — Brightness, Contrast, Saturation — plus a
+     Reset link at the bottom. Same width / chrome as vignette menu. */
+  .edit-adjust-dd-menu{
+    min-width:280px;padding:10px 12px;gap:6px;
+  }
+  .edit-adjust-dd-menu .dd-section-label{
+    font-size:.58rem;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;color:rgba(255,255,255,.45);
+    margin:0 0 4px;
+  }
+  .edit-adjust-dd-menu .adj-row{
+    display:flex;flex-direction:row;align-items:center;gap:8px;
+    width:100%;
+  }
+  .edit-adjust-dd-menu .adj-row input[type=range]{
+    flex:1 1 auto;min-width:120px;
+  }
+  .edit-adjust-dd-menu .adj-label{
+    min-width:64px;text-align:left;
+  }
+  .edit-adjust-dd-menu .adj-val{
+    min-width:30px;text-align:right;
+  }
+  .edit-adjust-dd-menu .adj-reset-row{
+    display:flex;justify-content:flex-end;align-items:center;
+    padding-top:6px;margin-top:2px;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  .edit-adjust-dd-menu .adj-reset-row button{
+    background:transparent;border:0;color:rgba(255,255,255,.55);
+    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;
+  }
+  .edit-adjust-dd-menu .adj-reset-row button:hover{
+    color:#fff;background:rgba(255,255,255,.06);
+  }
+  .edit-adjust-dd-menu .adj-reset-row button:disabled{
+    opacity:.35;cursor:default;
+  }
+  /* R30c — Shared "tool" dropdown popover. Used by Rotate (Angle),
+     Pixelate (Brush+Cell), Blur (Brush+Amount), BG-refine (Brush+Soft).
+     Same chrome as the Adjust menu so every popover reads as one
+     consistent family across tabs. */
+  .edit-tool-dd-menu{
+    min-width:260px;padding:10px 12px;gap:6px;
+  }
+  .edit-tool-dd-menu .dd-section-label{
+    font-size:.58rem;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;color:rgba(255,255,255,.45);
+    margin:0 0 4px;
+  }
+  .edit-tool-dd-menu .adj-row{
+    display:flex;flex-direction:row;align-items:center;gap:8px;
+    width:100%;
+  }
+  .edit-tool-dd-menu .adj-row input[type=range]{
+    flex:1 1 auto;min-width:120px;
+  }
+  .edit-tool-dd-menu .adj-label{
+    min-width:64px;text-align:left;
+  }
+  .edit-tool-dd-menu .adj-val{
+    min-width:30px;text-align:right;
+  }
   /* Round 14 — Vignette (lives inside the Adjust tab) */
   .edit-vignette-section{
     display:flex;flex-direction:column;gap:8px;
@@ -3054,16 +3413,20 @@
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
 
-  .edit-bg-card{background:rgba(255,255,255,.03);border-radius:7px;padding:14px;text-align:center;}
-  .edit-bg-card .bg-icon{font-size:1.5rem;margin-bottom:5px;}
-  .edit-bg-card h3{margin:0 0 4px;font-size:.88rem;}
-  .edit-bg-card p{margin:0;color:rgba(255,255,255,.5);font-size:.76rem;line-height:1.5;}
+  .edit-bg-card{display:flex;align-items:flex-start;gap:8px;padding:6px 2px;}
+  .edit-bg-card .bg-icon{display:none;}
+  .edit-bg-card h3{display:none;}
+  .edit-bg-card p{margin:0;color:rgba(255,255,255,.45);font-size:.74rem;line-height:1.4;}
   .edit-bg-run{
-    width:100%;margin-top:12px;padding:9px 14px;
-    background:var(--accent);color:#0a0a0c;border:none;border-radius:7px;
-    font-size:.84rem;font-weight:700;cursor:pointer;
+    width:100%;margin-top:10px;padding:8px 14px;
+    background:rgba(255,255,255,.08);color:#fff;
+    border:1px solid rgba(255,255,255,.14);border-radius:7px;
+    font-size:.8rem;font-weight:600;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    transition:background .15s,color .15s;
   }
-  .edit-bg-run:disabled{opacity:.5;cursor:not-allowed;}
+  .edit-bg-run:hover{background:rgba(255,255,255,.14);}
+  .edit-bg-run:disabled{opacity:.4;cursor:not-allowed;}
   .edit-bg-progress-wrap{margin-bottom:8px;}
   .edit-bg-progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden;margin-bottom:3px;}
   .edit-bg-progress-fill{height:100%;background:var(--accent);transition:width .25s ease;}
@@ -3127,18 +3490,16 @@
       left:8px;right:8px;
       bottom:max(8px, env(safe-area-inset-bottom, 8px));
     }
-    .edit-modal .edit-menu-bottom-row{flex-direction:column;align-items:stretch;gap:6px;padding:6px;}
-    .edit-modal .edit-actions-cluster{
-      border-left:none;border-top:1px solid rgba(255,255,255,.06);
-      padding-left:0;padding-top:6px;width:100%;
-      justify-content:flex-end;
-    }
+    /* R35 — mobile: tighten strip margins. */
+    .edit-modal .edit-tab-bar{margin:0 6px 6px;}
     .edit-modal .edit-options-strip{max-height:32vh;padding:10px 12px;gap:10px;}
     .edit-compare-btn{display:none;}
-    /* R20 - equal-width tabs already fit 5 across at any width. */
-    .edit-modal .edit-tabs{padding:8px 12px;gap:4px;flex-wrap:nowrap;}
-    .edit-modal .edit-tab{padding:8px 4px;font-size:.66rem;gap:4px;}
-    .edit-modal .edit-tab .ico{width:1.05em;height:1.05em;}
+    /* R32 — on mobile the strip stays scrollable; shrink buttons slightly. */
+    .edit-modal .edit-tab-bar{padding:4px 6px;gap:1px;}
+    .edit-modal .edit-tab-bar .edit-tab,.edit-modal .edit-tab{
+      min-width:48px;height:46px;font-size:.60rem;padding:4px 6px;
+    }
+    .edit-modal .edit-tab-bar .edit-tab .ico,.edit-modal .edit-tab .ico{width:16px;height:16px;}
     .edit-modal .edit-subtab{padding:5px 8px;font-size:.72rem;}
     .edit-modal .edit-body{padding:12px 12px;gap:12px;min-height:0;}
     /* Preset / filter / aspect / mode buttons share .edit-preset-btn — shrink so they fit in one row. */
@@ -3210,14 +3571,9 @@
     background:var(--accent);
     filter:brightness(1.04);
   }
-  .edit-modal .edit-tab.active{
-    background:rgba(138,174,138,.12);
-    position:relative;
-  }
-  .edit-modal .edit-tab.active::after{
-    content:"";position:absolute;left:8px;right:8px;bottom:2px;
-    height:2px;background:var(--accent);border-radius:1px;
-  }
+  /* R32 — removed R24 underline indicator; active tab uses background
+     fill only (iOS Photos style), set in the strip rule above. */
+  .edit-modal .edit-tab.active{background:rgba(138,174,138,.12);}
   /* R24 — wordmark on the hero gets the warm sage as the second word's color
      (was already using .g class on the "g" letter; promote to whole accent). */
   .brand .g{color:var(--accent-strong, var(--accent));font-weight:600;}
@@ -3573,6 +3929,10 @@
     <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13"/></symbol>
     <symbol id="i-sliders-horizontal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
     <symbol id="i-type" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></symbol>
+    <symbol id="i-crop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-droplets" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></symbol>
+    <symbol id="i-eraser" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
 </svg>
@@ -6263,21 +6623,29 @@ function _detectEditFileType(file){
    Transform groups Rotate+Crop; Retouch groups Pixelate+Blur. Each
    group exposes a sub-toggle inside the panel body so the surface is
    identical to the previous flat layout, just nested one level. */
+/* R31 — flat camera-roll strip: each tool is a direct top-level
+   button. Removed the grouped Transform/Retouch meta-tabs that hid
+   Rotate, Crop, Pixelate and Blur behind a sub-toggle. The existing
+   renderers (_renderRotateTab, _renderCropTab, etc.) are unchanged;
+   they now get called directly from _switchEditTab. */
 function _editTabsForType(t){
   const isPhoto = (t === 'png' || t === 'jpg' || t === 'webp' || t === 'avif' || t === 'heic');
   const tabs = [];
   if (t === 'gif') {
-    tabs.push({ id: 'frames', label: 'Frames', icon: 'i-arrow-left-right' });
+    tabs.push({ id: 'frames',   label: 'Frames',  icon: 'i-arrow-left-right' });
     return tabs;
   }
   if (isPhoto) {
-    tabs.push({ id: 'adjust',    label: 'Adjust',    icon: 'i-sliders-horizontal' });
-    tabs.push({ id: 'transform', label: 'Transform', icon: 'i-rotate-cw' });
-    tabs.push({ id: 'retouch',   label: 'Retouch',   icon: 'i-brush' });
-    tabs.push({ id: 'add',       label: 'Add',       icon: 'i-type' });
-    tabs.push({ id: 'bg',        label: 'Background',icon: 'i-scissors' });
+    tabs.push({ id: 'adjust',   label: 'Adjust',  icon: 'i-sliders-horizontal' });
+    tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
+    tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
+    tabs.push({ id: 'pixelate', label: 'Pixelate',icon: 'i-grid' });
+    tabs.push({ id: 'blur',     label: 'Blur',    icon: 'i-droplets' });
+    tabs.push({ id: 'text',     label: 'Text',    icon: 'i-type' });
+    tabs.push({ id: 'bg',       label: 'Remove BG',icon: 'i-eraser' });
   } else {
-    tabs.push({ id: 'transform', label: 'Transform', icon: 'i-rotate-cw' });
+    tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
+    tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
   }
   return tabs;
 }
@@ -6343,6 +6711,16 @@ function openEditMode(idx){
   });
   _switchEditTab(tabs[0].id);
   _updateEditHistoryUI();
+  /* R33 — keep split-btn above the card on resize (e.g. virtual keyboard,
+     orientation change). One listener per page session. */
+  if (!window._editResizeBound) {
+    window._editResizeBound = true;
+    window.addEventListener('resize', function(){
+      requestAnimationFrame(_updateSplitBtnPos);
+    }, { passive: true });
+  }
+  /* R34 — wire zoom once per page load */
+  try { _wireEditZoom(); } catch(_){}
 }
 /* R26 — _updateTabsOverflow + _scrollActiveTabIntoView + _wireTabsOverflowWatcher
    are dead code from R19's horizontal-scroll tab bar. R20 replaced
@@ -6351,20 +6729,148 @@ function openEditMode(idx){
    classes they toggle (.edit-tabs--overflow-l/-r) used to have
    mask-image rules that are now gone. The toggles were no-ops in
    visible effect. Stub them out to stop the runtime work. */
-function _updateTabsOverflow(){ /* R26: noop — see comment */ }
-function _scrollActiveTabIntoView(){ /* R26: noop — tabs no longer scroll */ }
+function _updateTabsOverflow(){ /* R26: noop */ }
+/* R31 — revived: scrolls the active tool button into view inside the
+   horizontal strip. Uses scrollIntoView with inline:'nearest' so it
+   nudges the strip just enough without over-scrolling. */
+function _scrollActiveTabIntoView(){
+  const active = document.querySelector('.edit-modal .edit-tab-bar .edit-tab.active');
+  if (active) active.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });
+}
 let _tabsOverflowWired = false;
-function _wireTabsOverflowWatcher(){ /* R26: noop — tabs no longer scroll */ }
+function _wireTabsOverflowWatcher(){ /* R26: noop */ }
+/* R34 — tools render into editZoomLayer (inside editPreviewCol) so
+   CSS transforms on the zoom layer only affect image content, not the
+   split-compare button/overlay which live directly on editPreviewCol. */
+function _editPreviewEl(){
+  return document.getElementById('editZoomLayer') || document.getElementById('editPreviewCol');
+}
+
+/* R34 — edit-canvas zoom state, mirrors the main-tool ZOOM object. */
+const EDIT_ZOOM = { scale:1, x:0, y:0, dragging:false, lastX:0, lastY:0, pinchDist:0, _chipTimer:null };
+function _applyEditZoom(){
+  const zl = document.getElementById('editZoomLayer');
+  if (!zl) return;
+  zl.style.transform = `translate(${EDIT_ZOOM.x}px,${EDIT_ZOOM.y}px) scale(${EDIT_ZOOM.scale})`;
+  const chip = document.getElementById('editZoomChip');
+  if (!chip) return;
+  chip.textContent = Math.round(EDIT_ZOOM.scale * 100) + '%';
+  if (EDIT_ZOOM.scale > 1.005){
+    chip.classList.add('show');
+    if (EDIT_ZOOM._chipTimer) clearTimeout(EDIT_ZOOM._chipTimer);
+    EDIT_ZOOM._chipTimer = setTimeout(() => chip.classList.remove('show'), 1200);
+  } else {
+    chip.classList.remove('show');
+  }
+}
+function _resetEditZoom(){
+  EDIT_ZOOM.scale=1; EDIT_ZOOM.x=0; EDIT_ZOOM.y=0;
+  EDIT_ZOOM.dragging=false; EDIT_ZOOM.pinchDist=0;
+  _applyEditZoom();
+}
+function _setEditZoomToward(nextScale, cx, cy){
+  const col = document.getElementById('editPreviewCol');
+  if (!col) return;
+  const r = col.getBoundingClientRect();
+  const mx = cx - r.left - r.width/2;
+  const my = cy - r.top  - r.height/2;
+  const nz = Math.max(1, Math.min(6, nextScale));
+  if (nz === EDIT_ZOOM.scale) return;
+  const f = nz / EDIT_ZOOM.scale;
+  EDIT_ZOOM.x = mx - (mx - EDIT_ZOOM.x)*f;
+  EDIT_ZOOM.y = my - (my - EDIT_ZOOM.y)*f;
+  EDIT_ZOOM.scale = nz;
+  if (EDIT_ZOOM.scale <= 1){ EDIT_ZOOM.x=0; EDIT_ZOOM.y=0; }
+  _applyEditZoom();
+}
+function _wireEditZoom(){
+  const col = document.getElementById('editPreviewCol');
+  if (!col || col.dataset.editZoomWired) return;
+  col.dataset.editZoomWired = '1';
+  /* wheel zoom — skip when target is inside the bottom pill/card */
+  col.addEventListener('wheel', e => {
+    if (e.target.closest('.edit-action-pill,.edit-menu-card')) return;
+    /* crop has its own canvas; leave wheel alone there */
+    if (document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')) return;
+    e.preventDefault();
+    _setEditZoomToward(EDIT_ZOOM.scale + (e.deltaY > 0 ? -0.18 : 0.18), e.clientX, e.clientY);
+  }, { passive:false });
+  /* double-click: toggle 1× ↔ 2.5× */
+  col.addEventListener('dblclick', e => {
+    if (e.target.closest('.edit-action-pill,.edit-menu-card')) return;
+    if (document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')) return;
+    if (EDIT_ZOOM.scale > 1) _resetEditZoom();
+    else _setEditZoomToward(2.5, e.clientX, e.clientY);
+  });
+  /* drag-to-pan when zoomed */
+  col.addEventListener('pointerdown', e => {
+    if (EDIT_ZOOM.scale <= 1) return;
+    if (e.target.closest('.edit-action-pill,.edit-menu-card,.edit-split-btn,.edit-crop-canvas-wrap,.edit-split-handle')) return;
+    EDIT_ZOOM.dragging=true; EDIT_ZOOM.lastX=e.clientX; EDIT_ZOOM.lastY=e.clientY;
+    try { col.setPointerCapture(e.pointerId); } catch(_){}
+  });
+  col.addEventListener('pointermove', e => {
+    if (!EDIT_ZOOM.dragging) return;
+    EDIT_ZOOM.x += e.clientX - EDIT_ZOOM.lastX;
+    EDIT_ZOOM.y += e.clientY - EDIT_ZOOM.lastY;
+    EDIT_ZOOM.lastX=e.clientX; EDIT_ZOOM.lastY=e.clientY;
+    _applyEditZoom();
+  });
+  const _endEditDrag = e => { EDIT_ZOOM.dragging=false; try{ col.releasePointerCapture(e.pointerId); }catch(_){} };
+  col.addEventListener('pointerup', _endEditDrag);
+  col.addEventListener('pointercancel', _endEditDrag);
+  /* pinch-to-zoom on touch */
+  col.addEventListener('touchmove', e => {
+    if (e.touches.length !== 2) return;
+    if (document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')) return;
+    e.preventDefault();
+    const dx=e.touches[0].clientX-e.touches[1].clientX, dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if (EDIT_ZOOM.pinchDist>0){
+      const sc=dist/EDIT_ZOOM.pinchDist;
+      _setEditZoomToward(EDIT_ZOOM.scale*sc,
+        (e.touches[0].clientX+e.touches[1].clientX)/2,
+        (e.touches[0].clientY+e.touches[1].clientY)/2);
+    }
+    EDIT_ZOOM.pinchDist=dist;
+  }, { passive:false });
+  col.addEventListener('touchend', e => { if (e.touches.length<2) EDIT_ZOOM.pinchDist=0; });
+}
+
 function _switchEditTab(tabId){
   document.querySelectorAll('.edit-modal .edit-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.tab === tabId);
   });
   if (typeof _wireTabsOverflowWatcher === 'function') _wireTabsOverflowWatcher();
-  requestAnimationFrame(()=>{ if (typeof _scrollActiveTabIntoView === 'function') _scrollActiveTabIntoView(); });
+  /* R31 — scroll active tool into view + trigger slide-up animation. */
+  requestAnimationFrame(()=>{
+    _scrollActiveTabIntoView();
+    const body = document.getElementById('editBody');
+    if (body && body.children.length){
+      body.classList.remove('anim-in');
+      void body.offsetWidth;
+      body.classList.add('anim-in');
+    }
+  });
+  /* R30 — Remove any portalled adjust-tab dropdowns from a previous tab
+     render. The dropdowns are appended to <body> (not #editBody) so the
+     normal body.innerHTML='' below doesn't clean them up. */
+  /* R30c — Class-based portal cleanup picks up every tool dropdown. */
+  document.querySelectorAll('body > .edit-filter-dd-menu, body > .edit-vignette-dd-menu, body > .edit-adjust-dd-menu, body > .edit-tool-dd-menu').forEach(m => {
+    if (m.parentNode === document.body) m.parentNode.removeChild(m);
+  });
   const body = document.getElementById('editBody');
   body.innerHTML = '';
   const previewCol = document.getElementById('editPreviewCol');
-  if (previewCol) previewCol.innerHTML = '';
+  if (previewCol) {
+    previewCol.innerHTML = '';
+    /* R34 — recreate zoom layer; split UI (btn+overlay) will be appended
+       by _ensureSplitUi to editPreviewCol directly, outside this layer. */
+    const _zl = document.createElement('div');
+    _zl.id = 'editZoomLayer'; _zl.className = 'edit-zoom-layer edit-preview-col';
+    previewCol.appendChild(_zl);
+    _resetEditZoom();
+  }
   /* R20 routing - grouped tabs delegate to existing renderers via a
      sub-toggle wrapper. Legacy IDs still route for backward-compat. */
   if (tabId === 'frames') _renderFramesTab(body);
@@ -6436,6 +6942,13 @@ function _renderRetouchTab(body){
   else if (sub === 'blur') _renderBlurTab(subBody).catch(e => console.warn('[blur]', e));
 }
 function cancelEdit(){
+  /* R30 — Clean up portalled adjust-tab dropdowns (filter / vignette menus
+     are appended to <body>, not #editBody, so they wouldn't otherwise be
+     removed when the modal closes). */
+  /* R30c — Class-based portal cleanup picks up every tool dropdown. */
+  document.querySelectorAll('body > .edit-filter-dd-menu, body > .edit-vignette-dd-menu, body > .edit-adjust-dd-menu, body > .edit-tool-dd-menu').forEach(m => {
+    if (m.parentNode === document.body) m.parentNode.removeChild(m);
+  });
   if (_editState._blurBitmap){ try { _editState._blurBitmap.close && _editState._blurBitmap.close(); } catch(_){} _editState._blurBitmap = null; }
   _editState._blurBaseBlob = null; _editState._blurBaseSig = null;
   /* Round 17 HEIC fix: release the decoded-JPEG blob URL we minted in
@@ -6707,14 +7220,32 @@ function _editHasAnyEdit(){
 function _ensureSplitUi(){
   const col = document.getElementById('editPreviewCol');
   if (!col) return;
-  if (!col.querySelector('.edit-split-btn')){
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'edit-split-btn';
-    btn.id = 'editSplitBtn';
-    btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg>Compare';
-    btn.addEventListener('click', _toggleSplitCompare);
-    col.appendChild(btn);
+  if (!col.querySelector('.edit-action-pill')){
+    const pill = document.createElement('div');
+    pill.className = 'edit-action-pill';
+    pill.id = 'editActionPill';
+    pill.innerHTML = ''
+      + '<button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>'
+      + '<button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>'
+      + '<button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>'
+      + '<button type="button" class="btn" onclick="cancelEdit()" title="Cancel \u2014 Esc">Cancel</button>'
+      + '<button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>';
+    col.appendChild(pill);
+    /* R37 — compare chip floats right of the pill, visible when edits exist. */
+    if (!col.querySelector('.edit-compare-chip')){
+      const cc = document.createElement('button');
+      cc.type = 'button';
+      cc.className = 'edit-compare-chip'; cc.id = 'editCompareChip';
+      cc.innerHTML = '<svg class="ico" aria-hidden="true" style="width:13px;height:13px"><use href="#i-arrow-left-right"/></svg>Compare';
+      cc.title = 'Compare original vs edited — drag the divider';
+      cc.addEventListener('click', _toggleSplitCompare);
+      col.appendChild(cc);
+    }
+    if (!col.querySelector('.edit-zoom-chip')){
+      const zc = document.createElement('div');
+      zc.className = 'edit-zoom-chip'; zc.id = 'editZoomChip';
+      col.appendChild(zc);
+    }
   }
   if (!col.querySelector('.edit-split-overlay')){
     const ov = document.createElement('div');
@@ -6735,14 +7266,12 @@ function _ensureSplitUi(){
   const btn = col.querySelector('.edit-split-btn');
   if (_editState._splitActive){
     ov.classList.add('active');
-    btn.classList.add('active');
-    btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-x"/></svg>Exit compare';
+    if (btn) btn.classList.add('active');
     const img = ov.querySelector('#editSplitImg');
     if (img && _editState.originalUrl) img.src = _editState.originalUrl;
   } else {
     ov.classList.remove('active');
-    btn.classList.remove('active');
-    btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg>Compare';
+    if (btn) btn.classList.remove('active');
   }
   /* One-shot delegated listeners on #editBody so the Compare button enables/disables
    * after the user mutates state via clicks, slider input/change, or programmatic changes. */
@@ -6755,23 +7284,31 @@ function _ensureSplitUi(){
     eb.addEventListener('change', refresh, true);
   }
   _updateSplitBtnState();
+  try { _updateSplitBtnPos(); } catch(_) {}
+}
+/* R33 — reposition the floating split-compare button so it always clears
+   the card. The card (edit-menu-wrap) is position:absolute bottom:16px,
+   so the button should sit card_height + 16 + 12px gap above the screen
+   bottom. Called on every tab switch and on window resize. */
+function _updateSplitBtnPos(){
+  const wrap = document.querySelector('.edit-modal .edit-menu-wrap');
+  const modal = document.querySelector('.edit-modal');
+  if (!wrap || !modal) return;
+  const h = wrap.getBoundingClientRect().height;
+  modal.style.setProperty('--split-btn-bottom', (h + 12) + 'px');
 }
 function _updateSplitBtnState(){
-  const btn = document.getElementById('editSplitBtn');
-  if (!btn) return;
-  /* R20 - hide on Crop, whether legacy direct tab or Transform-Crop sub-tab. */
+  /* R37 — compare chip replaces the split-btn in the pill. */
+  const chip = document.getElementById('editCompareChip');
   const onCrop = !!document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')
               || !!document.querySelector('.edit-modal .edit-subtab.active[data-subtab="crop"]');
   if (onCrop){
-    btn.style.display = 'none';
-    /* If split is active and user navigated to crop, force-off so handles don't conflict. */
+    if (chip) chip.classList.remove('visible');
     if (_editState._splitActive){ _editState._splitActive = false; _ensureSplitUi(); }
     return;
   }
-  btn.style.display = '';
   const has = _editHasAnyEdit();
-  btn.disabled = !has;
-  btn.title = has ? 'Drag the divider to compare original vs edited' : 'Make an edit first';
+  if (chip){ chip.classList.toggle('visible', has); chip.classList.toggle('active', !!_editState._splitActive); }
 }
 function _toggleSplitCompare(){
   if (!_editState || _editState.idx < 0) return;
@@ -6952,10 +7489,15 @@ document.addEventListener('pointercancel', () => { document.body.dataset.editDra
 function _renderRotateTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
-  const previewCol = document.getElementById('editPreviewCol');
+  const previewCol = _editPreviewEl();
   if (previewCol) {
     previewCol.innerHTML = `<div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${_editState.originalUrl || f.url}');"></div>`;
   }
+  /* R30c — Angle slider lives in an "Angle ▾" chip. Buttons stay inline. */
+  const _rotAng = _editState.rotateState.angle;
+  const _angleSummary = _rotAng === 0 ? '0°' : (_rotAng > 0 ? '+' + _rotAng + '°' : _rotAng + '°');
+  const _angleMod = _rotAng !== 0;
+  const _chevR = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
   body.innerHTML = `
     <div class="edit-rotate-row">
       <button type="button" class="edit-rotate-btn" data-rot="cw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>90\u00b0 CW</button>
@@ -6965,13 +7507,22 @@ function _renderRotateTab(body){
       <button type="button" class="edit-rotate-btn" data-rot="fv"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg>Flip vertical</button>
       <button type="button" class="edit-rotate-btn" data-rot="reset">Reset</button>
     </div>
+    <div class="edit-tool-dd" id="editAngleDD">
+      <span class="adj-label">Angle</span>
+      <button type="button" class="edit-tool-dd-trigger${_angleMod?' modified':''}" id="editAngleTrigger" aria-haspopup="dialog" aria-expanded="false">
+        <span class="dd-value" id="editAngleSummary">${_angleSummary}</span>
+        ${_chevR}
+      </button>
+      <div class="edit-tool-dd-menu" id="editAngleMenu" role="dialog" aria-label="Fine angle">
+        <p class="dd-section-label">Fine angle</p>
+        <div class="adj-row">
+          <span class="adj-label">Angle</span>
+          <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
+          <span id="editAngleVal" class="adj-val">${_editState.rotateState.angle}°</span>
+        </div>
+      </div>
+    </div>
   `;
-  const angleRow = document.createElement('div');
-  angleRow.className = 'edit-angle-row';
-  angleRow.innerHTML = `<label class="adj-label" style="min-width:40px;">Angle</label>
-    <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
-    <span id="editAngleVal" class="adj-val" style="min-width:34px;">${_editState.rotateState.angle}°</span>`;
-  body.querySelector('.edit-rotate-row').after(angleRow);
   const preview = document.getElementById('editRotatePreview');
   function _updateRot(){
     const rs = _editState.rotateState;
@@ -7005,12 +7556,18 @@ function _renderRotateTab(body){
   const valLabel = document.getElementById('editAngleVal');
   if (slider) {
     slider.addEventListener('input', () => {
-      _editState.rotateState.angle = parseInt(slider.value, 10);
-      if (valLabel) valLabel.textContent = slider.value + '°';
+      const v = parseInt(slider.value, 10);
+      _editState.rotateState.angle = v;
+      if (valLabel) valLabel.textContent = v + '°';
+      const sum = document.getElementById('editAngleSummary');
+      const trg = document.getElementById('editAngleTrigger');
+      if (sum) sum.textContent = v === 0 ? '0°' : (v > 0 ? '+' + v + '°' : v + '°');
+      if (trg) trg.classList.toggle('modified', v !== 0);
       _updateRot();
     });
     slider.addEventListener('change', () => { _editPushUndo(); });
   }
+  _editWireDropdown('editAngleDD','editAngleTrigger','editAngleMenu');
 }
 async function _applyRotation(file, rotation){
   const bmp = await createImageBitmap(file);
@@ -7047,7 +7604,7 @@ async function _renderFramesTab(body){
     return;
   }
   /* Show original GIF as preview in left col */
-  const framesPreviewCol = document.getElementById('editPreviewCol');
+  const framesPreviewCol = _editPreviewEl();
   if (framesPreviewCol) {
     framesPreviewCol.innerHTML = `<img class="edit-frames-preview-img" src="${f.url}" alt="GIF" draggable="false">`;
   }
@@ -7532,7 +8089,7 @@ function _renderBackgroundTab(body){
   const hasDone = !!_editState.pendingEdits.bgRemoved;
 
   /* Preview in left column — swap to interactive canvas once a mask exists */
-  const bgPreviewCol = document.getElementById('editPreviewCol');
+  const bgPreviewCol = _editPreviewEl();
   if (bgPreviewCol) {
     if (hasDone) {
       bgPreviewCol.innerHTML = '<div class="bg-checkerboard" id="bgCheckboard"><canvas id="bgRefineCanvas" class="bg-refine-canvas"></canvas></div>';
@@ -7950,6 +8507,58 @@ async function _applyBgRefine(bgRemovedBlob, originalBlob, refInfo){
 }
 
 
+/* R30c — File-level helpers for tool dropdowns. Hoisted out of
+   _renderAdjustTab so Rotate / Pixelate / Blur / BG-refine can use the
+   same open/close/portal machinery without duplicating code. */
+function _editPositionMenu(trig, menu){
+  const r = trig.getBoundingClientRect();
+  const menuW = menu.offsetWidth || 140;
+  const left = Math.max(8, Math.min(r.left, window.innerWidth - menuW - 8));
+  menu.style.left = left + 'px';
+  menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+  menu.style.top = 'auto';
+}
+function _editPortalMenu(menu){
+  if (menu.parentNode !== document.body) document.body.appendChild(menu);
+}
+function _editCloseAllToolDropdowns(){
+  document.querySelectorAll('.edit-filter-dd.open, .edit-vignette-dd.open, .edit-adjust-dd.open, .edit-tool-dd.open')
+    .forEach(dd => dd.classList.remove('open'));
+  document.querySelectorAll('.edit-filter-dd-menu.open, .edit-vignette-dd-menu.open, .edit-adjust-dd-menu.open, .edit-tool-dd-menu.open')
+    .forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('[id^="edit"][id$="Trigger"]')
+    .forEach(t => { if (t.hasAttribute('aria-expanded')) t.setAttribute('aria-expanded', 'false'); });
+}
+const _editCloseAdjustDropdowns = _editCloseAllToolDropdowns;
+function _editWireDropdown(ddId, trigId, menuId){
+  const dd = document.getElementById(ddId);
+  const trig = document.getElementById(trigId);
+  const menu = document.getElementById(menuId);
+  if (!dd || !trig || !menu) return;
+  trig.addEventListener('click', e => {
+    e.stopPropagation();
+    const willOpen = !dd.classList.contains('open');
+    _editCloseAllToolDropdowns();
+    if (willOpen){
+      dd.classList.add('open');
+      menu.classList.add('open');
+      trig.setAttribute('aria-expanded', 'true');
+      _editPortalMenu(menu);
+      _editPositionMenu(trig, menu);
+    }
+  });
+  if (menu.querySelector('input,textarea')){
+    menu.addEventListener('click', e => e.stopPropagation());
+    menu.addEventListener('mousedown', e => e.stopPropagation());
+  }
+}
+if (!window._editToolDropdownGlobalAttached){
+  document.addEventListener('click', () => _editCloseAllToolDropdowns());
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') _editCloseAllToolDropdowns(); });
+  window.addEventListener('resize', () => _editCloseAllToolDropdowns());
+  window._editToolDropdownGlobalAttached = true;
+}
+
 /* ---- ADJUST TAB (photo: brightness / contrast / saturation / filter presets) ---- */
 function _renderAdjustTab(body){
   const f = FILES[_editState.idx];
@@ -7972,43 +8581,76 @@ function _renderAdjustTab(body){
     { id: 'warm',    label: 'Warm',     css: 'sepia(30%) saturate(180%) brightness(105%)' },
   ];
   const fmt = v => { const d = v - 100; return d > 0 ? ('+' + d) : ('' + d); };
-  const adjPreviewCol = document.getElementById('editPreviewCol');
+  const adjPreviewCol = _editPreviewEl();
   if (adjPreviewCol) {
     const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
     adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false"><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>`;
   }
   const _aeOn = !!_editState.pendingEdits.autoEnhanced;
+  /* R30 — Adjust tab now mirrors home toolbar density:
+     - Auto enhance pill (unchanged)
+     - 3 sliders inline (unchanged — sliders need live exploration)
+     - FILTER as dropdown chip (was: 7-pill horizontal-scroll strip)
+     - VIGNETTE as dropdown chip (was: always-visible amount + midpoint).
+     Both dropdowns mirror home .resize-presets-trigger pattern. */
+  const _currentPresetLabel = (PRESETS.find(p => p.id === adj.preset) || PRESETS[0]).label;
+  const _vigSummary = vig.amount === 0 ? 'Off' : (vig.amount > 0 ? '+' + vig.amount : String(vig.amount));
+  /* R30b — Adjust trigger summary. Mirrors iOS Photos' modified indicator:
+     "Default" when untouched, "Modified" + accent dot when any slider has
+     been moved off 100. */
+  const _adjModified = !(adj.brightness === 100 && adj.contrast === 100 && adj.saturation === 100);
+  const _adjSummary = _adjModified ? 'Modified' : 'Default';
+  const _chev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
   body.innerHTML = `
     <div class="edit-auto-enhance-row">
       <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Auto enhanced':'<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance'}</button>
       ${_aeOn?'<button type="button" class="edit-auto-enhance-undo" id="adjAutoEnhanceUndo">Undo</button>':''}
     </div>
-    <div class="edit-adjust-sliders">
-      <div class="adj-row">
-        <span class="adj-label">Brightness</span>
-        <input type="range" id="adjBrightness" min="0" max="200" step="1" value="${adj.brightness}">
-        <span class="adj-val" id="adjBrightnessVal">${fmt(adj.brightness)}</span>
-      </div>
-      <div class="adj-row">
-        <span class="adj-label">Contrast</span>
-        <input type="range" id="adjContrast" min="0" max="200" step="1" value="${adj.contrast}">
-        <span class="adj-val" id="adjContrastVal">${fmt(adj.contrast)}</span>
-      </div>
-      <div class="adj-row">
-        <span class="adj-label">Saturation</span>
-        <input type="range" id="adjSaturation" min="0" max="200" step="1" value="${adj.saturation}">
-        <span class="adj-val" id="adjSaturationVal">${fmt(adj.saturation)}</span>
+    <div class="edit-adjust-dd" id="editAdjustDD">
+      <span class="adj-label">Adjust</span>
+      <button type="button" class="edit-adjust-dd-trigger${_adjModified?' modified':''}" id="editAdjustTrigger" aria-haspopup="dialog" aria-expanded="false">
+        <span class="dd-value" id="editAdjustValue">${_adjSummary}</span>
+        ${_chev}
+      </button>
+      <div class="edit-adjust-dd-menu" id="editAdjustMenu" role="dialog" aria-label="Light adjustments">
+        <p class="dd-section-label">Light</p>
+        <div class="adj-row">
+          <span class="adj-label">Brightness</span>
+          <input type="range" id="adjBrightness" min="0" max="200" step="1" value="${adj.brightness}">
+          <span class="adj-val" id="adjBrightnessVal">${fmt(adj.brightness)}</span>
+        </div>
+        <div class="adj-row">
+          <span class="adj-label">Contrast</span>
+          <input type="range" id="adjContrast" min="0" max="200" step="1" value="${adj.contrast}">
+          <span class="adj-val" id="adjContrastVal">${fmt(adj.contrast)}</span>
+        </div>
+        <div class="adj-row">
+          <span class="adj-label">Saturation</span>
+          <input type="range" id="adjSaturation" min="0" max="200" step="1" value="${adj.saturation}">
+          <span class="adj-val" id="adjSaturationVal">${fmt(adj.saturation)}</span>
+        </div>
+        <div class="adj-reset-row">
+          <button type="button" id="adjResetBtn" aria-label="Reset light adjustments">Reset</button>
+        </div>
       </div>
     </div>
-    <div class="edit-preset-strip">
-      ${PRESETS.map(p => `<button type="button" class="edit-preset-btn${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}">${p.label}</button>`).join('')}
-    </div>
-    <div class="edit-vignette-section">
-      <div class="edit-vignette-head">
-        <span class="edit-vignette-title">Vignette</span>
-        <button type="button" class="edit-vignette-reset" id="vigReset" aria-label="Reset vignette">Reset</button>
+    <div class="edit-filter-dd" id="editFilterDD">
+      <span class="adj-label">Filter</span>
+      <button type="button" class="edit-filter-dd-trigger" id="editFilterTrigger" aria-haspopup="listbox" aria-expanded="false">
+        <span class="dd-value" id="editFilterValue">${_currentPresetLabel}</span>
+        ${_chev}
+      </button>
+      <div class="edit-filter-dd-menu" id="editFilterMenu" role="listbox" aria-label="Filter preset">
+        ${PRESETS.map(p => `<button type="button" class="edit-preset-btn${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}" role="option" aria-selected="${p.id === adj.preset}">${p.label}</button>`).join('')}
       </div>
-      <div class="edit-vignette-sliders">
+    </div>
+    <div class="edit-vignette-dd" id="editVignetteDD">
+      <span class="adj-label">Vignette</span>
+      <button type="button" class="edit-vignette-dd-trigger" id="editVignetteTrigger" aria-haspopup="dialog" aria-expanded="false">
+        <span class="dd-value" id="editVignetteValue">${_vigSummary}</span>
+        ${_chev}
+      </button>
+      <div class="edit-vignette-dd-menu" id="editVignetteMenu" role="dialog" aria-label="Vignette controls">
         <div class="adj-row">
           <span class="adj-label">Amount</span>
           <input type="range" id="vigAmount" min="-100" max="100" step="1" value="${vig.amount}">
@@ -8018,6 +8660,9 @@ function _renderAdjustTab(body){
           <span class="adj-label">Midpoint</span>
           <input type="range" id="vigMid" min="0" max="100" step="1" value="${vig.midpoint}">
           <span class="adj-val" id="vigMidVal">${vig.midpoint}</span>
+        </div>
+        <div class="vig-reset-row">
+          <button type="button" id="vigReset" aria-label="Reset vignette">Reset</button>
         </div>
       </div>
     </div>
@@ -8032,6 +8677,14 @@ function _renderAdjustTab(body){
     const a = _editState.pendingEdits.photoAdjust;
     a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none');
     previewImg.style.filter = _getAdjFilter();
+    /* R30b — keep the Adjust dropdown trigger in sync */
+    const _trig = document.getElementById('editAdjustTrigger');
+    const _val  = document.getElementById('editAdjustValue');
+    const _rst  = document.getElementById('adjResetBtn');
+    const _mod  = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100);
+    if (_trig) _trig.classList.toggle('modified', _mod);
+    if (_val)  _val.textContent  = _mod ? 'Modified' : 'Default';
+    if (_rst)  _rst.disabled     = !_mod;
   }
   _markDirty();
   [['adjBrightness','brightness','adjBrightnessVal'],
@@ -8048,16 +8701,49 @@ function _renderAdjustTab(body){
     });
     sl.addEventListener('change', () => { _editPushUndo(); });
   });
+  /* R30 — filter preset click: select, update trigger label, close dropdown. */
   document.querySelectorAll('#editBody .edit-preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       _editPushUndo();
-      document.querySelectorAll('#editBody .edit-preset-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#editBody .edit-preset-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       _editState.pendingEdits.photoAdjust.preset = btn.dataset.preset;
       _editState.pendingEdits.photoAdjust.presetCss = btn.dataset.css;
+      const fv = document.getElementById('editFilterValue');
+      if (fv) fv.textContent = btn.textContent;
+      _editCloseAdjustDropdowns();
       _markDirty();
     });
   });
+  /* R30c — Helpers are file-level now; just wire the three dropdowns. */
+  _editWireDropdown('editFilterDD','editFilterTrigger','editFilterMenu');
+  _editWireDropdown('editVignetteDD','editVignetteTrigger','editVignetteMenu');
+  _editWireDropdown('editAdjustDD','editAdjustTrigger','editAdjustMenu');
+  /* R30b — Reset button inside Adjust popover */
+  const _adjReset = document.getElementById('adjResetBtn');
+  if (_adjReset){
+    _adjReset.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const a = _editState.pendingEdits.photoAdjust;
+      if (a.brightness === 100 && a.contrast === 100 && a.saturation === 100) return;
+      _editPushUndo();
+      a.brightness = 100; a.contrast = 100; a.saturation = 100;
+      const map = [['adjBrightness','adjBrightnessVal',100],
+                   ['adjContrast','adjContrastVal',100],
+                   ['adjSaturation','adjSaturationVal',100]];
+      map.forEach(([id,vid,v]) => {
+        const sl = document.getElementById(id); if (sl) sl.value = v;
+        const lb = document.getElementById(vid); if (lb) lb.textContent = '0';
+      });
+      _markDirty();
+      _updateEditHistoryUI();
+    });
+  }
   const aeBtn = document.getElementById('adjAutoEnhanceBtn');
   if (aeBtn) {
     aeBtn.addEventListener('click', async () => {
@@ -8118,6 +8804,14 @@ function _renderAdjustTab(body){
     if (vigReset) vigReset.disabled = !(_editState.pendingEdits.vignette._dirty);
   }
   _vigUpdateResetState();
+  /* R30 — keep the vignette dropdown trigger label in sync with amount.
+     Shows "Off" when 0, "+30"/"-15" otherwise. */
+  function _updateVigTriggerValue(){
+    const el = document.getElementById('editVignetteValue');
+    if (!el) return;
+    const a = _editState.pendingEdits.vignette.amount;
+    el.textContent = a === 0 ? 'Off' : (a > 0 ? '+' + a : String(a));
+  }
   [['vigAmount','amount','vigAmountVal', v => (v>0?'+'+v:String(v))],
    ['vigMid','midpoint','vigMidVal', v => String(v)]].forEach(([id, key, valId, fmtFn]) => {
     const sl = document.getElementById(id);
@@ -8129,11 +8823,13 @@ function _renderAdjustTab(body){
       if (vl) vl.textContent = fmtFn(val);
       _vigMarkDirty();
       _vigUpdateResetState();
+      if (key === 'amount') _updateVigTriggerValue();
     });
     sl.addEventListener('change', () => { _editPushUndo(); });
   });
   if (vigReset){
-    vigReset.addEventListener('click', () => {
+    vigReset.addEventListener('click', (e) => {
+      e.stopPropagation();
       const v = _editState.pendingEdits.vignette;
       if (!v._dirty) return;
       _editPushUndo();
@@ -8145,6 +8841,7 @@ function _renderAdjustTab(body){
       _vigPaintPreview();
       _updateEditHistoryUI();
       _vigUpdateResetState();
+      _updateVigTriggerValue();
     });
   }
 }
@@ -8211,7 +8908,7 @@ async function _applyVignette(file, info){
 async function _renderCropTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
-  const cropPreviewCol = document.getElementById('editPreviewCol');
+  const cropPreviewCol = _editPreviewEl();
   if (cropPreviewCol) {
     cropPreviewCol.innerHTML = `<div class="edit-crop-canvas-wrap" id="editCropWrap"><canvas id="editCropCanvas"></canvas></div>`;
   }
@@ -8231,7 +8928,7 @@ async function _renderCropTab(body){
   try { bmp = await createImageBitmap(_editState.originalFile || f.file); }
   catch(e) { body.innerHTML = '<p style="color:rgba(255,120,120,.85);">Could not load image for crop.</p>'; return; }
   const imgW = bmp.width, imgH = bmp.height;
-  const pcEl = document.getElementById('editPreviewCol');
+  const pcEl = _editPreviewEl();
   const maxW = Math.min(((pcEl ? pcEl.clientWidth : 640) || 640) - 8, 1600);
   const maxH = Math.min(((pcEl ? pcEl.clientHeight : 500) || 500) - 8, 1000);
   const scale = Math.min(maxW / imgW, maxH / imgH, 1);
@@ -8328,7 +9025,7 @@ async function _renderCropTab(body){
   document.addEventListener('mouseup', stopDrag);
   // Clean up listener when tab switches
   const obs = new MutationObserver(() => { if (!canvas.isConnected){ document.removeEventListener('mouseup',stopDrag); obs.disconnect(); try{bmp.close&&bmp.close();}catch(_){} } });
-  obs.observe(document.getElementById('editPreviewCol') || body, {childList:true,subtree:true});
+  obs.observe(_editPreviewEl() || body, {childList:true,subtree:true});
   document.querySelectorAll('#editBody [data-aspect]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#editBody [data-aspect]').forEach(b=>b.classList.remove('active'));
@@ -8479,25 +9176,37 @@ async function _renderPixelateTab(body){
     _editState.pendingEdits.pixelate = { strokes: [], blockSize: 14, brushPx: 38, mode: 'paint' };
   }
   const px = _editState.pendingEdits.pixelate;
-  const previewCol = document.getElementById('editPreviewCol');
+  const previewCol = _editPreviewEl();
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-pixelate-wrap"><canvas id="editPixelateCanvas" class="edit-pixelate-canvas"></canvas></div>';
   }
+  /* R30c — Brush + Cell size live inside a single "Brush ▾" chip. */
+  const _pxChev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
+  const _pxSummary = 'Brush ' + px.brushPx + ' · Cell ' + px.blockSize;
   body.innerHTML = ''
     + '<div class="edit-pixelate-controls">'
     +   '<div class="px-tool-strip">'
     +     '<button type="button" class="edit-preset-btn' + (px.mode==='paint'?' active':'') + '" data-px-mode="paint">Paint</button>'
     +     '<button type="button" class="edit-preset-btn' + (px.mode==='erase'?' active':'') + '" data-px-mode="erase">Erase</button>'
     +   '</div>'
-    +   '<div class="adj-row">'
+    +   '<div class="edit-tool-dd" id="editPxDD">'
     +     '<span class="adj-label">Brush</span>'
-    +     '<input type="range" id="pxBrush" min="6" max="160" step="1" value="' + px.brushPx + '" title="Brush size — [ and ]">'
-    +     '<span class="adj-val" id="pxBrushVal">' + px.brushPx + '</span>'
-    +   '</div>'
-    +   '<div class="adj-row">'
-    +     '<span class="adj-label">Cell size</span>'
-    +     '<input type="range" id="pxBlock" min="4" max="60" step="1" value="' + px.blockSize + '">'
-    +     '<span class="adj-val" id="pxBlockVal">' + px.blockSize + '</span>'
+    +     '<button type="button" class="edit-tool-dd-trigger" id="editPxTrigger" aria-haspopup="dialog" aria-expanded="false">'
+    +       '<span class="dd-value" id="editPxSummary">' + _pxSummary + '</span>' + _pxChev
+    +     '</button>'
+    +     '<div class="edit-tool-dd-menu" id="editPxMenu" role="dialog" aria-label="Pixelate brush">'
+    +       '<p class="dd-section-label">Pixelate brush</p>'
+    +       '<div class="adj-row">'
+    +         '<span class="adj-label">Brush</span>'
+    +         '<input type="range" id="pxBrush" min="6" max="160" step="1" value="' + px.brushPx + '" title="Brush size — [ and ]">'
+    +         '<span class="adj-val" id="pxBrushVal">' + px.brushPx + '</span>'
+    +       '</div>'
+    +       '<div class="adj-row">'
+    +         '<span class="adj-label">Cell size</span>'
+    +         '<input type="range" id="pxBlock" min="4" max="60" step="1" value="' + px.blockSize + '">'
+    +         '<span class="adj-val" id="pxBlockVal">' + px.blockSize + '</span>'
+    +       '</div>'
+    +     '</div>'
     +   '</div>'
     +   '<button type="button" class="edit-frames-action-btn" id="pxClear">Clear all</button>'
     +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation. Use [ and ] to resize the brush.</p>'
@@ -8527,6 +9236,12 @@ async function _renderPixelateTab(body){
   /* Round 15 — show a sized ring cursor so the brush footprint is visible */
   function _pxRefreshCursor(){ canvas.style.cursor = _bgRingCursor(px.brushPx); }
   _pxRefreshCursor();
+  /* R30c — keep "Brush ▾" trigger summary in sync */
+  function _pxRefreshSummary(){
+    const el = document.getElementById('editPxSummary');
+    if (el) el.textContent = 'Brush ' + px.brushPx + ' · Cell ' + px.blockSize;
+  }
+  _editWireDropdown('editPxDD','editPxTrigger','editPxMenu');
   function buildPixelatedPreview(blockSrc){
     const sx = dw / bmp.width;
     const block = Math.max(2, Math.round(blockSrc * sx));
@@ -8633,6 +9348,7 @@ async function _renderPixelateTab(body){
     px.brushPx = parseInt(brushSl.value, 10);
     brushVal.textContent = px.brushPx;
     _pxRefreshCursor();
+    _pxRefreshSummary();
   });
   const blockSl = document.getElementById('pxBlock');
   const blockVal = document.getElementById('pxBlockVal');
@@ -8641,6 +9357,7 @@ async function _renderPixelateTab(body){
     blockVal.textContent = px.blockSize;
     pixCache = null;
     render();
+    _pxRefreshSummary();
   });
   blockSl.addEventListener('change', () => { _editPushUndo(); });
   document.getElementById('pxClear').addEventListener('click', () => {
@@ -8756,25 +9473,37 @@ async function _renderBlurTab(body){
     _editState.pendingEdits.blur = { strokes: [], radius: 14, brushPx: 50, mode: 'paint', full: false };
   }
   const bl = _editState.pendingEdits.blur;
-  const previewCol = document.getElementById('editPreviewCol');
+  const previewCol = _editPreviewEl();
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-blur-wrap"><canvas id="editBlurCanvas" class="edit-blur-canvas"></canvas></div>';
   }
+  /* R30c — Brush + Amount sliders live inside a single "Brush ▾" chip. */
+  const _blChev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
+  const _blSummary = 'Brush ' + bl.brushPx + ' · Amt ' + bl.radius;
   body.innerHTML = ''
     + '<div class="edit-blur-controls">'
     +   '<div class="blur-tool-strip">'
     +     '<button type="button" class="edit-preset-btn' + (bl.mode==='paint'?' active':'') + '" data-bl-mode="paint">Paint</button>'
     +     '<button type="button" class="edit-preset-btn' + (bl.mode==='erase'?' active':'') + '" data-bl-mode="erase">Erase</button>'
     +   '</div>'
-    +   '<div class="adj-row">'
+    +   '<div class="edit-tool-dd" id="editBlDD">'
     +     '<span class="adj-label">Brush</span>'
-    +     '<input type="range" id="blBrush" min="6" max="160" step="1" value="' + bl.brushPx + '" title="Brush size — [ and ]">'
-    +     '<span class="adj-val" id="blBrushVal">' + bl.brushPx + '</span>'
-    +   '</div>'
-    +   '<div class="adj-row">'
-    +     '<span class="adj-label">Amount</span>'
-    +     '<input type="range" id="blRadius" min="2" max="40" step="1" value="' + bl.radius + '" title="Blur strength — Shift+[ and Shift+]">'
-    +     '<span class="adj-val" id="blRadiusVal">' + bl.radius + '</span>'
+    +     '<button type="button" class="edit-tool-dd-trigger" id="editBlTrigger" aria-haspopup="dialog" aria-expanded="false">'
+    +       '<span class="dd-value" id="editBlSummary">' + _blSummary + '</span>' + _blChev
+    +     '</button>'
+    +     '<div class="edit-tool-dd-menu" id="editBlMenu" role="dialog" aria-label="Blur brush">'
+    +       '<p class="dd-section-label">Blur brush</p>'
+    +       '<div class="adj-row">'
+    +         '<span class="adj-label">Brush</span>'
+    +         '<input type="range" id="blBrush" min="6" max="160" step="1" value="' + bl.brushPx + '" title="Brush size — [ and ]">'
+    +         '<span class="adj-val" id="blBrushVal">' + bl.brushPx + '</span>'
+    +       '</div>'
+    +       '<div class="adj-row">'
+    +         '<span class="adj-label">Amount</span>'
+    +         '<input type="range" id="blRadius" min="2" max="40" step="1" value="' + bl.radius + '" title="Blur strength — Shift+[ and Shift+]">'
+    +         '<span class="adj-val" id="blRadiusVal">' + bl.radius + '</span>'
+    +       '</div>'
+    +     '</div>'
     +   '</div>'
     +   '<div class="edit-blur-actions">'
     +     '<button type="button" class="edit-frames-action-btn" id="blApplyAll">' + (bl.full ? 'Brush only' : 'Whole image') + '</button>'
@@ -8807,6 +9536,12 @@ async function _renderBlurTab(body){
   /* Round 15 — show a sized ring cursor so the brush footprint is visible */
   function _blRefreshCursor(){ canvas.style.cursor = _bgRingCursor(bl.brushPx); }
   _blRefreshCursor();
+  /* R30c — keep Brush ▾ trigger summary in sync */
+  function _blRefreshSummary(){
+    const el = document.getElementById('editBlSummary');
+    if (el) el.textContent = 'Brush ' + bl.brushPx + ' · Amt ' + bl.radius;
+  }
+  _editWireDropdown('editBlDD','editBlTrigger','editBlMenu');
   /* Pre-render a fully blurred copy (preview-resolution). Use ctx.filter when
      available; fall back to nearest-neighbour downsample-upsample for old Safari. */
   let blurCache = null, blurCacheR = -1;
@@ -8935,6 +9670,7 @@ async function _renderBlurTab(body){
     bl.brushPx = parseInt(brushSl.value, 10);
     brushVal.textContent = bl.brushPx;
     _blRefreshCursor();
+    _blRefreshSummary();
   });
   const radiusSl = document.getElementById('blRadius');
   const radiusVal = document.getElementById('blRadiusVal');
@@ -8943,6 +9679,7 @@ async function _renderBlurTab(body){
     radiusVal.textContent = bl.radius;
     blurCache = null;
     render();
+    _blRefreshSummary();
   });
   radiusSl.addEventListener('change', () => { _editPushUndo(); });
   document.getElementById('blApplyAll').addEventListener('click', (ev) => {
@@ -9215,7 +9952,7 @@ async function _renderTextTab(body){
     _editState.pendingEdits.textOverlays = { items: [], selectedId: null, nextId: 1 };
   }
   const state = _editState.pendingEdits.textOverlays;
-  const previewCol = document.getElementById('editPreviewCol');
+  const previewCol = _editPreviewEl();
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-text-wrap" id="editTextWrap"><canvas id="editTextCanvas" class="edit-text-canvas"></canvas></div>';
   }
@@ -11312,6 +12049,23 @@ function doClear(){
   CFLOW.selected = 0; CFLOW.drift = 0;
   document.getElementById('cflowTrack').querySelectorAll('.cflow-thumb:not(.clear-all)').forEach(t => t.remove()); /* keep static clear-all tile */
   /* Stay in workspace state ('multi'), just flag the body so CSS shows
+     an empty-batch dropzone overlayacross BOTH the primary encoded map and the
+     multi-output sidecar. Without the sidecar revoke, Clear-All in
+     multi-output mode leaked encoded blobs across cycles. Also flush
+     the queue + inflight maps so a stale encode can't repopulate
+     ENCODE.encoded after the user has cleared. */
+  FILES.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
+  ENCODE.encoded.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} });
+  ENCODE.allEncoded.forEach(m => m.forEach(e => { try { URL.revokeObjectURL(e.url); } catch(_){} }));
+  ENCODE.encoded.clear();
+  ENCODE.allEncoded.clear();
+  ENCODE.queue.length = 0;
+  ENCODE.inflight.clear();
+  FILES.length = 0;
+  CFLOW.thumbs = [];
+  CFLOW.selected = 0; CFLOW.drift = 0;
+  document.getElementById('cflowTrack').querySelectorAll('.cflow-thumb:not(.clear-all)').forEach(t => t.remove()); /* keep static clear-all tile */
+  /* Stay in workspace state ('multi'), just flag the body so CSS shows
      an empty-batch dropzone overlay over the compare-slider area.
      Workspace chrome (top stats bar + bottom toolbar) keeps rendering,
      so user feels they're still in the same tool — just waiting for
@@ -11421,7 +12175,7 @@ function doClear(){
   <!-- R28 — image canvas fills the viewport (inset:0). All chrome
        floats over it. Mirrors how the home solo state composes its
        .image-canvas with .top-chrome + .menu-card overlays. -->
-  <main class="edit-canvas-area" id="editPreviewCol"></main>
+  <main class="edit-canvas-area" id="editPreviewCol"><div id="editZoomLayer" class="edit-zoom-layer edit-preview-col"></div></main>
   <!-- R28 — floating top chrome: two translucent pills (brand link +
        filename chip). pointer-events:none on container so canvas
        interactions (drag compare slider, etc.) pass through the empty
@@ -11440,17 +12194,7 @@ function doClear(){
   <div class="edit-menu-wrap">
     <div class="edit-menu-card">
       <section class="edit-options-strip" id="editBody" role="region" aria-label="Tool options"></section>
-      <div class="edit-menu-bottom-row">
-        <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
-        <div class="edit-actions-cluster">
-          <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
-          <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
-          <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
-          <button type="button" class="btn btn-icon" id="editCompareBtn" onclick="_toggleEditCompare()" title="View original" aria-label="View original"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg></button>
-          <button type="button" class="btn" onclick="cancelEdit()" title="Cancel — Esc">Cancel</button>
-          <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
-        </div>
-      </div>
+      <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
     </div>
   </div>
     <div id="editCompareOverlay" class="edit-compare-overlay" style="display:none">
@@ -11604,5 +12348,6 @@ function doClear(){
 })();
 </script>
 
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"aa1ebadf430e4a21a278fbcecd3f04ae","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>

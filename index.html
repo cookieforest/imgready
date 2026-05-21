@@ -7228,13 +7228,19 @@ function _ensureSplitUi(){
       + '<button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>'
       + '<button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>'
       + '<button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>'
-      + '<div class="edit-pill-sep"></div>'
-      + '<button type="button" class="edit-split-btn" id="editSplitBtn" title="Split compare — drag the divider" aria-label="Compare original vs edited" disabled><svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg></button>'
-      + '<div class="edit-pill-sep"></div>'
       + '<button type="button" class="btn" onclick="cancelEdit()" title="Cancel \u2014 Esc">Cancel</button>'
       + '<button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>';
     col.appendChild(pill);
-    pill.querySelector('#editSplitBtn').addEventListener('click', _toggleSplitCompare);
+    /* R37 — compare chip floats right of the pill, visible when edits exist. */
+    if (!col.querySelector('.edit-compare-chip')){
+      const cc = document.createElement('button');
+      cc.type = 'button';
+      cc.className = 'edit-compare-chip'; cc.id = 'editCompareChip';
+      cc.innerHTML = '<svg class="ico" aria-hidden="true" style="width:13px;height:13px"><use href="#i-arrow-left-right"/></svg>Compare';
+      cc.title = 'Compare original vs edited — drag the divider';
+      cc.addEventListener('click', _toggleSplitCompare);
+      col.appendChild(cc);
+    }
     if (!col.querySelector('.edit-zoom-chip')){
       const zc = document.createElement('div');
       zc.className = 'edit-zoom-chip'; zc.id = 'editZoomChip';
@@ -7292,26 +7298,17 @@ function _updateSplitBtnPos(){
   modal.style.setProperty('--split-btn-bottom', (h + 12) + 'px');
 }
 function _updateSplitBtnState(){
-  const btn = document.getElementById('editSplitBtn');
-  if (!btn) return;
-  /* R20 - hide on Crop, whether legacy direct tab or Transform-Crop sub-tab. */
+  /* R37 — compare chip replaces the split-btn in the pill. */
+  const chip = document.getElementById('editCompareChip');
   const onCrop = !!document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')
               || !!document.querySelector('.edit-modal .edit-subtab.active[data-subtab="crop"]');
   if (onCrop){
-    btn.style.display = 'none';
-    const _pC = btn.previousElementSibling, _nC = btn.nextElementSibling;
-    if (_pC && _pC.classList.contains('edit-pill-sep')) _pC.style.display = 'none';
-    if (_nC && _nC.classList.contains('edit-pill-sep')) _nC.style.display = 'none';
-    /* If split is active and user navigated to crop, force-off so handles don't conflict. */
+    if (chip) chip.classList.remove('visible');
     if (_editState._splitActive){ _editState._splitActive = false; _ensureSplitUi(); }
     return;
   }
   const has = _editHasAnyEdit();
-  const _pS = btn.previousElementSibling, _nS = btn.nextElementSibling;
-  /* Hide btn + flanking separators until edits exist — avoids ghost gap. */
-  [btn, _pS, _nS].forEach(el => { if (el) el.style.display = has ? '' : 'none'; });
-  btn.disabled = !has;
-  btn.title = has ? 'Drag the divider to compare original vs edited' : '';
+  if (chip){ chip.classList.toggle('visible', has); chip.classList.toggle('active', !!_editState._splitActive); }
 }
 function _toggleSplitCompare(){
   if (!_editState || _editState.idx < 0) return;
