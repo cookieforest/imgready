@@ -2706,7 +2706,10 @@ Content-Type: text/html
   .edit-modal .edit-header,
   .edit-modal .edit-brand-bar,
   .edit-modal .edit-layout,
-  .edit-modal .edit-preview-col,
+  /* R39 — exclude .edit-zoom-layer: display:contents removes the box and
+     makes CSS transforms inert, so the zoom transform would be silently
+     ignored. All other legacy layout wrappers keep display:contents. */
+  .edit-modal .edit-preview-col:not(.edit-zoom-layer),
   .edit-modal .edit-panel-col{display:contents;}
   /* R31 — .edit-tabs legacy alias kept; individual .edit-tab rule
      now covered by .edit-tab-bar .edit-tab above.
@@ -6942,6 +6945,10 @@ function _renderRetouchTab(body){
   else if (sub === 'blur') _renderBlurTab(subBody).catch(e => console.warn('[blur]', e));
 }
 function cancelEdit(){
+  /* R39 — Warn if there are unsaved edits so users don't lose work. */
+  if (typeof _editHasAnyEdit === 'function' && _editHasAnyEdit()){
+    if (!confirm('Discard edits and close?')) return;
+  }
   /* R30 — Clean up portalled adjust-tab dropdowns (filter / vignette menus
      are appended to <body>, not #editBody, so they wouldn't otherwise be
      removed when the modal closes). */
@@ -7231,6 +7238,8 @@ function _ensureSplitUi(){
       + '<span class="edit-pill-sep" id="editPillSepLeft" style="display:none"></span>'
       + '<button type="button" class="edit-split-btn" id="editSplitBtn" onclick="_toggleSplitCompare()" title="Compare original vs edited \u2014 drag the divider" aria-label="Compare" style="display:none"><svg class="ico" aria-hidden="true" style="width:14px;height:14px"><use href="#i-arrow-left-right"/></svg></button>'
       + '<span class="edit-pill-sep" id="editPillSepRight" style="display:none"></span>'
+      + '<span class="edit-pill-sep" id="editPillSepCrop" style="display:none"></span>'
+      + '<button type="button" class="btn" id="editCropApplyBtn" style="display:none">Apply</button>'
       + '<button type="button" class="btn" onclick="cancelEdit()" title="Cancel \u2014 Esc">Cancel</button>'
       + '<button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>';
     col.appendChild(pill);
@@ -7295,15 +7304,21 @@ function _updateSplitBtnState(){
   const btn = document.getElementById('editSplitBtn');
   const sepL = document.getElementById('editPillSepLeft');
   const sepR = document.getElementById('editPillSepRight');
+  const cropBtn = document.getElementById('editCropApplyBtn');
+  const sepCrop = document.getElementById('editPillSepCrop');
   const onCrop = !!document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')
               || !!document.querySelector('.edit-modal .edit-subtab.active[data-subtab="crop"]');
   if (onCrop){
     if (btn) btn.style.display = 'none';
     if (sepL) sepL.style.display = 'none';
     if (sepR) sepR.style.display = 'none';
+    if (cropBtn) cropBtn.style.display = '';
+    if (sepCrop) sepCrop.style.display = '';
     if (_editState._splitActive){ _editState._splitActive = false; _ensureSplitUi(); }
     return;
   }
+  if (cropBtn) cropBtn.style.display = 'none';
+  if (sepCrop) sepCrop.style.display = 'none';
   const has = _editHasAnyEdit();
   const vis = has ? '' : 'none';
   if (btn){ btn.style.display = vis; btn.classList.toggle('active', !!_editState._splitActive); }
@@ -8919,7 +8934,6 @@ async function _renderCropTab(body){
         .map(p=>`<button type="button" class="edit-preset-btn${p.v==='free'?' active':''}" data-aspect="${p.v}">${p.l}</button>`).join('')}
     </div>
     <p style="font-size:.7rem;color:rgba(255,255,255,.35);margin:0;">Drag the corners or edges to crop</p>
-    <button type="button" class="edit-frames-action-btn" id="editCropApplyBtn" style="width:100%;margin-top:auto;">Apply</button>
   `;
   const canvas = document.getElementById('editCropCanvas');
   const ctx = canvas.getContext('2d');
