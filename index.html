@@ -2314,6 +2314,14 @@ Content-Type: text/html
     background:#0a0a0c;
     overflow:hidden;
   }
+  /* R34 — zoom transform target. Tools render into this layer;
+     split-compare overlay/button are appended to editPreviewCol
+     directly (outside the layer) so they stay unscaled. */
+  .edit-modal .edit-zoom-layer{
+    position:absolute;inset:0;
+    transform-origin:center center;
+    will-change:transform;
+  }
   /* R30 — Edit top chrome mirrors home .top-chrome EXACTLY:
      - single flush-at-top bar (NOT two floating pills)
      - rounded only at bottom corners (border-radius:0 0 14px 14px)
@@ -2407,7 +2415,7 @@ Content-Type: text/html
     overflow:hidden;
     /* R33 — bottom padding gives the pill strip breathing room before
        the card's overflow:hidden clips it at the rounded corner. */
-    padding-bottom:10px;
+    /* padding-bottom removed R34 — edit-bottom-pill handles spacing */
     /* R30 — removed max-width:1100px. Home .menu-card has no max-width
        (it fills the wrap with 16px gutters on each side); matching that
        gives the edit toolbar the same on-screen presence on wide displays. */
@@ -2498,18 +2506,24 @@ Content-Type: text/html
     text-transform:uppercase;color:rgba(255,255,255,.55);
     margin:0;white-space:nowrap;flex:0 0 auto;
   }
-  /* R32 — Actions cluster lives in its own compact row above the strip.
-     No longer shares space with the tool nav. */
-  .edit-modal .edit-menu-bottom-row{
-    display:flex;align-items:center;justify-content:flex-end;
-    gap:8px;padding:6px 12px;
-    border-bottom:1px solid rgba(255,255,255,.06);
+  /* R34 — single floating pill wraps both actions row and tool strip. */
+  .edit-modal .edit-bottom-pill{
+    display:flex;flex-direction:column;
+    background:rgba(255,255,255,.05);
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.08);
+    margin:0 10px 10px;
+    overflow:hidden;
   }
-  /* R33 — Camera-roll pill: floating capsule at bottom of card, matches
-     iOS Photos / iOS 26 inset tab-bar pattern. Has its own background
-     and border, side margins so it doesn't touch card edges, and full
-     border-radius. Tools center when they fit; scroll-left when they
-     overflow (safe center fallback). Edge mask hints at off-screen tools. */
+  /* Actions row — util buttons left, confirm right. */
+  .edit-modal .edit-menu-bottom-row{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:6px;padding:6px 10px;
+  }
+  .edit-modal .edit-pill-util{
+    display:flex;align-items:center;gap:4px;flex-shrink:0;
+  }
+  /* Tool strip — scrollable band inside the pill; separator from row above. */
   .edit-modal .edit-tab-bar{
     display:flex;
     justify-content:safe center;
@@ -2521,11 +2535,7 @@ Content-Type: text/html
     padding:5px 8px;
     align-items:stretch;
     scroll-behavior:smooth;
-    /* Pill container */
-    background:rgba(255,255,255,.05);
-    border-radius:16px;
-    border:1px solid rgba(255,255,255,.08);
-    margin:0 10px;
+    border-top:1px solid rgba(255,255,255,.07);
     /* Edge fade so users see more tools exist off-screen */
     -webkit-mask-image:linear-gradient(to right,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
     mask-image:linear-gradient(to right,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);
@@ -2574,15 +2584,11 @@ Content-Type: text/html
      - same padding 0 12px
      - .bb-divider equivalent (1px vertical, stretch margins) instead
        of full-height border-left, matching home's section divider. */
+  /* R34 — actions-cluster is now the right side of the pill actions row;
+     no left divider needed (pill-util is left, cluster is right). */
   .edit-modal .edit-actions-cluster{
     display:flex;align-items:center;gap:6px;
-    padding-left:12px;margin-left:4px;
     flex-shrink:0;
-    position:relative;
-  }
-  .edit-modal .edit-actions-cluster::before{
-    content:'';position:absolute;left:0;top:8px;bottom:8px;
-    width:1px;background:rgba(255,255,255,.12);
   }
   .edit-modal .edit-actions-cluster .btn{
     height:var(--bb-btn-h, 30px);padding:0 12px;
@@ -2974,10 +2980,13 @@ Content-Type: text/html
     transition:opacity .14s ease,transform .14s ease,visibility 0s linear .14s;
     left:-9999px;
   }
-  .edit-filter-dd.open .edit-filter-dd-menu,
-  .edit-vignette-dd.open .edit-vignette-dd-menu,
-  .edit-adjust-dd.open .edit-adjust-dd-menu,
-  .edit-tool-dd.open .edit-tool-dd-menu{
+  /* R34 — menus are portaled to <body> by _editPortalMenu so the
+     ancestor selector (.parent.open .menu) no longer matches.
+     Drive visibility directly from the menu's own .open class. */
+  .edit-filter-dd-menu.open,
+  .edit-vignette-dd-menu.open,
+  .edit-adjust-dd-menu.open,
+  .edit-tool-dd-menu.open{
     visibility:visible;opacity:1;pointer-events:auto;
     transform:translateY(0);
     transition:opacity .14s ease,transform .14s ease,visibility 0s linear 0s;
@@ -3435,10 +3444,10 @@ Content-Type: text/html
       left:8px;right:8px;
       bottom:max(8px, env(safe-area-inset-bottom, 8px));
     }
-    /* R32 — mobile: actions row is already compact; strip stays full-width. */
-    .edit-modal .edit-menu-bottom-row{padding:5px 10px;gap:6px;}
-    .edit-modal .edit-actions-cluster{gap:4px;}
-    .edit-modal .edit-actions-cluster::before{display:none;}
+    /* R34 — mobile: shrink pill margins, tighten rows. */
+    .edit-modal .edit-bottom-pill{margin:0 6px 6px;}
+    .edit-modal .edit-menu-bottom-row{padding:4px 8px;gap:4px;}
+    .edit-modal .edit-pill-util,.edit-modal .edit-actions-cluster{gap:2px;}
     .edit-modal .edit-options-strip{max-height:32vh;padding:10px 12px;gap:10px;}
     .edit-compare-btn{display:none;}
     /* R32 — on mobile the strip stays scrollable; shrink buttons slightly. */
@@ -6666,6 +6675,8 @@ function openEditMode(idx){
       requestAnimationFrame(_updateSplitBtnPos);
     }, { passive: true });
   }
+  /* R34 — wire zoom once per page load */
+  try { _wireEditZoom(); } catch(_){}
 }
 /* R26 — _updateTabsOverflow + _scrollActiveTabIntoView + _wireTabsOverflowWatcher
    are dead code from R19's horizontal-scroll tab bar. R20 replaced
@@ -6684,6 +6695,94 @@ function _scrollActiveTabIntoView(){
 }
 let _tabsOverflowWired = false;
 function _wireTabsOverflowWatcher(){ /* R26: noop */ }
+/* R34 — tools render into editZoomLayer (inside editPreviewCol) so
+   CSS transforms on the zoom layer only affect image content, not the
+   split-compare button/overlay which live directly on editPreviewCol. */
+function _editPreviewEl(){
+  return document.getElementById('editZoomLayer') || document.getElementById('editPreviewCol');
+}
+
+/* R34 — edit-canvas zoom state, mirrors the main-tool ZOOM object. */
+const EDIT_ZOOM = { scale:1, x:0, y:0, dragging:false, lastX:0, lastY:0, pinchDist:0 };
+function _applyEditZoom(){
+  const zl = document.getElementById('editZoomLayer');
+  if (!zl) return;
+  zl.style.transform = `translate(${EDIT_ZOOM.x}px,${EDIT_ZOOM.y}px) scale(${EDIT_ZOOM.scale})`;
+}
+function _resetEditZoom(){
+  EDIT_ZOOM.scale=1; EDIT_ZOOM.x=0; EDIT_ZOOM.y=0;
+  EDIT_ZOOM.dragging=false; EDIT_ZOOM.pinchDist=0;
+  _applyEditZoom();
+}
+function _setEditZoomToward(nextScale, cx, cy){
+  const col = document.getElementById('editPreviewCol');
+  if (!col) return;
+  const r = col.getBoundingClientRect();
+  const mx = cx - r.left - r.width/2;
+  const my = cy - r.top  - r.height/2;
+  const nz = Math.max(1, Math.min(6, nextScale));
+  if (nz === EDIT_ZOOM.scale) return;
+  const f = nz / EDIT_ZOOM.scale;
+  EDIT_ZOOM.x = mx - (mx - EDIT_ZOOM.x)*f;
+  EDIT_ZOOM.y = my - (my - EDIT_ZOOM.y)*f;
+  EDIT_ZOOM.scale = nz;
+  if (EDIT_ZOOM.scale <= 1){ EDIT_ZOOM.x=0; EDIT_ZOOM.y=0; }
+  _applyEditZoom();
+}
+function _wireEditZoom(){
+  const col = document.getElementById('editPreviewCol');
+  if (!col || col.dataset.editZoomWired) return;
+  col.dataset.editZoomWired = '1';
+  /* wheel zoom — skip when target is inside the bottom pill/card */
+  col.addEventListener('wheel', e => {
+    if (e.target.closest('.edit-bottom-pill,.edit-menu-card')) return;
+    /* crop has its own canvas; leave wheel alone there */
+    if (document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')) return;
+    e.preventDefault();
+    _setEditZoomToward(EDIT_ZOOM.scale + (e.deltaY > 0 ? -0.18 : 0.18), e.clientX, e.clientY);
+  }, { passive:false });
+  /* double-click: toggle 1× ↔ 2.5× */
+  col.addEventListener('dblclick', e => {
+    if (e.target.closest('.edit-bottom-pill,.edit-menu-card')) return;
+    if (document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')) return;
+    if (EDIT_ZOOM.scale > 1) _resetEditZoom();
+    else _setEditZoomToward(2.5, e.clientX, e.clientY);
+  });
+  /* drag-to-pan when zoomed */
+  col.addEventListener('pointerdown', e => {
+    if (EDIT_ZOOM.scale <= 1) return;
+    if (e.target.closest('.edit-bottom-pill,.edit-menu-card,button,.edit-crop-canvas-wrap,.edit-split-btn,.edit-split-handle')) return;
+    EDIT_ZOOM.dragging=true; EDIT_ZOOM.lastX=e.clientX; EDIT_ZOOM.lastY=e.clientY;
+    try { col.setPointerCapture(e.pointerId); } catch(_){}
+  });
+  col.addEventListener('pointermove', e => {
+    if (!EDIT_ZOOM.dragging) return;
+    EDIT_ZOOM.x += e.clientX - EDIT_ZOOM.lastX;
+    EDIT_ZOOM.y += e.clientY - EDIT_ZOOM.lastY;
+    EDIT_ZOOM.lastX=e.clientX; EDIT_ZOOM.lastY=e.clientY;
+    _applyEditZoom();
+  });
+  const _endEditDrag = e => { EDIT_ZOOM.dragging=false; try{ col.releasePointerCapture(e.pointerId); }catch(_){} };
+  col.addEventListener('pointerup', _endEditDrag);
+  col.addEventListener('pointercancel', _endEditDrag);
+  /* pinch-to-zoom on touch */
+  col.addEventListener('touchmove', e => {
+    if (e.touches.length !== 2) return;
+    if (document.querySelector('.edit-modal .edit-tab.active[data-tab="crop"]')) return;
+    e.preventDefault();
+    const dx=e.touches[0].clientX-e.touches[1].clientX, dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if (EDIT_ZOOM.pinchDist>0){
+      const sc=dist/EDIT_ZOOM.pinchDist;
+      _setEditZoomToward(EDIT_ZOOM.scale*sc,
+        (e.touches[0].clientX+e.touches[1].clientX)/2,
+        (e.touches[0].clientY+e.touches[1].clientY)/2);
+    }
+    EDIT_ZOOM.pinchDist=dist;
+  }, { passive:false });
+  col.addEventListener('touchend', e => { if (e.touches.length<2) EDIT_ZOOM.pinchDist=0; });
+}
+
 function _switchEditTab(tabId){
   document.querySelectorAll('.edit-modal .edit-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.tab === tabId);
@@ -6709,7 +6808,15 @@ function _switchEditTab(tabId){
   const body = document.getElementById('editBody');
   body.innerHTML = '';
   const previewCol = document.getElementById('editPreviewCol');
-  if (previewCol) previewCol.innerHTML = '';
+  if (previewCol) {
+    previewCol.innerHTML = '';
+    /* R34 — recreate zoom layer; split UI (btn+overlay) will be appended
+       by _ensureSplitUi to editPreviewCol directly, outside this layer. */
+    const _zl = document.createElement('div');
+    _zl.id = 'editZoomLayer'; _zl.className = 'edit-zoom-layer';
+    previewCol.appendChild(_zl);
+    _resetEditZoom();
+  }
   /* R20 routing - grouped tabs delegate to existing renderers via a
      sub-toggle wrapper. Legacy IDs still route for backward-compat. */
   if (tabId === 'frames') _renderFramesTab(body);
@@ -7316,7 +7423,7 @@ document.addEventListener('pointercancel', () => { document.body.dataset.editDra
 function _renderRotateTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
-  const previewCol = document.getElementById('editPreviewCol');
+  const previewCol = _editPreviewEl();
   if (previewCol) {
     previewCol.innerHTML = `<div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${_editState.originalUrl || f.url}');"></div>`;
   }
@@ -7431,7 +7538,7 @@ async function _renderFramesTab(body){
     return;
   }
   /* Show original GIF as preview in left col */
-  const framesPreviewCol = document.getElementById('editPreviewCol');
+  const framesPreviewCol = _editPreviewEl();
   if (framesPreviewCol) {
     framesPreviewCol.innerHTML = `<img class="edit-frames-preview-img" src="${f.url}" alt="GIF" draggable="false">`;
   }
@@ -7916,7 +8023,7 @@ function _renderBackgroundTab(body){
   const hasDone = !!_editState.pendingEdits.bgRemoved;
 
   /* Preview in left column — swap to interactive canvas once a mask exists */
-  const bgPreviewCol = document.getElementById('editPreviewCol');
+  const bgPreviewCol = _editPreviewEl();
   if (bgPreviewCol) {
     if (hasDone) {
       bgPreviewCol.innerHTML = '<div class="bg-checkerboard" id="bgCheckboard"><canvas id="bgRefineCanvas" class="bg-refine-canvas"></canvas></div>';
@@ -8408,7 +8515,7 @@ function _renderAdjustTab(body){
     { id: 'warm',    label: 'Warm',     css: 'sepia(30%) saturate(180%) brightness(105%)' },
   ];
   const fmt = v => { const d = v - 100; return d > 0 ? ('+' + d) : ('' + d); };
-  const adjPreviewCol = document.getElementById('editPreviewCol');
+  const adjPreviewCol = _editPreviewEl();
   if (adjPreviewCol) {
     const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
     adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false"><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>`;
@@ -8735,7 +8842,7 @@ async function _applyVignette(file, info){
 async function _renderCropTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
-  const cropPreviewCol = document.getElementById('editPreviewCol');
+  const cropPreviewCol = _editPreviewEl();
   if (cropPreviewCol) {
     cropPreviewCol.innerHTML = `<div class="edit-crop-canvas-wrap" id="editCropWrap"><canvas id="editCropCanvas"></canvas></div>`;
   }
@@ -8755,7 +8862,7 @@ async function _renderCropTab(body){
   try { bmp = await createImageBitmap(_editState.originalFile || f.file); }
   catch(e) { body.innerHTML = '<p style="color:rgba(255,120,120,.85);">Could not load image for crop.</p>'; return; }
   const imgW = bmp.width, imgH = bmp.height;
-  const pcEl = document.getElementById('editPreviewCol');
+  const pcEl = _editPreviewEl();
   const maxW = Math.min(((pcEl ? pcEl.clientWidth : 640) || 640) - 8, 1600);
   const maxH = Math.min(((pcEl ? pcEl.clientHeight : 500) || 500) - 8, 1000);
   const scale = Math.min(maxW / imgW, maxH / imgH, 1);
@@ -8852,7 +8959,7 @@ async function _renderCropTab(body){
   document.addEventListener('mouseup', stopDrag);
   // Clean up listener when tab switches
   const obs = new MutationObserver(() => { if (!canvas.isConnected){ document.removeEventListener('mouseup',stopDrag); obs.disconnect(); try{bmp.close&&bmp.close();}catch(_){} } });
-  obs.observe(document.getElementById('editPreviewCol') || body, {childList:true,subtree:true});
+  obs.observe(_editPreviewEl() || body, {childList:true,subtree:true});
   document.querySelectorAll('#editBody [data-aspect]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#editBody [data-aspect]').forEach(b=>b.classList.remove('active'));
@@ -9003,7 +9110,7 @@ async function _renderPixelateTab(body){
     _editState.pendingEdits.pixelate = { strokes: [], blockSize: 14, brushPx: 38, mode: 'paint' };
   }
   const px = _editState.pendingEdits.pixelate;
-  const previewCol = document.getElementById('editPreviewCol');
+  const previewCol = _editPreviewEl();
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-pixelate-wrap"><canvas id="editPixelateCanvas" class="edit-pixelate-canvas"></canvas></div>';
   }
@@ -9300,7 +9407,7 @@ async function _renderBlurTab(body){
     _editState.pendingEdits.blur = { strokes: [], radius: 14, brushPx: 50, mode: 'paint', full: false };
   }
   const bl = _editState.pendingEdits.blur;
-  const previewCol = document.getElementById('editPreviewCol');
+  const previewCol = _editPreviewEl();
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-blur-wrap"><canvas id="editBlurCanvas" class="edit-blur-canvas"></canvas></div>';
   }
@@ -9779,7 +9886,7 @@ async function _renderTextTab(body){
     _editState.pendingEdits.textOverlays = { items: [], selectedId: null, nextId: 1 };
   }
   const state = _editState.pendingEdits.textOverlays;
-  const previewCol = document.getElementById('editPreviewCol');
+  const previewCol = _editPreviewEl();
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-text-wrap" id="editTextWrap"><canvas id="editTextCanvas" class="edit-text-canvas"></canvas></div>';
   }
@@ -12002,7 +12109,7 @@ function doClear(){
   <!-- R28 — image canvas fills the viewport (inset:0). All chrome
        floats over it. Mirrors how the home solo state composes its
        .image-canvas with .top-chrome + .menu-card overlays. -->
-  <main class="edit-canvas-area" id="editPreviewCol"></main>
+  <main class="edit-canvas-area" id="editPreviewCol"><div id="editZoomLayer" class="edit-zoom-layer"></div></main>
   <!-- R28 — floating top chrome: two translucent pills (brand link +
        filename chip). pointer-events:none on container so canvas
        interactions (drag compare slider, etc.) pass through the empty
@@ -12021,17 +12128,21 @@ function doClear(){
   <div class="edit-menu-wrap">
     <div class="edit-menu-card">
       <section class="edit-options-strip" id="editBody" role="region" aria-label="Tool options"></section>
-      <div class="edit-menu-bottom-row">
-        <div class="edit-actions-cluster">
-          <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
-          <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
-          <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
-          <button type="button" class="btn btn-icon" id="editCompareBtn" onclick="_toggleEditCompare()" title="View original" aria-label="View original"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg></button>
-          <button type="button" class="btn" onclick="cancelEdit()" title="Cancel — Esc">Cancel</button>
-          <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
+      <div class="edit-bottom-pill">
+        <div class="edit-menu-bottom-row">
+          <div class="edit-pill-util">
+            <button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
+            <button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
+            <button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
+            <button type="button" class="btn btn-icon" id="editCompareBtn" onclick="_toggleEditCompare()" title="View original" aria-label="View original"><svg class="ico" aria-hidden="true"><use href="#i-arrow-left-right"/></svg></button>
+          </div>
+          <div class="edit-actions-cluster">
+            <button type="button" class="btn" onclick="cancelEdit()" title="Cancel — Esc">Cancel</button>
+            <button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>
+          </div>
         </div>
+        <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
       </div>
-      <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
     </div>
   </div>
     <div id="editCompareOverlay" class="edit-compare-overlay" style="display:none">
