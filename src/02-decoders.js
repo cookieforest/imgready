@@ -750,14 +750,4 @@ async function addFiles(list){
     },50);
   }
 }
-/* Exposed for inline scripts in index.html which run outside the
-   bundled IIFE and need to handle exotic-format decoding (HEIC,
-   TIFF, SVG, BMP) in the cover-flow addFilesFromList path. The
-   inline path creates URL.createObjectURL(file) directly — for raw
-   HEIC blobs that produces a URL the browser can't render, so the
-   'before' preview goes blank. Exposing preDecodeFile lets the
-   inline code substitute a decoded JPEG/PNG blob for display. */
-window.preDecodeFile = preDecodeFile;
-window.isHeic = isHeic;
-window.isExotic = isExotic;
 /* CHUNK_END:02-decoders v1 */

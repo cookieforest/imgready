@@ -3,64 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>imgready — Free Image Optimizer, Compressor & Resizer</title>
-<meta name="color-scheme" content="light dark">
-<meta name="description" content="Compress, resize and convert images online for free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
-<meta property="og:title" content="imgready — Free Image Optimizer, Compressor & Resizer">
-<meta property="og:description" content="Compress, resize and convert any image free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
-<meta property="og:image" content="https://imgready.app/demo.webp">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="795">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://imgready.app/">
-<meta property="og:site_name" content="imgready">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="imgready — Free Image Optimizer, Compressor & Resizer">
-<meta name="twitter:description" content="Compress, resize and convert any image — free, private, in-browser. HEIC, TIFF, WebP, AVIF and more.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
-<link rel="canonical" href="https://imgready.app/">
-
-<!-- Structured data: WebApplication + FAQPage (preserved from stable) -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebApplication",
-      "@id": "https://imgready.app/#app",
-      "name": "imgready",
-      "description": "Free browser-based image compressor, converter and resizer. Supports HEIC, TIFF, WebP, AVIF, PNG, JPG, GIF and more. Files are processed locally in your browser and never uploaded.",
-      "url": "https://imgready.app/",
-      "applicationCategory": "MultimediaApplication",
-      "operatingSystem": "Any (web browser)",
-      "browserRequirements": "Requires HTML5 Canvas and WebAssembly support.",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-      "featureList": [
-        "Compress JPG, PNG, WebP, HEIC, TIFF",
-        "Convert between WebP, AVIF, PNG, JPG, GIF",
-        "Resize and crop with platform presets",
-        "Batch processing and ZIP download",
-        "Live quality editor with before/after compare",
-        "100% in-browser — files never uploaded"
-      ]
-    },
-    {
-      "@type": "FAQPage",
-      "@id": "https://imgready.app/#faq",
-      "mainEntity": [
-        { "@type": "Question", "name": "Are my images uploaded?", "acceptedAnswer": { "@type": "Answer", "text": "No. Encoding runs in your browser. To verify, open DevTools and watch the Network tab while dropping a file — no requests carry image data." } },
-        { "@type": "Question", "name": "What is the difference between WebP and AVIF?", "acceptedAnswer": { "@type": "Answer", "text": "Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly." } },
-        { "@type": "Question", "name": "How big a batch can I drop in?", "acceptedAnswer": { "@type": "Answer", "text": "The soft cap is 200 files with a confirmation prompt above that. There's no hard limit because there's no server queue, only your computer's RAM." } },
-        { "@type": "Question", "name": "Is there a file-size cap?", "acceptedAnswer": { "@type": "Answer", "text": "No. imgready has no caps because there's no server to bill for storage. The only constraint is your browser's available memory." } },
-        { "@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Open Settings, pick a preset, and choose your output format. Crop ratios and EXIF stripping are in the same panel." } },
-        { "@type": "Question", "name": "What if a file fails to convert?", "acceptedAnswer": { "@type": "Answer", "text": "Two common reasons: the file is corrupted, or it uses a TIFF compression imgready does not support. Re-saving the file in any image editor usually fixes it." } },
-        { "@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder. Smaller batches (30 to 50) are recommended on mobile." } },
-        { "@type": "Question", "name": "Is imgready free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free with no caps. Supported by voluntary Ko-fi contributions. Your image data never leaves your device." } }
-      ]
-    }
-  ]
-}
-</script>
+<title>imgready — Free Image Optimizer (BETA)</title>
 <!-- Production CSS — drives the empty-state styling so beta inherits the
      stable homepage look. Beta's inline <style> below overrides only when
      in solo/multi state (the dark workspace) via :root variables scoped
@@ -79,7 +22,7 @@
     --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
-    --thumb-big:75px;--thumb-small:35px;--stride:60px;
+    --thumb-big:150px;--thumb-small:70px;--stride:120px;
     --action-w:240px;
   }
   body[data-state="solo"],body[data-state="multi"]{
@@ -173,9 +116,8 @@
   .image-canvas{
     position:absolute;
     top:0;left:0;right:0;
-    /* Stack: bar (--menu-h) + 42px filename gap + 80 cover-flow + 6 gap = +128.
-       Smaller thumbs (50% reduction) free up ~80px for the canvas. */
-    bottom:calc(var(--menu-h, 80px) + 128px);
+    /* Stack: bar (--menu-h) + 42px filename gap + 160 cover-flow + 6 gap = +208 */
+    bottom:calc(var(--menu-h, 80px) + 208px);
   }
   .compare-after,.compare-before{position:absolute;inset:0;}
   .compare-after{clip-path:inset(0 0 0 50%);}
@@ -459,7 +401,7 @@
        Stack from viewport bottom: bar (var --menu-h) → 14px gap → filename
        (~16px) → 12px gap → cover-flow. Total ~42px above bar. */
     bottom:calc(var(--menu-h, 80px) + 42px);left:0;right:0;
-    height:80px;
+    height:160px;
     z-index:6;
     cursor:grab;touch-action:pan-y;
     /* overflow:visible so the per-image action icons (which sit ABOVE the
@@ -1163,14 +1105,14 @@
        for the compare canvas (the actual reason users come to the page).
        80/42 still keeps the active thumb tappable (>=44px after scale
        up of small thumbs) without dominating the screen. */
-    :root{--thumb-big:40px;--thumb-small:21px;--action-w:auto;}
+    :root{--thumb-big:80px;--thumb-small:42px;--action-w:auto;}
     .cover-flow{
       bottom:calc(var(--menu-h,80px) + 38px);
       left:0;right:0;
-      height:60px;
+      height:120px;
     }
     .image-canvas{
-      bottom:calc(var(--menu-h, 100px) + 100px);
+      bottom:calc(var(--menu-h, 100px) + 160px);
     }
     .filename-ribbon{
       /* Mobile filename — same below-cover-flow placement, smaller font.
@@ -1362,9 +1304,9 @@
 
 <div class="brand-bar">
   <a href="/" class="brand">img<span class="g">ready</span></a>
-  <span class="beta-badge" style="display:none">BETA</span>
+  <span class="beta-badge">BETA</span>
   <div class="brand-spacer"></div>
-  <!-- "Back to stable app" link removed: beta IS the stable app now (cutover complete). -->
+  <a href="/" class="exit-link" title="Back to the stable app">← Stable app</a>
 </div>
 
 <section class="beta-empty">
@@ -1450,7 +1392,9 @@
     <details class="faq-item"><summary>Can I resize and compress at the same time?</summary><p>Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass — no double-encoding.</p></details>
     <details class="faq-item"><summary>What if the file fails to convert?</summary><p>Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level &quot;Couldn't read this file&quot; error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue.</p></details>
     <details class="faq-item"><summary>Does imgready work on iPhone or iPad?</summary><p>Yes — imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30–50 files at a time).</p></details>
-    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes — completely, no caps. Supported by voluntary Ko-fi contributions. Your image data never leaves your device.</p></details>
+    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes — completely, with no caps. The site runs on Google AdSense ads (your image data is never sent to ad partners) and voluntary Ko-fi contributions.</p></details>
+
+    <p class="content-foot">Ads on this page never see your image data. <a href="/privacy/">Privacy policy</a> · <a href="/terms/">Terms</a> · <a href="/why/">Why we built it</a></p>
   </div>
 
   <!-- Keyboard shortcut hint button (subtle, bottom-right of viewport).
@@ -1468,7 +1412,7 @@
   </div>
 
     <footer class="site-footer">
-    <div style="font-weight:700;color:var(--text2);">imgready</div>
+    <div style="font-weight:700;color:var(--text2);">img<span class="g">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a><a href="/support/">♥ Support</a>
@@ -1478,6 +1422,10 @@
     </div>
     <div style="margin-top:8px;">
       <a href="#" id="themeBtn" onclick="event.preventDefault();toggleTheme()">Night mode</a>
+      <span style="color:var(--border);margin:0 4px">|</span>
+      <a href="#" onclick="event.preventDefault();window.openCmpSettings&&window.openCmpSettings()">Cookie &amp; ad settings</a>
+      <span style="color:var(--border);margin:0 4px">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
     <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
   </footer>
@@ -1859,8 +1807,7 @@ function buildThumbs(){
         <line x1="12" y1="5" x2="12" y2="19"/>
         <line x1="5" y1="12" x2="19" y2="12"/>
       </svg>
-      <!-- Add more label removed: thumbnails are 50% smaller now;
-               the + icon alone reads clearly without the text. -->
+      <span class="add-more-label">Add more</span>
     </div>`;
   addMore.addEventListener('click', () => document.getElementById('moreInput').click());
   track.insertBefore(addMore, document.getElementById('piActions'));
@@ -3206,7 +3153,9 @@ window.toggleTheme = window.toggleTheme || function(){
   const btn = document.getElementById('themeBtn');
   if (btn) btn.textContent = document.body.classList.contains('dark-mode') ? 'Day mode' : 'Night mode';
 };
-window.openCmpSettings = window.openCmpSettings || function(){};
+window.openCmpSettings = window.openCmpSettings || function(){
+  alert('Cookie & ad consent settings will appear here when the CMP is active. For now, see /privacy/ to manage your choices.');
+};
 
 /* Panda demo init: fetch demo-original.png, encode via canvas.toBlob
    to webp@60, render before/after compare slider with drag handler.

@@ -143,7 +143,7 @@ pre{background:#2e2a22;color:#e8e4d8;border-radius:10px;padding:20px 24px;font-s
 <div class="wrap">
 
   <nav class="topnav" aria-label="Primary">
-    <a class="nav-brand" href="/">img<span>ready</span></a>
+    <a class="nav-brand" href="/">img<span class="g">ready</span></a>
     <span class="nav-sep" aria-hidden="true">|</span>
     <a class="nav-link" href="/">Home</a>
     <a class="nav-link hide-mobile" href="/compress/">Compress</a>
@@ -495,13 +495,18 @@ imgready.<span class="c-fn">init</span>({
   <details class="faq-item"><summary>Does the SDK work with React, Vue, Angular, and other frameworks?</summary><p>Yes. The SDK works in any framework — React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in.</p></details>
   <details class="faq-item"><summary>What's the bundle size impact of the SDK?</summary><p>The main SDK script is ~2 KB minified. WebAssembly encoders (WebP, AVIF, HEIC) are lazy-loaded on demand, adding ~1.5 MB each only when needed and cached after first use. Pages using only PNG/JPG output have zero encoder overhead until a user actually compresses.</p></details>
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">imgready</div>
+    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
     </div>
     <div style="margin-top:4px;">
       <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div style="margin-top:8px;">
+      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span style="color:#d6cebb;margin:0 4px">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
     <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
   </footer>

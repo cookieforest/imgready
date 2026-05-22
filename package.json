@@ -6,15 +6,9 @@
   "scripts": {
     "build": "node build.mjs",
     "build:watch": "node build.mjs --watch",
-    "dev": "node build.mjs --watch",
-    "check": "node --check imgready-worker.js && node --check sw.js",
-    "verify": "npm run check && npm run build && node --check dist/app.js"
-  },
-  "dependencies": {
-    "@jsquash/avif": "^2.1.1",
-    "@jsquash/jpeg": "^1.6.0",
-    "@jsquash/oxipng": "^2.3.0",
-    "@jsquash/webp": "^1.4.0"
+    "check": "node --check app.js && node --check imgready-worker.js && node --check sw.js",
+    "verify": "npm run check && npm run build && node --check dist/app.js",
+    "dev": "node build.mjs --watch"
   },
   "devDependencies": {
     "esbuild": "^0.24.0"

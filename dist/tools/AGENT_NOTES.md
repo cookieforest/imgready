@@ -74,3 +74,33 @@ If the canonical itself is truncated (it has happened — see the May 2026
 recovery from `index.html.bak`), check the `index.html.bak` and
 `index.html.broken_truncated` files at the repo root for older intact
 copies.
+
+## UX-first rule (HARD — no exceptions)
+
+For ANY change that touches what the user sees, the agent MUST:
+
+1. Open the live site at https://imgready.app in Chrome (or local preview) at
+   BOTH desktop (≥1280px) and mobile (375–414px) widths before proposing.
+2. Walk the affected user journey end-to-end — cold visit, drop image,
+   process, save. Look at the rendered DOM at every step.
+3. Report concrete observations from that walkthrough in the proposal.
+   Not "the slider would be useful" — "at 160px card width on mobile the
+   handle competes with the savings stamp; on desktop 240px it works."
+4. If a change adds visual density to the card or dropzone, also visually
+   test the 2-up and 3-up grid at the same widths. Density is the most
+   common UX failure mode for this app.
+5. Skepticism toward dead code: if a function exists but its DOM target
+   doesn't, default to "the previous engineer removed it on purpose"
+   not "I should wire it up." Read git history before reviving.
+6. Discovery → research → proposal → approval → implementation, in that
+   order. Implementation FIRST then asking for forgiveness later costs
+   the user time even when the revert is fast.
+
+Failure mode to remember (May 7 2026): inline before/after slider
+shipped on a result card, then reverted. Cards are 140–200px in the
+grid; a drag handle on top of the existing savings stamp + format
+chip + crop overlay was visually noisy and hard to use. The IIFE had
+been there as dead code with a code comment literally explaining it
+had been "previously removed" — the agent missed both signals because
+it never opened the live page.
+

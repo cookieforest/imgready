@@ -949,39 +949,4 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
   .fs-lbl.r{right:50px;}
   .fs-close{top:12px;right:12px;width:32px;height:32px;font-size:.9rem;}
 }
-/* ============================================================
-   Related tools — topic-cluster cross-links on landing pages.
-   Visually matches the old .content-foot pattern: dashed top
-   separator, muted heading, accent links. Wraps to multi-row
-   on mobile via flex-wrap. */
-.related-tools {
-  margin-top: 32px;
-  padding-top: 18px;
-  border-top: 1px dashed var(--border);
-}
-.related-tools h2 {
-  font-size: .78rem;
-  font-weight: 600;
-  color: var(--muted-strong);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  margin: 0 0 10px;
-}
-.related-tools ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-}
-.related-tools li { margin: 0; padding: 0; }
-.related-tools a {
-  color: var(--accent);
-  text-decoration: none;
-  font-size: .88rem;
-  line-height: 1.7;
-}
-.related-tools a:hover { text-decoration: underline; }
-
 /* CSS_EOF_MARKER */
