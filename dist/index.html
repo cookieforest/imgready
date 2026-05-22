@@ -1451,7 +1451,7 @@
     display:inline-flex;align-items:baseline;gap:6px;
   }
   .top-chrome .tc-brand-name{
-    font-size:.94rem;font-weight:700;color:rgba(255,255,255,.95);
+    font-size:.94rem;font-weight:700;font-style:italic;color:rgba(255,255,255,.95);
     letter-spacing:-.01em;text-decoration:none;line-height:1;
   }
   .top-chrome .tc-brand-name .g{color:var(--accent);}
@@ -2372,7 +2372,7 @@
   .edit-modal .edit-brand-link{
     flex:0 0 auto;
     font-family:var(--font-display);
-    font-style:italic;font-weight:600;
+    font-style:italic;font-weight:700;
     font-size:.94rem;
     letter-spacing:-.01em;
     color:rgba(255,255,255,.95);
@@ -3576,7 +3576,7 @@
   .edit-modal .edit-tab.active{background:rgba(138,174,138,.12);}
   /* R24 — wordmark on the hero gets the warm sage as the second word's color
      (was already using .g class on the "g" letter; promote to whole accent). */
-  .brand .g{color:var(--accent-strong, var(--accent));font-weight:600;}
+  .brand .g{color:var(--accent-strong,var(--accent));}
 
   /* R23 — Advanced encoder controls section. Native <details>, per-format
      tabs, simple form controls. No JS framework, no animations beyond the
@@ -7291,11 +7291,15 @@ function _ensureSplitUi(){
    so the button should sit card_height + 16 + 12px gap above the screen
    bottom. Called on every tab switch and on window resize. */
 function _updateSplitBtnPos(){
-  const wrap = document.querySelector('.edit-modal .edit-menu-wrap');
-  const modal = document.querySelector('.edit-modal');
-  if (!wrap || !modal) return;
-  const h = wrap.getBoundingClientRect().height;
-  modal.style.setProperty('--split-btn-bottom', (h + 12) + 'px');
+  /* R42 — anchor 15px above the tab bar regardless of which tool is active.
+     Previously measured edit-menu-wrap.height which varied per tab and caused
+     the pill to jump or clip the card on taller tool panels (e.g. Text). */
+  const tabBar = document.querySelector('.edit-modal .edit-tab-bar');
+  const modal  = document.querySelector('.edit-modal');
+  if (!tabBar || !modal) return;
+  const tabTop   = tabBar.getBoundingClientRect().top;
+  const modalBot = modal.getBoundingClientRect().bottom;
+  modal.style.setProperty('--split-btn-bottom', (modalBot - tabTop + 15) + 'px');
 }
 function _updateSplitBtnState(){
   /* R37 — compare chip replaces the split-btn in the pill. */
