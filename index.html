@@ -2427,63 +2427,64 @@
   /* R29 — strip mirrors home .adjust-panel density. flex-row primary;
      wraps onto a second line only when controls genuinely don't fit.
      max-height 22vh ensures the canvas keeps the lion's share of space. */
+  /* R43 — Redesigned tool panel strip: vertical column, more breathing room.
+     Previous compact horizontal layout (R29) crammed controls into a single
+     scrollable row; this update gives each tool its own vertical column so
+     sliders can stretch full-width and buttons meet the 36px touch-target. */
   .edit-modal .edit-options-strip{
-    padding:10px 14px;
-    display:flex;flex-direction:row;flex-wrap:wrap;
-    align-items:center;gap:14px 18px;
-    max-height:22vh;overflow-y:auto;overflow-x:hidden;
+    padding:14px 16px;
+    display:flex;flex-direction:column;
+    gap:12px;
+    max-height:40vh;overflow-y:auto;overflow-x:hidden;
     border-bottom:1px solid rgba(255,255,255,.06);
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;
   }
+  .edit-modal .edit-options-strip::-webkit-scrollbar{width:3px;}
+  .edit-modal .edit-options-strip::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
   .edit-modal .edit-options-strip:empty{display:none;}
   /* R31 — Slide-up reveal when a tool's controls appear. */
   @keyframes _editBodyIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
   .edit-modal .edit-options-strip.anim-in{animation:_editBodyIn .18s ease-out both;}
-  /* Direct children become horizontal flex rows by default,
-     overriding tool-specific column layouts. */
+  /* R43 — Children fill the strip width; each control wrapper owns its
+     own layout. Removed the old forced flex-row that flattened all tools. */
   .edit-modal .edit-options-strip > * {
-    display:flex;flex-direction:row;align-items:center;gap:10px;
-    flex:0 1 auto;
+    min-width:0;width:100%;flex:0 0 auto;
   }
-  /* R29 — top-level tool control wrappers become horizontal flex rows.
-     Render-fn output unchanged; layout flexes via CSS only. */
+  /* R43 — Tool control wrappers use column layout so controls stack
+     vertically; only neutralise legacy margins/borders with !important. */
   .edit-pixelate-controls,
   .edit-blur-controls,
   .edit-text-controls,
-  .bg-refine-section,
-  .edit-adjust-sliders,
-  .edit-rotate-row{
-    display:inline-flex !important;
-    flex-direction:row !important;
-    align-items:center;
-    gap:10px;
-    flex:0 1 auto;
-    margin:0 !important;
-    padding:0 !important;
-    border:none !important;
+  .bg-refine-section{
+    display:flex;flex-direction:column;gap:10px;
+    margin:0 !important;padding:0 !important;border:none !important;
+    width:100%;
   }
+  /* Mode-toggle strips (Paint/Erase, Erase/Restore) stay horizontal */
   .edit-pixelate-controls .px-tool-strip,
   .edit-blur-controls .bl-tool-strip,
   .bg-refine-section .bg-refine-tool-strip{
-    display:inline-flex;gap:2px;flex:0 0 auto;
+    display:flex;gap:4px;width:100%;
   }
+  /* R43 — Bigger touch targets on mode toggles (was 28px) */
   .edit-pixelate-controls .edit-preset-btn,
   .edit-blur-controls .edit-preset-btn,
-  .bg-refine-section .edit-preset-btn,
-  .edit-rotate-row .edit-rotate-btn{
-    height:28px;padding:0 10px;
-    font-size:.7rem;border-radius:6px;
+  .bg-refine-section .edit-preset-btn{
+    height:36px;padding:0 14px;
+    font-size:.78rem;border-radius:8px;flex:1;
   }
+  /* R43 — Larger, more readable help text (was .62rem) */
   .edit-pixelate-help,
   .edit-blur-help,
   .bg-refine-help,
   .tx-anchor-help{
-    font-size:.62rem;color:rgba(255,255,255,.4);
-    max-width:240px;line-height:1.35;margin:0;
-    flex:0 1 auto;
+    font-size:.72rem;color:rgba(255,255,255,.4);
+    line-height:1.4;margin:0;
   }
+  /* R43 — Action buttons: taller touch target (was 28px) */
   .edit-frames-action-btn{
-    height:28px;padding:0 10px;
-    font-size:.7rem;font-weight:600;border-radius:6px;
+    height:36px;padding:0 14px;
+    font-size:.78rem;font-weight:600;border-radius:8px;
     background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.12);
     color:rgba(255,255,255,.85);cursor:pointer;
@@ -2497,14 +2498,14 @@
   }
   .tx-item-list::-webkit-scrollbar{display:none;}
   .tx-sel-controls{
-    display:inline-flex;gap:6px;align-items:center;
-    flex:0 1 auto;
+    display:flex;flex-direction:column;gap:8px;
+    width:100%;
   }
   .edit-options-strip h4,
   .bg-refine-section h4{
-    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    font-size:.7rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);
-    margin:0;white-space:nowrap;flex:0 0 auto;
+    margin:0;
   }
   /* R35 — floating action pill (injected into editPreviewCol by _ensureSplitUi).
      All editing actions live here; card now only holds options + tool strip. */
@@ -2913,25 +2914,24 @@
   }
   .edit-angle-row input[type=range]{flex:1;min-width:0;}
   .edit-adjust-sliders{display:flex;flex-direction:column;gap:10px;}
-  /* R29 — .adj-row compact inline-flex (~220px wide unit). */
+  /* R43 — .adj-row stretches full-width; slider takes remaining space. */
   .adj-row{
-    display:inline-flex;align-items:center;gap:8px;
-    flex:0 0 auto;min-width:0;
+    display:flex;align-items:center;gap:8px;
+    width:100%;flex:0 0 auto;min-width:0;
   }
   .adj-label{
-    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    font-size:.72rem;font-weight:700;letter-spacing:.04em;
     text-transform:uppercase;color:rgba(255,255,255,.55);
-    white-space:nowrap;flex:0 0 auto;
+    white-space:nowrap;flex:0 0 auto;min-width:52px;
   }
   .adj-row input[type=range]{
-    width:120px;min-width:80px;max-width:160px;
-    flex:0 1 auto;
+    flex:1 1 auto;min-width:0;
   }
   .adj-val{
     font-family:var(--font-mono);
-    font-size:.7rem;color:rgba(255,255,255,.85);
+    font-size:.75rem;color:rgba(255,255,255,.85);
     text-align:right;font-variant-numeric:tabular-nums;
-    min-width:30px;flex:0 0 auto;
+    min-width:32px;flex:0 0 auto;
   }
   /* R29 — preset strip horizontal-scroll, no wrap.
      R30 — kept as a fallback for tabs that still use inline pills
@@ -2945,8 +2945,8 @@
   }
   .edit-preset-strip::-webkit-scrollbar{display:none;}
   .edit-preset-btn{
-    height:var(--bb-btn-h, 30px);padding:0 10px;
-    border-radius:6px;
+    height:var(--bb-btn-h, 34px);padding:0 12px;
+    border-radius:8px;
     background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);
     border:1px solid rgba(255,255,255,.18);cursor:pointer;
     font-family:inherit;font-size:.72rem;font-weight:600;
@@ -2963,18 +2963,20 @@
   /* R30 — Filter / Vignette dropdown chips. Mirrors home's
      .resize-presets-trigger pattern exactly: chevron chip on the bar,
      fixed-position popover opening UPWARD (toolbar is at the bottom). */
+  /* R43 — dropdown chip rows stretch full-width; trigger fills remaining space */
   .edit-filter-dd,.edit-vignette-dd,.edit-adjust-dd,.edit-tool-dd{
-    position:relative;display:inline-flex;align-items:center;
-    flex:0 0 auto;
+    position:relative;display:flex;align-items:center;
+    gap:8px;width:100%;
   }
   .edit-filter-dd-trigger,.edit-vignette-dd-trigger,.edit-adjust-dd-trigger,.edit-tool-dd-trigger{
-    height:var(--bb-btn-h, 30px);
+    height:var(--bb-btn-h, 34px);
     background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.18);
     color:rgba(255,255,255,.75);
-    font-family:inherit;font-size:.72rem;font-weight:600;
-    padding:0 10px;border-radius:6px;cursor:pointer;
-    display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+    font-family:inherit;font-size:.78rem;font-weight:600;
+    padding:0 12px;border-radius:8px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+    flex:1;
     transition:background .14s ease,border-color .14s ease,color .14s ease;
   }
   .edit-filter-dd-trigger:hover,.edit-vignette-dd-trigger:hover,.edit-adjust-dd-trigger:hover,.edit-tool-dd-trigger:hover{
@@ -3265,17 +3267,18 @@
   }
   /* Round 6: Auto Enhance row inside Adjust tab */
   /* R29 — auto-enhance compact pill in the strip row, not a hero band. */
+  /* R43 — auto-enhance row stretches full-width; button gets proper height */
   .edit-auto-enhance-row{
-    display:inline-flex;align-items:center;gap:4px;
+    display:flex;align-items:center;gap:8px;
     padding:0;border:none;background:transparent;
-    flex:0 0 auto;
+    width:100%;
   }
   .edit-auto-enhance-btn{
-    flex:0 0 auto;height:28px;padding:0 10px;border-radius:6px;
+    flex:1;height:36px;padding:0 14px;border-radius:8px;
     background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);
     border:1px solid rgba(255,255,255,.14);cursor:pointer;
-    font-size:.7rem;font-weight:600;
-    display:inline-flex;align-items:center;gap:4px;
+    font-size:.78rem;font-weight:600;
+    display:flex;align-items:center;justify-content:center;gap:6px;
     white-space:nowrap;
   }
   .edit-auto-enhance-btn:hover{background:rgba(255,255,255,.10);color:#fff;}
@@ -3301,7 +3304,7 @@
   }
   .edit-pixelate-controls{display:flex;flex-direction:column;gap:10px;}
   .px-tool-strip{display:flex;gap:4px;}
-  .px-tool-strip .edit-preset-btn{flex:1;text-align:center;}
+  .px-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.78rem;border-radius:8px;}
   .edit-pixelate-help{
     margin:0;font-size:.7rem;color:rgba(255,255,255,.5);line-height:1.4;
   }
@@ -3321,7 +3324,7 @@
   }
   .edit-blur-controls{display:flex;flex-direction:column;gap:10px;}
   .blur-tool-strip{display:flex;gap:4px;}
-  .blur-tool-strip .edit-preset-btn{flex:1;text-align:center;}
+  .blur-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.78rem;border-radius:8px;}
   .edit-blur-actions{display:flex;gap:6px;}
   .edit-blur-actions .edit-frames-action-btn{flex:1;}
   .edit-blur-help{
@@ -3396,7 +3399,7 @@
     border-radius:4px;background:transparent;cursor:pointer;
   }
   .tx-toggle-row{display:flex;gap:4px;}
-  .tx-toggle-row .edit-preset-btn{flex:1;padding:5px 6px;font-size:.74rem;}
+  .tx-toggle-row .edit-preset-btn{flex:1;padding:8px 6px;font-size:.76rem;}
   .tx-anchor-grid{
     display:grid;grid-template-columns:repeat(3,1fr);gap:3px;
     background:rgba(0,0,0,.22);border-radius:5px;padding:4px;
@@ -3417,11 +3420,12 @@
   .edit-bg-card .bg-icon{display:none;}
   .edit-bg-card h3{display:none;}
   .edit-bg-card p{margin:0;color:rgba(255,255,255,.45);font-size:.74rem;line-height:1.4;}
+  /* R43 — Remove BG run button: proper height */
   .edit-bg-run{
-    width:100%;margin-top:10px;padding:8px 14px;
+    width:100%;margin-top:0;padding:10px 14px;
     background:rgba(255,255,255,.08);color:#fff;
-    border:1px solid rgba(255,255,255,.14);border-radius:7px;
-    font-size:.8rem;font-weight:600;cursor:pointer;
+    border:1px solid rgba(255,255,255,.14);border-radius:8px;
+    font-size:.82rem;font-weight:600;cursor:pointer;
     display:flex;align-items:center;justify-content:center;gap:6px;
     transition:background .15s,color .15s;
   }
@@ -3432,15 +3436,16 @@
   .edit-bg-progress-fill{height:100%;background:var(--accent);transition:width .25s ease;}
   .edit-bg-progress-label{font-size:.7rem;color:rgba(255,255,255,.4);}
   .edit-bg-success-msg{margin:4px 0;font-size:.76rem;color:#6fcf97;}
-  .edit-bg-hint{margin-top:7px;font-size:.66rem;color:rgba(255,255,255,.22);line-height:1.4;}
+  .edit-bg-hint{margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.28);line-height:1.4;}
   .bg-mode-toggle{
     display:flex;gap:4px;margin:8px 0 6px;padding:3px;
     background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.07);border-radius:7px;
   }
+  /* R43 — bg mode buttons: 36px touch target */
   .bg-mode-btn{
-    flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;
-    padding:6px 8px;font-size:.74rem;font-weight:600;color:rgba(255,255,255,.62);
+    flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+    padding:8px 8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.62);
     background:transparent;border:1px solid transparent;border-radius:5px;
     cursor:pointer;transition:background .15s ease,color .15s ease;
     font-family:inherit;letter-spacing:.01em;
@@ -3474,7 +3479,7 @@
     color:rgba(255,255,255,.86);letter-spacing:.01em;
   }
   .bg-refine-tool-strip{display:flex;gap:4px;}
-  .bg-refine-tool-strip .edit-preset-btn{flex:1;text-align:center;}
+  .bg-refine-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.78rem;border-radius:8px;}
   .bg-refine-help{
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
@@ -7291,15 +7296,16 @@ function _ensureSplitUi(){
    so the button should sit card_height + 16 + 12px gap above the screen
    bottom. Called on every tab switch and on window resize. */
 function _updateSplitBtnPos(){
-  /* R42 — anchor 15px above the tab bar regardless of which tool is active.
-     Previously measured edit-menu-wrap.height which varied per tab and caused
-     the pill to jump or clip the card on taller tool panels (e.g. Text). */
+  /* R43 — anchor 32px above the tab bar. 15px was too tight: the pill's
+     box-shadow (offset 4px, blur 20px) bleeds visually ~24px below the
+     element boundary, so 15px looked like it was touching. 32px gives a
+     clear, comfortable gap across all screen sizes. */
   const tabBar = document.querySelector('.edit-modal .edit-tab-bar');
   const modal  = document.querySelector('.edit-modal');
   if (!tabBar || !modal) return;
   const tabTop   = tabBar.getBoundingClientRect().top;
   const modalBot = modal.getBoundingClientRect().bottom;
-  modal.style.setProperty('--split-btn-bottom', (modalBot - tabTop + 15) + 'px');
+  modal.style.setProperty('--split-btn-bottom', (modalBot - tabTop + 32) + 'px');
 }
 function _updateSplitBtnState(){
   /* R37 — compare chip replaces the split-btn in the pill. */
@@ -8918,7 +8924,7 @@ async function _renderCropTab(body){
   }
   body.innerHTML = `
     <div class="edit-crop-presets" id="editCropPresets">
-      <span style="font-size:.74rem;color:rgba(255,255,255,.5);margin-right:2px;">Ratio</span>
+      <span style="font-size:.76rem;font-weight:600;color:rgba(255,255,255,.5);margin-right:4px;letter-spacing:.04em;text-transform:uppercase;">Ratio</span>
       ${[{l:'Free',v:'free'},{l:'1:1',v:'1:1'},{l:'4:3',v:'4:3'},{l:'3:2',v:'3:2'},{l:'16:9',v:'16:9'}]
         .map(p=>`<button type="button" class="edit-preset-btn${p.v==='free'?' active':''}" data-aspect="${p.v}">${p.l}</button>`).join('')}
     </div>
