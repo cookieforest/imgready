@@ -3163,6 +3163,40 @@
 
 
 
+
+
+  /* ====================================================================
+     R61 — hide size info from top bar (user does not want it visible)
+     ==================================================================== */
+  .edit-modal .edit-size-info{display:none !important;}
+
+  /* Center the brand link. Top chrome becomes:
+       [Undo] [Redo]      [Brand]      [filename]            [Save/Done]
+     Brand is absolutely positioned center; left and right groups flow
+     normally. */
+  .edit-modal .edit-top-chrome{
+    position:absolute;
+    top:12px;left:12px;right:12px;
+    display:flex;align-items:center;gap:10px;
+    z-index:11;
+    pointer-events:none;
+  }
+  .edit-modal .edit-top-chrome > *{pointer-events:auto;}
+  .edit-modal .edit-top-chrome .edit-brand-link{
+    position:absolute;left:50%;transform:translateX(-50%);
+  }
+  .edit-modal .edit-top-history{margin-left:0;}
+  .edit-modal .edit-top-actions{margin-left:auto;}
+  .edit-modal .edit-filename-chip{
+    /* Push filename slightly right of brand or hide on narrow screens. */
+    margin-left:auto;
+    margin-right:12px;
+    max-width:24vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  @media (max-width: 640px){
+    .edit-modal .edit-filename-chip{display:none;}
+  }
+
   /* ====================================================================
      R60 — top-chrome history controls + dynamic Save/Done
      ==================================================================== */
@@ -8105,10 +8139,30 @@ function _reRenderEditTab(){
   if (active) _switchEditTab(active.dataset.tab);
 }
 function _hasEdits(){
-  const pe = _editState.pendingEdits;
-  const rs = _editState.rotateState;
-  return Object.keys(pe).length > 0 ||
-    rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0;
+  /* R61 — real dirty check. The previous impl counted any pendingEdits
+     key as "edited", but renderers populate default state objects
+     (e.g. pendingEdits.photoAdjust gets initialized at neutral values
+     just to drive the UI). A fresh-opened editor would lie and report
+     "Save" required. Now we look at the actual dirty flags / non-default
+     values. */
+  const pe = _editState.pendingEdits || {};
+  const rs = _editState.rotateState  || {};
+  if (rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0) return true;
+  if (pe.photoAdjust) {
+    const a = pe.photoAdjust;
+    if (a._dirty) return true;
+    if (a.brightness !== 100 || a.contrast !== 100 || a.saturation !== 100) return true;
+    if (a.preset && a.preset !== 'none') return true;
+    if (a.globalBlur && a.globalBlur > 0) return true;
+  }
+  if (pe.vignette && pe.vignette._dirty) return true;
+  if (pe.photoCrop) return true;
+  if (pe.bgRemoved) return true;
+  if (pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length) return true;
+  if (pe.blur && ((pe.blur.strokes && pe.blur.strokes.length) || pe.blur.full)) return true;
+  if (pe.textOverlays && pe.textOverlays.items && pe.textOverlays.items.length) return true;
+  if (pe.autoEnhanced) return true;
+  return false;
 }
 function _updateEditHistoryUI(){
   const resetBtn = document.getElementById('editResetBtn');
@@ -13802,7 +13856,6 @@ function doClear(){
     <a class="edit-brand-link" href="#" onclick="event.preventDefault();cancelEdit();" aria-label="Exit edit and return to imgready home">img<span class="g">ready</span></a>
     <!-- R60 — history controls (Reset / Undo / Redo) moved into top chrome. -->
     <div class="edit-top-history">
-      <button type="button" class="edit-top-history-btn" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
       <button type="button" class="edit-top-history-btn edit-top-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
       <button type="button" class="edit-top-history-btn edit-top-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
     </div>
