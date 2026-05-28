@@ -9767,13 +9767,64 @@ function _renderAdjustTab(body){
       }
     });
   }
+  /* R57 — iOS-style center detent.
+     When the value crosses the default, brief resistance + haptic feedback
+     before continuing. State held on the slider element so we don't leak
+     between renders. */
+  function _applyDetent(slider, newV, prevV, defV){
+    /* Only act if we just crossed the default in either direction. */
+    const crossed = (prevV < defV && newV > defV) || (prevV > defV && newV < defV) || (prevV !== defV && newV === defV);
+    if (!crossed) return newV;
+    /* Snap to default and require the user to drag the slider in this
+       direction once more to leave. We mark a "sticky" state on the
+       element; the next input that goes past default by >= 2 units is
+       allowed through, otherwise we clamp back to default. */
+    if (newV === defV) {
+      slider._detentSticky = true;
+      try { if (navigator.vibrate) navigator.vibrate(8); } catch(_){}
+      return defV;
+    }
+    /* Crossed past default in one event — snap to default for this tick. */
+    slider._detentSticky = true;
+    slider._detentDir = newV > defV ? 1 : -1;
+    slider._detentMomentum = 0;
+    try { if (navigator.vibrate) navigator.vibrate(8); } catch(_){}
+    return defV;
+  }
+  function _checkDetentRelease(slider, newV, defV){
+    /* If sticky and user is dragging away again, count momentum until 2 units */
+    if (!slider._detentSticky) return newV;
+    if (newV === defV) { slider._detentMomentum = 0; return defV; }
+    const dir = newV > defV ? 1 : -1;
+    /* If user reversed past default, allow through immediately. */
+    if (slider._detentDir && dir !== slider._detentDir && Math.abs(newV - defV) >= 1) {
+      slider._detentSticky = false;
+      return newV;
+    }
+    slider._detentMomentum = (slider._detentMomentum || 0) + 1;
+    if (slider._detentMomentum >= 2) {
+      slider._detentSticky = false;
+      return newV;
+    }
+    return defV;
+  }
   if (scrubSlider) {
+    scrubSlider._detentSticky = false;
     scrubSlider.addEventListener('input', () => {
       const a = _editState.pendingEdits.photoAdjust;
       const v_ = _editState.pendingEdits.vignette;
       const key = a.selected || 'brightness';
       const r = _scrubRange(key);
       let v = parseInt(scrubSlider.value, 10);
+      /* Apply detent: derive previous value from state. */
+      const prev = _scrubValueFor(key);
+      if (scrubSlider._detentSticky) {
+        v = _checkDetentRelease(scrubSlider, v, r.def);
+      } else {
+        v = _applyDetent(scrubSlider, v, prev, r.def);
+      }
+      /* Reflect any clamp back to the input. */
+      if (v !== parseInt(scrubSlider.value, 10)) scrubSlider.value = String(v);
       if (key === 'vignette') {
         v_.amount = v;
         _vigMarkDirty();
@@ -9788,6 +9839,10 @@ function _renderAdjustTab(body){
     });
     /* R50 — soft snap-to-default on release. */
     scrubSlider.addEventListener('change', () => {
+      /* R57 — reset detent on release so next drag starts fresh. */
+      scrubSlider._detentSticky = false;
+      scrubSlider._detentMomentum = 0;
+      scrubSlider._detentDir = 0;
       const a = _editState.pendingEdits.photoAdjust;
       const v_ = _editState.pendingEdits.vignette;
       const key = a.selected || 'brightness';
