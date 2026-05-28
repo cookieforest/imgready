@@ -3155,14 +3155,18 @@
   .edit-modal .filters-tab-r50{
     position:relative;
     display:flex;flex-direction:column;
-    gap:14px;
-    padding:18px 8px 8px;
+    gap:10px;
+    padding:8px 8px 4px;
   }
 
-  .edit-modal .adj-section-pill{
+  /* R51 — section-label pill anchored to editPreviewCol (sibling of
+     .edit-action-pill), positioned just above the action pill so it
+     floats over the photo. */
+  .edit-modal #editPreviewCol .adj-section-pill{
     position:absolute;
-    top:0;left:50%;
-    transform:translate(-50%, calc(-100% - 8px));
+    left:50%;
+    bottom:calc(var(--split-btn-bottom, 120px) + 48px);
+    transform:translateX(-50%);
     display:inline-flex;align-items:center;gap:6px;
     background:rgba(0,0,0,.72);
     backdrop-filter:blur(8px);
@@ -3174,8 +3178,13 @@
     border-radius:999px;
     pointer-events:none;
     white-space:nowrap;
-    z-index:3;
+    z-index:4;
   }
+  .edit-modal #editPreviewCol .adj-section-pill[hidden]{display:none;}
+  /* Legacy in-toolbar styles no longer apply — keep this rule for any
+     stray DOM (defensive); the in-toolbar pill is now removed. */
+  .edit-modal .adj-tab-r50 > .adj-section-pill,
+  .edit-modal .filters-tab-r50 > .adj-section-pill{display:none;}
   .edit-modal .adj-section-pill-label{color:#fff;}
   .edit-modal .adj-section-pill-val{
     font-family:var(--font-mono, ui-monospace, monospace);
@@ -7472,6 +7481,9 @@ function _switchEditTab(tabId){
     previewCol.appendChild(_zl);
     _resetEditZoom();
   }
+  /* R51 — clear floating section pill before tab content renders;
+     _renderAdjustTab and _renderFiltersTab will re-show it. */
+  try { _hideAdjSectionPill(); } catch(_){}
   /* R20 routing - grouped tabs delegate to existing renderers via a
      sub-toggle wrapper. Legacy IDs still route for backward-compat. */
   if (tabId === 'frames') _renderFramesTab(body);
@@ -9324,10 +9336,6 @@ function _renderAdjustTab(body){
     : fmt(_scrubVal);
   body.innerHTML = `
     <div class="edit-tool-toolbar edit-adjust-toolbar adj-tab-r50">
-      <div class="adj-section-pill" id="adjSectionPill" aria-hidden="true">
-        <span class="adj-section-pill-label" id="adjSectionPillLabel">${_scrubLabel}</span>
-        <span class="adj-section-pill-val" id="adjSectionPillVal">${_scrubDelta !== 0 ? _scrubValDisplay : ''}</span>
-      </div>
       <div class="adj-flat-carousel adj-carousel-r50" role="tablist" aria-label="Adjustments">
         <button type="button" class="adj-flat-btn adj-circle-btn adj-auto-btn${_aeOn?' active':''}" data-adj-action="auto" title="Auto enhance" aria-label="Auto enhance" aria-pressed="${_aeOn}">
           <span class="adj-circle-ring" aria-hidden="true"></span>
@@ -9360,9 +9368,6 @@ function _renderAdjustTab(body){
             <svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg>
             <span class="adj-circle-val adj-icon-val" data-key="vignette">${_adjVignetteVal}</span>
           </span>
-        </button>
-        <button type="button" class="adj-row-reset" id="adjRowReset" title="Reset all adjustments + vignette" aria-label="Reset all"${(_adjModified||vig._dirty)?'':' disabled'}>
-          <svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>
         </button>
       </div>
       <div class="adj-tick-ruler" id="adjScrubberWrap" data-scrub-key="${_scrubKey}">
@@ -9433,8 +9438,14 @@ function _renderAdjustTab(body){
       scrubSlider.value = String(v);
     }
     if (scrubRuler) scrubRuler.dataset.scrubKey = key;
-    if (pillLabel)  pillLabel.textContent = _adjLabels[key] || key.toUpperCase();
-    if (pillVal)    pillVal.textContent   = (v === r.def) ? '' : _scrubDisplay(key, v);
+    /* R51 — the pill now lives in editPreviewCol; resolve refs lazily so
+       re-rendering the tab picks them up. */
+    const _pillEl = document.getElementById('adjSectionPill') || _ensureAdjSectionPill(_adjLabels[key] || key.toUpperCase(), '');
+    const _lbl = document.getElementById('adjSectionPillLabel');
+    const _val = document.getElementById('adjSectionPillVal');
+    if (_lbl) _lbl.textContent = _adjLabels[key] || key.toUpperCase();
+    if (_val) _val.textContent = (v === r.def) ? '' : _scrubDisplay(key, v);
+    if (_pillEl) _pillEl.hidden = false;
     _syncTickPos();
   }
   function _syncIconStates(){
@@ -9478,7 +9489,8 @@ function _renderAdjustTab(body){
       } else {
         a[key] = v;
       }
-      if (pillVal) pillVal.textContent = (v === r.def) ? '' : _scrubDisplay(key, v);
+      const _val = document.getElementById('adjSectionPillVal');
+      if (_val) _val.textContent = (v === r.def) ? '' : _scrubDisplay(key, v);
       _syncTickPos();
       _syncIconStates();
       _markDirty();
@@ -9494,7 +9506,8 @@ function _renderAdjustTab(body){
         if (key === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
         else { a[key] = r.def; }
         scrubSlider.value = String(r.def);
-        if (pillVal) pillVal.textContent = '';
+        const _val = document.getElementById('adjSectionPillVal');
+        if (_val) _val.textContent = '';
         _syncTickPos();
         _syncIconStates();
         _markDirty();
@@ -9505,8 +9518,28 @@ function _renderAdjustTab(body){
   document.querySelectorAll('#editBody .adj-icon-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const a = _editState.pendingEdits.photoAdjust;
+      const v_ = _editState.pendingEdits.vignette;
       const k = btn.dataset.adjKey;
       if (!k) return;
+      /* R51 — Apple Photos pattern: clicking an icon that's already
+         selected AND modified resets that adjustment to its default.
+         Clicking an unselected icon just selects it. */
+      if (a.selected === k) {
+        const r = _scrubRange(k);
+        const cur = _scrubValueFor(k);
+        if (cur !== r.def) {
+          _editPushUndo();
+          if (k === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
+          else { a[k] = r.def; }
+          if (scrubSlider) {
+            scrubSlider.value = String(r.def);
+          }
+          _syncScrubberToSelected();
+          _syncIconStates();
+          _markDirty();
+          return;
+        }
+      }
       a.selected = k;
       _syncScrubberToSelected();
       _syncIconStates();
@@ -9528,7 +9561,8 @@ function _renderAdjustTab(body){
       else { a[k] = r.def; }
       if (a.selected === k && scrubSlider) {
         scrubSlider.value = String(r.def);
-        if (pillVal) pillVal.textContent = '';
+        const _val = document.getElementById('adjSectionPillVal');
+        if (_val) _val.textContent = '';
         _syncTickPos();
       }
       _syncIconStates();
@@ -9636,23 +9670,6 @@ function _renderAdjustTab(body){
      one click. Distinct from the global Reset in the action pill —
      that one clears every edit (rotate, crop, etc.); this one only
      touches the 3 adjustment values, like a per-tab revert. */
-  /* R50 — reset 3 sliders + vignette (filter preset lives in Filters tab). */
-  const _adjRowReset = document.getElementById('adjRowReset');
-  if (_adjRowReset) {
-    _adjRowReset.addEventListener('click', () => {
-      const a = _editState.pendingEdits.photoAdjust;
-      const v = _editState.pendingEdits.vignette;
-      const allDefault = (a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && v.amount === 0);
-      if (allDefault) return;
-      _editPushUndo();
-      a.brightness = 100; a.contrast = 100; a.saturation = 100;
-      v.amount = 0; v._dirty = false;
-      if (typeof _vigPaintPreview === 'function') _vigPaintPreview();
-      _syncScrubberToSelected();
-      _syncIconStates();
-      _markDirty();
-    });
-  }
   /* R47 — wire tap-to-disable dots on the 3 modified-able chips */
   try { _r47WireSectionToggles(); } catch(_){}
   function _vigUpdateResetState(){
@@ -9702,9 +9719,43 @@ function _renderAdjustTab(body){
 }
 
 /* R50 — Filters tab. Split out of Adjust. VSCO/Apple Photos pattern. */
+
+/* R51 — floating section-label pill (BRIGHTNESS, SATURATION, etc.).
+   Lives in editPreviewCol so it floats OVER the photo, above the action
+   pill, matching Apple Photos. _renderAdjustTab + _renderFiltersTab call
+   this to set the label; _switchEditTab clears it on other tabs. */
+function _ensureAdjSectionPill(label, value){
+  const col = document.getElementById('editPreviewCol');
+  if (!col) return null;
+  let pill = col.querySelector('.adj-section-pill');
+  if (!pill) {
+    pill = document.createElement('div');
+    pill.className = 'adj-section-pill';
+    pill.innerHTML = '<span class="adj-section-pill-label"></span><span class="adj-section-pill-val"></span>';
+    col.appendChild(pill);
+  }
+  const lblEl = pill.querySelector('.adj-section-pill-label');
+  const valEl = pill.querySelector('.adj-section-pill-val');
+  if (lblEl) lblEl.textContent = (label || '').toUpperCase();
+  if (valEl) valEl.textContent = value || '';
+  pill.hidden = !label;
+  pill.id = 'adjSectionPill';
+  if (lblEl) lblEl.id = 'adjSectionPillLabel';
+  if (valEl) valEl.id = 'adjSectionPillVal';
+  return pill;
+}
+function _hideAdjSectionPill(){
+  const col = document.getElementById('editPreviewCol');
+  if (!col) return;
+  const pill = col.querySelector('.adj-section-pill');
+  if (pill) pill.hidden = true;
+}
+
 function _renderFiltersTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
+  /* R51 — show the floating FILTERS pill over the photo. */
+  try { _ensureAdjSectionPill('Filters', ''); } catch(_){}
   if (!_editState.pendingEdits.photoAdjust) {
     _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
   }
@@ -9734,9 +9785,6 @@ function _renderFiltersTab(body){
   const _previewSrc = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
   body.innerHTML = `
     <div class="edit-tool-toolbar filters-tab-r50">
-      <div class="adj-section-pill" aria-hidden="true">
-        <span class="adj-section-pill-label">FILTERS</span>
-      </div>
       <div class="filters-thumb-row" role="tablist" aria-label="Filters">
         ${PRESETS.map(p => `
           <button type="button" class="filter-thumb${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}" title="${p.label}" aria-pressed="${p.id === adj.preset}">
