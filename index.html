@@ -3149,6 +3149,51 @@
 
 
 
+
+
+  /* ====================================================================
+     R53 — captions off by default, disable-toggle visuals, tighter center
+     ==================================================================== */
+
+  /* Hide the caption beneath circle buttons by default. Apple Photos is
+     minimal — captions only appear on hover/focus or for active state. */
+  .edit-modal .ed-circle-btn .ed-circle-cap{display:none;}
+  .edit-modal .ed-circle-btn:hover .ed-circle-cap,
+  .edit-modal .ed-circle-btn:focus-visible .ed-circle-cap{display:block;}
+
+  /* Center the function row, no wrap, even gaps. */
+  .edit-modal .ed-func-row{
+    flex-wrap:nowrap;
+    justify-content:center;
+    padding:10px 12px 8px;
+    gap:18px;
+  }
+
+  /* Disable toggle button — variant of .ed-circle-sm. When the tab is
+     disabled, the button is filled red-ish and the rest of the row dims. */
+  .edit-modal .ed-disable-btn .ed-circle-inner{
+    background:rgba(255,255,255,.06);
+    border-color:rgba(255,255,255,.18);
+  }
+  .edit-modal .ed-disable-btn .ed-circle-inner .ico{color:rgba(255,255,255,.65);}
+  .edit-modal .ed-disable-btn:hover .ed-circle-inner .ico{color:#fff;}
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner{
+    background:rgba(220,90,90,.18);
+    border-color:rgba(220,90,90,.55);
+  }
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner .ico{color:#e57a7a;}
+
+  /* When the disable toggle is on, dim every other button in the same row. */
+  .edit-modal .ed-func-row.row-disabled .ed-circle-btn:not(.ed-disable-btn){
+    opacity:.32;pointer-events:none;
+  }
+  .edit-modal .ed-func-row.row-disabled .adj-tick-ruler,
+  .edit-modal .ed-func-row.row-disabled ~ .adj-tick-ruler{opacity:.32;pointer-events:none;}
+
+  /* Rotate's tick-ruler reuses .adj-tick-ruler — ensure good spacing under
+     the icon row. */
+  .edit-modal .edit-rotate-toolbar .adj-tick-ruler{margin-top:14px;}
+
   /* ====================================================================
      R52 — Unified circular function-icon family (.ed-circle-btn)
      Used across Rotate, Pixelate, Blur, Remove BG, Text tabs so every
@@ -4624,6 +4669,7 @@
     <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
     <symbol id="i-stamp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-2 0-3 1.5-3 3s1 2 1 3.5V13"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
@@ -7713,7 +7759,7 @@ async function saveEdit(){
       if (_editState.pendingEdits.autoEnhanced) {
         workingBlob = _editState.pendingEdits.autoEnhanced;
       }
-      if (_editState.pendingEdits.rotate) {
+      if (_editState.pendingEdits.rotate && _editState.rotateState && _editState.rotateState.enabled !== false) {
         workingBlob = await _applyRotation(workingBlob, _editState.pendingEdits.rotate);
       }
       /* R47 — skip if both sub-sections disabled. _applyPhotoAdjust itself
@@ -7730,12 +7776,12 @@ async function saveEdit(){
       if (_editState.pendingEdits.vignette && _editState.pendingEdits.vignette._dirty && _editState.pendingEdits.vignette.enabled !== false) {
         workingBlob = await _applyVignette(workingBlob, _editState.pendingEdits.vignette);
       }
-      if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length) {
+      if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length && _editState.pendingEdits.pixelate.enabled !== false) {
         workingBlob = await _applyPixelate(workingBlob, _editState.pendingEdits.pixelate);
       }
       if (_editState.pendingEdits.blur && (
             (_editState.pendingEdits.blur.strokes && _editState.pendingEdits.blur.strokes.length) ||
-            _editState.pendingEdits.blur.full)) {
+            _editState.pendingEdits.blur.full) && _editState.pendingEdits.blur.enabled !== false) {
         workingBlob = await _applyBlur(workingBlob, _editState.pendingEdits.blur);
       }
       if (_editState.pendingEdits.textOverlays && _editState.pendingEdits.textOverlays.items && _editState.pendingEdits.textOverlays.items.length) {
@@ -8258,105 +8304,144 @@ function _renderRotateTab(body){
   if (previewCol) {
     previewCol.innerHTML = `<div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${_editState.originalUrl || f.url}');"></div>`;
   }
-  /* R30c — Angle slider lives in an "Angle ▾" chip. Buttons stay inline. */
+  /* R53 — Angle is now a circular icon + tick-ruler scrubber below
+     (Apple-Photos style). Disable toggle replaces Reset; values persist. */
   const _rotAng = _editState.rotateState.angle;
-  const _angleSummary = _rotAng === 0 ? '0°' : (_rotAng > 0 ? '+' + _rotAng + '°' : _rotAng + '°');
   const _angleMod = _rotAng !== 0;
-  const _chevR = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
-  /* R46 — single-row toolbar. Buttons with strong icons (CW/CCW/Flip H/
-     Flip V) collapse to icon-only 40x40 squares with hover-title labels;
-     180° and Reset stay text-only since neither has a clean recognizable
-     glyph (180° SHARES the CW icon in R20, which is visually confusing
-     when both buttons sit beside each other). Angle dropdown stays
-     inline at the right of the toolbar. */
+  const _rotEnabled = (_editState.rotateState.enabled !== false);
+  const _anglePct = ((_rotAng - (-180)) / 360) * 100;
   body.innerHTML = `
-    <div class="edit-tool-toolbar edit-rotate-toolbar ed-func-row">
-      <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="cw" title="Rotate 90° clockwise" aria-label="Rotate 90° clockwise">
-        <span class="ed-circle-ring" aria-hidden="true"></span>
-        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg></span>
-        <span class="ed-circle-cap">CW</span>
-      </button>
-      <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="ccw" title="Rotate 90° counter-clockwise" aria-label="Rotate 90° counter-clockwise">
-        <span class="ed-circle-ring" aria-hidden="true"></span>
-        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></span>
-        <span class="ed-circle-cap">CCW</span>
-      </button>
-      <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fh" title="Flip horizontal" aria-label="Flip horizontal">
-        <span class="ed-circle-ring" aria-hidden="true"></span>
-        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg></span>
-        <span class="ed-circle-cap">FLIP H</span>
-      </button>
-      <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fv" title="Flip vertical" aria-label="Flip vertical">
-        <span class="ed-circle-ring" aria-hidden="true"></span>
-        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg></span>
-        <span class="ed-circle-cap">FLIP V</span>
-      </button>
-      <button type="button" class="ed-circle-btn ed-circle-sm edit-rotate-btn" data-rot="reset" title="Reset rotation" aria-label="Reset rotation">
-        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></span>
-        <span class="ed-circle-cap">RESET</span>
-      </button>
-      <div class="edit-tool-dd" id="editAngleDD">
-        <span class="adj-label">Angle</span>
-        <button type="button" class="edit-tool-dd-trigger${_angleMod?' modified':''}" id="editAngleTrigger" aria-haspopup="dialog" aria-expanded="false">
-          <span class="dd-value" id="editAngleSummary">${_angleSummary}</span>
-          ${_chevR}
+    <div class="edit-tool-toolbar edit-rotate-toolbar adj-tab-r50">
+      <div class="ed-func-row${_rotEnabled ? '' : ' row-disabled'}" id="editRotateRow">
+        <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="cw" title="Rotate 90° clockwise" aria-label="Rotate 90° clockwise">
+          <span class="ed-circle-ring" aria-hidden="true"></span>
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg></span>
         </button>
-        <div class="edit-tool-dd-menu" id="editAngleMenu" role="dialog" aria-label="Fine angle">
-          <p class="dd-section-label">Fine angle</p>
-          <div class="adj-row">
-            <span class="adj-label">Angle</span>
-            <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
-            <span id="editAngleVal" class="adj-val">${_editState.rotateState.angle}°</span>
-          </div>
-        </div>
+        <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="ccw" title="Rotate 90° counter-clockwise" aria-label="Rotate 90° counter-clockwise">
+          <span class="ed-circle-ring" aria-hidden="true"></span>
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></span>
+        </button>
+        <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fh" title="Flip horizontal" aria-label="Flip horizontal">
+          <span class="ed-circle-ring" aria-hidden="true"></span>
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg></span>
+        </button>
+        <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fv" title="Flip vertical" aria-label="Flip vertical">
+          <span class="ed-circle-ring" aria-hidden="true"></span>
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg></span>
+        </button>
+        <button type="button" class="ed-circle-btn adj-circle-btn${_angleMod ? ' modified selected' : ' selected'}" data-rot="angle" title="Angle (tap to select; drag the ruler)" aria-label="Angle">
+          <span class="ed-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="ed-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg>
+            <span class="adj-circle-val">${_angleMod ? (_rotAng > 0 ? '+' + _rotAng : String(_rotAng)) : ''}</span>
+          </span>
+        </button>
+        <button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn${_rotEnabled ? '' : ' tab-disabled'}" id="editRotateDisable" title="${_rotEnabled ? 'Disable rotate' : 'Enable rotate'}" aria-pressed="${_rotEnabled ? 'false' : 'true'}">
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>
+        </button>
+      </div>
+      <div class="adj-tick-ruler" id="editAngleRuler">
+        <div class="adj-tick-ticks" aria-hidden="true"></div>
+        <div class="adj-tick-center" aria-hidden="true"></div>
+        <div class="adj-tick-dot" id="editAngleTickDot" style="left:${_anglePct.toFixed(2)}%;" aria-hidden="true"></div>
+        <input type="range" id="editAngleSlider" class="adj-tick-input" min="-180" max="180" step="1" value="${_editState.rotateState.angle}" aria-label="Angle">
       </div>
     </div>
   `;
+  /* R53 — show floating ANGLE pill over photo. */
+  try {
+    const _val = _angleMod ? (_rotAng > 0 ? '+' + _rotAng + '°' : _rotAng + '°') : '';
+    _ensureAdjSectionPill('Angle', _val);
+  } catch(_){}
   const preview = document.getElementById('editRotatePreview');
   function _updateRot(){
     const rs = _editState.rotateState;
-    const total = (rs.deg + rs.angle + 360) % 360;
-    const tx = `rotate(${total}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`;
+    const enabled = (rs.enabled !== false);
+    const total = enabled ? ((rs.deg + rs.angle + 360) % 360) : 0;
+    const tx = enabled
+      ? `rotate(${total}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`
+      : 'none';
     preview.style.transform = tx;
-    const dirty = rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0;
+    const dirty = enabled && (rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0);
     _editState.pendingEdits.rotate = dirty ? { deg: total, flipH: rs.flipH, flipV: rs.flipV } : null;
   }
+  /* R53 — discrete rotate icons (CW/CCW/Flip H/Flip V) + angle slider. */
   document.querySelectorAll('#editBody .edit-rotate-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (btn.dataset.rot !== 'reset') _editPushUndo();
+      _editPushUndo();
       const rs = _editState.rotateState;
       switch (btn.dataset.rot) {
         case 'cw':    rs.deg = (rs.deg + 90) % 360; break;
         case 'ccw':   rs.deg = (rs.deg + 270) % 360; break;
-        case '180':   rs.deg = (rs.deg + 180) % 360; break;
         case 'fh':    rs.flipH = !rs.flipH; break;
         case 'fv':    rs.flipV = !rs.flipV; break;
-        case 'reset': rs.deg = 0; rs.flipH = false; rs.flipV = false; rs.angle = 0;
-          const sl2 = document.getElementById('editAngleSlider');
-          const vl2 = document.getElementById('editAngleVal');
-          if (sl2) sl2.value = 0;
-          if (vl2) vl2.textContent = '0°';
+        case 'angle': /* tap-on-icon resets angle to 0 when already set */
+          if (rs.angle !== 0) {
+            rs.angle = 0;
+            const sl = document.getElementById('editAngleSlider');
+            const dot = document.getElementById('editAngleTickDot');
+            if (sl) sl.value = 0;
+            if (dot) dot.style.left = '50%';
+          }
           break;
       }
       _updateRot();
+      _r53SyncAngleUI();
     });
   });
   const slider = document.getElementById('editAngleSlider');
-  const valLabel = document.getElementById('editAngleVal');
+  const tickDot = document.getElementById('editAngleTickDot');
+  function _r53UpdatePill(v){
+    const lbl = document.getElementById('adjSectionPillLabel');
+    const val = document.getElementById('adjSectionPillVal');
+    if (lbl) lbl.textContent = 'ANGLE';
+    if (val) val.textContent = (v === 0) ? '' : (v > 0 ? '+' + v + '°' : v + '°');
+  }
+  function _r53SyncAngleUI(){
+    const v = _editState.rotateState.angle;
+    if (slider) slider.value = String(v);
+    if (tickDot) tickDot.style.left = (((v + 180) / 360) * 100).toFixed(2) + '%';
+    /* Update the angle icon's modified/value display. */
+    const angBtn = document.querySelector('#editBody .edit-rotate-btn[data-rot="angle"]');
+    if (angBtn) {
+      angBtn.classList.toggle('modified', v !== 0);
+      const valEl = angBtn.querySelector('.adj-circle-val');
+      if (valEl) valEl.textContent = (v === 0) ? '' : (v > 0 ? '+' + v : String(v));
+      const dot = angBtn.querySelector('.adj-icon-dot');
+      if (dot) {
+        const mag = Math.min(180, Math.abs(v));
+        const deg = (mag / 180) * 180;
+        if (v >= 0) dot.style.setProperty('--r48-arc-from', '-90deg');
+        else dot.style.setProperty('--r48-arc-from', (-90 - deg) + 'deg');
+        dot.style.setProperty('--r48-arc-deg', deg + 'deg');
+      }
+    }
+    _r53UpdatePill(v);
+  }
   if (slider) {
     slider.addEventListener('input', () => {
       const v = parseInt(slider.value, 10);
       _editState.rotateState.angle = v;
-      if (valLabel) valLabel.textContent = v + '°';
-      const sum = document.getElementById('editAngleSummary');
-      const trg = document.getElementById('editAngleTrigger');
-      if (sum) sum.textContent = v === 0 ? '0°' : (v > 0 ? '+' + v + '°' : v + '°');
-      if (trg) trg.classList.toggle('modified', v !== 0);
       _updateRot();
+      _r53SyncAngleUI();
     });
     slider.addEventListener('change', () => { _editPushUndo(); });
   }
-  _editWireDropdown('editAngleDD','editAngleTrigger','editAngleMenu');
+  /* Disable toggle for Rotate. */
+  const _rotDisable = document.getElementById('editRotateDisable');
+  if (_rotDisable) {
+    _rotDisable.addEventListener('click', () => {
+      const rs = _editState.rotateState;
+      rs.enabled = (rs.enabled === false);  /* flip — default true means click sets false */
+      _rotDisable.classList.toggle('tab-disabled', rs.enabled === false);
+      _rotDisable.setAttribute('aria-pressed', rs.enabled === false ? 'true' : 'false');
+      _rotDisable.title = rs.enabled === false ? 'Enable rotate' : 'Disable rotate';
+      const row = document.getElementById('editRotateRow');
+      if (row) row.classList.toggle('row-disabled', rs.enabled === false);
+      _updateRot();
+    });
+  }
+  _r53SyncAngleUI();
 }
 async function _applyRotation(file, rotation){
   const bmp = await createImageBitmap(file);
@@ -8914,9 +8999,8 @@ function _renderBackgroundTab(body){
     +     '<input type="range" id="bgrHardness" min="0" max="100" step="1" value="' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '">'
     +     '<span class="adj-val" id="bgrHardnessVal">' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '%</span>'
     +   '</div>'
-    +   '<button type="button" class="ed-circle-btn ed-circle-sm" id="bgrClear" title="Clear refinements" aria-label="Clear refinements">'
-    +     '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></span>'
-    +     '<span class="ed-circle-cap">CLEAR</span>'
+    +   '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (((_editState.pendingEdits.bgRefine && _editState.pendingEdits.bgRefine.enabled === false) ? " tab-disabled" : "")) + '" id="bgrDisable" title="' + (((_editState.pendingEdits.bgRefine && _editState.pendingEdits.bgRefine.enabled === false) ? "Enable refinements" : "Disable refinements")) + '" aria-pressed="' + (((_editState.pendingEdits.bgRefine && _editState.pendingEdits.bgRefine.enabled === false) ? "true" : "false")) + '">'
+    +     '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
     +   '</button>'
     +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft = feathered edges, higher = crisp. Use [ and ] to resize.</p>'
     + '</div>'
@@ -10266,7 +10350,7 @@ async function _renderPixelateTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
   if (!_editState.pendingEdits.pixelate){
-    _editState.pendingEdits.pixelate = { strokes: [], blockSize: 14, brushPx: 38, mode: 'paint' };
+    _editState.pendingEdits.pixelate = { strokes: [], blockSize: 14, brushPx: 38, mode: 'paint', enabled: true };
   }
   const px = _editState.pendingEdits.pixelate;
   const previewCol = _editPreviewEl();
@@ -10307,9 +10391,8 @@ async function _renderPixelateTab(body){
     +       '</div>'
     +     '</div>'
     +   '</div>'
-    +   '<button type="button" class="ed-circle-btn ed-circle-sm" id="pxClear" title="Clear all pixelation" aria-label="Clear all">'
-    +     '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></span>'
-    +     '<span class="ed-circle-cap">CLEAR</span>'
+    +   '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (px.enabled === false ? " tab-disabled" : "") + '" id="pxDisable" title="' + (px.enabled === false ? "Enable pixelate" : "Disable pixelate") + '" aria-pressed="' + (px.enabled === false ? "true" : "false") + '">'
+    +     '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
     +   '</button>'
     +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation. Use [ and ] to resize the brush.</p>'
     + '</div>';
@@ -10437,6 +10520,19 @@ async function _renderPixelateTab(body){
   canvas.addEventListener('touchstart', down, { passive: false });
   canvas.addEventListener('touchmove', move, { passive: false });
   window.addEventListener('touchend', up);
+  /* R53 — Disable toggle for Pixelate. */
+  const _pxDisable = document.getElementById('pxDisable');
+  if (_pxDisable) {
+    _pxDisable.addEventListener('click', () => {
+      const p = _editState.pendingEdits.pixelate;
+      p.enabled = (p.enabled === false);
+      _pxDisable.classList.toggle('tab-disabled', p.enabled === false);
+      _pxDisable.setAttribute('aria-pressed', p.enabled === false ? 'true' : 'false');
+      _pxDisable.title = p.enabled === false ? 'Enable pixelate' : 'Disable pixelate';
+      const row = document.querySelector('#editBody .edit-pixelate-controls');
+      if (row) row.classList.toggle('row-disabled', p.enabled === false);
+    });
+  }
   document.querySelectorAll('#editBody [data-px-mode]').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('#editBody [data-px-mode]').forEach(x => x.classList.remove('active'));
@@ -10572,7 +10668,7 @@ async function _renderBlurTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
   if (!_editState.pendingEdits.blur){
-    _editState.pendingEdits.blur = { strokes: [], radius: 14, brushPx: 50, mode: 'paint', full: false };
+    _editState.pendingEdits.blur = { strokes: [], radius: 14, brushPx: 50, mode: 'paint', full: false, enabled: true };
   }
   const bl = _editState.pendingEdits.blur;
   const previewCol = _editPreviewEl();
@@ -10616,11 +10712,9 @@ async function _renderBlurTab(body){
     +   '<div class="edit-blur-actions ed-toggle-pair">'
     +     '<button type="button" class="ed-circle-btn ed-circle-sm' + (bl.full ? " active" : "") + '" id="blApplyAll" title="' + (bl.full ? "Brush only" : "Whole image") + '" aria-pressed="' + (bl.full?"true":"false") + '">'
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg></span>'
-    +       '<span class="ed-circle-cap">' + (bl.full ? 'BRUSH' : 'ALL') + '</span>'
     +     '</button>'
-    +     '<button type="button" class="ed-circle-btn ed-circle-sm" id="blClear" title="Clear blur" aria-label="Clear all">'
-    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></span>'
-    +       '<span class="ed-circle-cap">CLEAR</span>'
+    +     '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (bl.enabled === false ? " tab-disabled" : "") + '" id="blDisable" title="' + (bl.enabled === false ? "Enable blur" : "Disable blur") + '" aria-pressed="' + (bl.enabled === false ? "true" : "false") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
     +     '</button>'
     +   '</div>'
     +   '<p class="edit-blur-help">Drag over areas you want to soften. Switch to Erase to clear blur. Use [ and ] to resize.<strong>Whole image</strong> blurs everything (depth-of-field style).</p>'
@@ -10771,6 +10865,19 @@ async function _renderBlurTab(body){
   canvas.addEventListener('touchstart', down, { passive: false });
   canvas.addEventListener('touchmove', move, { passive: false });
   window.addEventListener('touchend', up);
+  /* R53 — Disable toggle for Blur. */
+  const _blDisable = document.getElementById('blDisable');
+  if (_blDisable) {
+    _blDisable.addEventListener('click', () => {
+      const b = _editState.pendingEdits.blur;
+      b.enabled = (b.enabled === false);
+      _blDisable.classList.toggle('tab-disabled', b.enabled === false);
+      _blDisable.setAttribute('aria-pressed', b.enabled === false ? 'true' : 'false');
+      _blDisable.title = b.enabled === false ? 'Enable blur' : 'Disable blur';
+      const row = document.querySelector('#editBody .edit-blur-controls');
+      if (row) row.classList.toggle('row-disabled', b.enabled === false);
+    });
+  }
   document.querySelectorAll('#editBody [data-bl-mode]').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('#editBody [data-bl-mode]').forEach(x => x.classList.remove('active'));
