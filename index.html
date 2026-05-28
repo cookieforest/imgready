@@ -3719,26 +3719,26 @@
      vs the gradient approach which rounded minor and major tracks
      differently. */
   .edit-modal .adj-tick-ticks{
-    position:absolute;left:6px;right:6px;top:14px;height:20px;
+    position:absolute;left:6px;right:6px;top:12px;height:24px;
     pointer-events:none;
-    mask-image:linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
-    -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0%, #000 4%, #000 96%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 4%, #000 96%, transparent 100%);
   }
   .edit-modal .adj-tick{
     position:absolute;
-    top:8px;
+    top:9px;
     width:1px;
     height:6px;
-    background:rgba(255,255,255,.22);
+    background:rgba(255,255,255,.28);
     transform:translateX(-0.5px);
     pointer-events:none;
   }
   .edit-modal .adj-tick.major{
     top:0;
-    height:18px;
-    width:1.5px;
-    background:rgba(255,255,255,.55);
-    transform:translateX(-0.75px);
+    height:24px;
+    width:2px;
+    background:rgba(255,255,255,.65);
+    transform:translateX(-1px);
   }
   /* Center indicator — accent vertical line at the "default" value. */
   .edit-modal .adj-tick-center{
@@ -3754,14 +3754,15 @@
      Apple Photos: a single tick line, not a dot with shadow. */
   .edit-modal .adj-tick-dot{
     position:absolute;
-    top:8px;
-    width:2px;height:32px;
+    top:0;
+    width:2px;height:44px;
     background:#fff;
     transform:translateX(-1px);
     border-radius:1px;
     pointer-events:none;
     transition:left .08s ease-out;
     box-shadow:none;
+    /* R66 — full-height pin, no shadow, no halo. */
   }
   .edit-modal .adj-tick-input{
     position:absolute;left:0;right:0;top:0;bottom:0;
@@ -3862,7 +3863,11 @@
   .edit-preview-col .edit-rotate-preview{
     width:100%;height:100%;
     background-size:contain;background-position:center;background-repeat:no-repeat;
-    transition:transform .25s cubic-bezier(.22,1,.36,1);
+    /* R66 — drop transform transition. With raw-angle rotate values, a
+       sliding scrubber generates ~60 transform updates per second; the
+       transition was queuing them, causing the visible 360° flip when
+       the value direction reversed past zero. */
+    transition:none;
   }
   .edit-preview-col .edit-adjust-preview-wrap{
     width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;
@@ -8688,13 +8693,17 @@ function _renderRotateTab(body){
   function _updateRot(){
     const rs = _editState.rotateState;
     const enabled = (rs.enabled !== false);
-    const total = enabled ? ((rs.deg + rs.angle + 360) % 360) : 0;
+    /* R66 — feed the RAW combined angle to CSS rotate so dragging the
+       slider across 0 doesn't snap modulo and trigger a 360° spin. The
+       encoded payload (used by the bake step) still normalizes to 0–360. */
+    const totalRaw = rs.deg + rs.angle;
+    const totalNorm = ((totalRaw % 360) + 360) % 360;
     const tx = enabled
-      ? `rotate(${total}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`
+      ? `rotate(${totalRaw}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`
       : 'none';
     preview.style.transform = tx;
     const dirty = enabled && (rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0);
-    _editState.pendingEdits.rotate = dirty ? { deg: total, flipH: rs.flipH, flipV: rs.flipV } : null;
+    _editState.pendingEdits.rotate = dirty ? { deg: totalNorm, flipH: rs.flipH, flipV: rs.flipV } : null;
   }
   /* R53 — discrete rotate icons (CW/CCW/Flip H/Flip V) + angle slider. */
   document.querySelectorAll('#editBody .edit-rotate-btn').forEach(btn => {
@@ -10371,10 +10380,13 @@ function _buildRulerTicks(rulerEl){
   const range = parseInt(rulerEl.style.getPropertyValue('--range') || '200', 10) || 200;
   /* Pick a minor-tick step that keeps the count sane across slider widths.
      Roughly aim for 30-80 minor ticks total. */
+  /* R66 — denser ticks closer to Apple Photos density. */
   let minorStep = 5;
-  if (range <= 40)  minorStep = 1;
-  else if (range <= 100) minorStep = 2;
-  else if (range >  300) minorStep = 10;
+  if      (range <= 50)  minorStep = 1;
+  else if (range <= 100) minorStep = 1;
+  else if (range <= 200) minorStep = 2;
+  else if (range <= 400) minorStep = 5;
+  else                   minorStep = 10;
   const majorEvery = 5; /* every 5th minor tick gets .major */
   /* Build via documentFragment so we touch the DOM once. */
   const frag = document.createDocumentFragment();
