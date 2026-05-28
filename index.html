@@ -2855,6 +2855,66 @@
   }
   .edit-split-label.before{left:10px;}
   .edit-split-label.after {right:10px;}
+  
+  /* R46 — Single-row toolbar wrapper used by Rotate + Adjust tabs.
+     The options strip uses flex-direction:column at the strip level so
+     each tool gets its own block; this toolbar overrides direction to
+     row for tools whose controls fit on one line. */
+  .edit-tool-toolbar{
+    display:flex;flex-direction:row;flex-wrap:wrap;
+    align-items:center;gap:8px;
+    width:100%;
+  }
+  /* Rotate buttons: icon-only 36x36 for CW/CCW/Flip H/Flip V; text-only
+     pill for 180° and Reset. Title attribute carries the full label. */
+  .edit-rotate-btn{
+    height:36px;border-radius:8px;
+    background:var(--e-bg-2, rgba(255,255,255,.08));
+    color:var(--e-fg-1, rgba(255,255,255,.92));
+    border:1px solid var(--e-border, rgba(255,255,255,.10));
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:background var(--e-t-fast, .12s ease),color var(--e-t-fast, .12s ease);
+  }
+  .edit-rotate-btn:hover{background:var(--e-bg-3, rgba(255,255,255,.12));}
+  .edit-rotate-btn.rot-icon-only{
+    width:36px;padding:0;gap:0;font-size:0;
+  }
+  .edit-rotate-btn.rot-icon-only .ico{width:18px;height:18px;}
+  .edit-rotate-btn.rot-icon-only .rot-lbl{
+    /* sr-only — keep label in DOM for accessibility tree but hide visually */
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  .edit-rotate-btn.rot-text{
+    padding:0 14px;font-size:.78rem;font-weight:600;
+    letter-spacing:.01em;
+  }
+  /* R46 — Adjust + Rotate dropdown chips become content-width inside
+     the toolbar (was width:100% which forced each onto its own row). */
+  .edit-rotate-toolbar .edit-tool-dd,
+  .edit-adjust-toolbar .edit-filter-dd,
+  .edit-adjust-toolbar .edit-vignette-dd,
+  .edit-adjust-toolbar .edit-adjust-dd,
+  .edit-adjust-toolbar .edit-tool-dd{
+    width:auto;flex:0 1 auto;
+    gap:6px;
+  }
+  .edit-rotate-toolbar .edit-tool-dd-trigger,
+  .edit-adjust-toolbar .edit-filter-dd-trigger,
+  .edit-adjust-toolbar .edit-vignette-dd-trigger,
+  .edit-adjust-toolbar .edit-adjust-dd-trigger,
+  .edit-adjust-toolbar .edit-tool-dd-trigger{
+    flex:0 0 auto;
+    min-width:100px;
+  }
+  /* Auto-enhance pill in adjust toolbar: content-width too. */
+  .edit-adjust-toolbar .edit-auto-enhance-row{
+    width:auto;flex:0 0 auto;
+  }
+  .edit-adjust-toolbar .edit-auto-enhance-btn{
+    flex:0 0 auto;min-width:130px;
+  }
+
   @media (max-width:640px){
     .edit-action-pill{bottom:var(--split-btn-bottom,100px);padding:3px 5px;gap:1px;}
     .edit-split-handle::before{width:34px;height:34px;}
@@ -7559,27 +7619,33 @@ function _renderRotateTab(body){
   const _angleSummary = _rotAng === 0 ? '0°' : (_rotAng > 0 ? '+' + _rotAng + '°' : _rotAng + '°');
   const _angleMod = _rotAng !== 0;
   const _chevR = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
+  /* R46 — single-row toolbar. Buttons with strong icons (CW/CCW/Flip H/
+     Flip V) collapse to icon-only 40x40 squares with hover-title labels;
+     180° and Reset stay text-only since neither has a clean recognizable
+     glyph (180° SHARES the CW icon in R20, which is visually confusing
+     when both buttons sit beside each other). Angle dropdown stays
+     inline at the right of the toolbar. */
   body.innerHTML = `
-    <div class="edit-rotate-row">
-      <button type="button" class="edit-rotate-btn" data-rot="cw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>90\u00b0 CW</button>
-      <button type="button" class="edit-rotate-btn" data-rot="ccw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>90\u00b0 CCW</button>
-      <button type="button" class="edit-rotate-btn" data-rot="180"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>180\u00b0</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fh"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg>Flip horizontal</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fv"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg>Flip vertical</button>
-      <button type="button" class="edit-rotate-btn" data-rot="reset">Reset</button>
-    </div>
-    <div class="edit-tool-dd" id="editAngleDD">
-      <span class="adj-label">Angle</span>
-      <button type="button" class="edit-tool-dd-trigger${_angleMod?' modified':''}" id="editAngleTrigger" aria-haspopup="dialog" aria-expanded="false">
-        <span class="dd-value" id="editAngleSummary">${_angleSummary}</span>
-        ${_chevR}
-      </button>
-      <div class="edit-tool-dd-menu" id="editAngleMenu" role="dialog" aria-label="Fine angle">
-        <p class="dd-section-label">Fine angle</p>
-        <div class="adj-row">
-          <span class="adj-label">Angle</span>
-          <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
-          <span id="editAngleVal" class="adj-val">${_editState.rotateState.angle}°</span>
+    <div class="edit-tool-toolbar edit-rotate-toolbar">
+      <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="cw" title="Rotate 90° clockwise" aria-label="Rotate 90° clockwise"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg><span class="rot-lbl">90° CW</span></button>
+      <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="ccw" title="Rotate 90° counter-clockwise" aria-label="Rotate 90° counter-clockwise"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg><span class="rot-lbl">90° CCW</span></button>
+      <button type="button" class="edit-rotate-btn rot-text" data-rot="180" title="Rotate 180°" aria-label="Rotate 180°">180°</button>
+      <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="fh" title="Flip horizontal" aria-label="Flip horizontal"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg><span class="rot-lbl">Flip H</span></button>
+      <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="fv" title="Flip vertical" aria-label="Flip vertical"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg><span class="rot-lbl">Flip V</span></button>
+      <button type="button" class="edit-rotate-btn rot-text" data-rot="reset" title="Reset rotation" aria-label="Reset rotation">Reset</button>
+      <div class="edit-tool-dd" id="editAngleDD">
+        <span class="adj-label">Angle</span>
+        <button type="button" class="edit-tool-dd-trigger${_angleMod?' modified':''}" id="editAngleTrigger" aria-haspopup="dialog" aria-expanded="false">
+          <span class="dd-value" id="editAngleSummary">${_angleSummary}</span>
+          ${_chevR}
+        </button>
+        <div class="edit-tool-dd-menu" id="editAngleMenu" role="dialog" aria-label="Fine angle">
+          <p class="dd-section-label">Fine angle</p>
+          <div class="adj-row">
+            <span class="adj-label">Angle</span>
+            <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
+            <span id="editAngleVal" class="adj-val">${_editState.rotateState.angle}°</span>
+          </div>
         </div>
       </div>
     </div>
@@ -8662,7 +8728,14 @@ function _renderAdjustTab(body){
   const _adjModified = !(adj.brightness === 100 && adj.contrast === 100 && adj.saturation === 100);
   const _adjSummary = _adjModified ? 'Modified' : 'Default';
   const _chev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
+  /* R46 — Adjust controls now flow inline in a single toolbar row,
+     mirroring home .adjust-panel density. The 4 chips (auto-enhance,
+     ADJUST▾, FILTER▾, VIGNETTE▾) used to stack into 4 vertical rows
+     because each chip had width:100%. Wrapping them in
+     .edit-tool-toolbar forces horizontal flex; per-chip CSS in R46
+     drops the 100% width to content-width. */
   body.innerHTML = `
+    <div class="edit-tool-toolbar edit-adjust-toolbar">
     <div class="edit-auto-enhance-row">
       <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Auto enhanced':'<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance'}</button>
       ${_aeOn?'<button type="button" class="edit-auto-enhance-undo" id="adjAutoEnhanceUndo">Undo</button>':''}
@@ -8726,6 +8799,7 @@ function _renderAdjustTab(body){
           <button type="button" id="vigReset" aria-label="Reset vignette">Reset</button>
         </div>
       </div>
+    </div>
     </div>
   `;
   const previewImg = document.getElementById('editAdjPreview');
