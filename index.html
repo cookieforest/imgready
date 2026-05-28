@@ -2414,12 +2414,16 @@
     color:#fff;
     display:flex;flex-direction:column;
     overflow:hidden;
-    /* R33 — bottom padding gives the pill strip breathing room before
-       the card's overflow:hidden clips it at the rounded corner. */
-    /* padding-bottom removed R34 — edit-bottom-pill handles spacing */
-    /* R30 — removed max-width:1100px. Home .menu-card has no max-width
-       (it fills the wrap with 16px gutters on each side); matching that
-       gives the edit toolbar the same on-screen presence on wide displays. */
+    /* R55 — the wrap is flex-direction:row with justify-content:center.
+       Without flex:1 or width:100%, the card shrinks to its content
+       width (~500px) and sits as a small island in the middle of wide
+       viewports — looks skewed/off-center even though the icons inside
+       are mathematically centered. Force it to fill the wrap so the
+       icon row spans the available width. Max-width prevents absurd
+       sprawl on ultra-wide screens. */
+    flex:1 1 auto;
+    width:100%;
+    max-width:880px;
   }
   /* R28 — options strip lives ABOVE the bottom row inside the card.
      Has a border-bottom that separates it visually from the bottom row
