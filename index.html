@@ -3145,6 +3145,262 @@
   }
   .adj-flat-carousel .adj-row-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
   .adj-flat-carousel .adj-row-reset:disabled{opacity:.32;cursor:default;pointer-events:none;}
+
+
+  /* ====================================================================
+     R50 — Apple Photos faithful Adjust + new Filters tab
+     ==================================================================== */
+
+  .edit-modal .adj-tab-r50,
+  .edit-modal .filters-tab-r50{
+    position:relative;
+    display:flex;flex-direction:column;
+    gap:14px;
+    padding:18px 8px 8px;
+  }
+
+  .edit-modal .adj-section-pill{
+    position:absolute;
+    top:0;left:50%;
+    transform:translate(-50%, calc(-100% - 8px));
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(0,0,0,.72);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    color:#fff;
+    font-family:inherit;font-size:.66rem;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:5px 11px;
+    border-radius:999px;
+    pointer-events:none;
+    white-space:nowrap;
+    z-index:3;
+  }
+  .edit-modal .adj-section-pill-label{color:#fff;}
+  .edit-modal .adj-section-pill-val{
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-variant-numeric:tabular-nums;
+    color:rgba(255,255,255,.85);
+    letter-spacing:.04em;
+  }
+  .edit-modal .adj-section-pill-val:empty{display:none;}
+
+  .edit-modal .adj-circle-btn{
+    flex:0 0 auto;width:54px;height:54px;
+    display:inline-grid;place-items:center;
+    padding:0;background:transparent;border:none;
+    cursor:pointer;position:relative;
+    border-radius:50%;
+    transition:transform .12s ease;
+  }
+  .edit-modal .adj-circle-btn:focus-visible{outline:2px solid var(--accent, #7a9a7a);outline-offset:3px;}
+  .edit-modal .adj-circle-btn .adj-circle-ring{
+    position:absolute;inset:0;
+    border-radius:50%;
+    background:conic-gradient(from var(--r48-arc-from, -90deg),
+      rgba(255,255,255,.20) 0deg,
+      rgba(255,255,255,.20) var(--r48-arc-deg, 0deg),
+      transparent var(--r48-arc-deg, 0deg) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 70%, #000 72% 100%);
+            mask:radial-gradient(circle, transparent 70%, #000 72% 100%);
+    pointer-events:none;
+    transition:opacity .12s ease;
+  }
+  .edit-modal .adj-circle-btn .adj-circle-inner{
+    position:relative;
+    width:42px;height:42px;
+    display:inline-grid;place-items:center;
+    border-radius:50%;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);
+    transition:background .12s ease,border-color .12s ease;
+  }
+  .edit-modal .adj-circle-btn .adj-circle-inner .ico{
+    width:18px;height:18px;color:rgba(255,255,255,.85);
+    transition:opacity .12s ease;
+  }
+  .edit-modal .adj-circle-btn:hover .adj-circle-inner{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);}
+
+  .edit-modal .adj-circle-btn.selected .adj-circle-ring{
+    background:conic-gradient(from -90deg,
+      var(--accent, #7a9a7a) 0deg,
+      var(--accent, #7a9a7a) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 70%, #000 72% 76%, transparent 78%);
+            mask:radial-gradient(circle, transparent 70%, #000 72% 76%, transparent 78%);
+  }
+  .edit-modal .adj-circle-btn.selected .adj-circle-inner{
+    border-color:rgba(255,255,255,.32);
+    background:rgba(255,255,255,.10);
+  }
+  .edit-modal .adj-circle-btn.modified .adj-circle-ring{
+    background:conic-gradient(from var(--r48-arc-from, -90deg),
+      var(--accent, #7a9a7a) 0deg,
+      var(--accent, #7a9a7a) var(--r48-arc-deg, 0deg),
+      rgba(255,255,255,.16) var(--r48-arc-deg, 0deg) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 70%, #000 72% 100%);
+            mask:radial-gradient(circle, transparent 70%, #000 72% 100%);
+  }
+  .edit-modal .adj-circle-btn.modified .adj-circle-inner .ico{opacity:0;}
+  .edit-modal .adj-circle-btn .adj-circle-val{
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-size:.72rem;font-weight:700;
+    font-variant-numeric:tabular-nums;
+    color:#fff;letter-spacing:.01em;
+    pointer-events:none;
+    opacity:0;transition:opacity .12s ease;
+  }
+  .edit-modal .adj-circle-btn.modified .adj-circle-val{opacity:1;}
+
+  .edit-modal .adj-circle-btn.adj-auto-btn.active .adj-circle-inner{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+  }
+  .edit-modal .adj-circle-btn.adj-auto-btn.active .adj-circle-inner .ico{color:#fff;}
+  .edit-modal .adj-circle-btn.busy .adj-circle-inner{
+    animation:adj-spin 1s linear infinite;
+  }
+  @keyframes adj-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+  .edit-modal .adj-carousel-r50{
+    display:flex;flex-direction:row;align-items:center;
+    gap:14px;
+    width:100%;
+    padding:4px 8px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    justify-content:center;
+  }
+  .edit-modal .adj-carousel-r50::-webkit-scrollbar{display:none;}
+  .edit-modal .adj-carousel-r50 .adj-circle-btn{scroll-snap-align:center;}
+  .edit-modal .adj-carousel-r50 .adj-row-reset{
+    flex:0 0 auto;width:36px;height:36px;margin-left:auto;
+    background:transparent;border:none;border-radius:50%;
+    color:rgba(255,255,255,.55);cursor:pointer;
+    display:inline-grid;place-items:center;
+    transition:background .12s ease,color .12s ease,opacity .12s ease;
+  }
+  .edit-modal .adj-carousel-r50 .adj-row-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .edit-modal .adj-carousel-r50 .adj-row-reset:disabled{opacity:.32;pointer-events:none;}
+  .edit-modal .adj-carousel-r50 .adj-row-reset .ico{width:14px;height:14px;}
+
+  .edit-modal .adj-tick-ruler{
+    position:relative;
+    width:100%;height:42px;
+    padding:6px 6px 0;
+    margin-top:2px;
+  }
+  .edit-modal .adj-tick-ticks{
+    position:absolute;left:6px;right:6px;top:18px;height:18px;
+    background:
+      repeating-linear-gradient(to right,
+        rgba(255,255,255,.32) 0,
+        rgba(255,255,255,.32) 1px,
+        transparent 1px,
+        transparent calc(100% / 50)
+      );
+    pointer-events:none;
+    mask-image:linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  }
+  .edit-modal .adj-tick-center{
+    position:absolute;
+    left:50%;top:14px;
+    width:2px;height:26px;
+    background:var(--accent, #7a9a7a);
+    transform:translateX(-1px);
+    border-radius:1px;
+    pointer-events:none;
+  }
+  .edit-modal .adj-tick-dot{
+    position:absolute;
+    top:6px;
+    width:8px;height:8px;border-radius:50%;
+    background:#fff;
+    transform:translateX(-50%);
+    pointer-events:none;
+    box-shadow:0 1px 2px rgba(0,0,0,.4);
+    transition:left .08s ease-out;
+  }
+  .edit-modal .adj-tick-input{
+    position:absolute;left:0;right:0;top:0;bottom:0;
+    width:100%;height:100%;
+    -webkit-appearance:none;appearance:none;
+    background:transparent;
+    margin:0;padding:0;
+    cursor:pointer;
+    z-index:2;
+    background-image:none;
+  }
+  .edit-modal .adj-tick-input:focus{outline:none;}
+  .edit-modal .adj-tick-input::-webkit-slider-runnable-track{
+    background:transparent;border:none;height:100%;
+  }
+  .edit-modal .adj-tick-input::-moz-range-track{
+    background:transparent;border:none;height:100%;
+  }
+  .edit-modal .adj-tick-input::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:32px;height:42px;
+    background:transparent;border:none;
+    cursor:grab;
+  }
+  .edit-modal .adj-tick-input::-moz-range-thumb{
+    width:32px;height:42px;
+    background:transparent;border:none;
+    cursor:grab;
+  }
+  .edit-modal .adj-tick-input:active{cursor:grabbing;}
+
+  .edit-modal .filters-thumb-row{
+    display:flex;flex-direction:row;align-items:flex-start;
+    gap:12px;
+    width:100%;
+    padding:6px 4px 4px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  .edit-modal .filters-thumb-row::-webkit-scrollbar{display:none;}
+  .edit-modal .filter-thumb{
+    flex:0 0 auto;
+    width:68px;
+    display:inline-flex;flex-direction:column;align-items:center;gap:6px;
+    padding:0;background:transparent;border:none;
+    color:rgba(255,255,255,.72);cursor:pointer;
+    scroll-snap-align:center;
+    transition:color .12s ease;
+  }
+  .edit-modal .filter-thumb:hover{color:#fff;}
+  .edit-modal .filter-thumb .filter-thumb-img{
+    width:60px;height:60px;border-radius:10px;
+    background-size:cover;background-position:center;
+    border:2px solid transparent;
+    transition:border-color .12s ease,transform .12s ease;
+  }
+  .edit-modal .filter-thumb:hover .filter-thumb-img{transform:scale(1.04);}
+  .edit-modal .filter-thumb.active{color:#fff;}
+  .edit-modal .filter-thumb.active .filter-thumb-img{
+    border-color:var(--accent, #7a9a7a);
+    box-shadow:0 0 0 1px var(--accent, #7a9a7a);
+  }
+  .edit-modal .filter-thumb-name{
+    font-size:.62rem;font-weight:700;letter-spacing:.05em;
+    text-transform:uppercase;line-height:1;
+    white-space:nowrap;
+  }
+
+  .edit-modal .adj-tab-r50 .adj-flat-divider{display:none;}
+
+  @media (max-width:640px){
+    .edit-modal .adj-carousel-r50{gap:10px;padding:4px 4px;}
+    .edit-modal .adj-circle-btn{width:48px;height:48px;}
+    .edit-modal .adj-circle-btn .adj-circle-inner{width:38px;height:38px;}
+    .edit-modal .filter-thumb{width:60px;}
+    .edit-modal .filter-thumb .filter-thumb-img{width:54px;height:54px;}
+  }
   .adj-flat-carousel .adj-row-reset .ico{width:14px;height:14px;}
 
   @media (max-width:640px){
@@ -4276,6 +4532,7 @@
         <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
     <symbol id="i-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12v12z"/></symbol>
         <symbol id="i-aperture" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m14.31 8 5.74 9.94"/><path d="M9.69 8h11.48"/><path d="m7.38 12 5.74-9.94"/><path d="M9.69 16 3.95 6.06"/><path d="M14.31 16H2.83"/><path d="m16.62 12-5.74 9.94"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.438-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
 </svg>
@@ -6980,6 +7237,7 @@ function _editTabsForType(t){
   }
   if (isPhoto) {
     tabs.push({ id: 'adjust',   label: 'Adjust',  icon: 'i-sliders-horizontal' });
+    tabs.push({ id: 'filters',  label: 'Filters', icon: 'i-palette' });
     tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
     tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
     tabs.push({ id: 'pixelate', label: 'Pixelate',icon: 'i-grid' });
@@ -7219,6 +7477,7 @@ function _switchEditTab(tabId){
   if (tabId === 'frames') _renderFramesTab(body);
   else if (tabId === 'bg') _renderBackgroundTab(body);
   else if (tabId === 'adjust') _renderAdjustTab(body);
+  else if (tabId === 'filters') _renderFiltersTab(body);
   else if (tabId === 'transform') _renderTransformTab(body);
   else if (tabId === 'retouch') _renderRetouchTab(body);
   else if (tabId === 'add') { _renderTextTab(body).catch(e => console.warn('[add]', e)); }
@@ -9048,53 +9307,70 @@ function _renderAdjustTab(body){
     cool:    '#6090d8',
     warm:    '#d89060',
   };
+  /* R50 — Apple Photos pattern. Section-label pill floats over the
+     photo; circular icons sit in a horizontal row; tick-mark ruler
+     drives the currently-selected adjustment. Filters live in their
+     own tab (see _renderFiltersTab). */
+  const _scrubKey = adj.selected || 'brightness';
+  const _scrubMin = (_scrubKey === 'vignette') ? -100 : 0;
+  const _scrubMax = (_scrubKey === 'vignette') ?  100 : 200;
+  const _scrubDef = (_scrubKey === 'vignette') ?    0 : 100;
+  const _scrubVal = (_scrubKey === 'vignette') ? (vig.amount || 0) : adj[_scrubKey];
+  const _scrubDelta = _scrubVal - _scrubDef;
+  const _scrubLabel = ({brightness:'BRIGHTNESS',contrast:'CONTRAST',saturation:'SATURATION',vignette:'VIGNETTE'})[_scrubKey];
+  const _scrubPct = ((_scrubVal - _scrubMin) / (_scrubMax - _scrubMin)) * 100;
+  const _scrubValDisplay = (_scrubKey === 'vignette')
+    ? (_scrubVal === 0 ? '0' : (_scrubVal > 0 ? '+' + _scrubVal : String(_scrubVal)))
+    : fmt(_scrubVal);
   body.innerHTML = `
-    <div class="edit-tool-toolbar edit-adjust-toolbar">
-    /* R49b — auto-enhance-row removed (Auto is the first icon in the flat carousel). */
-    <!-- R49 — flat icon carousel. Adjustments (B/C/S/V) + Vignette
-         + filter preset swatches all live as siblings here. Tap an
-         icon to either select it for the scrubber (B/C/S/V) or apply
-         a filter preset. Scrubber sits BELOW the carousel per Apple
-         Photos screenshot reference. Numeric value is shown INSIDE
-         the modified icon's magnitude ring. -->
-    <div class="adj-flat-carousel" role="tablist" aria-label="Adjustments and filters">
-      <button type="button" class="adj-flat-btn adj-auto-btn${_aeOn?' active':''}" data-adj-action="auto" title="Auto enhance" aria-label="Auto enhance" aria-pressed="${_aeOn}">
-        <svg class="ico" aria-hidden="true"><use href="#${_aeOn?'i-check':'i-wand-sparkles'}"/></svg>
-      </button>
-      <button type="button" class="adj-flat-btn adj-icon-btn${(adj.selected||'brightness')==='brightness'?' selected':''}${adj.brightness!==100?' modified':''}" data-adj-key="brightness" title="Brightness (double-click to reset)" aria-label="Brightness" role="tab" aria-selected="${(adj.selected||'brightness')==='brightness'}">
-        <svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg>
-        <span class="adj-icon-dot" aria-hidden="true"></span>
-        <span class="adj-icon-val" data-key="brightness">${adj.brightness !== 100 ? _fmtV(adj.brightness, 100) : ''}</span>
-      </button>
-      <button type="button" class="adj-flat-btn adj-icon-btn${adj.selected==='contrast'?' selected':''}${adj.contrast!==100?' modified':''}" data-adj-key="contrast" title="Contrast (double-click to reset)" aria-label="Contrast" role="tab" aria-selected="${adj.selected==='contrast'}">
-        <svg class="ico" aria-hidden="true"><use href="#i-contrast"/></svg>
-        <span class="adj-icon-dot" aria-hidden="true"></span>
-        <span class="adj-icon-val" data-key="contrast">${adj.contrast !== 100 ? _fmtV(adj.contrast, 100) : ''}</span>
-      </button>
-      <button type="button" class="adj-flat-btn adj-icon-btn${adj.selected==='saturation'?' selected':''}${adj.saturation!==100?' modified':''}" data-adj-key="saturation" title="Saturation (double-click to reset)" aria-label="Saturation" role="tab" aria-selected="${adj.selected==='saturation'}">
-        <svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg>
-        <span class="adj-icon-dot" aria-hidden="true"></span>
-        <span class="adj-icon-val" data-key="saturation">${adj.saturation !== 100 ? _fmtV(adj.saturation, 100) : ''}</span>
-      </button>
-      <button type="button" class="adj-flat-btn adj-icon-btn${adj.selected==='vignette'?' selected':''}${vig.amount!==0?' modified':''}" data-adj-key="vignette" title="Vignette (double-click to reset)" aria-label="Vignette" role="tab" aria-selected="${adj.selected==='vignette'}">
-        <svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg>
-        <span class="adj-icon-dot" aria-hidden="true"></span>
-        <span class="adj-icon-val" data-key="vignette">${_adjVignetteVal}</span>
-      </button>
-      <span class="adj-flat-divider" aria-hidden="true"></span>
-      ${PRESETS.map(p => `<button type="button" class="adj-flat-btn adj-filter-btn${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}" title="${p.label}" aria-label="${p.label} filter" aria-pressed="${p.id === adj.preset}"><span class="adj-filter-swatch" data-preset-id="${p.id}" style="background:${_FILTER_SWATCH[p.id]||'#666'};"></span><span class="adj-filter-name">${p.label}</span></button>`).join('')}
-      <button type="button" class="adj-row-reset" id="adjRowReset" title="Reset all adjustments + filter + vignette" aria-label="Reset all"${(_adjModified||vig._dirty||adj.preset!=='none')?'':' disabled'}>
-        <svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>
-      </button>
-    </div>
-    <!-- Scrubber sits BELOW the carousel, per Apple Photos screenshot. -->
-    <div class="adj-scrubber" id="adjScrubberWrap">
-      <div class="adj-scrubber-header">
-        <span class="adj-scrubber-label" id="adjScrubLabel">${({brightness:'Brightness',contrast:'Contrast',saturation:'Saturation',vignette:'Vignette'})[adj.selected || 'brightness']}</span>
-        <span class="adj-scrubber-value" id="adjScrubVal">${(adj.selected||'brightness')==='vignette'?(_adjVignetteVal||'0'):fmt(adj[adj.selected||'brightness'])}</span>
+    <div class="edit-tool-toolbar edit-adjust-toolbar adj-tab-r50">
+      <div class="adj-section-pill" id="adjSectionPill" aria-hidden="true">
+        <span class="adj-section-pill-label" id="adjSectionPillLabel">${_scrubLabel}</span>
+        <span class="adj-section-pill-val" id="adjSectionPillVal">${_scrubDelta !== 0 ? _scrubValDisplay : ''}</span>
       </div>
-      <input type="range" id="adjScrubSlider" min="${(adj.selected||'brightness')==='vignette'?'-100':'0'}" max="${(adj.selected||'brightness')==='vignette'?'100':'200'}" step="1" value="${(adj.selected||'brightness')==='vignette'?(vig.amount||0):adj[adj.selected||'brightness']}" aria-label="Adjustment value">
-    </div>
+      <div class="adj-flat-carousel adj-carousel-r50" role="tablist" aria-label="Adjustments">
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-auto-btn${_aeOn?' active':''}" data-adj-action="auto" title="Auto enhance" aria-label="Auto enhance" aria-pressed="${_aeOn}">
+          <span class="adj-circle-ring" aria-hidden="true"></span>
+          <span class="adj-circle-inner"><svg class="ico" aria-hidden="true"><use href="#${_aeOn?'i-check':'i-wand-sparkles'}"/></svg></span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='brightness'?' selected':''}${adj.brightness!==100?' modified':''}" data-adj-key="brightness" title="Brightness (double-click to reset)" aria-label="Brightness" role="tab" aria-selected="${_scrubKey==='brightness'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="brightness">${adj.brightness !== 100 ? _fmtV(adj.brightness, 100) : ''}</span>
+          </span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='contrast'?' selected':''}${adj.contrast!==100?' modified':''}" data-adj-key="contrast" title="Contrast (double-click to reset)" aria-label="Contrast" role="tab" aria-selected="${_scrubKey==='contrast'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-contrast"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="contrast">${adj.contrast !== 100 ? _fmtV(adj.contrast, 100) : ''}</span>
+          </span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='saturation'?' selected':''}${adj.saturation!==100?' modified':''}" data-adj-key="saturation" title="Saturation (double-click to reset)" aria-label="Saturation" role="tab" aria-selected="${_scrubKey==='saturation'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="saturation">${adj.saturation !== 100 ? _fmtV(adj.saturation, 100) : ''}</span>
+          </span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='vignette'?' selected':''}${vig.amount!==0?' modified':''}" data-adj-key="vignette" title="Vignette (double-click to reset)" aria-label="Vignette" role="tab" aria-selected="${_scrubKey==='vignette'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="vignette">${_adjVignetteVal}</span>
+          </span>
+        </button>
+        <button type="button" class="adj-row-reset" id="adjRowReset" title="Reset all adjustments + vignette" aria-label="Reset all"${(_adjModified||vig._dirty)?'':' disabled'}>
+          <svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>
+        </button>
+      </div>
+      <div class="adj-tick-ruler" id="adjScrubberWrap" data-scrub-key="${_scrubKey}">
+        <div class="adj-tick-ticks" aria-hidden="true"></div>
+        <div class="adj-tick-center" aria-hidden="true"></div>
+        <div class="adj-tick-dot" id="adjTickDot" style="left:${_scrubPct.toFixed(2)}%;" aria-hidden="true"></div>
+        <input type="range" id="adjScrubSlider" class="adj-tick-input" min="${_scrubMin}" max="${_scrubMax}" step="1" value="${_scrubVal}" aria-label="Adjustment value">
+      </div>
     </div>
   `;
   const previewImg = document.getElementById('editAdjPreview');
@@ -9119,16 +9395,47 @@ function _renderAdjustTab(body){
   _markDirty();
   /* R48 — single scrubber routes input to the currently-selected
      adjustment. Icon clicks switch which key the scrubber controls. */
-  const _adjLabels = { brightness: 'Brightness', contrast: 'Contrast', saturation: 'Saturation' };
+  /* R50 — scrubber drives tick ruler + floating section pill. */
+  const _adjLabels = { brightness: 'BRIGHTNESS', contrast: 'CONTRAST', saturation: 'SATURATION', vignette: 'VIGNETTE' };
   const scrubSlider = document.getElementById('adjScrubSlider');
-  const scrubLabel = document.getElementById('adjScrubLabel');
-  const scrubVal = document.getElementById('adjScrubVal');
+  const scrubRuler  = document.getElementById('adjScrubberWrap');
+  const scrubDot    = document.getElementById('adjTickDot');
+  const pillLabel   = document.getElementById('adjSectionPillLabel');
+  const pillVal     = document.getElementById('adjSectionPillVal');
+  function _scrubRange(key){
+    if (key === 'vignette') return { min: -100, max: 100, def: 0 };
+    return { min: 0, max: 200, def: 100 };
+  }
+  function _scrubValueFor(key){
+    if (key === 'vignette') return _editState.pendingEdits.vignette.amount || 0;
+    return _editState.pendingEdits.photoAdjust[key];
+  }
+  function _scrubDisplay(key, v){
+    if (key === 'vignette') return v === 0 ? '0' : (v > 0 ? '+' + v : String(v));
+    return fmt(v);
+  }
+  function _syncTickPos(){
+    if (!scrubSlider || !scrubDot) return;
+    const k = (_editState.pendingEdits.photoAdjust.selected || 'brightness');
+    const r = _scrubRange(k);
+    const v = _scrubValueFor(k);
+    const pct = ((v - r.min) / (r.max - r.min)) * 100;
+    scrubDot.style.left = pct.toFixed(2) + '%';
+  }
   function _syncScrubberToSelected(){
     const a = _editState.pendingEdits.photoAdjust;
     const key = a.selected || 'brightness';
-    if (scrubSlider) scrubSlider.value = String(a[key]);
-    if (scrubLabel)  scrubLabel.textContent = _adjLabels[key] || key;
-    if (scrubVal)    scrubVal.textContent = fmt(a[key]);
+    const r = _scrubRange(key);
+    const v = _scrubValueFor(key);
+    if (scrubSlider) {
+      scrubSlider.min = String(r.min);
+      scrubSlider.max = String(r.max);
+      scrubSlider.value = String(v);
+    }
+    if (scrubRuler) scrubRuler.dataset.scrubKey = key;
+    if (pillLabel)  pillLabel.textContent = _adjLabels[key] || key.toUpperCase();
+    if (pillVal)    pillVal.textContent   = (v === r.def) ? '' : _scrubDisplay(key, v);
+    _syncTickPos();
   }
   function _syncIconStates(){
     const a = _editState.pendingEdits.photoAdjust;
@@ -9161,24 +9468,34 @@ function _renderAdjustTab(body){
   if (scrubSlider) {
     scrubSlider.addEventListener('input', () => {
       const a = _editState.pendingEdits.photoAdjust;
+      const v_ = _editState.pendingEdits.vignette;
       const key = a.selected || 'brightness';
+      const r = _scrubRange(key);
       let v = parseInt(scrubSlider.value, 10);
-      a[key] = v;
-      if (scrubVal) scrubVal.textContent = fmt(v);
+      if (key === 'vignette') {
+        v_.amount = v;
+        _vigMarkDirty();
+      } else {
+        a[key] = v;
+      }
+      if (pillVal) pillVal.textContent = (v === r.def) ? '' : _scrubDisplay(key, v);
+      _syncTickPos();
       _syncIconStates();
       _markDirty();
     });
-    /* R48b — soft snap-to-zero. Apple uses a haptic detent we can't
-       replicate on web; this fires only on `change` (release) so users
-       intentionally landing near zero get the satisfying snap without
-       fighting the drag. */
+    /* R50 — soft snap-to-default on release. */
     scrubSlider.addEventListener('change', () => {
       const a = _editState.pendingEdits.photoAdjust;
+      const v_ = _editState.pendingEdits.vignette;
       const key = a.selected || 'brightness';
-      if (Math.abs(a[key] - 100) <= 2 && a[key] !== 100) {
-        a[key] = 100;
-        scrubSlider.value = '100';
-        if (scrubVal) scrubVal.textContent = fmt(100);
+      const r = _scrubRange(key);
+      const cur = _scrubValueFor(key);
+      if (Math.abs(cur - r.def) <= 2 && cur !== r.def) {
+        if (key === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
+        else { a[key] = r.def; }
+        scrubSlider.value = String(r.def);
+        if (pillVal) pillVal.textContent = '';
+        _syncTickPos();
         _syncIconStates();
         _markDirty();
       }
@@ -9200,13 +9517,19 @@ function _renderAdjustTab(body){
        double-click is free. */
     btn.addEventListener('dblclick', () => {
       const a = _editState.pendingEdits.photoAdjust;
+      const v_ = _editState.pendingEdits.vignette;
       const k = btn.dataset.adjKey;
-      if (!k || a[k] === 100) return;
+      if (!k) return;
+      const r = _scrubRange(k);
+      const cur = _scrubValueFor(k);
+      if (cur === r.def) return;
       _editPushUndo();
-      a[k] = 100;
+      if (k === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
+      else { a[k] = r.def; }
       if (a.selected === k && scrubSlider) {
-        scrubSlider.value = '100';
-        if (scrubVal) scrubVal.textContent = fmt(100);
+        scrubSlider.value = String(r.def);
+        if (pillVal) pillVal.textContent = '';
+        _syncTickPos();
       }
       _syncIconStates();
       _markDirty();
@@ -9237,11 +9560,24 @@ function _renderAdjustTab(body){
       _updateEditHistoryUI();
     });
   }
-  const aeBtn = document.getElementById('adjAutoEnhanceBtn');
+  /* R50 — Auto enhance is the first circle in the carousel. Click toggles. */
+  const aeBtn = body.querySelector('[data-adj-action="auto"]');
   if (aeBtn) {
     aeBtn.addEventListener('click', async () => {
       if (aeBtn.disabled) return;
-      aeBtn.disabled = true; aeBtn.textContent = 'Enhancing…';
+      if (_editState.pendingEdits.autoEnhanced) {
+        _editPushUndo();
+        if (_editState.pendingEdits.autoEnhancedUrl) {
+          try { URL.revokeObjectURL(_editState.pendingEdits.autoEnhancedUrl); } catch(_){}
+        }
+        delete _editState.pendingEdits.autoEnhanced;
+        delete _editState.pendingEdits.autoEnhancedUrl;
+        _updateEditHistoryUI();
+        _reRenderEditTab();
+        return;
+      }
+      aeBtn.disabled = true;
+      aeBtn.classList.add('busy');
       _editPushUndo();
       try {
         const enhanced = await _runAutoEnhance(_editState.originalFile);
@@ -9255,7 +9591,8 @@ function _renderAdjustTab(body){
       } catch (err) {
         console.warn('[auto-enhance]', err);
         alert('Auto enhance failed: ' + (err.message || err));
-        aeBtn.disabled = false; aeBtn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance';
+        aeBtn.disabled = false;
+        aeBtn.classList.remove('busy');
       }
     });
   }
@@ -9299,22 +9636,17 @@ function _renderAdjustTab(body){
      one click. Distinct from the global Reset in the action pill —
      that one clears every edit (rotate, crop, etc.); this one only
      touches the 3 adjustment values, like a per-tab revert. */
+  /* R50 — reset 3 sliders + vignette (filter preset lives in Filters tab). */
   const _adjRowReset = document.getElementById('adjRowReset');
   if (_adjRowReset) {
     _adjRowReset.addEventListener('click', () => {
       const a = _editState.pendingEdits.photoAdjust;
       const v = _editState.pendingEdits.vignette;
-      const allDefault = (a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none' && v.amount === 0);
+      const allDefault = (a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && v.amount === 0);
       if (allDefault) return;
       _editPushUndo();
       a.brightness = 100; a.contrast = 100; a.saturation = 100;
-      a.preset = 'none'; a.presetCss = '';
       v.amount = 0; v._dirty = false;
-      document.querySelectorAll('#editBody .adj-filter-btn').forEach(b => {
-        const isOriginal = b.dataset.preset === 'none';
-        b.classList.toggle('active', isOriginal);
-        b.setAttribute('aria-pressed', isOriginal ? 'true' : 'false');
-      });
       if (typeof _vigPaintPreview === 'function') _vigPaintPreview();
       _syncScrubberToSelected();
       _syncIconStates();
@@ -9368,6 +9700,80 @@ function _renderAdjustTab(body){
     });
   }
 }
+
+/* R50 — Filters tab. Split out of Adjust. VSCO/Apple Photos pattern. */
+function _renderFiltersTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  if (!_editState.pendingEdits.photoAdjust) {
+    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
+  }
+  const adj = _editState.pendingEdits.photoAdjust;
+  if (adj.filterEnabled === undefined) adj.filterEnabled = true;
+  const PRESETS = [
+    { id: 'none',    label: 'Original', css: '' },
+    { id: 'bw',      label: 'B&W',      css: 'grayscale(100%)' },
+    { id: 'sepia',   label: 'Sepia',    css: 'sepia(100%)' },
+    { id: 'vintage', label: 'Vintage',  css: 'sepia(40%) contrast(110%) brightness(90%) saturate(130%)' },
+    { id: 'invert',  label: 'Invert',   css: 'invert(100%)' },
+    { id: 'cool',    label: 'Cool',     css: 'hue-rotate(200deg) saturate(140%) brightness(105%)' },
+    { id: 'warm',    label: 'Warm',     css: 'sepia(30%) saturate(180%) brightness(105%)' },
+  ];
+  const adjPreviewCol = _editPreviewEl();
+  if (adjPreviewCol) {
+    const _src = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
+    adjPreviewCol.innerHTML = '<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="' + _src + '" class="edit-adjust-preview" draggable="false"><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>';
+    const _img = document.getElementById('editAdjPreview');
+    if (_img) {
+      const filterOn = adj.filterEnabled !== false;
+      const pre = (filterOn && adj.preset !== 'none' && adj.presetCss) ? adj.presetCss + ' ' : '';
+      const sliders = (adj.sliderEnabled !== false) ? 'brightness(' + adj.brightness + '%) contrast(' + adj.contrast + '%) saturate(' + adj.saturation + '%)' : '';
+      _img.style.filter = (pre + sliders) || 'none';
+    }
+  }
+  const _previewSrc = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
+  body.innerHTML = `
+    <div class="edit-tool-toolbar filters-tab-r50">
+      <div class="adj-section-pill" aria-hidden="true">
+        <span class="adj-section-pill-label">FILTERS</span>
+      </div>
+      <div class="filters-thumb-row" role="tablist" aria-label="Filters">
+        ${PRESETS.map(p => `
+          <button type="button" class="filter-thumb${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}" title="${p.label}" aria-pressed="${p.id === adj.preset}">
+            <span class="filter-thumb-img" style="background-image:url('${_previewSrc}');${p.css ? 'filter:' + p.css + ';' : ''}"></span>
+            <span class="filter-thumb-name">${p.label}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  body.querySelectorAll('.filter-thumb').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.preset;
+      const css = btn.dataset.css || '';
+      const a = _editState.pendingEdits.photoAdjust;
+      if (a.preset === id) return;
+      _editPushUndo();
+      a.preset = id;
+      a.presetCss = css;
+      a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none');
+      body.querySelectorAll('.filter-thumb').forEach(b => {
+        const on = b.dataset.preset === id;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      const _img = document.getElementById('editAdjPreview');
+      if (_img) {
+        const filterOn = a.filterEnabled !== false;
+        const pre = (filterOn && a.preset !== 'none' && a.presetCss) ? a.presetCss + ' ' : '';
+        const sliders = (a.sliderEnabled !== false) ? 'brightness(' + a.brightness + '%) contrast(' + a.contrast + '%) saturate(' + a.saturation + '%)' : '';
+        _img.style.filter = (pre + sliders) || 'none';
+      }
+      _updateEditHistoryUI();
+    });
+  });
+}
+
 async function _applyPhotoAdjust(file, adjInfo){
   const bmp = await createImageBitmap(file);
   const canvas = document.createElement('canvas');
