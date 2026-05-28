@@ -3157,6 +3157,24 @@
 
 
 
+
+
+  /* ====================================================================
+     R56 — Cancel the global "edit-modal button .ico" 5px right-margin for
+     circle-family buttons. That rule was kicking every SVG icon inside
+     every circle 2.5px to the left of center, producing a tab-wide
+     "skewed left" illusion across the whole icon row.
+     ==================================================================== */
+  .edit-modal .ed-circle-btn .ico,
+  .edit-modal .ed-circle-btn .ed-circle-inner .ico,
+  .edit-modal .adj-circle-btn .ico,
+  .edit-modal .adj-circle-btn .adj-circle-inner .ico,
+  .edit-modal .ed-circle-btn .adj-circle-inner .ico,
+  .edit-modal .adj-circle-btn .ed-circle-inner .ico,
+  .edit-modal .filter-thumb .ico{
+    margin:0 !important;
+  }
+
   /* ====================================================================
      R54 — bold disable visual + locked tab height (no stretching)
      ==================================================================== */
@@ -9775,7 +9793,13 @@ function _renderAdjustTab(body){
       const key = a.selected || 'brightness';
       const r = _scrubRange(key);
       const cur = _scrubValueFor(key);
-      if (Math.abs(cur - r.def) <= 2 && cur !== r.def) {
+      /* R56 — snap radius dropped from 2 to 0. Previously, landing at +1
+         was yanked back to 0 (default), making it impossible to choose
+         a value of 1. With step=1 and a 0-tolerance check, the slider
+         only "snaps" if the user is already exactly on default — i.e.
+         the snap is now a no-op for the release event. Visual center
+         mark on the ruler still indicates where 0 sits. */
+      if (Math.abs(cur - r.def) < 1 && cur !== r.def) {
         if (key === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
         else { a[key] = r.def; }
         scrubSlider.value = String(r.def);
