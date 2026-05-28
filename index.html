@@ -9032,12 +9032,25 @@ function _renderAdjustTab(body){
      because each chip had width:100%. Wrapping them in
      .edit-tool-toolbar forces horizontal flex; per-chip CSS in R46
      drops the 100% width to content-width. */
+    /* R49b — restore missing const declarations consumed by the flat
+     carousel template. The first R49 transform's OLD_BLOCK match
+     silently failed (a whitespace mismatch I didn't catch), so the
+     consts never made it into the file. _renderAdjustTab threw
+     ReferenceError on render, leaving the Adjust tab blank. */
+  const _fmtV = (val, def) => { const d = val - def; return d > 0 ? ('+' + d) : ('' + d); };
+  const _adjVignetteVal = (vig.amount === 0) ? '' : (vig.amount > 0 ? '+' + vig.amount : String(vig.amount));
+  const _FILTER_SWATCH = {
+    none:    '#888',
+    bw:      'linear-gradient(135deg, #fff 0%, #fff 50%, #1a1a1a 50%, #1a1a1a 100%)',
+    sepia:   '#a87a5c',
+    vintage: '#b8a47c',
+    invert:  'radial-gradient(circle, #fff 30%, #111 70%)',
+    cool:    '#6090d8',
+    warm:    '#d89060',
+  };
   body.innerHTML = `
     <div class="edit-tool-toolbar edit-adjust-toolbar">
-    <div class="edit-auto-enhance-row">
-      <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Auto enhanced':'<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance'}</button>
-      ${_aeOn?'<button type="button" class="edit-auto-enhance-undo" id="adjAutoEnhanceUndo">Undo</button>':''}
-    </div>
+    /* R49b — auto-enhance-row removed (Auto is the first icon in the flat carousel). */
     <!-- R49 — flat icon carousel. Adjustments (B/C/S/V) + Vignette
          + filter preset swatches all live as siblings here. Tap an
          icon to either select it for the scrubber (B/C/S/V) or apply
