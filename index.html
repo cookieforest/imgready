@@ -3357,6 +3357,91 @@
   .edit-modal .ed-circle-btn.pulse,
   .edit-modal .adj-circle-btn.pulse{animation:ed-icon-pulse .36s ease-out;}
 
+
+
+  /* ====================================================================
+     R67 — Floating tool surface (formerly inside menu-card).
+     Sits OVER the photo, anchored just above the menu-card. Apple Photos
+     pattern. The menu-card collapses to a thin tab-nav-only dock.
+     ==================================================================== */
+  .edit-modal .edit-tool-surface{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    /* Sit just above the menu-card. --menu-card-h is computed by JS so we
+       always sit ON the menu-card top edge with a small gap. */
+    bottom:calc(var(--menu-card-h, 56px) + 12px);
+    width:min(96vw, 760px);
+    max-width:96vw;
+    z-index:9;
+    pointer-events:none;
+    /* Inner items (buttons, sliders) opt back in. */
+  }
+  .edit-modal .edit-tool-surface > *,
+  .edit-modal .edit-tool-surface button,
+  .edit-modal .edit-tool-surface input,
+  .edit-modal .edit-tool-surface .ed-circle-btn,
+  .edit-modal .edit-tool-surface .filter-thumb,
+  .edit-modal .edit-tool-surface .adj-tick-input{
+    pointer-events:auto;
+  }
+  .edit-modal .edit-tool-surface:empty{display:none;}
+
+  /* Thin menu-card — just the tab nav. */
+  .edit-modal .edit-menu-card-thin{
+    background:rgba(20,20,20,.55);
+    backdrop-filter:blur(11px) saturate(180%);
+    -webkit-backdrop-filter:blur(11px) saturate(180%);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    width:100%;
+    max-width:880px;
+    flex:1 1 auto;
+    overflow:hidden;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar{
+    padding:6px 10px;
+    border-bottom:none;
+  }
+
+  /* Adjust toolbar inside the floating surface: dark translucent
+     background so it reads as a discrete control surface over the photo. */
+  .edit-modal .edit-tool-surface .edit-tool-toolbar{
+    background:rgba(20,20,20,.62);
+    backdrop-filter:blur(12px) saturate(160%);
+    -webkit-backdrop-filter:blur(12px) saturate(160%);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    padding:14px 14px 12px;
+    width:100%;
+  }
+  .edit-modal .edit-tool-surface .adj-tab-r50,
+  .edit-modal .edit-tool-surface .filters-tab-r50{
+    padding:0;
+  }
+
+  /* Filter thumbs styled to match home tool's .cflow-thumb. */
+  .edit-modal .edit-tool-surface .filters-thumb-row{
+    padding:6px 4px;
+    gap:14px;
+    justify-content:center;
+  }
+  .edit-modal .edit-tool-surface .filter-thumb{
+    width:72px;
+  }
+  .edit-modal .edit-tool-surface .filter-thumb .filter-thumb-img{
+    width:64px;height:64px;
+    border-radius:10px;
+    box-shadow:0 1px 3px rgba(0,0,0,.22);
+  }
+  .edit-modal .edit-tool-surface .filter-thumb.active .filter-thumb-img{
+    box-shadow:0 0 0 2px var(--accent, #7a9a7a), 0 1px 3px rgba(0,0,0,.22);
+    border-color:transparent;
+  }
+
+  /* Top-chrome size — tighten the brand-link pill inside the chrome. */
+  .edit-modal .edit-top-chrome{ min-height:42px; }
+
   /* ====================================================================
      R56 — Cancel the global "edit-modal button .ico" 5px right-margin for
      circle-family buttons. That rule was kicking every SVG icon inside
@@ -7942,7 +8027,10 @@ function _switchEditTab(tabId){
   try { _ensureSplitUi(); } catch(_) {}
   /* R45 — recompute pill position after the new tab's options strip
      has measured its height. rAF gives the layout a tick to settle. */
-  requestAnimationFrame(() => { try { _updateSplitBtnPos(); } catch(_){} });
+  requestAnimationFrame(() => {
+    try { _updateSplitBtnPos(); } catch(_){}
+    try { _updateMenuCardH(); } catch(_){}
+  });
 }
 /* R20 wrappers - Transform (Rotate|Crop) and Retouch (Pixelate|Blur). */
 function _renderSubToggle(body, items, activeId, onSwitch){
@@ -8425,7 +8513,17 @@ function _ensureSplitUi(){
    the card. The card (edit-menu-wrap) is position:absolute bottom:16px,
    so the button should sit card_height + 16 + 12px gap above the screen
    bottom. Called on every tab switch and on window resize. */
+function _updateMenuCardH(){
+  /* R67 — expose .edit-menu-card height as --menu-card-h on the modal
+     so the floating tool surface can anchor directly above it. */
+  const card = document.querySelector('.edit-modal .edit-menu-card');
+  const modal = document.querySelector('.edit-modal');
+  if (!card || !modal) return;
+  const h = Math.round(card.getBoundingClientRect().height);
+  if (h > 0) modal.style.setProperty('--menu-card-h', h + 'px');
+}
 function _updateSplitBtnPos(){
+  _updateMenuCardH();
   /* R45 — anchor the pill above the WHOLE menu-card, not just the
      tab-bar. R43 anchored to tabBar.top which works only when the
      options strip above the tabs is short. On tabs with tall content
@@ -14046,9 +14144,10 @@ function doClear(){
        Two stacked sections: options strip (only renders when active tab
        has controls; auto-collapses via :empty) + bottom row of tabs +
        action cluster. -->
+  <!-- R67 — tool surface floats over the photo (Apple Photos pattern). -->
+  <section class="edit-tool-surface" id="editBody" role="region" aria-label="Tool options"></section>
   <div class="edit-menu-wrap">
-    <div class="edit-menu-card">
-      <section class="edit-options-strip" id="editBody" role="region" aria-label="Tool options"></section>
+    <div class="edit-menu-card edit-menu-card-thin">
       <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
     </div>
   </div>
