@@ -72,6 +72,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/editor.css">
 <style>
   /* R24 — Brand type system. Three self-hosted OFL variable fonts:
      - Fraunces (display): Adobe Fonts/Google Fonts via OFL, opsz+wght axes.
@@ -6933,6 +6934,9 @@ function _switchEditTab(tabId){
   else if (tabId === 'text') { _renderTextTab(body).catch(e => console.warn('[text]', e)); }
   /* Round 10: ensure split-compare UI persists across tab switches. */
   try { _ensureSplitUi(); } catch(_) {}
+  /* R45 — recompute pill position after the new tab's options strip
+     has measured its height. rAF gives the layout a tick to settle. */
+  requestAnimationFrame(() => { try { _updateSplitBtnPos(); } catch(_){} });
 }
 /* R20 wrappers - Transform (Rotate|Crop) and Retouch (Pixelate|Blur). */
 function _renderSubToggle(body, items, activeId, onSwitch){
@@ -7338,16 +7342,21 @@ function _ensureSplitUi(){
    so the button should sit card_height + 16 + 12px gap above the screen
    bottom. Called on every tab switch and on window resize. */
 function _updateSplitBtnPos(){
-  /* R43 — anchor 32px above the tab bar. 15px was too tight: the pill's
-     box-shadow (offset 4px, blur 20px) bleeds visually ~24px below the
-     element boundary, so 15px looked like it was touching. 32px gives a
-     clear, comfortable gap across all screen sizes. */
-  const tabBar = document.querySelector('.edit-modal .edit-tab-bar');
-  const modal  = document.querySelector('.edit-modal');
-  if (!tabBar || !modal) return;
-  const tabTop   = tabBar.getBoundingClientRect().top;
+  /* R45 — anchor the pill above the WHOLE menu-card, not just the
+     tab-bar. R43 anchored to tabBar.top which works only when the
+     options strip above the tabs is short. On tabs with tall content
+     (Adjust: Auto-enhance + ADJUST + FILTER + VIGNETTE dropdowns), the
+     options strip pushes the card top way up while the tab-bar stays
+     at the card bottom — so anchoring 32px above the tab-bar landed
+     the pill INSIDE the options strip, overlapping content. Now we
+     anchor 12px above the menu-card's top edge regardless of how
+     tall the strip grows. */
+  const menuCard = document.querySelector('.edit-modal .edit-menu-card');
+  const modal    = document.querySelector('.edit-modal');
+  if (!menuCard || !modal) return;
+  const cardTop  = menuCard.getBoundingClientRect().top;
   const modalBot = modal.getBoundingClientRect().bottom;
-  modal.style.setProperty('--split-btn-bottom', (modalBot - tabTop + 32) + 'px');
+  modal.style.setProperty('--split-btn-bottom', (modalBot - cardTop + 12) + 'px');
 }
 function _updateSplitBtnState(){
   /* R37 — compare chip replaces the split-btn in the pill. */

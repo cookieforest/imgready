@@ -1,0 +1,77 @@
+/* editor.css — dedicated stylesheet for the Edit modal.
+ *
+ * R45 introduces this file as the foundation for CSS unification across
+ * the edit-modal surface. Today it only defines design tokens (CSS
+ * variables) scoped to .edit-modal. Future rounds will migrate inline
+ * <style> rules to reference these tokens so spacing / radius / color /
+ * type values stay consistent across all tabs and sub-components.
+ *
+ * Why tokens instead of moving everything at once: the inline <style>
+ * has hundreds of rules interspersed with non-modal styles. Bulk
+ * extraction is brittle (cascade order, !important interactions, media
+ * query nesting). Adding tokens first lets new rules opt into the
+ * system and existing rules migrate gradually without breakage.
+ *
+ * Naming: --e-* prefix marks "edit modal" tokens so they're obvious
+ * when reading other people's rules. Two-letter suffix is the category
+ * (sp = spacing, r = radius, fg = foreground, bg = background, ft = font).
+ */
+
+.edit-modal {
+  /* spacing scale — 4/8/12/16/24/32 (8-grid + half-step for fine ops) */
+  --e-sp-1: 4px;
+  --e-sp-2: 8px;
+  --e-sp-3: 12px;
+  --e-sp-4: 16px;
+  --e-sp-5: 24px;
+  --e-sp-6: 32px;
+
+  /* radius scale — small (chips), medium (buttons), large (cards) */
+  --e-r-sm: 6px;
+  --e-r-md: 8px;
+  --e-r-lg: 12px;
+  --e-r-xl: 14px;
+  --e-r-pill: 100px;
+
+  /* surface elevation — translucent overlays on the dark canvas */
+  --e-bg-1: rgba(255, 255, 255, .04);
+  --e-bg-2: rgba(255, 255, 255, .08);
+  --e-bg-3: rgba(255, 255, 255, .12);
+  --e-bg-card: #1a1a1a;
+  --e-bg-canvas: #0a0a0c;
+
+  /* border colors */
+  --e-border: rgba(255, 255, 255, .10);
+  --e-border-strong: rgba(255, 255, 255, .18);
+  --e-border-subtle: rgba(255, 255, 255, .06);
+
+  /* foreground text levels — primary → tertiary → disabled */
+  --e-fg-1: rgba(255, 255, 255, .95);
+  --e-fg-2: rgba(255, 255, 255, .75);
+  --e-fg-3: rgba(255, 255, 255, .55);
+  --e-fg-4: rgba(255, 255, 255, .32);
+
+  /* type scale — labels / body / display */
+  --e-ft-xs: .65rem;
+  --e-ft-sm: .72rem;
+  --e-ft-md: .78rem;
+  --e-ft-lg: .82rem;
+  --e-ft-xl: .95rem;
+
+  /* transition timing */
+  --e-t-fast: .12s ease;
+  --e-t-base: .18s ease;
+
+  /* z-index scale (relative to modal which sits at z:9000) */
+  --e-z-canvas: 1;
+  --e-z-chrome: 10;
+  --e-z-pill: 14;
+  --e-z-overlay: 20;
+}
+
+/* R45 marker — when this file loads correctly, the marker rule below
+ * does nothing visible but is detectable via getComputedStyle on the
+ * modal in a JS marker check. */
+.edit-modal::before {
+  --r45-marker: 'editor.css loaded';
+}
