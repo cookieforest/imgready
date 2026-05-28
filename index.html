@@ -3714,30 +3714,31 @@
     margin-top:2px;
     --range:200; /* default; overridden by JS per slider */
   }
-  /* Minor ticks — every 5 units, 1px wide, dim. */
+  /* R65 — one DOM element per tick. JS populates .adj-tick spans into
+     .adj-tick-ticks; every Nth gets .major. Guaranteed pixel alignment
+     vs the gradient approach which rounded minor and major tracks
+     differently. */
   .edit-modal .adj-tick-ticks{
-    position:absolute;left:6px;right:6px;top:18px;height:16px;
-    background:
-      /* MAJOR ticks every 25 units — 2px wide, brighter, full height */
-      repeating-linear-gradient(to right,
-        rgba(255,255,255,.55) 0,
-        rgba(255,255,255,.55) 1px,
-        transparent 1px,
-        transparent calc(100% * 25 / var(--range))
-      ),
-      /* MINOR ticks every 5 units — 1px wide, dim, slightly shorter */
-      repeating-linear-gradient(to right,
-        rgba(255,255,255,.20) 0,
-        rgba(255,255,255,.20) 1px,
-        transparent 1px,
-        transparent calc(100% * 5 / var(--range))
-      );
-    background-size:100% 100%, 100% 60%;
-    background-position:left center, left center;
-    background-repeat:repeat-x, repeat-x;
+    position:absolute;left:6px;right:6px;top:14px;height:20px;
     pointer-events:none;
     mask-image:linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
     -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
+  }
+  .edit-modal .adj-tick{
+    position:absolute;
+    top:8px;
+    width:1px;
+    height:6px;
+    background:rgba(255,255,255,.22);
+    transform:translateX(-0.5px);
+    pointer-events:none;
+  }
+  .edit-modal .adj-tick.major{
+    top:0;
+    height:18px;
+    width:1.5px;
+    background:rgba(255,255,255,.55);
+    transform:translateX(-0.75px);
   }
   /* Center indicator — accent vertical line at the "default" value. */
   .edit-modal .adj-tick-center{
@@ -8681,6 +8682,8 @@ function _renderRotateTab(body){
     const _val = _angleMod ? (_rotAng > 0 ? '+' + _rotAng + '°' : _rotAng + '°') : '';
     _ensureAdjSectionPill('Angle', _val);
   } catch(_){}
+  /* R65 — populate ticks for the Angle ruler. */
+  try { _buildRulerTicks(document.getElementById('editAngleRuler')); } catch(_){}
   const preview = document.getElementById('editRotatePreview');
   function _updateRot(){
     const rs = _editState.rotateState;
@@ -9917,6 +9920,8 @@ function _renderAdjustTab(body){
       </div>
     </div>
   `;
+  /* R65 — populate ticks for the Adjust scrubber. */
+  try { _buildRulerTicks(document.getElementById('adjScrubberWrap')); } catch(_){}
   const previewImg = document.getElementById('editAdjPreview');
   function _getAdjFilter(){
     const a = _editState.pendingEdits.photoAdjust;
@@ -9991,6 +9996,7 @@ function _renderAdjustTab(body){
     if (scrubRuler) {
       scrubRuler.dataset.scrubKey = key;
       scrubRuler.style.setProperty('--range', String(r.max - r.min));
+      try { _buildRulerTicks(scrubRuler); } catch(_){}
     }
     /* R51 — the pill now lives in editPreviewCol; resolve refs lazily so
        re-rendering the tab picks them up. */
@@ -10352,6 +10358,37 @@ function _renderAdjustTab(body){
 }
 
 /* R50 — Filters tab. Split out of Adjust. VSCO/Apple Photos pattern. */
+
+
+/* R65 — Build tick DOM elements inside a .adj-tick-ticks container.
+   range, minorStep, majorEvery are derived from the ruler's --range
+   CSS variable. */
+function _buildRulerTicks(rulerEl){
+  if (!rulerEl) return;
+  const ticksEl = rulerEl.querySelector('.adj-tick-ticks');
+  if (!ticksEl) return;
+  /* Re-read range each call so key-switch in Adjust gets the right density. */
+  const range = parseInt(rulerEl.style.getPropertyValue('--range') || '200', 10) || 200;
+  /* Pick a minor-tick step that keeps the count sane across slider widths.
+     Roughly aim for 30-80 minor ticks total. */
+  let minorStep = 5;
+  if (range <= 40)  minorStep = 1;
+  else if (range <= 100) minorStep = 2;
+  else if (range >  300) minorStep = 10;
+  const majorEvery = 5; /* every 5th minor tick gets .major */
+  /* Build via documentFragment so we touch the DOM once. */
+  const frag = document.createDocumentFragment();
+  let idx = 0;
+  for (let v = 0; v <= range; v += minorStep) {
+    const tick = document.createElement('span');
+    tick.className = 'adj-tick' + ((idx % majorEvery === 0) ? ' major' : '');
+    tick.style.left = ((v / range) * 100).toFixed(4) + '%';
+    frag.appendChild(tick);
+    idx++;
+  }
+  ticksEl.innerHTML = '';
+  ticksEl.appendChild(frag);
+}
 
 /* R51 — floating section-label pill (BRIGHTNESS, SATURATION, etc.).
    Lives in editPreviewCol so it floats OVER the photo, above the action
@@ -10842,6 +10879,8 @@ async function _renderPixelateTab(body){
     const _lbl = _pxKey === 'cell' ? 'CELL' : 'BRUSH';
     _ensureAdjSectionPill('Pixelate · ' + _lbl, String(_pxValNow));
   } catch(_){}
+  /* R65 — populate ticks for Pixelate ruler. */
+  try { _buildRulerTicks(document.getElementById('pxRuler')); } catch(_){}
   /* Build preview source (applies upstream edits) */
   await _pxBaseBlob();
   let bmp = _editState._pxBitmap;
@@ -10994,6 +11033,12 @@ async function _renderPixelateTab(body){
     const v = _pxVal(k);
     if (_pxScrub){ _pxScrub.min = String(r.min); _pxScrub.max = String(r.max); _pxScrub.value = String(v); }
     if (_pxTickDot) _pxTickDot.style.left = (((v - r.min)/(r.max - r.min))*100).toFixed(2) + '%';
+    /* R65 — rebuild ticks when key changes (range differs Brush vs Cell). */
+    const ruler = document.getElementById('pxRuler');
+    if (ruler) {
+      ruler.style.setProperty('--range', String(r.max - r.min));
+      try { _buildRulerTicks(ruler); } catch(_){}
+    }
     const lbl = document.getElementById('adjSectionPillLabel');
     const val = document.getElementById('adjSectionPillVal');
     if (lbl) lbl.textContent = ('PIXELATE · ' + (k === 'cell' ? 'CELL' : 'BRUSH'));
@@ -11216,6 +11261,8 @@ async function _renderBlurTab(body){
     const _lbl = _blKey === 'amount' ? 'AMOUNT' : 'BRUSH';
     _ensureAdjSectionPill('Blur · ' + _lbl, String(_blV));
   } catch(_){}
+  /* R65 — populate ticks for Blur ruler. */
+  try { _buildRulerTicks(document.getElementById('blRuler')); } catch(_){}
   /* Build preview source */
   await _blurBaseBlob();
   let bmp = _editState._blurBitmap;
@@ -11388,6 +11435,11 @@ async function _renderBlurTab(body){
     const v = _blVal(k);
     if (_blScrub){ _blScrub.min = String(r.min); _blScrub.max = String(r.max); _blScrub.value = String(v); }
     if (_blTickDot) _blTickDot.style.left = (((v - r.min)/(r.max - r.min))*100).toFixed(2) + '%';
+    const ruler = document.getElementById('blRuler');
+    if (ruler) {
+      ruler.style.setProperty('--range', String(r.max - r.min));
+      try { _buildRulerTicks(ruler); } catch(_){}
+    }
     const lbl = document.getElementById('adjSectionPillLabel');
     const val = document.getElementById('adjSectionPillVal');
     if (lbl) lbl.textContent = ('BLUR · ' + (k === 'amount' ? 'AMOUNT' : 'BRUSH'));
