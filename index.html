@@ -3387,11 +3387,13 @@
   }
   .edit-modal .edit-tool-surface:empty{display:none;}
 
-  /* Thin menu-card — just the tab nav. */
+  /* R69 — bottom dock matches main tool .menu-card: solid #1a1a1a,
+     no backdrop-filter (Chrome's drawer-animation white-flash bug —
+     same reason the main card avoids it). */
   .edit-modal .edit-menu-card-thin{
-    background:rgba(20,20,20,.55);
-    backdrop-filter:blur(11px) saturate(180%);
-    -webkit-backdrop-filter:blur(11px) saturate(180%);
+    background:#1a1a1a;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
     border:1px solid rgba(255,255,255,.10);
     border-radius:14px;
     width:100%;
@@ -3404,15 +3406,16 @@
     border-bottom:none;
   }
 
-  /* Adjust toolbar inside the floating surface: dark translucent
-     background so it reads as a discrete control surface over the photo. */
+  /* R69 — no wrapping card. Icons (their own .pi-icon-style pills)
+     and the scrubber float bare over the photo. Only the scrubber's
+     own backdrop preserves tick legibility. */
   .edit-modal .edit-tool-surface .edit-tool-toolbar{
-    background:rgba(20,20,20,.62);
-    backdrop-filter:blur(12px) saturate(160%);
-    -webkit-backdrop-filter:blur(12px) saturate(160%);
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:14px;
-    padding:14px 14px 12px;
+    background:transparent;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    border:none;
+    border-radius:0;
+    padding:8px 6px;
     width:100%;
   }
   .edit-modal .edit-tool-surface .adj-tab-r50,
@@ -3807,9 +3810,17 @@
   .edit-modal .adj-tick-ruler{
     position:relative;
     width:100%;height:44px;
-    padding:0 6px;
-    margin-top:2px;
-    --range:200; /* default; overridden by JS per slider */
+    padding:0 12px;
+    margin-top:8px;
+    --range:200;
+    /* R69 — subtle pill backdrop only on the ruler so tick marks stay
+       readable against bright photos. No backdrop on the surrounding
+       toolbar; the icons sit bare over the image. */
+    background:rgba(20,20,20,.55);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:999px;
   }
   /* R65 — one DOM element per tick. JS populates .adj-tick spans into
      .adj-tick-ticks; every Nth gets .major. Guaranteed pixel alignment
