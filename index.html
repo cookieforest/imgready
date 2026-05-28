@@ -2856,7 +2856,38 @@
   .edit-split-label.before{left:10px;}
   .edit-split-label.after {right:10px;}
   
-  /* R46 — Single-row toolbar wrapper used by Rotate + Adjust tabs.
+
+  /* R47 — Tap-to-disable dot, iPhone Photos pattern. Lives inside the
+     dropdown trigger button as its first child. Visible only when the
+     chip is "modified" (parent .edit-X-dd-trigger has .modified). Click
+     stops propagation so the chip's dropdown doesn't open. */
+  .edit-section-toggle{
+    flex:0 0 auto;
+    width:10px;height:10px;border-radius:50%;
+    border:1.5px solid var(--accent, #7a9a7a);
+    background:var(--accent, #7a9a7a);
+    margin-right:2px;
+    cursor:pointer;
+    transition:transform .12s ease,background .12s ease,opacity .12s ease;
+    align-self:center;
+  }
+  .edit-section-toggle:hover{transform:scale(1.25);}
+  .edit-section-toggle.off{
+    background:transparent;
+  }
+  /* When section is disabled, dim the chip's label + chevron to signal
+     "modified but not applied". The dot stays at full opacity so the
+     re-enable affordance is clear. */
+  .edit-adjust-dd-trigger.section-disabled .dd-value,
+  .edit-filter-dd-trigger.section-disabled .dd-value,
+  .edit-vignette-dd-trigger.section-disabled .dd-value,
+  .edit-adjust-dd-trigger.section-disabled .chev,
+  .edit-filter-dd-trigger.section-disabled .chev,
+  .edit-vignette-dd-trigger.section-disabled .chev{
+    opacity:.55;
+  }
+
+    /* R46 — Single-row toolbar wrapper used by Rotate + Adjust tabs.
      The options strip uses flex-direction:column at the strip level so
      each tool gets its own block; this toolbar overrides direction to
      row for tools whose controls fit on one line. */
@@ -2876,10 +2907,19 @@
     transition:background var(--e-t-fast, .12s ease),color var(--e-t-fast, .12s ease);
   }
   .edit-rotate-btn:hover{background:var(--e-bg-3, rgba(255,255,255,.12));}
+  /* R47 — explicit dimensions + flex-centering so the icon stays
+     truly centered inside the 36×36 square regardless of the
+     font-size:0 trick. line-height:0 prevents inherited line-height
+     from offsetting the icon vertically. */
   .edit-rotate-btn.rot-icon-only{
-    width:36px;padding:0;gap:0;font-size:0;
+    width:36px;height:36px;padding:0;gap:0;
+    font-size:0;line-height:0;
+    display:inline-flex;align-items:center;justify-content:center;
   }
-  .edit-rotate-btn.rot-icon-only .ico{width:18px;height:18px;}
+  .edit-rotate-btn.rot-icon-only .ico{
+    width:18px;height:18px;
+    display:block;flex:none;
+  }
   .edit-rotate-btn.rot-icon-only .rot-lbl{
     /* sr-only — keep label in DOM for accessibility tree but hide visually */
     position:absolute;width:1px;height:1px;padding:0;margin:-1px;
@@ -7127,13 +7167,18 @@ async function saveEdit(){
       if (_editState.pendingEdits.rotate) {
         workingBlob = await _applyRotation(workingBlob, _editState.pendingEdits.rotate);
       }
+      /* R47 — skip if both sub-sections disabled. _applyPhotoAdjust itself
+         is now per-section aware. */
       if (_editState.pendingEdits.photoAdjust && _editState.pendingEdits.photoAdjust._dirty) {
-        workingBlob = await _applyPhotoAdjust(workingBlob, _editState.pendingEdits.photoAdjust);
+        const _pa = _editState.pendingEdits.photoAdjust;
+        if (_pa.sliderEnabled !== false || _pa.filterEnabled !== false) {
+          workingBlob = await _applyPhotoAdjust(workingBlob, _pa);
+        }
       }
       if (_editState.pendingEdits.photoCrop) {
         workingBlob = await _applyPhotoCrop(workingBlob, _editState.pendingEdits.photoCrop);
       }
-      if (_editState.pendingEdits.vignette && _editState.pendingEdits.vignette._dirty) {
+      if (_editState.pendingEdits.vignette && _editState.pendingEdits.vignette._dirty && _editState.pendingEdits.vignette.enabled !== false) {
         workingBlob = await _applyVignette(workingBlob, _editState.pendingEdits.vignette);
       }
       if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length) {
@@ -7307,6 +7352,56 @@ function _updateEditSizeInfo(){
   el.textContent = txt;
 }
 /* ---- Round 10 — Before/After split-slider ---- */
+
+/* R47 — Adjust tab tap-to-disable. Injects a small dot inside each
+   modified chip; click toggles the section's enabled flag (preserves
+   values), click elsewhere on the chip opens its dropdown as before. */
+function _r47WireSectionToggles(){
+  const pe = _editState.pendingEdits;
+  if (!pe || !pe.photoAdjust || !pe.vignette) return;
+  const adj = pe.photoAdjust;
+  const vig = pe.vignette;
+  const slidDirty   = !(adj.brightness === 100 && adj.contrast === 100 && adj.saturation === 100);
+  const filterDirty = (adj.preset !== 'none');
+  const vigDirty    = !!vig._dirty;
+  function wire(triggerId, isDirty, isEnabled, onToggle){
+    const trig = document.getElementById(triggerId);
+    if (!trig) return;
+    /* Clean any existing dot before re-inserting */
+    const old = trig.querySelector('.edit-section-toggle');
+    if (old) old.remove();
+    if (!isDirty) return;
+    const dot = document.createElement('span');
+    dot.className = 'edit-section-toggle' + (isEnabled ? ' on' : ' off');
+    dot.title = isEnabled ? 'Disable this adjustment (values kept)' : 'Re-enable this adjustment';
+    dot.setAttribute('role', 'switch');
+    dot.setAttribute('aria-checked', isEnabled ? 'true' : 'false');
+    dot.setAttribute('aria-label', dot.title);
+    dot.addEventListener('click', function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      onToggle();
+    });
+    /* Insert as the FIRST child of the trigger so the dot sits left of
+       the label, matching the iPhone Photos icon-on-the-left convention. */
+    trig.insertBefore(dot, trig.firstChild);
+    trig.classList.toggle('section-disabled', !isEnabled);
+  }
+  wire('editAdjustTrigger', slidDirty, adj.sliderEnabled !== false, function(){
+    adj.sliderEnabled = adj.sliderEnabled === false ? true : false;
+    /* Re-render the Adjust tab so chip state + preview update together. */
+    _reRenderEditTab();
+  });
+  wire('editFilterTrigger', filterDirty, adj.filterEnabled !== false, function(){
+    adj.filterEnabled = adj.filterEnabled === false ? true : false;
+    _reRenderEditTab();
+  });
+  wire('editVignetteTrigger', vigDirty, vig.enabled !== false, function(){
+    vig.enabled = vig.enabled === false ? true : false;
+    _reRenderEditTab();
+  });
+}
+
 function _editHasAnyEdit(){
   if (!_editState) return false;
   const r = _editState.rotateState || {};
@@ -7629,8 +7724,7 @@ function _renderRotateTab(body){
     <div class="edit-tool-toolbar edit-rotate-toolbar">
       <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="cw" title="Rotate 90° clockwise" aria-label="Rotate 90° clockwise"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg><span class="rot-lbl">90° CW</span></button>
       <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="ccw" title="Rotate 90° counter-clockwise" aria-label="Rotate 90° counter-clockwise"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg><span class="rot-lbl">90° CCW</span></button>
-      <button type="button" class="edit-rotate-btn rot-text" data-rot="180" title="Rotate 180°" aria-label="Rotate 180°">180°</button>
-      <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="fh" title="Flip horizontal" aria-label="Flip horizontal"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg><span class="rot-lbl">Flip H</span></button>
+<button type="button" class="edit-rotate-btn rot-icon-only" data-rot="fh" title="Flip horizontal" aria-label="Flip horizontal"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg><span class="rot-lbl">Flip H</span></button>
       <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="fv" title="Flip vertical" aria-label="Flip vertical"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg><span class="rot-lbl">Flip V</span></button>
       <button type="button" class="edit-rotate-btn rot-text" data-rot="reset" title="Reset rotation" aria-label="Reset rotation">Reset</button>
       <div class="edit-tool-dd" id="editAngleDD">
@@ -8691,12 +8785,18 @@ function _renderAdjustTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
   if (!_editState.pendingEdits.photoAdjust) {
-    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false };
+    /* R47 — sliderEnabled + filterEnabled let users tap-to-disable each
+       section while preserving the slider/preset values. iPhone Photos pattern. */
+    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true };
   }
   const adj = _editState.pendingEdits.photoAdjust;
+  /* R47 — back-fill flags for state restored from older sessions/undo snapshots. */
+  if (adj.sliderEnabled === undefined) adj.sliderEnabled = true;
+  if (adj.filterEnabled === undefined) adj.filterEnabled = true;
   if (!_editState.pendingEdits.vignette) {
-    _editState.pendingEdits.vignette = { amount: 0, midpoint: 50, _dirty: false };
+    _editState.pendingEdits.vignette = { amount: 0, midpoint: 50, _dirty: false, enabled: true };
   }
+  if (_editState.pendingEdits.vignette.enabled === undefined) _editState.pendingEdits.vignette.enabled = true;
   const vig = _editState.pendingEdits.vignette;
   const PRESETS = [
     { id: 'none',    label: 'Original', css: '' },
@@ -8805,8 +8905,12 @@ function _renderAdjustTab(body){
   const previewImg = document.getElementById('editAdjPreview');
   function _getAdjFilter(){
     const a = _editState.pendingEdits.photoAdjust;
-    const pre = (a.preset !== 'none' && a.presetCss) ? a.presetCss + ' ' : '';
-    return pre + `brightness(${a.brightness}%) contrast(${a.contrast}%) saturate(${a.saturation}%)`;
+    /* R47 — respect tap-to-disable per section */
+    const filterOn = a.filterEnabled !== false;
+    const sliderOn = a.sliderEnabled !== false;
+    const pre = (filterOn && a.preset !== 'none' && a.presetCss) ? a.presetCss + ' ' : '';
+    const sliders = sliderOn ? `brightness(${a.brightness}%) contrast(${a.contrast}%) saturate(${a.saturation}%)` : '';
+    return (pre + sliders) || 'none';
   }
   function _markDirty(){
     const a = _editState.pendingEdits.photoAdjust;
@@ -8919,6 +9023,8 @@ function _renderAdjustTab(body){
   function _vigBuildBg(){
     const v = _editState.pendingEdits.vignette;
     if (!v || v.amount === 0) return 'transparent';
+    /* R47 — respect tap-to-disable */
+    if (v.enabled === false) return 'transparent';
     const amt = Math.abs(v.amount) / 100;
     const start = Math.max(0, Math.min(100, v.midpoint));
     const col = v.amount > 0 ? '0,0,0' : '255,255,255';
@@ -8935,6 +9041,8 @@ function _renderAdjustTab(body){
   }
   _vigPaintPreview();
   const vigReset = document.getElementById('vigReset');
+  /* R47 — wire tap-to-disable dots on the 3 modified-able chips */
+  try { _r47WireSectionToggles(); } catch(_){}
   function _vigUpdateResetState(){
     if (vigReset) vigReset.disabled = !(_editState.pendingEdits.vignette._dirty);
   }
@@ -8985,8 +9093,13 @@ async function _applyPhotoAdjust(file, adjInfo){
   const canvas = document.createElement('canvas');
   canvas.width = bmp.width; canvas.height = bmp.height;
   const ctx = canvas.getContext('2d');
-  const pre = (adjInfo.preset !== 'none' && adjInfo.presetCss) ? adjInfo.presetCss + ' ' : '';
-  ctx.filter = pre + `brightness(${adjInfo.brightness}%) contrast(${adjInfo.contrast}%) saturate(${adjInfo.saturation}%)`;
+  /* R47 — honor per-section enables. If both disabled the function
+     would have been skipped by the saveEdit gate; defensive only. */
+  const _filtOn = adjInfo.filterEnabled !== false;
+  const _slidOn = adjInfo.sliderEnabled !== false;
+  const pre = (_filtOn && adjInfo.preset !== 'none' && adjInfo.presetCss) ? adjInfo.presetCss + ' ' : '';
+  const slid = _slidOn ? `brightness(${adjInfo.brightness}%) contrast(${adjInfo.contrast}%) saturate(${adjInfo.saturation}%)` : '';
+  ctx.filter = (pre + slid) || 'none';
   ctx.drawImage(bmp, 0, 0);
   ctx.filter = 'none';
   try { bmp.close && bmp.close(); } catch(_){}
