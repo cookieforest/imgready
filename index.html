@@ -10144,20 +10144,33 @@ function _renderAdjustTab(body){
       const v_ = _editState.pendingEdits.vignette;
       const k = btn.dataset.adjKey;
       if (!k) return;
-      /* R54 — Click an already-selected icon toggles that key's
-         enabled flag (Apple-style "disable but preserve value").
-         Clicking an unselected icon just selects it. */
       if (a.selected === k) {
-        if (k === 'vignette') {
-          v_.enabled = (v_.enabled === false);
-        } else {
-          const flag = k + 'Enabled';
-          a[flag] = (a[flag] === false);
+        /* R64 — toggle disable ONLY when the value is non-default.
+           Default state already pre-selects 'brightness'; without this
+           guard, the very first click on Brightness was treated as
+           "selected → toggle" and set brightnessEnabled=false, leaving
+           subsequent scrubber drags invisible because brightness was
+           silently disabled. */
+        const r = _scrubRange(k);
+        const v = _scrubValueFor(k);
+        if (v !== r.def) {
+          if (k === 'vignette') {
+            v_.enabled = (v_.enabled === false);
+          } else {
+            const flag = k + 'Enabled';
+            a[flag] = (a[flag] === false);
+          }
+          _editPushUndo();
+          _syncScrubberToSelected();
+          _syncIconStates();
+          _markDirty();
+          return;
         }
-        _editPushUndo();
-        _syncScrubberToSelected();
-        _syncIconStates();
-        _markDirty();
+        /* Selected + unmodified — give a pulse so the click isn't silent. */
+        btn.classList.remove('pulse');
+        void btn.offsetWidth;
+        btn.classList.add('pulse');
+        setTimeout(() => btn.classList.remove('pulse'), 360);
         return;
       }
       a.selected = k;
