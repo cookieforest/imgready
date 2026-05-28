@@ -3159,6 +3159,47 @@
 
 
 
+
+
+  /* ====================================================================
+     R59 — top-chrome Cancel/Save buttons (Apple Photos style)
+     ==================================================================== */
+  .edit-modal .edit-top-actions{
+    pointer-events:auto;
+    margin-left:auto;
+    display:flex;align-items:center;gap:6px;
+  }
+  .edit-modal .edit-top-btn{
+    font-family:inherit;font-size:.82rem;font-weight:600;letter-spacing:.01em;
+    padding:7px 14px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.16);
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    color:#fff;
+    cursor:pointer;
+    transition:background .12s ease,border-color .12s ease,transform .08s ease;
+  }
+  .edit-modal .edit-top-cancel{background:rgba(0,0,0,.55);}
+  .edit-modal .edit-top-cancel:hover{background:rgba(255,255,255,.10);}
+  .edit-modal .edit-top-save{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+    color:#fff;font-weight:700;
+  }
+  .edit-modal .edit-top-save:hover{
+    background:var(--accent-strong, #6b8b6b);
+    border-color:var(--accent-strong, #6b8b6b);
+  }
+  .edit-modal .edit-top-btn:disabled{opacity:.4;cursor:default;pointer-events:none;}
+
+  .edit-modal .edit-top-chrome{
+    /* Add space at right for the action buttons. */
+    pointer-events:none;
+  }
+  .edit-modal .edit-top-chrome > * { pointer-events:auto; }
+
   /* ====================================================================
      R56 — Cancel the global "edit-modal button .ico" 5px right-margin for
      circle-family buttons. That rule was kicking every SVG icon inside
@@ -7465,7 +7506,7 @@ function _editTabsForType(t){
     tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
     tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
     tabs.push({ id: 'pixelate', label: 'Pixelate',icon: 'i-grid' });
-    tabs.push({ id: 'blur',     label: 'Blur',    icon: 'i-droplets' });
+    /* R59 — Blur folded into Adjust (now a single global slider there). */
     tabs.push({ id: 'text',     label: 'Text',    icon: 'i-type' });
     tabs.push({ id: 'bg',       label: 'Remove BG',icon: 'i-eraser' });
   } else {
@@ -8111,12 +8152,12 @@ function _ensureSplitUi(){
     const pill = document.createElement('div');
     pill.className = 'edit-action-pill';
     pill.id = 'editActionPill';
+    /* R59 — Cancel + Save moved to top chrome. Pill keeps only the
+       history controls (Reset / Undo / Redo). */
     pill.innerHTML = ''
       + '<button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>'
       + '<button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>'
-      + '<button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>'
-      + '<button type="button" class="btn" onclick="cancelEdit()" title="Cancel \u2014 Esc">Cancel</button>'
-      + '<button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>';
+      + '<button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>';
     col.appendChild(pill);
     /* R37 — compare chip floats right of the pill, visible when edits exist. */
     if (!col.querySelector('.edit-compare-chip')){
@@ -9536,13 +9577,14 @@ function _renderAdjustTab(body){
        section while preserving the slider/preset values. iPhone Photos pattern. */
     /* R48 — `selected` tracks which adjustment the shared scrubber
        controls. iPhone Photos pattern: one slider, many icons. */
-    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
+    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, globalBlur: 0, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
   }
   const adj = _editState.pendingEdits.photoAdjust;
   /* R47 — back-fill flags for state restored from older sessions/undo snapshots. */
   if (adj.sliderEnabled === undefined) adj.sliderEnabled = true;
   if (adj.filterEnabled === undefined) adj.filterEnabled = true;
   if (adj.selected === undefined) adj.selected = 'brightness';  /* R48 */
+  if (adj.globalBlur === undefined) adj.globalBlur = 0;          /* R59 */
   if (!_editState.pendingEdits.vignette) {
     _editState.pendingEdits.vignette = { amount: 0, midpoint: 50, _dirty: false, enabled: true };
   }
@@ -9650,6 +9692,13 @@ function _renderAdjustTab(body){
             <span class="adj-circle-val adj-icon-val" data-key="vignette">${_adjVignetteVal}</span>
           </span>
         </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='globalBlur'?' selected':''}${adj.globalBlur!==0?' modified':''}" data-adj-key="globalBlur" title="Blur (whole image)" aria-label="Blur" role="tab" aria-selected="${_scrubKey==='globalBlur'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="globalBlur">${adj.globalBlur ? '+' + adj.globalBlur : ''}</span>
+          </span>
+        </button>
       </div>
       <div class="adj-tick-ruler" id="adjScrubberWrap" data-scrub-key="${_scrubKey}">
         <div class="adj-tick-ticks" aria-hidden="true"></div>
@@ -9674,6 +9723,8 @@ function _renderAdjustTab(body){
       if (a.brightnessEnabled !== false) sliders += `brightness(${a.brightness}%) `;
       if (a.contrastEnabled   !== false) sliders += `contrast(${a.contrast}%) `;
       if (a.saturationEnabled !== false) sliders += `saturate(${a.saturation}%) `;
+      /* R59 — global Blur as part of the CSS filter chain. */
+      if (a.globalBlurEnabled !== false && a.globalBlur > 0) sliders += `blur(${a.globalBlur}px) `;
     }
     return (pre + sliders.trim()) || 'none';
   }
@@ -9690,18 +9741,20 @@ function _renderAdjustTab(body){
   /* R48 — single scrubber routes input to the currently-selected
      adjustment. Icon clicks switch which key the scrubber controls. */
   /* R50 — scrubber drives tick ruler + floating section pill. */
-  const _adjLabels = { brightness: 'BRIGHTNESS', contrast: 'CONTRAST', saturation: 'SATURATION', vignette: 'VIGNETTE' };
+  const _adjLabels = { brightness: 'BRIGHTNESS', contrast: 'CONTRAST', saturation: 'SATURATION', vignette: 'VIGNETTE', globalBlur: 'BLUR' };
   const scrubSlider = document.getElementById('adjScrubSlider');
   const scrubRuler  = document.getElementById('adjScrubberWrap');
   const scrubDot    = document.getElementById('adjTickDot');
   const pillLabel   = document.getElementById('adjSectionPillLabel');
   const pillVal     = document.getElementById('adjSectionPillVal');
   function _scrubRange(key){
-    if (key === 'vignette') return { min: -100, max: 100, def: 0 };
+    if (key === 'vignette')   return { min: -100, max: 100, def: 0 };
+    if (key === 'globalBlur') return { min: 0,    max: 40,  def: 0 };
     return { min: 0, max: 200, def: 100 };
   }
   function _scrubValueFor(key){
     if (key === 'vignette') return _editState.pendingEdits.vignette.amount || 0;
+    if (key === 'globalBlur') return _editState.pendingEdits.photoAdjust.globalBlur || 0;
     return _editState.pendingEdits.photoAdjust[key];
   }
   function _scrubDisplay(key, v){
@@ -9746,6 +9799,9 @@ function _renderAdjustTab(body){
       if (k === 'vignette') {
         val = v.amount; defVal = 0; delta = val; mag = Math.min(100, Math.abs(val));
         disabled = (v.enabled === false);
+      } else if (k === 'globalBlur') {
+        val = a.globalBlur || 0; defVal = 0; delta = val; mag = Math.min(40, val) / 40 * 100;
+        disabled = (a.globalBlurEnabled === false);
       } else {
         val = a[k]; defVal = 100; delta = val - defVal; mag = Math.min(100, Math.abs(delta));
         disabled = (a[k + 'Enabled'] === false);
@@ -9828,6 +9884,9 @@ function _renderAdjustTab(body){
       if (key === 'vignette') {
         v_.amount = v;
         _vigMarkDirty();
+      } else if (key === 'globalBlur') {
+        a.globalBlur = v;
+        a._dirty = a._dirty || v !== 0;
       } else {
         a[key] = v;
       }
@@ -10106,7 +10165,7 @@ function _renderFiltersTab(body){
   /* R51 — show the floating FILTERS pill over the photo. */
   try { _ensureAdjSectionPill('Filters', ''); } catch(_){}
   if (!_editState.pendingEdits.photoAdjust) {
-    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
+    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, globalBlur: 0, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
   }
   const adj = _editState.pendingEdits.photoAdjust;
   if (adj.filterEnabled === undefined) adj.filterEnabled = true;
@@ -10186,6 +10245,7 @@ async function _applyPhotoAdjust(file, adjInfo){
     if (adjInfo.brightnessEnabled !== false) slid += `brightness(${adjInfo.brightness}%) `;
     if (adjInfo.contrastEnabled   !== false) slid += `contrast(${adjInfo.contrast}%) `;
     if (adjInfo.saturationEnabled !== false) slid += `saturate(${adjInfo.saturation}%) `;
+    if (adjInfo.globalBlurEnabled !== false && adjInfo.globalBlur > 0) slid += `blur(${adjInfo.globalBlur}px) `;
   }
   ctx.filter = (pre + slid.trim()) || 'none';
   ctx.drawImage(bmp, 0, 0);
@@ -13680,6 +13740,12 @@ function doClear(){
     <a class="edit-brand-link" href="#" onclick="event.preventDefault();cancelEdit();" aria-label="Exit edit and return to imgready home">img<span class="g">ready</span></a>
     <span class="edit-filename-chip" id="editTitle" aria-live="polite">Edit</span>
     <span class="edit-size-info" id="editSizeInfo"></span>
+    <!-- R59 — Apple Photos top-bar pattern: Cancel + Save (Done) live in
+         the top chrome, away from the menu-card. -->
+    <div class="edit-top-actions">
+      <button type="button" class="edit-top-btn edit-top-cancel" onclick="cancelEdit()" title="Cancel — Esc">Cancel</button>
+      <button type="button" class="edit-top-btn edit-top-save" id="editSaveBtnTop" onclick="saveEdit()" title="Save edits">Save</button>
+    </div>
   </div>
   <!-- R28 — bottom menu card mirroring home .menu-wrap > .menu-card.
        Solid #1a1a1a background (no backdrop-filter — see home CSS
