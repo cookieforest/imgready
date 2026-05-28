@@ -3170,31 +3170,63 @@
      ==================================================================== */
   .edit-modal .edit-size-info{display:none !important;}
 
-  /* Center the brand link. Top chrome becomes:
-       [Undo] [Redo]      [Brand]      [filename]            [Save/Done]
-     Brand is absolutely positioned center; left and right groups flow
-     normally. */
+  /* R61b — full-width top chrome with absolutely-centered brand.
+     Original chrome rule was width:50vw max-width:780px which produced
+     a narrow centered bar; that conflicted with the new "history left,
+     brand center, actions right" layout. Widen + use !important so the
+     bar spans the viewport, then absolutely center the brand. */
   .edit-modal .edit-top-chrome{
-    position:absolute;
-    top:12px;left:12px;right:12px;
-    display:flex;align-items:center;gap:10px;
+    position:absolute !important;
+    top:12px !important;
+    left:12px !important;
+    right:12px !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    transform:none !important;
+    background:transparent !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    border:none !important;
+    border-radius:0 !important;
+    padding:0 !important;
+    display:flex;align-items:center;
+    gap:10px;
     z-index:11;
     pointer-events:none;
   }
   .edit-modal .edit-top-chrome > *{pointer-events:auto;}
+
+  /* Brand absolutely centered in the chrome. The pill background is
+     restored on the brand itself so it reads as a floating chip. */
   .edit-modal .edit-top-chrome .edit-brand-link{
-    position:absolute;left:50%;transform:translateX(-50%);
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
+    background:rgba(0,0,0,.55) !important;
+    backdrop-filter:blur(8px) !important;
+    -webkit-backdrop-filter:blur(8px) !important;
+    border:1px solid rgba(255,255,255,.10) !important;
+    border-radius:999px !important;
+    padding:6px 14px !important;
+    margin:0 !important;
+    z-index:1;
   }
-  .edit-modal .edit-top-history{margin-left:0;}
-  .edit-modal .edit-top-actions{margin-left:auto;}
-  .edit-modal .edit-filename-chip{
-    /* Push filename slightly right of brand or hide on narrow screens. */
+
+  /* Left group: Undo/Redo. */
+  .edit-modal .edit-top-history{
+    margin:0;
+    flex:0 0 auto;
+  }
+  /* Right group: Save/Done. */
+  .edit-modal .edit-top-actions{
     margin-left:auto;
-    margin-right:12px;
-    max-width:24vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    flex:0 0 auto;
   }
-  @media (max-width: 640px){
-    .edit-modal .edit-filename-chip{display:none;}
+  /* Filename chip — hidden in top bar per user request. */
+  .edit-modal .edit-top-chrome .edit-filename-chip{
+    display:none !important;
   }
 
   /* ====================================================================
