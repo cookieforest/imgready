@@ -3161,6 +3161,65 @@
 
 
 
+
+
+  /* ====================================================================
+     R60 — top-chrome history controls + dynamic Save/Done
+     ==================================================================== */
+  .edit-modal .edit-top-history{
+    pointer-events:auto;
+    display:flex;align-items:center;gap:4px;
+    margin-left:8px;
+  }
+  .edit-modal .edit-top-history-btn{
+    font-family:inherit;font-size:.78rem;font-weight:600;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(0,0,0,.45);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    color:rgba(255,255,255,.85);
+    cursor:pointer;
+    transition:background .12s ease,border-color .12s ease,color .12s ease,opacity .12s ease;
+    display:inline-flex;align-items:center;gap:5px;
+    line-height:1;
+  }
+  .edit-modal .edit-top-history-btn:hover{
+    background:rgba(255,255,255,.10);color:#fff;border-color:rgba(255,255,255,.22);
+  }
+  .edit-modal .edit-top-history-btn:disabled{
+    opacity:.32;cursor:default;pointer-events:none;
+  }
+  .edit-modal .edit-top-history-btn.edit-top-icon{
+    padding:6px 9px;
+  }
+  .edit-modal .edit-top-history-btn .ico{
+    width:14px;height:14px;
+  }
+
+  /* Dynamic Save/Done button — neutral when "Done", accent when "Save". */
+  .edit-modal .edit-top-save{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.18);
+    color:#fff;
+    font-weight:600;
+  }
+  .edit-modal .edit-top-save:hover{background:rgba(255,255,255,.16);}
+  .edit-modal .edit-top-save.has-edits{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+    color:#fff;
+    font-weight:700;
+  }
+  .edit-modal .edit-top-save.has-edits:hover{
+    background:var(--accent-strong, #6b8b6b);
+    border-color:var(--accent-strong, #6b8b6b);
+  }
+
+  /* Hide the now-unused action pill if any stray reference remains. */
+  .edit-modal .edit-action-pill{display:none !important;}
+
   /* ====================================================================
      R59 — top-chrome Cancel/Save buttons (Apple Photos style)
      ==================================================================== */
@@ -8059,6 +8118,19 @@ function _updateEditHistoryUI(){
   if (undoBtn) undoBtn.disabled = !_editState._undoStack.length;
   const redoBtn = document.getElementById('editRedoBtn');
   if (redoBtn) redoBtn.disabled = !_editState._redoStack.length;
+  /* R60 — dynamic Save/Done label. */
+  const saveTop = document.getElementById('editSaveBtnTop');
+  if (saveTop) {
+    if (hasEdits) {
+      saveTop.textContent = 'Save';
+      saveTop.title = 'Save edits';
+      saveTop.classList.add('has-edits');
+    } else {
+      saveTop.textContent = 'Done';
+      saveTop.title = 'Close editor';
+      saveTop.classList.remove('has-edits');
+    }
+  }
   _updateEditSizeInfo();
 }
 function _updateEditSizeInfo(){
@@ -8148,32 +8220,22 @@ function _editHasAnyEdit(){
 function _ensureSplitUi(){
   const col = document.getElementById('editPreviewCol');
   if (!col) return;
-  if (!col.querySelector('.edit-action-pill')){
-    const pill = document.createElement('div');
-    pill.className = 'edit-action-pill';
-    pill.id = 'editActionPill';
-    /* R59 — Cancel + Save moved to top chrome. Pill keeps only the
-       history controls (Reset / Undo / Redo). */
-    pill.innerHTML = ''
-      + '<button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>'
-      + '<button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>'
-      + '<button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>';
-    col.appendChild(pill);
-    /* R37 — compare chip floats right of the pill, visible when edits exist. */
-    if (!col.querySelector('.edit-compare-chip')){
-      const cc = document.createElement('button');
-      cc.type = 'button';
-      cc.className = 'edit-compare-chip'; cc.id = 'editCompareChip';
-      cc.innerHTML = '<svg class="ico" aria-hidden="true" style="width:13px;height:13px"><use href="#i-arrow-left-right"/></svg>Compare';
-      cc.title = 'Compare original vs edited — drag the divider';
-      cc.addEventListener('click', _toggleSplitCompare);
-      col.appendChild(cc);
-    }
-    if (!col.querySelector('.edit-zoom-chip')){
-      const zc = document.createElement('div');
-      zc.className = 'edit-zoom-chip'; zc.id = 'editZoomChip';
-      col.appendChild(zc);
-    }
+  /* R60 — floating action pill removed; history controls live in the
+     top chrome now. Compare chip + zoom chip still get anchored to
+     editPreviewCol. */
+  if (!col.querySelector('.edit-compare-chip')){
+    const cc = document.createElement('button');
+    cc.type = 'button';
+    cc.className = 'edit-compare-chip'; cc.id = 'editCompareChip';
+    cc.innerHTML = '<svg class="ico" aria-hidden="true" style="width:13px;height:13px"><use href="#i-arrow-left-right"/></svg>Compare';
+    cc.title = 'Compare original vs edited — drag the divider';
+    cc.addEventListener('click', _toggleSplitCompare);
+    col.appendChild(cc);
+  }
+  if (!col.querySelector('.edit-zoom-chip')){
+    const zc = document.createElement('div');
+    zc.className = 'edit-zoom-chip'; zc.id = 'editZoomChip';
+    col.appendChild(zc);
   }
   if (!col.querySelector('.edit-split-overlay')){
     const ov = document.createElement('div');
@@ -13738,13 +13800,18 @@ function doClear(){
        space between the pills. -->
   <div class="edit-top-chrome">
     <a class="edit-brand-link" href="#" onclick="event.preventDefault();cancelEdit();" aria-label="Exit edit and return to imgready home">img<span class="g">ready</span></a>
+    <!-- R60 — history controls (Reset / Undo / Redo) moved into top chrome. -->
+    <div class="edit-top-history">
+      <button type="button" class="edit-top-history-btn" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>
+      <button type="button" class="edit-top-history-btn edit-top-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
+      <button type="button" class="edit-top-history-btn edit-top-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
+    </div>
     <span class="edit-filename-chip" id="editTitle" aria-live="polite">Edit</span>
     <span class="edit-size-info" id="editSizeInfo"></span>
-    <!-- R59 — Apple Photos top-bar pattern: Cancel + Save (Done) live in
-         the top chrome, away from the menu-card. -->
+    <!-- R60 — single dynamic action button. Shows "Save" when edits are
+         pending (accent), "Done" otherwise (neutral). Same handler. -->
     <div class="edit-top-actions">
-      <button type="button" class="edit-top-btn edit-top-cancel" onclick="cancelEdit()" title="Cancel — Esc">Cancel</button>
-      <button type="button" class="edit-top-btn edit-top-save" id="editSaveBtnTop" onclick="saveEdit()" title="Save edits">Save</button>
+      <button type="button" class="edit-top-btn edit-top-save" id="editSaveBtnTop" onclick="saveEdit()" title="Done">Done</button>
     </div>
   </div>
   <!-- R28 — bottom menu card mirroring home .menu-wrap > .menu-card.
