@@ -3151,6 +3151,70 @@
 
 
 
+
+
+  /* ====================================================================
+     R54 — bold disable visual + locked tab height (no stretching)
+     ==================================================================== */
+
+  /* Disable toggle: when active, the inner is filled red with a
+     strikethrough overlay so the user can see clearly that the effect
+     is off. */
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner{
+    background:rgba(220,90,90,.32);
+    border-color:#e57a7a;
+  }
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner .ico{
+    color:#fff;
+  }
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner::after{
+    content:'';
+    position:absolute;left:6px;right:6px;top:50%;
+    height:2px;background:#fff;
+    transform:rotate(-45deg);
+    border-radius:1px;
+    pointer-events:none;
+  }
+  .edit-modal .ed-disable-btn .ed-circle-inner{position:relative;}
+
+  /* Lock toolbar height so swapping tabs doesn't shift the menu-card. */
+  .edit-modal .edit-tool-toolbar{
+    min-height:138px;
+  }
+  .edit-modal .edit-adjust-toolbar.adj-tab-r50,
+  .edit-modal .edit-rotate-toolbar.adj-tab-r50,
+  .edit-modal .edit-pixelate-controls.adj-tab-r50,
+  .edit-modal .edit-blur-controls.adj-tab-r50,
+  .edit-modal .edit-text-controls,
+  .edit-modal .filters-tab-r50{
+    min-height:138px;
+  }
+
+  /* Compact per-icon "modified" disable — icon goes dim with a small slash
+     overlay, value still shown so user knows the parameter is preserved. */
+  .edit-modal .adj-circle-btn.icon-disabled .ed-circle-inner,
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-inner{
+    background:rgba(255,255,255,.02);
+    border-color:rgba(255,255,255,.10);
+  }
+  .edit-modal .adj-circle-btn.icon-disabled .ed-circle-inner::after,
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-inner::after{
+    content:'';
+    position:absolute;left:6px;right:6px;top:50%;
+    height:2px;background:rgba(255,255,255,.6);
+    transform:rotate(-45deg);
+    border-radius:1px;
+    pointer-events:none;
+  }
+  .edit-modal .adj-circle-btn.icon-disabled .ed-circle-inner,
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-inner{position:relative;}
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-val{opacity:.45;}
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-ring{
+    background:conic-gradient(from -90deg,
+      rgba(255,255,255,.10) 0deg,
+      rgba(255,255,255,.10) 360deg);
+  }
+
   /* ====================================================================
      R53 — captions off by default, disable-toggle visuals, tighter center
      ==================================================================== */
@@ -9576,12 +9640,20 @@ function _renderAdjustTab(body){
   const previewImg = document.getElementById('editAdjPreview');
   function _getAdjFilter(){
     const a = _editState.pendingEdits.photoAdjust;
-    /* R47 — respect tap-to-disable per section */
+    /* R54 — per-key enabled flags (brightnessEnabled, contrastEnabled,
+       saturationEnabled). Disabled keys are skipped from the filter
+       composition so their value is visually nullified while preserved
+       in state. */
     const filterOn = a.filterEnabled !== false;
     const sliderOn = a.sliderEnabled !== false;
     const pre = (filterOn && a.preset !== 'none' && a.presetCss) ? a.presetCss + ' ' : '';
-    const sliders = sliderOn ? `brightness(${a.brightness}%) contrast(${a.contrast}%) saturate(${a.saturation}%)` : '';
-    return (pre + sliders) || 'none';
+    let sliders = '';
+    if (sliderOn) {
+      if (a.brightnessEnabled !== false) sliders += `brightness(${a.brightness}%) `;
+      if (a.contrastEnabled   !== false) sliders += `contrast(${a.contrast}%) `;
+      if (a.saturationEnabled !== false) sliders += `saturate(${a.saturation}%) `;
+    }
+    return (pre + sliders.trim()) || 'none';
   }
   function _markDirty(){
     const a = _editState.pendingEdits.photoAdjust;
@@ -9648,16 +9720,18 @@ function _renderAdjustTab(body){
     const v = _editState.pendingEdits.vignette;
     document.querySelectorAll('#editBody .adj-icon-btn').forEach(btn => {
       const k = btn.dataset.adjKey;
-      let val, defVal, mag, delta;
+      let val, defVal, mag, delta, disabled;
       if (k === 'vignette') {
         val = v.amount; defVal = 0; delta = val; mag = Math.min(100, Math.abs(val));
+        disabled = (v.enabled === false);
       } else {
         val = a[k]; defVal = 100; delta = val - defVal; mag = Math.min(100, Math.abs(delta));
+        disabled = (a[k + 'Enabled'] === false);
       }
       btn.classList.toggle('selected', a.selected === k);
       btn.classList.toggle('modified', val !== defVal);
+      btn.classList.toggle('icon-disabled', disabled);
       btn.setAttribute('aria-selected', a.selected === k ? 'true' : 'false');
-      /* R49 — write numeric value inside icon ring */
       const valEl = btn.querySelector('.adj-icon-val');
       if (valEl) {
         valEl.textContent = (val !== defVal) ? (delta > 0 ? '+'+delta : String(delta)) : '';
@@ -9716,24 +9790,21 @@ function _renderAdjustTab(body){
       const v_ = _editState.pendingEdits.vignette;
       const k = btn.dataset.adjKey;
       if (!k) return;
-      /* R51 — Apple Photos pattern: clicking an icon that's already
-         selected AND modified resets that adjustment to its default.
+      /* R54 — Click an already-selected icon toggles that key's
+         enabled flag (Apple-style "disable but preserve value").
          Clicking an unselected icon just selects it. */
       if (a.selected === k) {
-        const r = _scrubRange(k);
-        const cur = _scrubValueFor(k);
-        if (cur !== r.def) {
-          _editPushUndo();
-          if (k === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
-          else { a[k] = r.def; }
-          if (scrubSlider) {
-            scrubSlider.value = String(r.def);
-          }
-          _syncScrubberToSelected();
-          _syncIconStates();
-          _markDirty();
-          return;
+        if (k === 'vignette') {
+          v_.enabled = (v_.enabled === false);
+        } else {
+          const flag = k + 'Enabled';
+          a[flag] = (a[flag] === false);
         }
+        _editPushUndo();
+        _syncScrubberToSelected();
+        _syncIconStates();
+        _markDirty();
+        return;
       }
       a.selected = k;
       _syncScrubberToSelected();
@@ -10027,8 +10098,13 @@ async function _applyPhotoAdjust(file, adjInfo){
   const _filtOn = adjInfo.filterEnabled !== false;
   const _slidOn = adjInfo.sliderEnabled !== false;
   const pre = (_filtOn && adjInfo.preset !== 'none' && adjInfo.presetCss) ? adjInfo.presetCss + ' ' : '';
-  const slid = _slidOn ? `brightness(${adjInfo.brightness}%) contrast(${adjInfo.contrast}%) saturate(${adjInfo.saturation}%)` : '';
-  ctx.filter = (pre + slid) || 'none';
+  let slid = '';
+  if (_slidOn) {
+    if (adjInfo.brightnessEnabled !== false) slid += `brightness(${adjInfo.brightness}%) `;
+    if (adjInfo.contrastEnabled   !== false) slid += `contrast(${adjInfo.contrast}%) `;
+    if (adjInfo.saturationEnabled !== false) slid += `saturate(${adjInfo.saturation}%) `;
+  }
+  ctx.filter = (pre + slid.trim()) || 'none';
   ctx.drawImage(bmp, 0, 0);
   ctx.filter = 'none';
   try { bmp.close && bmp.close(); } catch(_){}
@@ -10357,45 +10433,47 @@ async function _renderPixelateTab(body){
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-pixelate-wrap"><canvas id="editPixelateCanvas" class="edit-pixelate-canvas"></canvas></div>';
   }
-  /* R30c — Brush + Cell size live inside a single "Brush ▾" chip. */
-  const _pxChev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
-  const _pxSummary = 'Brush ' + px.brushPx + ' · Cell ' + px.blockSize;
+  /* R54 — unified pattern. Selectable params (Brush, Cell) live as
+     circular icons; the shared scrubber drives whichever is selected.
+     Paint/Erase remain mode toggles. */
+  if (px.selected === undefined) px.selected = 'brush';
+  const _pxKey = px.selected;
+  const _pxRangeNow = (_pxKey === 'cell') ? { min: 4, max: 60 } : { min: 6, max: 160 };
+  const _pxValNow = (_pxKey === 'cell') ? px.blockSize : px.brushPx;
+  const _pxPct = ((_pxValNow - _pxRangeNow.min) / (_pxRangeNow.max - _pxRangeNow.min)) * 100;
   body.innerHTML = ''
-    + '<div class="edit-pixelate-controls ed-func-row">'
-    +   '<div class="px-tool-strip ed-toggle-pair">'
-    +     '<button type="button" class="ed-circle-btn' + (px.mode==="paint"?" active":"") + '" data-px-mode="paint" title="Paint mode" aria-pressed="' + (px.mode==="paint") + '">'
+    + '<div class="edit-pixelate-controls adj-tab-r50">'
+    +   '<div class="ed-func-row' + (px.enabled === false ? ' row-disabled' : '') + '" id="pxRow">'
+    +     '<button type="button" class="ed-circle-btn' + (px.mode==="paint"?" active":"") + '" data-px-mode="paint" title="Paint" aria-pressed="' + (px.mode==="paint") + '">'
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-brush"/></svg></span>'
-    +       '<span class="ed-circle-cap">PAINT</span>'
     +     '</button>'
-    +     '<button type="button" class="ed-circle-btn' + (px.mode==="erase"?" active":"") + '" data-px-mode="erase" title="Erase mode" aria-pressed="' + (px.mode==="erase") + '">'
+    +     '<button type="button" class="ed-circle-btn' + (px.mode==="erase"?" active":"") + '" data-px-mode="erase" title="Erase" aria-pressed="' + (px.mode==="erase") + '">'
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-eraser"/></svg></span>'
-    +       '<span class="ed-circle-cap">ERASE</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn adj-circle-btn' + (_pxKey==="brush"?" selected":"") + '" data-px-key="brush" title="Brush size" aria-pressed="' + (_pxKey==="brush") + '">'
+    +       '<span class="ed-circle-ring" aria-hidden="true"></span>'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn adj-circle-btn' + (_pxKey==="cell"?" selected":"") + '" data-px-key="cell" title="Cell size" aria-pressed="' + (_pxKey==="cell") + '">'
+    +       '<span class="ed-circle-ring" aria-hidden="true"></span>'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (px.enabled === false ? " tab-disabled" : "") + '" id="pxDisable" title="' + (px.enabled === false ? "Enable pixelate" : "Disable pixelate") + '" aria-pressed="' + (px.enabled === false ? "true" : "false") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
     +     '</button>'
     +   '</div>'
-    +   '<div class="edit-tool-dd" id="editPxDD">'
-    +     '<span class="adj-label">Brush</span>'
-    +     '<button type="button" class="edit-tool-dd-trigger" id="editPxTrigger" aria-haspopup="dialog" aria-expanded="false">'
-    +       '<span class="dd-value" id="editPxSummary">' + _pxSummary + '</span>' + _pxChev
-    +     '</button>'
-    +     '<div class="edit-tool-dd-menu" id="editPxMenu" role="dialog" aria-label="Pixelate brush">'
-    +       '<p class="dd-section-label">Pixelate brush</p>'
-    +       '<div class="adj-row">'
-    +         '<span class="adj-label">Brush</span>'
-    +         '<input type="range" id="pxBrush" min="6" max="160" step="1" value="' + px.brushPx + '" title="Brush size — [ and ]">'
-    +         '<span class="adj-val" id="pxBrushVal">' + px.brushPx + '</span>'
-    +       '</div>'
-    +       '<div class="adj-row">'
-    +         '<span class="adj-label">Cell size</span>'
-    +         '<input type="range" id="pxBlock" min="4" max="60" step="1" value="' + px.blockSize + '">'
-    +         '<span class="adj-val" id="pxBlockVal">' + px.blockSize + '</span>'
-    +       '</div>'
-    +     '</div>'
+    +   '<div class="adj-tick-ruler" id="pxRuler">'
+    +     '<div class="adj-tick-ticks" aria-hidden="true"></div>'
+    +     '<div class="adj-tick-center" aria-hidden="true"></div>'
+    +     '<div class="adj-tick-dot" id="pxTickDot" style="left:' + _pxPct.toFixed(2) + '%;" aria-hidden="true"></div>'
+    +     '<input type="range" id="pxScrub" class="adj-tick-input" min="' + _pxRangeNow.min + '" max="' + _pxRangeNow.max + '" step="1" value="' + _pxValNow + '" aria-label="Pixelate scrubber">'
     +   '</div>'
-    +   '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (px.enabled === false ? " tab-disabled" : "") + '" id="pxDisable" title="' + (px.enabled === false ? "Enable pixelate" : "Disable pixelate") + '" aria-pressed="' + (px.enabled === false ? "true" : "false") + '">'
-    +     '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
-    +   '</button>'
-    +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation. Use [ and ] to resize the brush.</p>'
     + '</div>';
+  /* R54 — show floating PIXELATE pill over photo. */
+  try {
+    const _lbl = _pxKey === 'cell' ? 'CELL' : 'BRUSH';
+    _ensureAdjSectionPill('Pixelate · ' + _lbl, String(_pxValNow));
+  } catch(_){}
   /* Build preview source (applies upstream edits) */
   await _pxBaseBlob();
   let bmp = _editState._pxBitmap;
@@ -10520,7 +10598,7 @@ async function _renderPixelateTab(body){
   canvas.addEventListener('touchstart', down, { passive: false });
   canvas.addEventListener('touchmove', move, { passive: false });
   window.addEventListener('touchend', up);
-  /* R53 — Disable toggle for Pixelate. */
+  /* R54 — Disable toggle. */
   const _pxDisable = document.getElementById('pxDisable');
   if (_pxDisable) {
     _pxDisable.addEventListener('click', () => {
@@ -10529,9 +10607,51 @@ async function _renderPixelateTab(body){
       _pxDisable.classList.toggle('tab-disabled', p.enabled === false);
       _pxDisable.setAttribute('aria-pressed', p.enabled === false ? 'true' : 'false');
       _pxDisable.title = p.enabled === false ? 'Enable pixelate' : 'Disable pixelate';
-      const row = document.querySelector('#editBody .edit-pixelate-controls');
+      const row = document.getElementById('pxRow');
       if (row) row.classList.toggle('row-disabled', p.enabled === false);
+      try { if (typeof render === 'function') render(); } catch(_){}
     });
+  }
+  /* R54 — selectable param icons drive the scrubber. */
+  const _pxScrub = document.getElementById('pxScrub');
+  const _pxTickDot = document.getElementById('pxTickDot');
+  function _pxRange(k){ return (k === 'cell') ? { min:4, max:60 } : { min:6, max:160 }; }
+  function _pxVal(k){ return (k === 'cell') ? px.blockSize : px.brushPx; }
+  function _pxSetVal(k, v){
+    if (k === 'cell') px.blockSize = v; else px.brushPx = v;
+  }
+  function _pxSyncUI(){
+    const k = px.selected || 'brush';
+    const r = _pxRange(k);
+    const v = _pxVal(k);
+    if (_pxScrub){ _pxScrub.min = String(r.min); _pxScrub.max = String(r.max); _pxScrub.value = String(v); }
+    if (_pxTickDot) _pxTickDot.style.left = (((v - r.min)/(r.max - r.min))*100).toFixed(2) + '%';
+    const lbl = document.getElementById('adjSectionPillLabel');
+    const val = document.getElementById('adjSectionPillVal');
+    if (lbl) lbl.textContent = ('PIXELATE · ' + (k === 'cell' ? 'CELL' : 'BRUSH'));
+    if (val) val.textContent = String(v);
+  }
+  document.querySelectorAll('#editBody [data-px-key]').forEach(b => {
+    b.addEventListener('click', () => {
+      px.selected = b.dataset.pxKey;
+      document.querySelectorAll('#editBody [data-px-key]').forEach(o => {
+        const sel = o.dataset.pxKey === px.selected;
+        o.classList.toggle('selected', sel);
+        o.setAttribute('aria-pressed', sel ? 'true' : 'false');
+      });
+      _pxSyncUI();
+    });
+  });
+  if (_pxScrub){
+    _pxScrub.addEventListener('input', () => {
+      const k = px.selected || 'brush';
+      const v = parseInt(_pxScrub.value, 10);
+      _pxSetVal(k, v);
+      _pxSyncUI();
+      if (typeof _pxRefreshCursor === 'function') _pxRefreshCursor();
+      if (typeof render === 'function') render();
+    });
+    _pxScrub.addEventListener('change', () => { _editPushUndo(); });
   }
   document.querySelectorAll('#editBody [data-px-mode]').forEach(b => {
     b.addEventListener('click', () => {
@@ -10540,31 +10660,43 @@ async function _renderPixelateTab(body){
       px.mode = b.dataset.pxMode;
     });
   });
+  /* R54 — legacy pxBrush/pxBlock sliders removed; their values are now
+     driven by the unified scrubber. Guard the lookups so a missing
+     element doesn't throw and abort the remaining wiring. */
   const brushSl = document.getElementById('pxBrush');
   const brushVal = document.getElementById('pxBrushVal');
-  brushSl.addEventListener('input', () => {
-    px.brushPx = parseInt(brushSl.value, 10);
-    brushVal.textContent = px.brushPx;
-    _pxRefreshCursor();
-    _pxRefreshSummary();
-  });
+  if (brushSl) {
+    brushSl.addEventListener('input', () => {
+      px.brushPx = parseInt(brushSl.value, 10);
+      if (brushVal) brushVal.textContent = px.brushPx;
+      if (typeof _pxRefreshCursor === 'function') _pxRefreshCursor();
+      if (typeof _pxRefreshSummary === 'function') _pxRefreshSummary();
+    });
+  }
   const blockSl = document.getElementById('pxBlock');
   const blockVal = document.getElementById('pxBlockVal');
-  blockSl.addEventListener('input', () => {
-    px.blockSize = parseInt(blockSl.value, 10);
-    blockVal.textContent = px.blockSize;
-    pixCache = null;
-    render();
-    _pxRefreshSummary();
-  });
-  blockSl.addEventListener('change', () => { _editPushUndo(); });
-  document.getElementById('pxClear').addEventListener('click', () => {
-    if (!px.strokes.length) return;
-    _editPushUndo();
-    px.strokes = [];
-    render();
-    _updateEditHistoryUI();
-  });
+  if (blockSl) {
+    blockSl.addEventListener('input', () => {
+      px.blockSize = parseInt(blockSl.value, 10);
+      if (blockVal) blockVal.textContent = px.blockSize;
+      pixCache = null;
+      render();
+      if (typeof _pxRefreshSummary === 'function') _pxRefreshSummary();
+    });
+    blockSl.addEventListener('change', () => { _editPushUndo(); });
+  }
+  /* R54 — Clear is gone (replaced by Disable). Guard the legacy lookup
+     so a missing button doesn't throw and abort the rest of the wiring. */
+  const _pxClearBtn = document.getElementById('pxClear');
+  if (_pxClearBtn) {
+    _pxClearBtn.addEventListener('click', () => {
+      if (!px.strokes.length) return;
+      _editPushUndo();
+      px.strokes = [];
+      render();
+      _updateEditHistoryUI();
+    });
+  }
 }
 async function _applyPixelate(file, pixInfo){
   if (!pixInfo || !pixInfo.strokes || !pixInfo.strokes.length) return file;
@@ -10675,50 +10807,47 @@ async function _renderBlurTab(body){
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-blur-wrap"><canvas id="editBlurCanvas" class="edit-blur-canvas"></canvas></div>';
   }
-  /* R30c — Brush + Amount sliders live inside a single "Brush ▾" chip. */
-  const _blChev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
-  const _blSummary = 'Brush ' + bl.brushPx + ' · Amt ' + bl.radius;
+  /* R54 — unified Blur layout. */
+  if (bl.selected === undefined) bl.selected = 'brush';
+  const _blKey = bl.selected;
+  const _blR = (_blKey === 'amount') ? { min:2, max:40 } : { min:6, max:160 };
+  const _blV = (_blKey === 'amount') ? bl.radius : bl.brushPx;
+  const _blPct = ((_blV - _blR.min) / (_blR.max - _blR.min)) * 100;
   body.innerHTML = ''
-    + '<div class="edit-blur-controls ed-func-row">'
-    +   '<div class="blur-tool-strip ed-toggle-pair">'
-    +     '<button type="button" class="ed-circle-btn' + (bl.mode==="paint"?" active":"") + '" data-bl-mode="paint" title="Paint mode" aria-pressed="' + (bl.mode==="paint") + '">'
+    + '<div class="edit-blur-controls adj-tab-r50">'
+    +   '<div class="ed-func-row' + (bl.enabled === false ? ' row-disabled' : '') + '" id="blRow">'
+    +     '<button type="button" class="ed-circle-btn' + (bl.mode==="paint"?" active":"") + '" data-bl-mode="paint" title="Paint" aria-pressed="' + (bl.mode==="paint") + '">'
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-brush"/></svg></span>'
-    +       '<span class="ed-circle-cap">PAINT</span>'
     +     '</button>'
-    +     '<button type="button" class="ed-circle-btn' + (bl.mode==="erase"?" active":"") + '" data-bl-mode="erase" title="Erase mode" aria-pressed="' + (bl.mode==="erase") + '">'
+    +     '<button type="button" class="ed-circle-btn' + (bl.mode==="erase"?" active":"") + '" data-bl-mode="erase" title="Erase" aria-pressed="' + (bl.mode==="erase") + '">'
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-eraser"/></svg></span>'
-    +       '<span class="ed-circle-cap">ERASE</span>'
     +     '</button>'
-    +   '</div>'
-    +   '<div class="edit-tool-dd" id="editBlDD">'
-    +     '<span class="adj-label">Brush</span>'
-    +     '<button type="button" class="edit-tool-dd-trigger" id="editBlTrigger" aria-haspopup="dialog" aria-expanded="false">'
-    +       '<span class="dd-value" id="editBlSummary">' + _blSummary + '</span>' + _blChev
+    +     '<button type="button" class="ed-circle-btn' + (bl.full ? " active" : "") + '" id="blApplyAll" title="' + (bl.full ? "Brush only" : "Whole image") + '" aria-pressed="' + (bl.full?"true":"false") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg></span>'
     +     '</button>'
-    +     '<div class="edit-tool-dd-menu" id="editBlMenu" role="dialog" aria-label="Blur brush">'
-    +       '<p class="dd-section-label">Blur brush</p>'
-    +       '<div class="adj-row">'
-    +         '<span class="adj-label">Brush</span>'
-    +         '<input type="range" id="blBrush" min="6" max="160" step="1" value="' + bl.brushPx + '" title="Brush size — [ and ]">'
-    +         '<span class="adj-val" id="blBrushVal">' + bl.brushPx + '</span>'
-    +       '</div>'
-    +       '<div class="adj-row">'
-    +         '<span class="adj-label">Amount</span>'
-    +         '<input type="range" id="blRadius" min="2" max="40" step="1" value="' + bl.radius + '" title="Blur strength — Shift+[ and Shift+]">'
-    +         '<span class="adj-val" id="blRadiusVal">' + bl.radius + '</span>'
-    +       '</div>'
-    +     '</div>'
-    +   '</div>'
-    +   '<div class="edit-blur-actions ed-toggle-pair">'
-    +     '<button type="button" class="ed-circle-btn ed-circle-sm' + (bl.full ? " active" : "") + '" id="blApplyAll" title="' + (bl.full ? "Brush only" : "Whole image") + '" aria-pressed="' + (bl.full?"true":"false") + '">'
+    +     '<button type="button" class="ed-circle-btn adj-circle-btn' + (_blKey==="brush"?" selected":"") + '" data-bl-key="brush" title="Brush size" aria-pressed="' + (_blKey==="brush") + '">'
+    +       '<span class="ed-circle-ring" aria-hidden="true"></span>'
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn adj-circle-btn' + (_blKey==="amount"?" selected":"") + '" data-bl-key="amount" title="Blur amount" aria-pressed="' + (_blKey==="amount") + '">'
+    +       '<span class="ed-circle-ring" aria-hidden="true"></span>'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg></span>'
     +     '</button>'
     +     '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (bl.enabled === false ? " tab-disabled" : "") + '" id="blDisable" title="' + (bl.enabled === false ? "Enable blur" : "Disable blur") + '" aria-pressed="' + (bl.enabled === false ? "true" : "false") + '">'
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
     +     '</button>'
     +   '</div>'
-    +   '<p class="edit-blur-help">Drag over areas you want to soften. Switch to Erase to clear blur. Use [ and ] to resize.<strong>Whole image</strong> blurs everything (depth-of-field style).</p>'
+    +   '<div class="adj-tick-ruler" id="blRuler">'
+    +     '<div class="adj-tick-ticks" aria-hidden="true"></div>'
+    +     '<div class="adj-tick-center" aria-hidden="true"></div>'
+    +     '<div class="adj-tick-dot" id="blTickDot" style="left:' + _blPct.toFixed(2) + '%;" aria-hidden="true"></div>'
+    +     '<input type="range" id="blScrub" class="adj-tick-input" min="' + _blR.min + '" max="' + _blR.max + '" step="1" value="' + _blV + '" aria-label="Blur scrubber">'
+    +   '</div>'
     + '</div>';
+  try {
+    const _lbl = _blKey === 'amount' ? 'AMOUNT' : 'BRUSH';
+    _ensureAdjSectionPill('Blur · ' + _lbl, String(_blV));
+  } catch(_){}
   /* Build preview source */
   await _blurBaseBlob();
   let bmp = _editState._blurBitmap;
@@ -10865,7 +10994,7 @@ async function _renderBlurTab(body){
   canvas.addEventListener('touchstart', down, { passive: false });
   canvas.addEventListener('touchmove', move, { passive: false });
   window.addEventListener('touchend', up);
-  /* R53 — Disable toggle for Blur. */
+  /* R54 — Disable toggle for Blur. */
   const _blDisable = document.getElementById('blDisable');
   if (_blDisable) {
     _blDisable.addEventListener('click', () => {
@@ -10874,9 +11003,49 @@ async function _renderBlurTab(body){
       _blDisable.classList.toggle('tab-disabled', b.enabled === false);
       _blDisable.setAttribute('aria-pressed', b.enabled === false ? 'true' : 'false');
       _blDisable.title = b.enabled === false ? 'Enable blur' : 'Disable blur';
-      const row = document.querySelector('#editBody .edit-blur-controls');
+      const row = document.getElementById('blRow');
       if (row) row.classList.toggle('row-disabled', b.enabled === false);
+      try { if (typeof render === 'function') render(); } catch(_){}
     });
+  }
+  /* R54 — selectable param icons drive the scrubber. */
+  const _blScrub = document.getElementById('blScrub');
+  const _blTickDot = document.getElementById('blTickDot');
+  function _blRange(k){ return (k === 'amount') ? { min:2, max:40 } : { min:6, max:160 }; }
+  function _blVal(k){ return (k === 'amount') ? bl.radius : bl.brushPx; }
+  function _blSetVal(k, v){ if (k === 'amount') bl.radius = v; else bl.brushPx = v; }
+  function _blSyncUI(){
+    const k = bl.selected || 'brush';
+    const r = _blRange(k);
+    const v = _blVal(k);
+    if (_blScrub){ _blScrub.min = String(r.min); _blScrub.max = String(r.max); _blScrub.value = String(v); }
+    if (_blTickDot) _blTickDot.style.left = (((v - r.min)/(r.max - r.min))*100).toFixed(2) + '%';
+    const lbl = document.getElementById('adjSectionPillLabel');
+    const val = document.getElementById('adjSectionPillVal');
+    if (lbl) lbl.textContent = ('BLUR · ' + (k === 'amount' ? 'AMOUNT' : 'BRUSH'));
+    if (val) val.textContent = String(v);
+  }
+  document.querySelectorAll('#editBody [data-bl-key]').forEach(b => {
+    b.addEventListener('click', () => {
+      bl.selected = b.dataset.blKey;
+      document.querySelectorAll('#editBody [data-bl-key]').forEach(o => {
+        const sel = o.dataset.blKey === bl.selected;
+        o.classList.toggle('selected', sel);
+        o.setAttribute('aria-pressed', sel ? 'true' : 'false');
+      });
+      _blSyncUI();
+    });
+  });
+  if (_blScrub){
+    _blScrub.addEventListener('input', () => {
+      const k = bl.selected || 'brush';
+      const v = parseInt(_blScrub.value, 10);
+      _blSetVal(k, v);
+      _blSyncUI();
+      if (typeof _blRefreshCursor === 'function') _blRefreshCursor();
+      if (typeof render === 'function') render();
+    });
+    _blScrub.addEventListener('change', () => { _editPushUndo(); });
   }
   document.querySelectorAll('#editBody [data-bl-mode]').forEach(b => {
     b.addEventListener('click', () => {
@@ -10885,41 +11054,55 @@ async function _renderBlurTab(body){
       bl.mode = b.dataset.blMode;
     });
   });
+  /* R54 — legacy Blur sliders removed; their values are now driven by
+     the unified scrubber. Guard lookups. */
   const brushSl = document.getElementById('blBrush');
   const brushVal = document.getElementById('blBrushVal');
-  brushSl.addEventListener('input', () => {
-    bl.brushPx = parseInt(brushSl.value, 10);
-    brushVal.textContent = bl.brushPx;
-    _blRefreshCursor();
-    _blRefreshSummary();
-  });
+  if (brushSl) {
+    brushSl.addEventListener('input', () => {
+      bl.brushPx = parseInt(brushSl.value, 10);
+      if (brushVal) brushVal.textContent = bl.brushPx;
+      if (typeof _blRefreshCursor === 'function') _blRefreshCursor();
+      if (typeof _blRefreshSummary === 'function') _blRefreshSummary();
+    });
+  }
   const radiusSl = document.getElementById('blRadius');
   const radiusVal = document.getElementById('blRadiusVal');
-  radiusSl.addEventListener('input', () => {
-    bl.radius = parseInt(radiusSl.value, 10);
-    radiusVal.textContent = bl.radius;
-    blurCache = null;
-    render();
-    _blRefreshSummary();
-  });
-  radiusSl.addEventListener('change', () => { _editPushUndo(); });
-  document.getElementById('blApplyAll').addEventListener('click', (ev) => {
-    _editPushUndo();
-    bl.full = !bl.full;
-    ev.target.textContent = bl.full ? 'Brush only' : 'Whole image';
-    render();
-    _updateEditHistoryUI();
-  });
-  document.getElementById('blClear').addEventListener('click', () => {
-    if (!bl.strokes.length && !bl.full) return;
-    _editPushUndo();
-    bl.strokes = [];
-    bl.full = false;
-    const btn = document.getElementById('blApplyAll');
-    if (btn) btn.textContent = 'Whole image';
-    render();
-    _updateEditHistoryUI();
-  });
+  if (radiusSl) {
+    radiusSl.addEventListener('input', () => {
+      bl.radius = parseInt(radiusSl.value, 10);
+      if (radiusVal) radiusVal.textContent = bl.radius;
+      blurCache = null;
+      render();
+      if (typeof _blRefreshSummary === 'function') _blRefreshSummary();
+    });
+    radiusSl.addEventListener('change', () => { _editPushUndo(); });
+  }
+  /* R54 — blApplyAll is now a circular icon (no textContent label). */
+  const _blApplyAll = document.getElementById('blApplyAll');
+  if (_blApplyAll) {
+    _blApplyAll.addEventListener('click', () => {
+      _editPushUndo();
+      bl.full = !bl.full;
+      _blApplyAll.classList.toggle('active', bl.full);
+      _blApplyAll.setAttribute('aria-pressed', bl.full ? 'true' : 'false');
+      _blApplyAll.title = bl.full ? 'Brush only' : 'Whole image';
+      render();
+      _updateEditHistoryUI();
+    });
+  }
+  /* R54 — Clear replaced by Disable; guard null. */
+  const _blClearBtn = document.getElementById('blClear');
+  if (_blClearBtn) {
+    _blClearBtn.addEventListener('click', () => {
+      if (!bl.strokes.length && !bl.full) return;
+      _editPushUndo();
+      bl.strokes = [];
+      bl.full = false;
+      render();
+      _updateEditHistoryUI();
+    });
+  }
 }
 async function _applyBlur(file, blurInfo){
   if (!blurInfo) return file;
