@@ -3569,52 +3569,59 @@
      function icon shares the same UI family as Adjust's .adj-circle-btn.
      ==================================================================== */
 
+  /* R68 — match home tool .pi-icon: 44px solid-ish dark pill with
+     backdrop-blur, thin white border, no always-on inner ring. */
   .edit-modal .ed-circle-btn{
-    flex:0 0 auto;width:54px;height:54px;
+    flex:0 0 auto;width:44px;height:44px;
     display:inline-grid;place-items:center;
-    padding:0;background:transparent;border:none;
-    cursor:pointer;position:relative;
+    padding:0;border:none;cursor:pointer;
+    position:relative;
     border-radius:50%;
+    background:transparent;
     transition:transform .12s ease;
     font-family:inherit;
   }
   .edit-modal .ed-circle-btn:focus-visible{outline:2px solid var(--accent, #7a9a7a);outline-offset:3px;}
+  /* Ring overlay — transparent by default; only shows for selected /
+     modified states (set by JS via CSS custom properties). */
   .edit-modal .ed-circle-btn .ed-circle-ring{
-    position:absolute;inset:0;
+    position:absolute;inset:-3px;
     border-radius:50%;
     background:transparent;
     pointer-events:none;
     transition:background .12s ease;
   }
+  /* The icon container IS the pill — backdrop-blurred dark surface. */
   .edit-modal .ed-circle-btn .ed-circle-inner{
     position:relative;
-    width:42px;height:42px;
+    width:44px;height:44px;
     display:inline-grid;place-items:center;
     border-radius:50%;
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.14);
-    transition:background .12s ease,border-color .12s ease;
+    background:rgba(20,20,20,.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    transition:background .15s ease, transform .12s ease;
   }
   .edit-modal .ed-circle-btn .ed-circle-inner .ico{
-    width:18px;height:18px;color:rgba(255,255,255,.85);
+    width:18px;height:18px;color:#fff;
   }
   .edit-modal .ed-circle-btn:hover .ed-circle-inner{
-    background:rgba(255,255,255,.08);
-    border-color:rgba(255,255,255,.22);
+    background:rgba(50,50,50,.95);
+    transform:translateY(-1px);
   }
   .edit-modal .ed-circle-btn.active .ed-circle-inner{
     background:var(--accent, #7a9a7a);
     border-color:var(--accent, #7a9a7a);
   }
-  .edit-modal .ed-circle-btn.active .ed-circle-inner .ico{color:#fff;}
   .edit-modal .ed-circle-btn[disabled],
   .edit-modal .ed-circle-btn:disabled{opacity:.35;cursor:default;pointer-events:none;}
 
   /* Smaller variant for secondary actions (Reset, Clear, Whole-image). */
-  .edit-modal .ed-circle-btn.ed-circle-sm{width:38px;height:38px;}
-  .edit-modal .ed-circle-btn.ed-circle-sm .ed-circle-inner{width:32px;height:32px;}
-  .edit-modal .ed-circle-btn.ed-circle-sm .ed-circle-inner .ico{width:14px;height:14px;color:rgba(255,255,255,.7);}
-  .edit-modal .ed-circle-btn.ed-circle-sm:hover .ed-circle-inner .ico{color:#fff;}
+  .edit-modal .ed-circle-btn.ed-circle-sm{width:36px;height:36px;}
+  .edit-modal .ed-circle-btn.ed-circle-sm .ed-circle-inner{width:36px;height:36px;}
+  .edit-modal .ed-circle-btn.ed-circle-sm .ed-circle-inner .ico{width:14px;height:14px;}
+
 
   /* Optional caption beneath a circle button (used in Text / BG tabs). */
   .edit-modal .ed-circle-btn .ed-circle-cap{
@@ -3687,8 +3694,10 @@
   }
   .edit-modal .adj-section-pill-val:empty{display:none;}
 
+  /* R68 — adj-circle-btn (Adjust icons with conic magnitude ring) shares
+     the pi-icon pill base; ring sits OUTSIDE the pill as an overlay. */
   .edit-modal .adj-circle-btn{
-    flex:0 0 auto;width:54px;height:54px;
+    flex:0 0 auto;width:44px;height:44px;
     display:inline-grid;place-items:center;
     padding:0;background:transparent;border:none;
     cursor:pointer;position:relative;
@@ -3697,50 +3706,53 @@
   }
   .edit-modal .adj-circle-btn:focus-visible{outline:2px solid var(--accent, #7a9a7a);outline-offset:3px;}
   .edit-modal .adj-circle-btn .adj-circle-ring{
-    position:absolute;inset:0;
+    position:absolute;inset:-3px;
     border-radius:50%;
     background:conic-gradient(from var(--r48-arc-from, -90deg),
-      rgba(255,255,255,.20) 0deg,
-      rgba(255,255,255,.20) var(--r48-arc-deg, 0deg),
+      transparent 0deg,
+      transparent var(--r48-arc-deg, 0deg),
       transparent var(--r48-arc-deg, 0deg) 360deg);
-    -webkit-mask:radial-gradient(circle, transparent 70%, #000 72% 100%);
-            mask:radial-gradient(circle, transparent 70%, #000 72% 100%);
+    -webkit-mask:radial-gradient(circle, transparent 72%, #000 74% 100%);
+            mask:radial-gradient(circle, transparent 72%, #000 74% 100%);
     pointer-events:none;
     transition:opacity .12s ease;
   }
   .edit-modal .adj-circle-btn .adj-circle-inner{
     position:relative;
-    width:42px;height:42px;
+    width:44px;height:44px;
     display:inline-grid;place-items:center;
     border-radius:50%;
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.14);
-    transition:background .12s ease,border-color .12s ease;
+    background:rgba(20,20,20,.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    transition:background .15s ease, transform .12s ease;
   }
   .edit-modal .adj-circle-btn .adj-circle-inner .ico{
-    width:18px;height:18px;color:rgba(255,255,255,.85);
+    width:18px;height:18px;color:#fff;
     transition:opacity .12s ease;
   }
-  .edit-modal .adj-circle-btn:hover .adj-circle-inner{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);}
+  .edit-modal .adj-circle-btn:hover .adj-circle-inner{background:rgba(50,50,50,.95);transform:translateY(-1px);}
 
+  /* R68 — Selected = full accent ring overlay outside the pill. */
   .edit-modal .adj-circle-btn.selected .adj-circle-ring{
     background:conic-gradient(from -90deg,
       var(--accent, #7a9a7a) 0deg,
       var(--accent, #7a9a7a) 360deg);
-    -webkit-mask:radial-gradient(circle, transparent 70%, #000 72% 76%, transparent 78%);
-            mask:radial-gradient(circle, transparent 70%, #000 72% 76%, transparent 78%);
+    -webkit-mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
+            mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
   }
   .edit-modal .adj-circle-btn.selected .adj-circle-inner{
-    border-color:rgba(255,255,255,.32);
-    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.28);
   }
+  /* R68 — Modified = arc segment of the ring fills accent. */
   .edit-modal .adj-circle-btn.modified .adj-circle-ring{
     background:conic-gradient(from var(--r48-arc-from, -90deg),
       var(--accent, #7a9a7a) 0deg,
       var(--accent, #7a9a7a) var(--r48-arc-deg, 0deg),
-      rgba(255,255,255,.16) var(--r48-arc-deg, 0deg) 360deg);
-    -webkit-mask:radial-gradient(circle, transparent 70%, #000 72% 100%);
-            mask:radial-gradient(circle, transparent 70%, #000 72% 100%);
+      rgba(255,255,255,.12) var(--r48-arc-deg, 0deg) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
+            mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
   }
   .edit-modal .adj-circle-btn.modified .adj-circle-inner .ico{opacity:0;}
   .edit-modal .adj-circle-btn .adj-circle-val{
@@ -6490,7 +6502,20 @@ function markThumbEncoding(idx, on){
    .has-after class on the .image-canvas. */
 function setHasAfter(on){
   const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
-  if (canvas) canvas.classList.toggle('has-after', !!on);
+  if (!canvas) return;
+  const wasOn = canvas.classList.contains('has-after');
+  canvas.classList.toggle('has-after', !!on);
+  /* R68 — when after appears for the first time, snap the compare
+     divider to center. Previously the divider's transform was left
+     unset so it visually sat at translateX(0) = far left edge. */
+  if (on && !wasOn) {
+    window.SLIDER = window.SLIDER || { screenPct: 50 };
+    window.SLIDER.screenPct = 50;
+    try {
+      if (typeof window.setSplit === 'function') window.setSplit(canvas, 50, 50);
+      if (typeof refreshSliderFromZoom === 'function') refreshSliderFromZoom();
+    } catch(_){}
+  }
 }
 
 /* Backwards-compat shim — keeps any older callers from breaking. The corner
@@ -12404,6 +12429,8 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
      user pan the image to find an area of interest and use the slider as
      a fixed gauge — pan and slider are independent gestures. */
   window.SLIDER = window.SLIDER || { screenPct: 50 };
+  /* R68 — expose setSplit so setHasAfter (outside this IIFE) can call it. */
+  window.setSplit = setSplit;
   window.refreshSliderFromZoom = function(){
     const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
     if (!canvas || !canvas.classList.contains('has-after')) return;
