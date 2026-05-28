@@ -3069,6 +3069,84 @@
   }
   .adj-icon-btn.modified .adj-icon-dot{opacity:1;}
 
+  
+  /* R49 — flat icon carousel. Adjustments and filter presets share the
+     same horizontal row. No popovers. Tap = single action. */
+  .adj-flat-carousel{
+    display:flex;flex-direction:row;align-items:center;gap:8px;
+    width:100%;padding:4px 2px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  .adj-flat-carousel::-webkit-scrollbar{display:none;}
+  .adj-flat-btn{
+    flex:0 0 auto;width:48px;height:48px;
+    display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:0;
+    background:rgba(255,255,255,.04);
+    border:1px solid transparent;border-radius:12px;
+    color:rgba(255,255,255,.75);
+    font-family:inherit;font-size:.6rem;font-weight:600;
+    cursor:pointer;position:relative;
+    scroll-snap-align:center;
+    transition:background .12s ease,color .12s ease,border-color .12s ease;
+  }
+  .adj-flat-btn .ico{width:18px;height:18px;color:rgba(255,255,255,.85);}
+  .adj-flat-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adj-flat-btn.selected{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.20);
+    color:#fff;
+  }
+  .adj-flat-btn.selected .ico{color:var(--accent, #7a9a7a);}
+  .adj-flat-btn.active{
+    background:var(--accent, #7a9a7a);color:#fff;border-color:var(--accent, #7a9a7a);
+  }
+  .adj-flat-btn.active .ico{color:#fff;}
+  .adj-icon-val{
+    position:absolute;bottom:5px;left:0;right:0;
+    text-align:center;
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-size:.62rem;font-weight:700;color:#fff;
+    letter-spacing:.02em;line-height:1;
+    pointer-events:none;font-variant-numeric:tabular-nums;
+  }
+  .adj-icon-btn.modified .ico{transform:translateY(-3px);}
+  .adj-flat-divider{
+    flex:0 0 auto;width:1px;height:32px;
+    background:rgba(255,255,255,.10);margin:0 4px;
+  }
+  .adj-filter-btn{flex-direction:column;gap:3px;padding:4px 0 6px;}
+  .adj-filter-btn .adj-filter-swatch{
+    width:24px;height:24px;border-radius:50%;
+    background-color:#888;background-size:cover;background-position:center;
+    border:1.5px solid rgba(255,255,255,.18);
+    transition:border-color .12s ease,transform .12s ease;
+  }
+  .adj-filter-btn:hover .adj-filter-swatch{transform:scale(1.05);}
+  .adj-filter-btn.active .adj-filter-swatch{
+    border-color:#fff;
+    box-shadow:0 0 0 2px var(--accent, #7a9a7a);
+  }
+  .adj-filter-btn .adj-filter-name{
+    font-size:.52rem;font-weight:600;letter-spacing:.02em;
+    text-transform:uppercase;color:rgba(255,255,255,.7);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    max-width:48px;line-height:1;
+  }
+  .adj-filter-btn.active .adj-filter-name{color:#fff;}
+  .adj-flat-carousel .adj-row-reset{
+    flex:0 0 auto;width:36px;height:36px;margin-left:auto;
+    background:transparent;border:none;border-radius:8px;
+    color:rgba(255,255,255,.55);cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:background .12s ease,color .12s ease,opacity .12s ease;
+  }
+  .adj-flat-carousel .adj-row-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adj-flat-carousel .adj-row-reset:disabled{opacity:.32;cursor:default;pointer-events:none;}
+  .adj-flat-carousel .adj-row-reset .ico{width:14px;height:14px;}
+
   @media (max-width:640px){
     .edit-action-pill{bottom:var(--split-btn-bottom,100px);padding:3px 5px;gap:1px;}
     .edit-split-handle::before{width:34px;height:34px;}
@@ -4197,6 +4275,7 @@
     <symbol id="i-eraser" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
         <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
     <symbol id="i-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12v12z"/></symbol>
+        <symbol id="i-aperture" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m14.31 8 5.74 9.94"/><path d="M9.69 8h11.48"/><path d="m7.38 12 5.74-9.94"/><path d="M9.69 16 3.95 6.06"/><path d="M14.31 16H2.83"/><path d="m16.62 12-5.74 9.94"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
 </svg>
@@ -8959,66 +9038,49 @@ function _renderAdjustTab(body){
       <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Auto enhanced':'<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance'}</button>
       ${_aeOn?'<button type="button" class="edit-auto-enhance-undo" id="adjAutoEnhanceUndo">Undo</button>':''}
     </div>
-    <!-- R48 — Apple Photos pattern: shared scrubber + icon carousel.
-         One slider, three icons (Brightness / Contrast / Saturation).
-         Tap an icon → it becomes selected and the scrubber takes over
-         that adjustment's value. Each icon shows a small dot when its
-         value is modified off the default. -->
-    <div class="adj-scrubber" id="adjScrubberWrap">
-      <div class="adj-scrubber-header">
-        <span class="adj-scrubber-label" id="adjScrubLabel">${({brightness:'Brightness',contrast:'Contrast',saturation:'Saturation'})[adj.selected || 'brightness']}</span>
-        <span class="adj-scrubber-value" id="adjScrubVal">${fmt(adj[adj.selected || 'brightness'])}</span>
-      </div>
-      <input type="range" id="adjScrubSlider" min="0" max="200" step="1" value="${adj[adj.selected || 'brightness']}" aria-label="Adjustment value">
-    </div>
-    <div class="adj-icon-row" role="tablist" aria-label="Adjustment">
-      <button type="button" class="adj-icon-btn${(adj.selected||'brightness')==='brightness'?' selected':''}${adj.brightness!==100?' modified':''}" data-adj-key="brightness" title="Brightness (double-click to reset)" aria-label="Brightness" role="tab" aria-selected="${(adj.selected||'brightness')==='brightness'}">
+    <!-- R49 — flat icon carousel. Adjustments (B/C/S/V) + Vignette
+         + filter preset swatches all live as siblings here. Tap an
+         icon to either select it for the scrubber (B/C/S/V) or apply
+         a filter preset. Scrubber sits BELOW the carousel per Apple
+         Photos screenshot reference. Numeric value is shown INSIDE
+         the modified icon's magnitude ring. -->
+    <div class="adj-flat-carousel" role="tablist" aria-label="Adjustments and filters">
+      <button type="button" class="adj-flat-btn adj-auto-btn${_aeOn?' active':''}" data-adj-action="auto" title="Auto enhance" aria-label="Auto enhance" aria-pressed="${_aeOn}">
+        <svg class="ico" aria-hidden="true"><use href="#${_aeOn?'i-check':'i-wand-sparkles'}"/></svg>
+      </button>
+      <button type="button" class="adj-flat-btn adj-icon-btn${(adj.selected||'brightness')==='brightness'?' selected':''}${adj.brightness!==100?' modified':''}" data-adj-key="brightness" title="Brightness (double-click to reset)" aria-label="Brightness" role="tab" aria-selected="${(adj.selected||'brightness')==='brightness'}">
         <svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg>
         <span class="adj-icon-dot" aria-hidden="true"></span>
+        <span class="adj-icon-val" data-key="brightness">${adj.brightness !== 100 ? _fmtV(adj.brightness, 100) : ''}</span>
       </button>
-      <button type="button" class="adj-icon-btn${adj.selected==='contrast'?' selected':''}${adj.contrast!==100?' modified':''}" data-adj-key="contrast" title="Contrast (double-click to reset)" aria-label="Contrast" role="tab" aria-selected="${adj.selected==='contrast'}">
+      <button type="button" class="adj-flat-btn adj-icon-btn${adj.selected==='contrast'?' selected':''}${adj.contrast!==100?' modified':''}" data-adj-key="contrast" title="Contrast (double-click to reset)" aria-label="Contrast" role="tab" aria-selected="${adj.selected==='contrast'}">
         <svg class="ico" aria-hidden="true"><use href="#i-contrast"/></svg>
         <span class="adj-icon-dot" aria-hidden="true"></span>
+        <span class="adj-icon-val" data-key="contrast">${adj.contrast !== 100 ? _fmtV(adj.contrast, 100) : ''}</span>
       </button>
-      <button type="button" class="adj-icon-btn${adj.selected==='saturation'?' selected':''}${adj.saturation!==100?' modified':''}" data-adj-key="saturation" title="Saturation (double-click to reset)" aria-label="Saturation" role="tab" aria-selected="${adj.selected==='saturation'}">
+      <button type="button" class="adj-flat-btn adj-icon-btn${adj.selected==='saturation'?' selected':''}${adj.saturation!==100?' modified':''}" data-adj-key="saturation" title="Saturation (double-click to reset)" aria-label="Saturation" role="tab" aria-selected="${adj.selected==='saturation'}">
         <svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg>
         <span class="adj-icon-dot" aria-hidden="true"></span>
+        <span class="adj-icon-val" data-key="saturation">${adj.saturation !== 100 ? _fmtV(adj.saturation, 100) : ''}</span>
       </button>
-      <button type="button" class="adj-row-reset" id="adjRowReset" title="Reset all 3 adjustments" aria-label="Reset all adjustments"${_adjModified?'':' disabled'}>
+      <button type="button" class="adj-flat-btn adj-icon-btn${adj.selected==='vignette'?' selected':''}${vig.amount!==0?' modified':''}" data-adj-key="vignette" title="Vignette (double-click to reset)" aria-label="Vignette" role="tab" aria-selected="${adj.selected==='vignette'}">
+        <svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg>
+        <span class="adj-icon-dot" aria-hidden="true"></span>
+        <span class="adj-icon-val" data-key="vignette">${_adjVignetteVal}</span>
+      </button>
+      <span class="adj-flat-divider" aria-hidden="true"></span>
+      ${PRESETS.map(p => `<button type="button" class="adj-flat-btn adj-filter-btn${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}" title="${p.label}" aria-label="${p.label} filter" aria-pressed="${p.id === adj.preset}"><span class="adj-filter-swatch" data-preset-id="${p.id}" style="background:${_FILTER_SWATCH[p.id]||'#666'};"></span><span class="adj-filter-name">${p.label}</span></button>`).join('')}
+      <button type="button" class="adj-row-reset" id="adjRowReset" title="Reset all adjustments + filter + vignette" aria-label="Reset all"${(_adjModified||vig._dirty||adj.preset!=='none')?'':' disabled'}>
         <svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>
       </button>
     </div>
-    <div class="edit-filter-dd" id="editFilterDD">
-      <span class="adj-label">Filter</span>
-      <button type="button" class="edit-filter-dd-trigger" id="editFilterTrigger" aria-haspopup="listbox" aria-expanded="false">
-        <span class="dd-value" id="editFilterValue">${_currentPresetLabel}</span>
-        ${_chev}
-      </button>
-      <div class="edit-filter-dd-menu" id="editFilterMenu" role="listbox" aria-label="Filter preset">
-        ${PRESETS.map(p => `<button type="button" class="edit-preset-btn${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}" role="option" aria-selected="${p.id === adj.preset}">${p.label}</button>`).join('')}
+    <!-- Scrubber sits BELOW the carousel, per Apple Photos screenshot. -->
+    <div class="adj-scrubber" id="adjScrubberWrap">
+      <div class="adj-scrubber-header">
+        <span class="adj-scrubber-label" id="adjScrubLabel">${({brightness:'Brightness',contrast:'Contrast',saturation:'Saturation',vignette:'Vignette'})[adj.selected || 'brightness']}</span>
+        <span class="adj-scrubber-value" id="adjScrubVal">${(adj.selected||'brightness')==='vignette'?(_adjVignetteVal||'0'):fmt(adj[adj.selected||'brightness'])}</span>
       </div>
-    </div>
-    <div class="edit-vignette-dd" id="editVignetteDD">
-      <span class="adj-label">Vignette</span>
-      <button type="button" class="edit-vignette-dd-trigger" id="editVignetteTrigger" aria-haspopup="dialog" aria-expanded="false">
-        <span class="dd-value" id="editVignetteValue">${_vigSummary}</span>
-        ${_chev}
-      </button>
-      <div class="edit-vignette-dd-menu" id="editVignetteMenu" role="dialog" aria-label="Vignette controls">
-        <div class="adj-row">
-          <span class="adj-label">Amount</span>
-          <input type="range" id="vigAmount" min="-100" max="100" step="1" value="${vig.amount}">
-          <span class="adj-val" id="vigAmountVal">${vig.amount>0?'+'+vig.amount:String(vig.amount)}</span>
-        </div>
-        <div class="adj-row">
-          <span class="adj-label">Midpoint</span>
-          <input type="range" id="vigMid" min="0" max="100" step="1" value="${vig.midpoint}">
-          <span class="adj-val" id="vigMidVal">${vig.midpoint}</span>
-        </div>
-        <div class="vig-reset-row">
-          <button type="button" id="vigReset" aria-label="Reset vignette">Reset</button>
-        </div>
-      </div>
+      <input type="range" id="adjScrubSlider" min="${(adj.selected||'brightness')==='vignette'?'-100':'0'}" max="${(adj.selected||'brightness')==='vignette'?'100':'200'}" step="1" value="${(adj.selected||'brightness')==='vignette'?(vig.amount||0):adj[adj.selected||'brightness']}" aria-label="Adjustment value">
     </div>
     </div>
   `;
@@ -9057,27 +9119,28 @@ function _renderAdjustTab(body){
   }
   function _syncIconStates(){
     const a = _editState.pendingEdits.photoAdjust;
+    const v = _editState.pendingEdits.vignette;
     document.querySelectorAll('#editBody .adj-icon-btn').forEach(btn => {
       const k = btn.dataset.adjKey;
+      let val, defVal, mag, delta;
+      if (k === 'vignette') {
+        val = v.amount; defVal = 0; delta = val; mag = Math.min(100, Math.abs(val));
+      } else {
+        val = a[k]; defVal = 100; delta = val - defVal; mag = Math.min(100, Math.abs(delta));
+      }
       btn.classList.toggle('selected', a.selected === k);
-      const mod = a[k] !== 100;
-      btn.classList.toggle('modified', mod);
+      btn.classList.toggle('modified', val !== defVal);
       btn.setAttribute('aria-selected', a.selected === k ? 'true' : 'false');
-      /* R48b — set ring magnitude (deg arc) + start angle (sign). Range
-         0..100 maps to 0..180 degrees. Positive values draw clockwise
-         from the top; negative draws counter-clockwise. */
+      /* R49 — write numeric value inside icon ring */
+      const valEl = btn.querySelector('.adj-icon-val');
+      if (valEl) {
+        valEl.textContent = (val !== defVal) ? (delta > 0 ? '+'+delta : String(delta)) : '';
+      }
       const dot = btn.querySelector('.adj-icon-dot');
       if (dot) {
-        const delta = a[k] - 100;
-        const mag = Math.min(100, Math.abs(delta));
         const deg = (mag / 100) * 180;
-        if (delta >= 0) {
-          dot.style.setProperty('--r48-arc-from', '-90deg');
-        } else {
-          /* Counter-clockwise: rotate the start so the arc sweeps the
-             other way around the top */
-          dot.style.setProperty('--r48-arc-from', (-90 - deg) + 'deg');
-        }
+        if (delta >= 0) dot.style.setProperty('--r48-arc-from', '-90deg');
+        else dot.style.setProperty('--r48-arc-from', (-90 - deg) + 'deg');
         dot.style.setProperty('--r48-arc-deg', deg + 'deg');
       }
     });
@@ -9136,25 +9199,7 @@ function _renderAdjustTab(body){
       _markDirty();
     });
   });
-  /* R30 — filter preset click: select, update trigger label, close dropdown. */
-  document.querySelectorAll('#editBody .edit-preset-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      _editPushUndo();
-      document.querySelectorAll('#editBody .edit-preset-btn').forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-      _editState.pendingEdits.photoAdjust.preset = btn.dataset.preset;
-      _editState.pendingEdits.photoAdjust.presetCss = btn.dataset.css;
-      const fv = document.getElementById('editFilterValue');
-      if (fv) fv.textContent = btn.textContent;
-      _editCloseAdjustDropdowns();
-      _markDirty();
-    });
-  });
+  /* R49 — old filter popover handler removed; new flat .adj-filter-btn handler is wired above. */
   /* R30c — Helpers are file-level now; just wire the three dropdowns. */
   _editWireDropdown('editFilterDD','editFilterTrigger','editFilterMenu');
   _editWireDropdown('editVignetteDD','editVignetteTrigger','editVignetteMenu');
@@ -9245,11 +9290,19 @@ function _renderAdjustTab(body){
   if (_adjRowReset) {
     _adjRowReset.addEventListener('click', () => {
       const a = _editState.pendingEdits.photoAdjust;
-      if (a.brightness === 100 && a.contrast === 100 && a.saturation === 100) return;
+      const v = _editState.pendingEdits.vignette;
+      const allDefault = (a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none' && v.amount === 0);
+      if (allDefault) return;
       _editPushUndo();
-      a.brightness = 100;
-      a.contrast = 100;
-      a.saturation = 100;
+      a.brightness = 100; a.contrast = 100; a.saturation = 100;
+      a.preset = 'none'; a.presetCss = '';
+      v.amount = 0; v._dirty = false;
+      document.querySelectorAll('#editBody .adj-filter-btn').forEach(b => {
+        const isOriginal = b.dataset.preset === 'none';
+        b.classList.toggle('active', isOriginal);
+        b.setAttribute('aria-pressed', isOriginal ? 'true' : 'false');
+      });
+      if (typeof _vigPaintPreview === 'function') _vigPaintPreview();
       _syncScrubberToSelected();
       _syncIconStates();
       _markDirty();
