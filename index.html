@@ -3345,6 +3345,18 @@
   }
   .edit-modal .edit-top-chrome > * { pointer-events:auto; }
 
+
+
+  /* R63 — feedback pulse for icons that get tapped but have nothing
+     to act on (e.g. Angle icon already at 0). */
+  @keyframes ed-icon-pulse{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.10);}
+    100%{transform:scale(1);}
+  }
+  .edit-modal .ed-circle-btn.pulse,
+  .edit-modal .adj-circle-btn.pulse{animation:ed-icon-pulse .36s ease-out;}
+
   /* ====================================================================
      R56 — Cancel the global "edit-modal button .ico" 5px right-margin for
      circle-family buttons. That rule was kicking every SVG icon inside
@@ -3691,43 +3703,64 @@
   .edit-modal .adj-carousel-r50 .adj-row-reset:disabled{opacity:.32;pointer-events:none;}
   .edit-modal .adj-carousel-r50 .adj-row-reset .ico{width:14px;height:14px;}
 
+  /* R63 — clean scrubber. Default tick density set per slider via the
+     --range CSS variable on the ruler element (JS writes it). Tick
+     positions in the gradients are computed as (5 / range) * 100% for
+     minor ticks and (25 / range) * 100% for major ticks. */
   .edit-modal .adj-tick-ruler{
     position:relative;
-    width:100%;height:42px;
-    padding:6px 6px 0;
+    width:100%;height:44px;
+    padding:0 6px;
     margin-top:2px;
+    --range:200; /* default; overridden by JS per slider */
   }
+  /* Minor ticks — every 5 units, 1px wide, dim. */
   .edit-modal .adj-tick-ticks{
-    position:absolute;left:6px;right:6px;top:18px;height:18px;
+    position:absolute;left:6px;right:6px;top:18px;height:16px;
     background:
+      /* MAJOR ticks every 25 units — 2px wide, brighter, full height */
       repeating-linear-gradient(to right,
-        rgba(255,255,255,.32) 0,
-        rgba(255,255,255,.32) 1px,
+        rgba(255,255,255,.55) 0,
+        rgba(255,255,255,.55) 1px,
         transparent 1px,
-        transparent calc(100% / 50)
+        transparent calc(100% * 25 / var(--range))
+      ),
+      /* MINOR ticks every 5 units — 1px wide, dim, slightly shorter */
+      repeating-linear-gradient(to right,
+        rgba(255,255,255,.20) 0,
+        rgba(255,255,255,.20) 1px,
+        transparent 1px,
+        transparent calc(100% * 5 / var(--range))
       );
+    background-size:100% 100%, 100% 60%;
+    background-position:left center, left center;
+    background-repeat:repeat-x, repeat-x;
     pointer-events:none;
-    mask-image:linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
-    -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
   }
+  /* Center indicator — accent vertical line at the "default" value. */
   .edit-modal .adj-tick-center{
     position:absolute;
-    left:50%;top:14px;
-    width:2px;height:26px;
+    left:50%;top:12px;
+    width:2px;height:24px;
     background:var(--accent, #7a9a7a);
     transform:translateX(-1px);
     border-radius:1px;
     pointer-events:none;
   }
+  /* Position indicator — clean white vertical line (no halo). Matches
+     Apple Photos: a single tick line, not a dot with shadow. */
   .edit-modal .adj-tick-dot{
     position:absolute;
-    top:6px;
-    width:8px;height:8px;border-radius:50%;
+    top:8px;
+    width:2px;height:32px;
     background:#fff;
-    transform:translateX(-50%);
+    transform:translateX(-1px);
+    border-radius:1px;
     pointer-events:none;
-    box-shadow:0 1px 2px rgba(0,0,0,.4);
     transition:left .08s ease-out;
+    box-shadow:none;
   }
   .edit-modal .adj-tick-input{
     position:absolute;left:0;right:0;top:0;bottom:0;
@@ -8635,7 +8668,7 @@ function _renderRotateTab(body){
           <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>
         </button>
       </div>
-      <div class="adj-tick-ruler" id="editAngleRuler">
+      <div class="adj-tick-ruler" id="editAngleRuler" style="--range:360;">
         <div class="adj-tick-ticks" aria-hidden="true"></div>
         <div class="adj-tick-center" aria-hidden="true"></div>
         <div class="adj-tick-dot" id="editAngleTickDot" style="left:${_anglePct.toFixed(2)}%;" aria-hidden="true"></div>
@@ -8670,13 +8703,21 @@ function _renderRotateTab(body){
         case 'ccw':   rs.deg = (rs.deg + 270) % 360; break;
         case 'fh':    rs.flipH = !rs.flipH; break;
         case 'fv':    rs.flipV = !rs.flipV; break;
-        case 'angle': /* tap-on-icon resets angle to 0 when already set */
+        case 'angle':
+          /* R63 — tap-on-icon when angle !== 0 resets to 0. When already
+             at 0, give the user a small visual nudge instead of silent
+             no-op: briefly pulse the selected ring via a one-off class. */
           if (rs.angle !== 0) {
             rs.angle = 0;
             const sl = document.getElementById('editAngleSlider');
             const dot = document.getElementById('editAngleTickDot');
             if (sl) sl.value = 0;
             if (dot) dot.style.left = '50%';
+          } else {
+            btn.classList.remove('pulse');
+            void btn.offsetWidth;  /* restart animation */
+            btn.classList.add('pulse');
+            setTimeout(() => btn.classList.remove('pulse'), 360);
           }
           break;
       }
@@ -9868,7 +9909,7 @@ function _renderAdjustTab(body){
           </span>
         </button>
       </div>
-      <div class="adj-tick-ruler" id="adjScrubberWrap" data-scrub-key="${_scrubKey}">
+      <div class="adj-tick-ruler" id="adjScrubberWrap" data-scrub-key="${_scrubKey}" style="--range:${(_scrubMax - _scrubMin)};">
         <div class="adj-tick-ticks" aria-hidden="true"></div>
         <div class="adj-tick-center" aria-hidden="true"></div>
         <div class="adj-tick-dot" id="adjTickDot" style="left:${_scrubPct.toFixed(2)}%;" aria-hidden="true"></div>
@@ -9947,7 +9988,10 @@ function _renderAdjustTab(body){
       scrubSlider.max = String(r.max);
       scrubSlider.value = String(v);
     }
-    if (scrubRuler) scrubRuler.dataset.scrubKey = key;
+    if (scrubRuler) {
+      scrubRuler.dataset.scrubKey = key;
+      scrubRuler.style.setProperty('--range', String(r.max - r.min));
+    }
     /* R51 — the pill now lives in editPreviewCol; resolve refs lazily so
        re-rendering the tab picks them up. */
     const _pillEl = document.getElementById('adjSectionPill') || _ensureAdjSectionPill(_adjLabels[key] || key.toUpperCase(), '');
@@ -10773,7 +10817,7 @@ async function _renderPixelateTab(body){
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
     +     '</button>'
     +   '</div>'
-    +   '<div class="adj-tick-ruler" id="pxRuler">'
+    +   '<div class="adj-tick-ruler" id="pxRuler" style="--range:' + (_pxRangeNow.max - _pxRangeNow.min) + ';">'
     +     '<div class="adj-tick-ticks" aria-hidden="true"></div>'
     +     '<div class="adj-tick-center" aria-hidden="true"></div>'
     +     '<div class="adj-tick-dot" id="pxTickDot" style="left:' + _pxPct.toFixed(2) + '%;" aria-hidden="true"></div>'
@@ -11148,7 +11192,7 @@ async function _renderBlurTab(body){
     +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
     +     '</button>'
     +   '</div>'
-    +   '<div class="adj-tick-ruler" id="blRuler">'
+    +   '<div class="adj-tick-ruler" id="blRuler" style="--range:' + (_blR.max - _blR.min) + ';">'
     +     '<div class="adj-tick-ticks" aria-hidden="true"></div>'
     +     '<div class="adj-tick-center" aria-hidden="true"></div>'
     +     '<div class="adj-tick-dot" id="blTickDot" style="left:' + _blPct.toFixed(2) + '%;" aria-hidden="true"></div>'
