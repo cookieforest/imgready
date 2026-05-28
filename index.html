@@ -3170,63 +3170,83 @@
      ==================================================================== */
   .edit-modal .edit-size-info{display:none !important;}
 
-  /* R61b — full-width top chrome with absolutely-centered brand.
-     Original chrome rule was width:50vw max-width:780px which produced
-     a narrow centered bar; that conflicted with the new "history left,
-     brand center, actions right" layout. Widen + use !important so the
-     bar spans the viewport, then absolutely center the brand. */
-  .edit-modal .edit-top-chrome{
-    position:absolute !important;
-    top:12px !important;
-    left:12px !important;
-    right:12px !important;
-    width:auto !important;
-    min-width:0 !important;
-    max-width:none !important;
-    transform:none !important;
+  /* R62 — match home tool top chrome: ONE 780px-wide centered pill with
+     3 sections inside (left: history / center: brand / right: actions).
+     We keep the original .edit-top-chrome rule untouched (translucent
+     dark pill anchored top-center). Just slot in our new groups using
+     flex order + flex:1 on the side groups so the brand stays centered
+     even when groups have different widths. */
+  .edit-modal .edit-top-chrome .edit-top-history{
+    order:1;
+    flex:1 1 0;
+    display:flex;align-items:center;gap:4px;
+    justify-content:flex-start;
+    background:transparent;
+    pointer-events:auto;
+  }
+  .edit-modal .edit-top-chrome .edit-brand-link{
+    order:2;
+    flex:0 0 auto;
+    /* No own pill background — it sits inside the chrome pill. */
     background:transparent !important;
     backdrop-filter:none !important;
     -webkit-backdrop-filter:none !important;
     border:none !important;
     border-radius:0 !important;
     padding:0 !important;
-    display:flex;align-items:center;
-    gap:10px;
-    z-index:11;
-    pointer-events:none;
-  }
-  .edit-modal .edit-top-chrome > *{pointer-events:auto;}
-
-  /* Brand absolutely centered in the chrome. The pill background is
-     restored on the brand itself so it reads as a floating chip. */
-  .edit-modal .edit-top-chrome .edit-brand-link{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%, -50%);
-    background:rgba(0,0,0,.55) !important;
-    backdrop-filter:blur(8px) !important;
-    -webkit-backdrop-filter:blur(8px) !important;
-    border:1px solid rgba(255,255,255,.10) !important;
-    border-radius:999px !important;
-    padding:6px 14px !important;
     margin:0 !important;
-    z-index:1;
+    position:static !important;
+    transform:none !important;
   }
-
-  /* Left group: Undo/Redo. */
-  .edit-modal .edit-top-history{
+  .edit-modal .edit-top-chrome .edit-top-actions{
+    order:3;
+    flex:1 1 0;
+    display:flex;align-items:center;
+    justify-content:flex-end;
     margin:0;
-    flex:0 0 auto;
+    background:transparent;
+    pointer-events:auto;
   }
-  /* Right group: Save/Done. */
-  .edit-modal .edit-top-actions{
-    margin-left:auto;
-    flex:0 0 auto;
+  .edit-modal .edit-top-chrome .edit-filename-chip{display:none !important;}
+  .edit-modal .edit-top-chrome .edit-size-info{display:none !important;}
+
+  /* Top-bar buttons inside the chrome — smaller, transparent so they
+     read as items WITHIN the pill, not separate pills. */
+  .edit-modal .edit-top-history-btn{
+    background:transparent !important;
+    border:none !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    color:rgba(255,255,255,.78) !important;
+    padding:5px 9px !important;
+    border-radius:8px !important;
+    font-size:.76rem !important;
   }
-  /* Filename chip — hidden in top bar per user request. */
-  .edit-modal .edit-top-chrome .edit-filename-chip{
-    display:none !important;
+  .edit-modal .edit-top-history-btn:hover{
+    background:rgba(255,255,255,.08) !important;
+    color:#fff !important;
+  }
+  .edit-modal .edit-top-history-btn:disabled{
+    opacity:.32;
+  }
+  .edit-modal .edit-top-history-btn .ico{width:13px;height:13px;}
+
+  /* Save/Done button stays as a small accent/neutral pill on the right. */
+  .edit-modal .edit-top-btn{
+    padding:5px 14px !important;
+    font-size:.78rem !important;
+    border-radius:999px !important;
+  }
+  .edit-modal .edit-top-save{
+    background:rgba(255,255,255,.12) !important;
+    border:1px solid transparent !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    color:#fff !important;
+  }
+  .edit-modal .edit-top-save.has-edits{
+    background:var(--accent, #7a9a7a) !important;
+    border-color:var(--accent, #7a9a7a) !important;
   }
 
   /* ====================================================================
