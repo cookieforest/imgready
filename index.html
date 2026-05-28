@@ -2955,6 +2955,120 @@
     flex:0 0 auto;min-width:130px;
   }
 
+  
+
+  /* R48b — Zero detent on the scrubber. Apple Photos marks the neutral
+     position with a small dot on the slider track; users scrub there
+     to reset. We use a background image on the track at 50% (the
+     middle of a 0–200 range, which represents the default value of
+     100). */
+  .adj-scrubber input[type=range]{
+    background:linear-gradient(to right,
+      transparent 0%, transparent calc(50% - 1.5px),
+      rgba(255,255,255,.6) calc(50% - 1.5px), rgba(255,255,255,.6) calc(50% + 1.5px),
+      transparent calc(50% + 1.5px), transparent 100%
+    ) no-repeat;
+    background-size:100% 6px;
+    background-position:center;
+  }
+
+  
+  /* R48b — per-tab reset button at end of the icon row. Discreet (no
+     border, dim color) so it doesn't compete with the adjustment icons
+     for attention; activates only when at least one adjustment is
+     modified. */
+  .adj-row-reset{
+    flex:0 0 auto;width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;
+    background:transparent;border:none;border-radius:8px;
+    color:rgba(255,255,255,.55);cursor:pointer;
+    transition:background .12s ease,color .12s ease,opacity .12s ease;
+    align-self:center;
+    margin-left:4px;
+  }
+  .adj-row-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adj-row-reset:disabled{opacity:.32;cursor:default;pointer-events:none;}
+  .adj-row-reset .ico{width:14px;height:14px;}
+
+    /* R48 — Apple Photos scrubber + icon carousel. The Adjust tab's
+     core 3 adjustments (Brightness / Contrast / Saturation) share one
+     horizontal scrubber slider; tapping an icon below switches which
+     adjustment the slider controls. Modified state per-icon shown via
+     a small dot. */
+  .adj-scrubber{
+    width:100%;
+    display:flex;flex-direction:column;gap:6px;
+    padding:8px 4px 10px;
+  }
+  .adj-scrubber-header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:8px;
+  }
+  .adj-scrubber-label{
+    font-family:var(--font-display, inherit);
+    font-size:.92rem;font-weight:600;letter-spacing:-.005em;
+    color:#fff;
+  }
+  .adj-scrubber-value{
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-size:.78rem;color:rgba(255,255,255,.65);
+    font-variant-numeric:tabular-nums;
+  }
+  .adj-scrubber input[type=range]{
+    width:100%;
+  }
+  /* Icon row — horizontal flex, each icon a tall vertical pill with
+     icon + label + corner dot for modified state. */
+  .adj-icon-row{
+    display:flex;align-items:stretch;gap:6px;
+    width:100%;
+  }
+  .adj-icon-btn{
+    flex:1 1 0;min-width:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:0;
+    padding:10px 6px;
+    /* R48b — labels are gone; pad vertically so icon sits centered. */
+    background:rgba(255,255,255,.04);
+    border:1px solid transparent;border-radius:10px;
+    color:rgba(255,255,255,.75);
+    font-family:inherit;font-size:.62rem;font-weight:600;letter-spacing:.02em;
+    text-transform:uppercase;
+    cursor:pointer;position:relative;
+    transition:background .12s ease,color .12s ease,border-color .12s ease;
+  }
+  .adj-icon-btn .ico{width:18px;height:18px;color:rgba(255,255,255,.85);}
+  .adj-icon-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adj-icon-btn.selected{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.20);
+    color:#fff;
+  }
+  .adj-icon-btn.selected .ico{color:var(--accent, #7a9a7a);}
+  /* R48b — labels removed from carousel; Apple-Photos-style icon-only.
+     The active label appears above the scrubber via .adj-scrubber-label. */
+  .adj-icon-btn .adj-icon-label{display:none;}
+  /* Modified dot: small accent-filled circle at the top-right corner */
+  /* R48b — Apple Photos pattern: a thin ring around the icon shows
+     adjustment magnitude. CSS conic-gradient draws a partial arc from
+     the top of the ring proportional to |value - 100|. Sign is encoded
+     in arc direction (positive sweeps CW, negative CCW) via the
+     --r48-arc-from custom property set by JS. */
+  .adj-icon-btn .adj-icon-dot{
+    position:absolute;inset:4px;
+    border-radius:50%;
+    pointer-events:none;
+    background:conic-gradient(from var(--r48-arc-from, -90deg),
+      var(--accent, #7a9a7a) 0deg,
+      var(--accent, #7a9a7a) var(--r48-arc-deg, 0deg),
+      transparent var(--r48-arc-deg, 0deg) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 56%, #000 58% 64%, transparent 66%);
+            mask:radial-gradient(circle, transparent 56%, #000 58% 64%, transparent 66%);
+    opacity:0;transition:opacity .12s ease;
+  }
+  .adj-icon-btn.modified .adj-icon-dot{opacity:1;}
+
   @media (max-width:640px){
     .edit-action-pill{bottom:var(--split-btn-bottom,100px);padding:3px 5px;gap:1px;}
     .edit-split-handle::before{width:34px;height:34px;}
@@ -4081,6 +4195,8 @@
     <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol>
     <symbol id="i-droplets" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></symbol>
     <symbol id="i-eraser" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+    <symbol id="i-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12v12z"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
 </svg>
@@ -8787,12 +8903,15 @@ function _renderAdjustTab(body){
   if (!_editState.pendingEdits.photoAdjust) {
     /* R47 — sliderEnabled + filterEnabled let users tap-to-disable each
        section while preserving the slider/preset values. iPhone Photos pattern. */
-    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true };
+    /* R48 — `selected` tracks which adjustment the shared scrubber
+       controls. iPhone Photos pattern: one slider, many icons. */
+    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
   }
   const adj = _editState.pendingEdits.photoAdjust;
   /* R47 — back-fill flags for state restored from older sessions/undo snapshots. */
   if (adj.sliderEnabled === undefined) adj.sliderEnabled = true;
   if (adj.filterEnabled === undefined) adj.filterEnabled = true;
+  if (adj.selected === undefined) adj.selected = 'brightness';  /* R48 */
   if (!_editState.pendingEdits.vignette) {
     _editState.pendingEdits.vignette = { amount: 0, midpoint: 50, _dirty: false, enabled: true };
   }
@@ -8840,33 +8959,34 @@ function _renderAdjustTab(body){
       <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Auto enhanced':'<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance'}</button>
       ${_aeOn?'<button type="button" class="edit-auto-enhance-undo" id="adjAutoEnhanceUndo">Undo</button>':''}
     </div>
-    <div class="edit-adjust-dd" id="editAdjustDD">
-      <span class="adj-label">Adjust</span>
-      <button type="button" class="edit-adjust-dd-trigger${_adjModified?' modified':''}" id="editAdjustTrigger" aria-haspopup="dialog" aria-expanded="false">
-        <span class="dd-value" id="editAdjustValue">${_adjSummary}</span>
-        ${_chev}
-      </button>
-      <div class="edit-adjust-dd-menu" id="editAdjustMenu" role="dialog" aria-label="Light adjustments">
-        <p class="dd-section-label">Light</p>
-        <div class="adj-row">
-          <span class="adj-label">Brightness</span>
-          <input type="range" id="adjBrightness" min="0" max="200" step="1" value="${adj.brightness}">
-          <span class="adj-val" id="adjBrightnessVal">${fmt(adj.brightness)}</span>
-        </div>
-        <div class="adj-row">
-          <span class="adj-label">Contrast</span>
-          <input type="range" id="adjContrast" min="0" max="200" step="1" value="${adj.contrast}">
-          <span class="adj-val" id="adjContrastVal">${fmt(adj.contrast)}</span>
-        </div>
-        <div class="adj-row">
-          <span class="adj-label">Saturation</span>
-          <input type="range" id="adjSaturation" min="0" max="200" step="1" value="${adj.saturation}">
-          <span class="adj-val" id="adjSaturationVal">${fmt(adj.saturation)}</span>
-        </div>
-        <div class="adj-reset-row">
-          <button type="button" id="adjResetBtn" aria-label="Reset light adjustments">Reset</button>
-        </div>
+    <!-- R48 — Apple Photos pattern: shared scrubber + icon carousel.
+         One slider, three icons (Brightness / Contrast / Saturation).
+         Tap an icon → it becomes selected and the scrubber takes over
+         that adjustment's value. Each icon shows a small dot when its
+         value is modified off the default. -->
+    <div class="adj-scrubber" id="adjScrubberWrap">
+      <div class="adj-scrubber-header">
+        <span class="adj-scrubber-label" id="adjScrubLabel">${({brightness:'Brightness',contrast:'Contrast',saturation:'Saturation'})[adj.selected || 'brightness']}</span>
+        <span class="adj-scrubber-value" id="adjScrubVal">${fmt(adj[adj.selected || 'brightness'])}</span>
       </div>
+      <input type="range" id="adjScrubSlider" min="0" max="200" step="1" value="${adj[adj.selected || 'brightness']}" aria-label="Adjustment value">
+    </div>
+    <div class="adj-icon-row" role="tablist" aria-label="Adjustment">
+      <button type="button" class="adj-icon-btn${(adj.selected||'brightness')==='brightness'?' selected':''}${adj.brightness!==100?' modified':''}" data-adj-key="brightness" title="Brightness (double-click to reset)" aria-label="Brightness" role="tab" aria-selected="${(adj.selected||'brightness')==='brightness'}">
+        <svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg>
+        <span class="adj-icon-dot" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="adj-icon-btn${adj.selected==='contrast'?' selected':''}${adj.contrast!==100?' modified':''}" data-adj-key="contrast" title="Contrast (double-click to reset)" aria-label="Contrast" role="tab" aria-selected="${adj.selected==='contrast'}">
+        <svg class="ico" aria-hidden="true"><use href="#i-contrast"/></svg>
+        <span class="adj-icon-dot" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="adj-icon-btn${adj.selected==='saturation'?' selected':''}${adj.saturation!==100?' modified':''}" data-adj-key="saturation" title="Saturation (double-click to reset)" aria-label="Saturation" role="tab" aria-selected="${adj.selected==='saturation'}">
+        <svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg>
+        <span class="adj-icon-dot" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="adj-row-reset" id="adjRowReset" title="Reset all 3 adjustments" aria-label="Reset all adjustments"${_adjModified?'':' disabled'}>
+        <svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>
+      </button>
     </div>
     <div class="edit-filter-dd" id="editFilterDD">
       <span class="adj-label">Filter</span>
@@ -8916,29 +9036,105 @@ function _renderAdjustTab(body){
     const a = _editState.pendingEdits.photoAdjust;
     a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none');
     previewImg.style.filter = _getAdjFilter();
-    /* R30b — keep the Adjust dropdown trigger in sync */
-    const _trig = document.getElementById('editAdjustTrigger');
-    const _val  = document.getElementById('editAdjustValue');
-    const _rst  = document.getElementById('adjResetBtn');
-    const _mod  = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100);
-    if (_trig) _trig.classList.toggle('modified', _mod);
-    if (_val)  _val.textContent  = _mod ? 'Modified' : 'Default';
-    if (_rst)  _rst.disabled     = !_mod;
+    /* R48 — old ADJUST chip is gone; just sync the icon row's modified
+       state. Filter chip + Vignette chip still have their own modified
+       dot wiring from R47 (no change needed). */
+    if (typeof _syncIconStates === 'function') _syncIconStates();
   }
   _markDirty();
-  [['adjBrightness','brightness','adjBrightnessVal'],
-   ['adjContrast','contrast','adjContrastVal'],
-   ['adjSaturation','saturation','adjSaturationVal']].forEach(([id, key, valId]) => {
-    const sl = document.getElementById(id);
-    const vl = document.getElementById(valId);
-    if (!sl) return;
-    sl.addEventListener('input', () => {
-      const v = parseInt(sl.value, 10);
-      _editState.pendingEdits.photoAdjust[key] = v;
-      if (vl) vl.textContent = fmt(v);
+  /* R48 — single scrubber routes input to the currently-selected
+     adjustment. Icon clicks switch which key the scrubber controls. */
+  const _adjLabels = { brightness: 'Brightness', contrast: 'Contrast', saturation: 'Saturation' };
+  const scrubSlider = document.getElementById('adjScrubSlider');
+  const scrubLabel = document.getElementById('adjScrubLabel');
+  const scrubVal = document.getElementById('adjScrubVal');
+  function _syncScrubberToSelected(){
+    const a = _editState.pendingEdits.photoAdjust;
+    const key = a.selected || 'brightness';
+    if (scrubSlider) scrubSlider.value = String(a[key]);
+    if (scrubLabel)  scrubLabel.textContent = _adjLabels[key] || key;
+    if (scrubVal)    scrubVal.textContent = fmt(a[key]);
+  }
+  function _syncIconStates(){
+    const a = _editState.pendingEdits.photoAdjust;
+    document.querySelectorAll('#editBody .adj-icon-btn').forEach(btn => {
+      const k = btn.dataset.adjKey;
+      btn.classList.toggle('selected', a.selected === k);
+      const mod = a[k] !== 100;
+      btn.classList.toggle('modified', mod);
+      btn.setAttribute('aria-selected', a.selected === k ? 'true' : 'false');
+      /* R48b — set ring magnitude (deg arc) + start angle (sign). Range
+         0..100 maps to 0..180 degrees. Positive values draw clockwise
+         from the top; negative draws counter-clockwise. */
+      const dot = btn.querySelector('.adj-icon-dot');
+      if (dot) {
+        const delta = a[k] - 100;
+        const mag = Math.min(100, Math.abs(delta));
+        const deg = (mag / 100) * 180;
+        if (delta >= 0) {
+          dot.style.setProperty('--r48-arc-from', '-90deg');
+        } else {
+          /* Counter-clockwise: rotate the start so the arc sweeps the
+             other way around the top */
+          dot.style.setProperty('--r48-arc-from', (-90 - deg) + 'deg');
+        }
+        dot.style.setProperty('--r48-arc-deg', deg + 'deg');
+      }
+    });
+  }
+  if (scrubSlider) {
+    scrubSlider.addEventListener('input', () => {
+      const a = _editState.pendingEdits.photoAdjust;
+      const key = a.selected || 'brightness';
+      let v = parseInt(scrubSlider.value, 10);
+      a[key] = v;
+      if (scrubVal) scrubVal.textContent = fmt(v);
+      _syncIconStates();
       _markDirty();
     });
-    sl.addEventListener('change', () => { _editPushUndo(); });
+    /* R48b — soft snap-to-zero. Apple uses a haptic detent we can't
+       replicate on web; this fires only on `change` (release) so users
+       intentionally landing near zero get the satisfying snap without
+       fighting the drag. */
+    scrubSlider.addEventListener('change', () => {
+      const a = _editState.pendingEdits.photoAdjust;
+      const key = a.selected || 'brightness';
+      if (Math.abs(a[key] - 100) <= 2 && a[key] !== 100) {
+        a[key] = 100;
+        scrubSlider.value = '100';
+        if (scrubVal) scrubVal.textContent = fmt(100);
+        _syncIconStates();
+        _markDirty();
+      }
+      _editPushUndo();
+    });
+  }
+  document.querySelectorAll('#editBody .adj-icon-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const a = _editState.pendingEdits.photoAdjust;
+      const k = btn.dataset.adjKey;
+      if (!k) return;
+      a.selected = k;
+      _syncScrubberToSelected();
+      _syncIconStates();
+    });
+    /* R48b — double-click resets that adjustment to default (100).
+       Apple Photos has no per-section reset gesture on touch; this is
+       the Lightroom Mobile convention adapted for desktop where
+       double-click is free. */
+    btn.addEventListener('dblclick', () => {
+      const a = _editState.pendingEdits.photoAdjust;
+      const k = btn.dataset.adjKey;
+      if (!k || a[k] === 100) return;
+      _editPushUndo();
+      a[k] = 100;
+      if (a.selected === k && scrubSlider) {
+        scrubSlider.value = '100';
+        if (scrubVal) scrubVal.textContent = fmt(100);
+      }
+      _syncIconStates();
+      _markDirty();
+    });
   });
   /* R30 — filter preset click: select, update trigger label, close dropdown. */
   document.querySelectorAll('#editBody .edit-preset-btn').forEach(btn => {
@@ -9041,6 +9237,24 @@ function _renderAdjustTab(body){
   }
   _vigPaintPreview();
   const vigReset = document.getElementById('vigReset');
+  /* R48b — reset-all button: zeros brightness/contrast/saturation in
+     one click. Distinct from the global Reset in the action pill —
+     that one clears every edit (rotate, crop, etc.); this one only
+     touches the 3 adjustment values, like a per-tab revert. */
+  const _adjRowReset = document.getElementById('adjRowReset');
+  if (_adjRowReset) {
+    _adjRowReset.addEventListener('click', () => {
+      const a = _editState.pendingEdits.photoAdjust;
+      if (a.brightness === 100 && a.contrast === 100 && a.saturation === 100) return;
+      _editPushUndo();
+      a.brightness = 100;
+      a.contrast = 100;
+      a.saturation = 100;
+      _syncScrubberToSelected();
+      _syncIconStates();
+      _markDirty();
+    });
+  }
   /* R47 — wire tap-to-disable dots on the 3 modified-able chips */
   try { _r47WireSectionToggles(); } catch(_){}
   function _vigUpdateResetState(){
