@@ -3345,7 +3345,14 @@
   .edit-text-canvas.tx-grab{cursor:grab;}
   .edit-text-controls{display:flex;flex-direction:column;gap:10px;}
   .tx-add-row{display:flex;gap:6px;}
-  .tx-add-row .edit-frames-action-btn{flex:1;padding:7px 8px;font-size:.78rem;}
+  .tx-add-row .edit-frames-action-btn{
+    flex:1 1 0;min-width:0;
+    padding:7px 8px;font-size:.78rem;
+    /* R44 — keep single-line so "+ Watermark" stops wrapping inside
+       the 36px height. flex:1 1 0 + min-width:0 lets buttons shrink
+       equally; nowrap + ellipsis handle the longest label gracefully. */
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
   .tx-item-list{
     display:flex;flex-direction:column;gap:3px;max-height:140px;overflow-y:auto;
     background:rgba(0,0,0,.18);border-radius:6px;padding:4px;
@@ -3415,28 +3422,61 @@
   .tx-anchor-help{
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
+  /* R44 — Hide the "Drag any item…" help when the list shows the
+     "Nothing added yet" empty-state copy. They were both visible
+     in R43, competing for attention. Now: empty state → just the
+     empty copy; once items exist (no .tx-empty), the drag hint
+     reappears as contextual help. */
+  .edit-text-controls:has(.tx-empty) .tx-anchor-help{display:none;}
 
-  .edit-bg-card{display:flex;align-items:flex-start;gap:8px;padding:6px 2px;}
+  /* R44 — BG panel hierarchy. R43 hid the title (h3) and icon, which
+     left the panel with just a dim one-line description and no clear
+     anchor. Restore a tight title + subtitle stack so users know what
+     this tab does at a glance. */
+  .edit-bg-card{
+    display:block;padding:0;
+  }
   .edit-bg-card .bg-icon{display:none;}
-  .edit-bg-card h3{display:none;}
-  .edit-bg-card p{margin:0;color:rgba(255,255,255,.45);font-size:.74rem;line-height:1.4;}
-  /* R43 — Remove BG run button: proper height */
+  .edit-bg-card h3{
+    display:block;margin:0 0 4px;
+    font-family:var(--font-display, inherit);
+    font-size:.95rem;font-weight:600;color:#fff;
+    letter-spacing:-.005em;
+  }
+  .edit-bg-card p{
+    margin:0;
+    color:rgba(255,255,255,.62);
+    font-size:.76rem;line-height:1.4;
+  }
+  /* R44 — Remove background button: constrained width + centered so
+     the CTA reads as a deliberate action, not a wall. R43 had width:100%
+     which made it span the full panel and dwarf the surrounding controls. */
   .edit-bg-run{
-    width:100%;margin-top:0;padding:10px 14px;
-    background:rgba(255,255,255,.08);color:#fff;
-    border:1px solid rgba(255,255,255,.14);border-radius:8px;
+    width:auto;max-width:340px;
+    margin:0 auto;padding:10px 22px;
+    background:var(--accent-strong, var(--accent));color:#fff;
+    border:1px solid var(--accent-strong, var(--accent));border-radius:8px;
     font-size:.82rem;font-weight:600;cursor:pointer;
     display:flex;align-items:center;justify-content:center;gap:6px;
-    transition:background .15s,color .15s;
+    transition:background .15s,color .15s,filter .15s;
   }
-  .edit-bg-run:hover{background:rgba(255,255,255,.14);}
-  .edit-bg-run:disabled{opacity:.4;cursor:not-allowed;}
+  .edit-bg-run:hover{filter:brightness(1.06);}
+  .edit-bg-run:disabled{opacity:.4;cursor:not-allowed;filter:none;}
   .edit-bg-progress-wrap{margin-bottom:8px;}
   .edit-bg-progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden;margin-bottom:3px;}
   .edit-bg-progress-fill{height:100%;background:var(--accent);transition:width .25s ease;}
   .edit-bg-progress-label{font-size:.7rem;color:rgba(255,255,255,.4);}
   .edit-bg-success-msg{margin:4px 0;font-size:.76rem;color:#6fcf97;}
-  .edit-bg-hint{margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.28);line-height:1.4;}
+  /* R44 — disclaimer made readable. R43 had it at 28% opacity / .72rem
+     which made the important "60 MB one-time download" warning visually
+     invisible. Bumped to 70% opacity / .78rem + centered to match the
+     CTA, so users actually notice the model-download cost before clicking. */
+  .edit-bg-hint{
+    margin:8px auto 0;
+    max-width:520px;
+    font-size:.78rem;color:rgba(255,255,255,.70);
+    line-height:1.45;text-align:center;
+  }
   .bg-mode-toggle{
     display:flex;gap:4px;margin:8px 0 6px;padding:3px;
     background:rgba(255,255,255,.04);
@@ -3456,11 +3496,13 @@
     border-color:rgba(255,255,255,.18);
     box-shadow:0 1px 0 rgba(0,0,0,.18) inset;
   }
+  /* R44 — HQ "~110 MB" inline badge: slightly smaller + brighter and
+     shifted left so it reads as auxiliary metadata, not a label peer. */
   .bg-mode-pill{
-    font-size:.6rem;font-weight:500;
-    padding:1px 5px;border-radius:8px;
-    color:rgba(255,255,255,.6);
-    background:rgba(255,255,255,.08);
+    font-size:.62rem;font-weight:500;
+    padding:1px 6px;margin-left:4px;border-radius:8px;
+    color:rgba(255,255,255,.68);
+    background:rgba(255,255,255,.10);
     letter-spacing:.02em;
   }
   .bg-mode-btn.active .bg-mode-pill{background:rgba(255,255,255,.16);color:rgba(255,255,255,.92);}
