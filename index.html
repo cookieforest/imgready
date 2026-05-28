@@ -5056,6 +5056,152 @@
     .empty-batch-dropzone h3{font-size:1.05rem;}
   }
 
+
+  /* ====================================================================
+     R70 — Targeted fixes (icon value display, crop, dock clipping,
+     tab bar polish, flip icon size).
+     ==================================================================== */
+
+  /* (1) When an Adjust icon is modified, hide the SVG glyph; show only
+     the numeric value. R68's rewrite dropped this rule by mistake. */
+  .edit-modal .adj-circle-btn.modified .adj-circle-inner .ico{
+    opacity:0;
+  }
+  .edit-modal .adj-circle-btn .adj-circle-val{
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-size:.7rem;font-weight:700;
+    font-variant-numeric:tabular-nums;
+    color:#fff;letter-spacing:.01em;
+    pointer-events:none;
+    opacity:0;transition:opacity .12s ease;
+  }
+  .edit-modal .adj-circle-btn.modified .adj-circle-val{opacity:1;}
+
+  /* (2) Crop tab — pi-icon-style ratio buttons + accent Apply pill. */
+  .edit-modal .edit-tool-surface .edit-crop-presets{
+    display:flex;align-items:center;justify-content:center;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:0 4px 8px;
+  }
+  .edit-modal .edit-tool-surface .edit-crop-presets > span:first-child{
+    /* "Ratio" label */
+    color:rgba(255,255,255,.6);
+    font-size:.66rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;
+    margin-right:2px;
+  }
+  .edit-modal .edit-tool-surface .edit-crop-presets .edit-preset-btn{
+    height:36px;padding:0 14px;
+    border-radius:999px;
+    background:rgba(20,20,20,.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    font-family:inherit;font-size:.78rem;font-weight:600;
+    cursor:pointer;
+    transition:background .12s, border-color .12s;
+  }
+  .edit-modal .edit-tool-surface .edit-crop-presets .edit-preset-btn:hover{
+    background:rgba(50,50,50,.95);
+  }
+  .edit-modal .edit-tool-surface .edit-crop-presets .edit-preset-btn.active{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+  }
+  /* Crop instruction text — keep but make subtle */
+  .edit-modal .edit-tool-surface #editBody > div + p {
+    text-align:center;
+    color:rgba(255,255,255,.45);
+    font-size:.7rem;
+    margin:6px 0;
+  }
+  /* Crop "Apply" button as accent pill */
+  .edit-modal .edit-tool-surface .edit-frames-action-btn,
+  .edit-modal .edit-tool-surface #editCropApplyBtn{
+    display:block;margin:8px auto 0;
+    width:auto !important;min-width:120px;
+    height:36px;padding:0 22px;
+    background:var(--accent, #7a9a7a);
+    color:#fff;font-weight:700;font-size:.82rem;
+    border:none;border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 1px 4px rgba(0,0,0,.3);
+  }
+  .edit-modal .edit-tool-surface .edit-frames-action-btn:hover{
+    background:var(--accent-strong, #6b8b6b);
+  }
+
+  /* (3) Push floating surface higher so it never clips into the dock. */
+  .edit-modal .edit-tool-surface{
+    bottom:calc(var(--menu-card-h, 56px) + 24px) !important;
+  }
+
+  /* (5) Flip H / Flip V icons bigger so the bracket glyphs read clearly. */
+  .edit-modal .ed-circle-btn[data-rot="fh"] .ed-circle-inner .ico,
+  .edit-modal .ed-circle-btn[data-rot="fv"] .ed-circle-inner .ico{
+    width:22px;height:22px;
+  }
+  /* (4) Pixelate grid icon — tone down stroke so it doesn't read as a
+     decorative ring around the active tab. */
+  .edit-modal .edit-tab-bar .edit-tab[data-tab="pixelate"] .ico{
+    transform:scale(.92);
+  }
+
+  /* (6) Tab bar polish — Apple Photos style: text-only labels with a
+     small accent indicator BELOW the active label. No wrap pill, no
+     icon, tighter spacing. */
+  .edit-modal .edit-menu-card-thin .edit-tab-bar{
+    background:transparent !important;
+    border:none !important;
+    border-radius:0 !important;
+    margin:0 !important;
+    padding:8px 4px !important;
+    mask-image:none !important;
+    -webkit-mask-image:none !important;
+    gap:4px;
+    justify-content:center;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab{
+    flex:0 0 auto;
+    min-width:auto;
+    height:38px;
+    padding:4px 14px;
+    background:transparent;
+    color:rgba(255,255,255,.62);
+    font-size:.78rem;font-weight:600;
+    letter-spacing:.01em;
+    display:inline-flex;align-items:center;gap:6px;
+    border-radius:8px;
+    flex-direction:row;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab .ico{
+    width:14px;height:14px;color:inherit;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab:hover{
+    color:#fff;background:rgba(255,255,255,.06);
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab.active{
+    color:#fff;background:transparent;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab.active .ico{
+    color:var(--accent, #7a9a7a);
+  }
+  /* Move accent indicator below the label */
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab.active::before{
+    content:'';
+    position:absolute;
+    bottom:1px;left:50%;transform:translateX(-50%);
+    top:auto;
+    width:4px;height:4px;border-radius:50%;
+    background:var(--accent, #7a9a7a);
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab{position:relative;}
+
+
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
