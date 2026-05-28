@@ -3147,6 +3147,85 @@
   .adj-flat-carousel .adj-row-reset:disabled{opacity:.32;cursor:default;pointer-events:none;}
 
 
+
+
+  /* ====================================================================
+     R52 — Unified circular function-icon family (.ed-circle-btn)
+     Used across Rotate, Pixelate, Blur, Remove BG, Text tabs so every
+     function icon shares the same UI family as Adjust's .adj-circle-btn.
+     ==================================================================== */
+
+  .edit-modal .ed-circle-btn{
+    flex:0 0 auto;width:54px;height:54px;
+    display:inline-grid;place-items:center;
+    padding:0;background:transparent;border:none;
+    cursor:pointer;position:relative;
+    border-radius:50%;
+    transition:transform .12s ease;
+    font-family:inherit;
+  }
+  .edit-modal .ed-circle-btn:focus-visible{outline:2px solid var(--accent, #7a9a7a);outline-offset:3px;}
+  .edit-modal .ed-circle-btn .ed-circle-ring{
+    position:absolute;inset:0;
+    border-radius:50%;
+    background:transparent;
+    pointer-events:none;
+    transition:background .12s ease;
+  }
+  .edit-modal .ed-circle-btn .ed-circle-inner{
+    position:relative;
+    width:42px;height:42px;
+    display:inline-grid;place-items:center;
+    border-radius:50%;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);
+    transition:background .12s ease,border-color .12s ease;
+  }
+  .edit-modal .ed-circle-btn .ed-circle-inner .ico{
+    width:18px;height:18px;color:rgba(255,255,255,.85);
+  }
+  .edit-modal .ed-circle-btn:hover .ed-circle-inner{
+    background:rgba(255,255,255,.08);
+    border-color:rgba(255,255,255,.22);
+  }
+  .edit-modal .ed-circle-btn.active .ed-circle-inner{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+  }
+  .edit-modal .ed-circle-btn.active .ed-circle-inner .ico{color:#fff;}
+  .edit-modal .ed-circle-btn[disabled],
+  .edit-modal .ed-circle-btn:disabled{opacity:.35;cursor:default;pointer-events:none;}
+
+  /* Smaller variant for secondary actions (Reset, Clear, Whole-image). */
+  .edit-modal .ed-circle-btn.ed-circle-sm{width:38px;height:38px;}
+  .edit-modal .ed-circle-btn.ed-circle-sm .ed-circle-inner{width:32px;height:32px;}
+  .edit-modal .ed-circle-btn.ed-circle-sm .ed-circle-inner .ico{width:14px;height:14px;color:rgba(255,255,255,.7);}
+  .edit-modal .ed-circle-btn.ed-circle-sm:hover .ed-circle-inner .ico{color:#fff;}
+
+  /* Optional caption beneath a circle button (used in Text / BG tabs). */
+  .edit-modal .ed-circle-btn .ed-circle-cap{
+    position:absolute;
+    top:calc(100% + 4px);left:50%;transform:translateX(-50%);
+    font-family:inherit;font-size:.55rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.62);
+    white-space:nowrap;pointer-events:none;
+  }
+  .edit-modal .ed-circle-btn:hover .ed-circle-cap,
+  .edit-modal .ed-circle-btn.active .ed-circle-cap{color:#fff;}
+
+  /* Function-row layout: horizontal flex, centered, gap matches Adjust. */
+  .edit-modal .ed-func-row{
+    display:flex;flex-direction:row;align-items:center;
+    gap:14px;
+    width:100%;
+    padding:14px 8px 8px;
+    overflow-x:auto;
+    scrollbar-width:none;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .edit-modal .ed-func-row::-webkit-scrollbar{display:none;}
+
   /* ====================================================================
      R50 — Apple Photos faithful Adjust + new Filters tab
      ==================================================================== */
@@ -4542,6 +4621,10 @@
     <symbol id="i-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12v12z"/></symbol>
         <symbol id="i-aperture" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m14.31 8 5.74 9.94"/><path d="M9.69 8h11.48"/><path d="m7.38 12 5.74-9.94"/><path d="M9.69 16 3.95 6.06"/><path d="M14.31 16H2.83"/><path d="m16.62 12-5.74 9.94"/></symbol>
     <symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.438-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+    <symbol id="i-stamp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-2 0-3 1.5-3 3s1 2 1 3.5V13"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
 </svg>
@@ -8187,12 +8270,31 @@ function _renderRotateTab(body){
      when both buttons sit beside each other). Angle dropdown stays
      inline at the right of the toolbar. */
   body.innerHTML = `
-    <div class="edit-tool-toolbar edit-rotate-toolbar">
-      <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="cw" title="Rotate 90° clockwise" aria-label="Rotate 90° clockwise"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg><span class="rot-lbl">90° CW</span></button>
-      <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="ccw" title="Rotate 90° counter-clockwise" aria-label="Rotate 90° counter-clockwise"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg><span class="rot-lbl">90° CCW</span></button>
-<button type="button" class="edit-rotate-btn rot-icon-only" data-rot="fh" title="Flip horizontal" aria-label="Flip horizontal"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg><span class="rot-lbl">Flip H</span></button>
-      <button type="button" class="edit-rotate-btn rot-icon-only" data-rot="fv" title="Flip vertical" aria-label="Flip vertical"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg><span class="rot-lbl">Flip V</span></button>
-      <button type="button" class="edit-rotate-btn rot-text" data-rot="reset" title="Reset rotation" aria-label="Reset rotation">Reset</button>
+    <div class="edit-tool-toolbar edit-rotate-toolbar ed-func-row">
+      <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="cw" title="Rotate 90° clockwise" aria-label="Rotate 90° clockwise">
+        <span class="ed-circle-ring" aria-hidden="true"></span>
+        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg></span>
+        <span class="ed-circle-cap">CW</span>
+      </button>
+      <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="ccw" title="Rotate 90° counter-clockwise" aria-label="Rotate 90° counter-clockwise">
+        <span class="ed-circle-ring" aria-hidden="true"></span>
+        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></span>
+        <span class="ed-circle-cap">CCW</span>
+      </button>
+      <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fh" title="Flip horizontal" aria-label="Flip horizontal">
+        <span class="ed-circle-ring" aria-hidden="true"></span>
+        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg></span>
+        <span class="ed-circle-cap">FLIP H</span>
+      </button>
+      <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fv" title="Flip vertical" aria-label="Flip vertical">
+        <span class="ed-circle-ring" aria-hidden="true"></span>
+        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg></span>
+        <span class="ed-circle-cap">FLIP V</span>
+      </button>
+      <button type="button" class="ed-circle-btn ed-circle-sm edit-rotate-btn" data-rot="reset" title="Reset rotation" aria-label="Reset rotation">
+        <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></span>
+        <span class="ed-circle-cap">RESET</span>
+      </button>
       <div class="edit-tool-dd" id="editAngleDD">
         <span class="adj-label">Angle</span>
         <button type="button" class="edit-tool-dd-trigger${_angleMod?' modified':''}" id="editAngleTrigger" aria-haspopup="dialog" aria-expanded="false">
@@ -8792,9 +8894,15 @@ function _renderBackgroundTab(body){
   const refineHTML = hasDone ? (''
     + '<div class="bg-refine-section">'
     +   '<h4>Refine mask</h4>'
-    +   '<div class="bg-refine-tool-strip">'
-    +     '<button type="button" class="edit-preset-btn' + (ref.mode==='erase'?' active':'') + '" data-bgr-mode="erase">Erase</button>'
-    +     '<button type="button" class="edit-preset-btn' + (ref.mode==='restore'?' active':'') + '" data-bgr-mode="restore">Restore</button>'
+    +   '<div class="bg-refine-tool-strip ed-toggle-pair">'
+    +     '<button type="button" class="ed-circle-btn' + (ref.mode==="erase"?" active":"") + '" data-bgr-mode="erase" title="Erase" aria-pressed="' + (ref.mode==="erase") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-eraser"/></svg></span>'
+    +       '<span class="ed-circle-cap">ERASE</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn' + (ref.mode==="restore"?" active":"") + '" data-bgr-mode="restore" title="Restore" aria-pressed="' + (ref.mode==="restore") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-brush"/></svg></span>'
+    +       '<span class="ed-circle-cap">RESTORE</span>'
+    +     '</button>'
     +   '</div>'
     +   '<div class="adj-row">'
     +     '<span class="adj-label">Brush</span>'
@@ -8806,7 +8914,10 @@ function _renderBackgroundTab(body){
     +     '<input type="range" id="bgrHardness" min="0" max="100" step="1" value="' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '">'
     +     '<span class="adj-val" id="bgrHardnessVal">' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '%</span>'
     +   '</div>'
-    +   '<button type="button" class="edit-frames-action-btn" id="bgrClear">Clear refinements</button>'
+    +   '<button type="button" class="ed-circle-btn ed-circle-sm" id="bgrClear" title="Clear refinements" aria-label="Clear refinements">'
+    +     '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></span>'
+    +     '<span class="ed-circle-cap">CLEAR</span>'
+    +   '</button>'
     +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft = feathered edges, higher = crisp. Use [ and ] to resize.</p>'
     + '</div>'
   ) : '';
@@ -10166,10 +10277,16 @@ async function _renderPixelateTab(body){
   const _pxChev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
   const _pxSummary = 'Brush ' + px.brushPx + ' · Cell ' + px.blockSize;
   body.innerHTML = ''
-    + '<div class="edit-pixelate-controls">'
-    +   '<div class="px-tool-strip">'
-    +     '<button type="button" class="edit-preset-btn' + (px.mode==='paint'?' active':'') + '" data-px-mode="paint">Paint</button>'
-    +     '<button type="button" class="edit-preset-btn' + (px.mode==='erase'?' active':'') + '" data-px-mode="erase">Erase</button>'
+    + '<div class="edit-pixelate-controls ed-func-row">'
+    +   '<div class="px-tool-strip ed-toggle-pair">'
+    +     '<button type="button" class="ed-circle-btn' + (px.mode==="paint"?" active":"") + '" data-px-mode="paint" title="Paint mode" aria-pressed="' + (px.mode==="paint") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-brush"/></svg></span>'
+    +       '<span class="ed-circle-cap">PAINT</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn' + (px.mode==="erase"?" active":"") + '" data-px-mode="erase" title="Erase mode" aria-pressed="' + (px.mode==="erase") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-eraser"/></svg></span>'
+    +       '<span class="ed-circle-cap">ERASE</span>'
+    +     '</button>'
     +   '</div>'
     +   '<div class="edit-tool-dd" id="editPxDD">'
     +     '<span class="adj-label">Brush</span>'
@@ -10190,7 +10307,10 @@ async function _renderPixelateTab(body){
     +       '</div>'
     +     '</div>'
     +   '</div>'
-    +   '<button type="button" class="edit-frames-action-btn" id="pxClear">Clear all</button>'
+    +   '<button type="button" class="ed-circle-btn ed-circle-sm" id="pxClear" title="Clear all pixelation" aria-label="Clear all">'
+    +     '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></span>'
+    +     '<span class="ed-circle-cap">CLEAR</span>'
+    +   '</button>'
     +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation. Use [ and ] to resize the brush.</p>'
     + '</div>';
   /* Build preview source (applies upstream edits) */
@@ -10463,10 +10583,16 @@ async function _renderBlurTab(body){
   const _blChev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
   const _blSummary = 'Brush ' + bl.brushPx + ' · Amt ' + bl.radius;
   body.innerHTML = ''
-    + '<div class="edit-blur-controls">'
-    +   '<div class="blur-tool-strip">'
-    +     '<button type="button" class="edit-preset-btn' + (bl.mode==='paint'?' active':'') + '" data-bl-mode="paint">Paint</button>'
-    +     '<button type="button" class="edit-preset-btn' + (bl.mode==='erase'?' active':'') + '" data-bl-mode="erase">Erase</button>'
+    + '<div class="edit-blur-controls ed-func-row">'
+    +   '<div class="blur-tool-strip ed-toggle-pair">'
+    +     '<button type="button" class="ed-circle-btn' + (bl.mode==="paint"?" active":"") + '" data-bl-mode="paint" title="Paint mode" aria-pressed="' + (bl.mode==="paint") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-brush"/></svg></span>'
+    +       '<span class="ed-circle-cap">PAINT</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn' + (bl.mode==="erase"?" active":"") + '" data-bl-mode="erase" title="Erase mode" aria-pressed="' + (bl.mode==="erase") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-eraser"/></svg></span>'
+    +       '<span class="ed-circle-cap">ERASE</span>'
+    +     '</button>'
     +   '</div>'
     +   '<div class="edit-tool-dd" id="editBlDD">'
     +     '<span class="adj-label">Brush</span>'
@@ -10487,9 +10613,15 @@ async function _renderBlurTab(body){
     +       '</div>'
     +     '</div>'
     +   '</div>'
-    +   '<div class="edit-blur-actions">'
-    +     '<button type="button" class="edit-frames-action-btn" id="blApplyAll">' + (bl.full ? 'Brush only' : 'Whole image') + '</button>'
-    +     '<button type="button" class="edit-frames-action-btn" id="blClear">Clear all</button>'
+    +   '<div class="edit-blur-actions ed-toggle-pair">'
+    +     '<button type="button" class="ed-circle-btn ed-circle-sm' + (bl.full ? " active" : "") + '" id="blApplyAll" title="' + (bl.full ? "Brush only" : "Whole image") + '" aria-pressed="' + (bl.full?"true":"false") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg></span>'
+    +       '<span class="ed-circle-cap">' + (bl.full ? 'BRUSH' : 'ALL') + '</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn ed-circle-sm" id="blClear" title="Clear blur" aria-label="Clear all">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></span>'
+    +       '<span class="ed-circle-cap">CLEAR</span>'
+    +     '</button>'
     +   '</div>'
     +   '<p class="edit-blur-help">Drag over areas you want to soften. Switch to Erase to clear blur. Use [ and ] to resize.<strong>Whole image</strong> blurs everything (depth-of-field style).</p>'
     + '</div>';
@@ -10940,10 +11072,19 @@ async function _renderTextTab(body){
   }
   body.innerHTML = ''
     + '<div class="edit-text-controls">'
-    +   '<div class="tx-add-row">'
-    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="text">+ Text</button>'
-    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="watermark">+ Watermark</button>'
-    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="logo" title="Upload an image logo">+ Logo</button>'
+    +   '<div class="tx-add-row ed-func-row">'
+    +     '<button type="button" class="ed-circle-btn" data-tx-add="text" title="Add text" aria-label="Add text">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-type"/></svg></span>'
+    +       '<span class="ed-circle-cap">TEXT</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn" data-tx-add="watermark" title="Add watermark" aria-label="Add watermark">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-stamp"/></svg></span>'
+    +       '<span class="ed-circle-cap">MARK</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn" data-tx-add="logo" title="Upload an image logo" aria-label="Add logo">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span>'
+    +       '<span class="ed-circle-cap">LOGO</span>'
+    +     '</button>'
     +   '</div>'
     +   '<input type="file" id="txLogoInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">'
     +   '<div class="tx-item-list" id="txItemList"></div>'
