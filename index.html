@@ -3565,7 +3565,7 @@
 
   /* Rotate's tick-ruler reuses .adj-tick-ruler — ensure good spacing under
      the icon row. */
-  .edit-modal .edit-rotate-toolbar .adj-tick-ruler{margin-top:14px;}
+  /* R74 — removed margin-top override; rotate ruler now matches Adjust. */
 
   /* ====================================================================
      R52 — Unified circular function-icon family (.ed-circle-btn)
@@ -10402,22 +10402,16 @@ function _renderAdjustTab(body){
     return defV;
   }
   if (scrubSlider) {
-    scrubSlider._detentSticky = false;
     scrubSlider.addEventListener('input', () => {
+      /* R74 — dropped during-drag detent. User feedback was that it
+         felt sluggish (had to drag past zero an extra tick to release).
+         Visual gold center mark already gives the "where zero is" cue
+         and the on-release snap below handles the final detent. */
       const a = _editState.pendingEdits.photoAdjust;
       const v_ = _editState.pendingEdits.vignette;
       const key = a.selected || 'brightness';
       const r = _scrubRange(key);
       let v = parseInt(scrubSlider.value, 10);
-      /* Apply detent: derive previous value from state. */
-      const prev = _scrubValueFor(key);
-      if (scrubSlider._detentSticky) {
-        v = _checkDetentRelease(scrubSlider, v, r.def);
-      } else {
-        v = _applyDetent(scrubSlider, v, prev, r.def);
-      }
-      /* Reflect any clamp back to the input. */
-      if (v !== parseInt(scrubSlider.value, 10)) scrubSlider.value = String(v);
       if (key === 'vignette') {
         v_.amount = v;
         _vigMarkDirty();
@@ -10444,13 +10438,11 @@ function _renderAdjustTab(body){
       const key = a.selected || 'brightness';
       const r = _scrubRange(key);
       const cur = _scrubValueFor(key);
-      /* R56 — snap radius dropped from 2 to 0. Previously, landing at +1
-         was yanked back to 0 (default), making it impossible to choose
-         a value of 1. With step=1 and a 0-tolerance check, the slider
-         only "snaps" if the user is already exactly on default — i.e.
-         the snap is now a no-op for the release event. Visual center
-         mark on the ruler still indicates where 0 sits. */
-      if (Math.abs(cur - r.def) < 1 && cur !== r.def) {
+      /* R74 — moderate release snap: ±2 around default snaps on lift.
+         Lets users land deliberately at ±1, ±2 with a confident grip
+         (release while clearly off-center); but a sloppy lift near 0
+         confirms 0. Tested feel: "responsive snap" the user asked for. */
+      if (Math.abs(cur - r.def) <= 2 && cur !== r.def) {
         if (key === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
         else { a[key] = r.def; }
         scrubSlider.value = String(r.def);
