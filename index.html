@@ -3850,16 +3850,17 @@
   }
   /* Center indicator — accent vertical line at the "default" value. */
   .edit-modal .adj-tick-center{
-    /* R72 — neutral white center mark (was accent green). Matches
-       Apple Photos: subtle, monochrome ruler. */
+    /* R73 — Apple gold (#ffd60a) center mark: distinct from green
+       accent, more obvious than white. Full-height + 3px wide with
+       drop-shadow for contrast against bright photos. */
     position:absolute;
-    left:50%;top:8px;
-    width:2px;height:28px;
-    background:rgba(255,255,255,.55);
-    transform:translateX(-1px);
-    border-radius:1px;
+    left:50%;top:0;
+    width:3px;height:44px;
+    background:#ffd60a;
+    transform:translateX(-1.5px);
+    border-radius:2px;
     pointer-events:none;
-    box-shadow:0 0 3px rgba(0,0,0,.85);
+    box-shadow:0 0 4px rgba(0,0,0,.9);
   }
   /* Position indicator — clean white vertical line (no halo). Matches
      Apple Photos: a single tick line, not a dot with shadow. */
@@ -10682,30 +10683,21 @@ function _renderAdjustTab(body){
    range, minorStep, majorEvery are derived from the ruler's --range
    CSS variable. */
 function _buildRulerTicks(rulerEl){
+  /* R73 — fixed visual density. 40 minor ticks total, major every 5
+     (9 majors visible). Same visual on every scrubber, independent of
+     the underlying unit range. Apple Photos uses constant density too. */
   if (!rulerEl) return;
   const ticksEl = rulerEl.querySelector('.adj-tick-ticks');
   if (!ticksEl) return;
-  /* Re-read range each call so key-switch in Adjust gets the right density. */
-  const range = parseInt(rulerEl.style.getPropertyValue('--range') || '200', 10) || 200;
-  /* Pick a minor-tick step that keeps the count sane across slider widths.
-     Roughly aim for 30-80 minor ticks total. */
-  /* R66 — denser ticks closer to Apple Photos density. */
-  let minorStep = 5;
-  if      (range <= 50)  minorStep = 1;
-  else if (range <= 100) minorStep = 1;
-  else if (range <= 200) minorStep = 2;
-  else if (range <= 400) minorStep = 5;
-  else                   minorStep = 10;
-  const majorEvery = 5; /* every 5th minor tick gets .major */
-  /* Build via documentFragment so we touch the DOM once. */
+  const MINOR_COUNT = 40;
+  const MAJOR_EVERY = 5;
   const frag = document.createDocumentFragment();
-  let idx = 0;
-  for (let v = 0; v <= range; v += minorStep) {
+  for (let i = 0; i <= MINOR_COUNT; i++) {
+    const pct = (i / MINOR_COUNT) * 100;
     const tick = document.createElement('span');
-    tick.className = 'adj-tick' + ((idx % majorEvery === 0) ? ' major' : '');
-    tick.style.left = ((v / range) * 100).toFixed(4) + '%';
+    tick.className = 'adj-tick' + ((i % MAJOR_EVERY === 0) ? ' major' : '');
+    tick.style.left = pct.toFixed(4) + '%';
     frag.appendChild(tick);
-    idx++;
   }
   ticksEl.innerHTML = '';
   ticksEl.appendChild(frag);
