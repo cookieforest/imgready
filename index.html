@@ -3662,15 +3662,12 @@
     padding:8px 8px 4px;
   }
 
-  /* R51 — section-label pill anchored to editPreviewCol (sibling of
-     .edit-action-pill), positioned just above the action pill so it
-     floats over the photo. */
-  .edit-modal #editPreviewCol .adj-section-pill{
-    position:absolute;
-    left:50%;
-    bottom:calc(var(--split-btn-bottom, 120px) + 48px);
-    transform:translateX(-50%);
+  /* R71 — pill lives inside the floating tool surface as first child;
+     position relative (in flow) so it stacks above the icons naturally. */
+  .edit-modal #editBody > .adj-section-pill{
+    position:relative;
     display:inline-flex;align-items:center;gap:6px;
+    margin:0 auto 8px;
     background:rgba(0,0,0,.72);
     backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);
@@ -3681,13 +3678,14 @@
     border-radius:999px;
     pointer-events:none;
     white-space:nowrap;
-    z-index:4;
   }
-  .edit-modal #editPreviewCol .adj-section-pill[hidden]{display:none;}
-  /* Legacy in-toolbar styles no longer apply — keep this rule for any
-     stray DOM (defensive); the in-toolbar pill is now removed. */
-  .edit-modal .adj-tab-r50 > .adj-section-pill,
-  .edit-modal .filters-tab-r50 > .adj-section-pill{display:none;}
+  /* Center via the parent flex (editBody is column flex by default? force it). */
+  .edit-modal #editBody{
+    display:flex;flex-direction:column;align-items:center;
+  }
+  .edit-modal #editBody > .adj-section-pill[hidden]{display:none;}
+  /* Fallback for the legacy editPreviewCol anchor (defensive). */
+  .edit-modal #editPreviewCol > .adj-section-pill{display:none;}
   .edit-modal .adj-section-pill-label{color:#fff;}
   .edit-modal .adj-section-pill-val{
     font-family:var(--font-mono, ui-monospace, monospace);
@@ -3813,14 +3811,13 @@
     padding:0 12px;
     margin-top:8px;
     --range:200;
-    /* R69 — subtle pill backdrop only on the ruler so tick marks stay
-       readable against bright photos. No backdrop on the surrounding
-       toolbar; the icons sit bare over the image. */
-    background:rgba(20,20,20,.55);
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:999px;
+    /* R71 — no backdrop. Ticks pop via a sharp text-shadow so they
+       stay legible against bright photos. */
+    background:transparent;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    border:none;
+    border-radius:0;
   }
   /* R65 — one DOM element per tick. JS populates .adj-tick spans into
      .adj-tick-ticks; every Nth gets .major. Guaranteed pixel alignment
@@ -3837,26 +3834,29 @@
     top:9px;
     width:1px;
     height:6px;
-    background:rgba(255,255,255,.28);
+    background:rgba(255,255,255,.55);
     transform:translateX(-0.5px);
     pointer-events:none;
+    box-shadow:0 0 2px rgba(0,0,0,.85);
   }
   .edit-modal .adj-tick.major{
     top:0;
     height:24px;
     width:2px;
-    background:rgba(255,255,255,.65);
+    background:rgba(255,255,255,.85);
     transform:translateX(-1px);
+    box-shadow:0 0 2px rgba(0,0,0,.85);
   }
   /* Center indicator — accent vertical line at the "default" value. */
   .edit-modal .adj-tick-center{
     position:absolute;
-    left:50%;top:12px;
-    width:2px;height:24px;
+    left:50%;top:8px;
+    width:2px;height:28px;
     background:var(--accent, #7a9a7a);
     transform:translateX(-1px);
     border-radius:1px;
     pointer-events:none;
+    box-shadow:0 0 3px rgba(0,0,0,.85);
   }
   /* Position indicator — clean white vertical line (no halo). Matches
      Apple Photos: a single tick line, not a dot with shadow. */
@@ -3869,8 +3869,7 @@
     border-radius:1px;
     pointer-events:none;
     transition:left .08s ease-out;
-    box-shadow:none;
-    /* R66 — full-height pin, no shadow, no halo. */
+    box-shadow:0 0 3px rgba(0,0,0,.85);
   }
   .edit-modal .adj-tick-input{
     position:absolute;left:0;right:0;top:0;bottom:0;
@@ -4482,6 +4481,14 @@
     cursor:pointer;font-size:.86rem;padding:0 3px;line-height:1;
   }
   .tx-item-row .tx-item-del:hover{color:#ff7070;}
+  /* R71 — text-tab empty state cleaned up: centered subtle copy below icons. */
+  .edit-modal .edit-tool-surface .tx-empty{
+    text-align:center;
+    color:rgba(255,255,255,.55);
+    font-size:.72rem;font-weight:500;
+    padding:12px 8px 4px;
+    background:transparent;border:none;
+  }
   .tx-empty{
     padding:14px 6px;text-align:center;
     font-size:.72rem;color:rgba(255,255,255,.4);
@@ -5200,6 +5207,15 @@
     background:var(--accent, #7a9a7a);
   }
   .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab{position:relative;}
+
+
+
+  /* R71 — kill the browser focus ring on tab buttons after click. The
+     accent dot ::before is the only "active" indicator. */
+  .edit-modal .edit-tab-bar .edit-tab:focus{outline:none;}
+  .edit-modal .edit-tab-bar .edit-tab:focus-visible{
+    outline:2px solid var(--accent, #7a9a7a);outline-offset:2px;border-radius:8px;
+  }
 
 
 </style>
@@ -10687,14 +10703,21 @@ function _buildRulerTicks(rulerEl){
    pill, matching Apple Photos. _renderAdjustTab + _renderFiltersTab call
    this to set the label; _switchEditTab clears it on other tabs. */
 function _ensureAdjSectionPill(label, value){
-  const col = document.getElementById('editPreviewCol');
-  if (!col) return null;
-  let pill = col.querySelector('.adj-section-pill');
+  /* R71 — host the pill INSIDE the floating tool surface as its first
+     child. That way it stacks above the icons naturally (in flow) and
+     can't drift over the icon row. Falls back to editPreviewCol if
+     the tool surface isn't present yet. */
+  const surface = document.getElementById('editBody');
+  const host = surface || document.getElementById('editPreviewCol');
+  if (!host) return null;
+  let pill = host.querySelector(':scope > .adj-section-pill');
   if (!pill) {
     pill = document.createElement('div');
     pill.className = 'adj-section-pill';
     pill.innerHTML = '<span class="adj-section-pill-label"></span><span class="adj-section-pill-val"></span>';
-    col.appendChild(pill);
+    /* Insert at top so it's the first floating element above the toolbar. */
+    if (host.firstChild) host.insertBefore(pill, host.firstChild);
+    else host.appendChild(pill);
   }
   const lblEl = pill.querySelector('.adj-section-pill-label');
   const valEl = pill.querySelector('.adj-section-pill-val');
