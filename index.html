@@ -3533,12 +3533,13 @@
   .edit-modal .ed-circle-btn:hover .ed-circle-cap,
   .edit-modal .ed-circle-btn:focus-visible .ed-circle-cap{display:block;}
 
-  /* Center the function row, no wrap, even gaps. */
+  /* R72 — match Adjust's .adj-flat-carousel padding so all tabs share
+     the same row height + spacing. */
   .edit-modal .ed-func-row{
     flex-wrap:nowrap;
     justify-content:center;
-    padding:10px 12px 8px;
-    gap:18px;
+    padding:4px 8px;
+    gap:14px;
   }
 
   /* Disable toggle button — variant of .ed-circle-sm. When the tab is
@@ -3642,11 +3643,11 @@
     display:flex;flex-direction:row;align-items:center;
     gap:14px;
     width:100%;
-    padding:14px 8px 8px;
+    padding:4px 8px;
     overflow-x:auto;
     scrollbar-width:none;
     justify-content:center;
-    flex-wrap:wrap;
+    flex-wrap:nowrap;
   }
   .edit-modal .ed-func-row::-webkit-scrollbar{display:none;}
 
@@ -3849,10 +3850,12 @@
   }
   /* Center indicator — accent vertical line at the "default" value. */
   .edit-modal .adj-tick-center{
+    /* R72 — neutral white center mark (was accent green). Matches
+       Apple Photos: subtle, monochrome ruler. */
     position:absolute;
     left:50%;top:8px;
     width:2px;height:28px;
-    background:var(--accent, #7a9a7a);
+    background:rgba(255,255,255,.55);
     transform:translateX(-1px);
     border-radius:1px;
     pointer-events:none;
@@ -8958,16 +8961,6 @@ function _renderRotateTab(body){
         <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fv" title="Flip vertical" aria-label="Flip vertical">
           <span class="ed-circle-ring" aria-hidden="true"></span>
           <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg></span>
-        </button>
-        <button type="button" class="ed-circle-btn adj-circle-btn${_angleMod ? ' modified selected' : ' selected'}" data-rot="angle" title="Angle (tap to select; drag the ruler)" aria-label="Angle">
-          <span class="ed-circle-ring adj-icon-dot" aria-hidden="true"></span>
-          <span class="ed-circle-inner">
-            <svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg>
-            <span class="adj-circle-val">${_angleMod ? (_rotAng > 0 ? '+' + _rotAng : String(_rotAng)) : ''}</span>
-          </span>
-        </button>
-        <button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn${_rotEnabled ? '' : ' tab-disabled'}" id="editRotateDisable" title="${_rotEnabled ? 'Disable rotate' : 'Enable rotate'}" aria-pressed="${_rotEnabled ? 'false' : 'true'}">
-          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>
         </button>
       </div>
       <div class="adj-tick-ruler" id="editAngleRuler" style="--range:360;">
