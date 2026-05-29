@@ -5236,6 +5236,40 @@
   }
 
 
+
+  /* R78 — homepage hub-to-spoke converter grid + visible breadcrumb on
+     landing pages. */
+  .seo-converter-grid{
+    list-style:none;padding:0;margin:18px 0 8px;
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:10px 16px;
+  }
+  .seo-converter-grid li{margin:0;}
+  .seo-converter-grid a{
+    display:block;padding:8px 12px;border-radius:8px;
+    color:rgba(255,255,255,.82);text-decoration:none;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    transition:background .15s ease, color .15s ease, transform .12s ease;
+    font-size:.86rem;line-height:1.35;
+  }
+  .seo-converter-grid a:hover{
+    background:rgba(255,255,255,.10);color:#fff;transform:translateY(-1px);
+  }
+  .seo-converter-grid a strong{
+    display:inline-block;margin-left:4px;color:var(--accent, #7a9a7a);font-variant-numeric:tabular-nums;
+  }
+  @media (max-width:640px){
+    .seo-converter-grid{grid-template-columns:1fr;}
+  }
+  .seo-breadcrumb{
+    list-style:none;padding:0;margin:0 0 18px;
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    font-size:.78rem;color:rgba(255,255,255,.55);
+  }
+  .seo-breadcrumb li{display:inline-flex;align-items:center;gap:6px;}
+  .seo-breadcrumb a{color:rgba(255,255,255,.72);text-decoration:none;}
+  .seo-breadcrumb a:hover{color:#fff;}
+  .seo-breadcrumb li[aria-current="page"]{color:rgba(255,255,255,.94);}
+  .seo-breadcrumb svg{width:11px;height:11px;opacity:.5;}
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
@@ -5436,7 +5470,24 @@
     </ul>
   </header>
 
-  <div class="content-section">
+    <div class="content-section">
+
+    <h2 id="all-converters">All free image converters</h2>
+    <p>Pick the conversion you need. Every converter runs entirely in your browser — no upload, no sign-up, no watermark.</p>
+    <ul class="seo-converter-grid">
+      <li><a href="/tiff-to-jpg">Convert TIFF photos to JPG — <strong>TIFF → JPG</strong></a></li>
+      <li><a href="/heic-to-jpg">Open HEIC iPhone photos as JPG — <strong>HEIC → JPG</strong></a></li>
+      <li><a href="/webp-to-jpg">Convert WebP back to JPG — <strong>WebP → JPG</strong></a></li>
+      <li><a href="/png-to-jpg">Shrink PNG screenshots to JPG — <strong>PNG → JPG</strong></a></li>
+      <li><a href="/jpg-to-png">Save JPG as PNG — <strong>JPG → PNG</strong></a></li>
+      <li><a href="/jpg-to-webp">Compress JPG to WebP for the web — <strong>JPG → WebP</strong></a></li>
+      <li><a href="/avif-to-jpg">AVIF to JPG converter — <strong>AVIF → JPG</strong></a></li>
+      <li><a href="/bmp-to-jpg">Shrink BMP files as JPG — <strong>BMP → JPG</strong></a></li>
+    </ul>
+
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:32px 0;">
+
+    
 
     <h2>What imgready does</h2>
     <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use — WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Compare before/after with a live slider.</p>

@@ -54,7 +54,8 @@
       "@id": "https://imgready.app/bmp-to-jpg#breadcrumb",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "imgready", "item": "https://imgready.app/" },
-        { "@type": "ListItem", "position": 2, "name": "BMP to JPG", "item": "https://imgready.app/bmp-to-jpg" }
+        { "@type": "ListItem", "position": 2, "name": "Image Converters", "item": "https://imgready.app/#all-converters" },
+        { "@type": "ListItem", "position": 3, "name": "BMP to JPG", "item": "https://imgready.app/bmp-to-jpg" }
       ]
     },
     {
@@ -5228,6 +5229,40 @@
   }
 
 
+
+  /* R78 — homepage hub-to-spoke converter grid + visible breadcrumb on
+     landing pages. */
+  .seo-converter-grid{
+    list-style:none;padding:0;margin:18px 0 8px;
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:10px 16px;
+  }
+  .seo-converter-grid li{margin:0;}
+  .seo-converter-grid a{
+    display:block;padding:8px 12px;border-radius:8px;
+    color:rgba(255,255,255,.82);text-decoration:none;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    transition:background .15s ease, color .15s ease, transform .12s ease;
+    font-size:.86rem;line-height:1.35;
+  }
+  .seo-converter-grid a:hover{
+    background:rgba(255,255,255,.10);color:#fff;transform:translateY(-1px);
+  }
+  .seo-converter-grid a strong{
+    display:inline-block;margin-left:4px;color:var(--accent, #7a9a7a);font-variant-numeric:tabular-nums;
+  }
+  @media (max-width:640px){
+    .seo-converter-grid{grid-template-columns:1fr;}
+  }
+  .seo-breadcrumb{
+    list-style:none;padding:0;margin:0 0 18px;
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    font-size:.78rem;color:rgba(255,255,255,.55);
+  }
+  .seo-breadcrumb li{display:inline-flex;align-items:center;gap:6px;}
+  .seo-breadcrumb a{color:rgba(255,255,255,.72);text-decoration:none;}
+  .seo-breadcrumb a:hover{color:#fff;}
+  .seo-breadcrumb li[aria-current="page"]{color:rgba(255,255,255,.94);}
+  .seo-breadcrumb svg{width:11px;height:11px;opacity:.5;}
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
@@ -5428,9 +5463,16 @@
     </ul>
   </header>
 
-  <div class="content-section">
+    <div class="content-section">
 
-    <h2>BMP to JPG converter — free, private, in your browser</h2>
+        <ol class="seo-breadcrumb" aria-label="Breadcrumb">
+      <li><a href="/">imgready</a></li>
+      <li aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 2 8 6 4 10"/></svg></li>
+      <li><a href="/#all-converters">Image converters</a></li>
+      <li aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 2 8 6 4 10"/></svg></li>
+      <li aria-current="page">BMP to JPG</li>
+    </ol>
+
     <h2>How to convert BMP to JPG in your browser</h2>
     <p>imgready converts BMP files to JPG locally, in your browser. Drop a file in the dropzone above and download the converted JPG when it's ready. Nothing is uploaded — encoding runs entirely in your browser via Canvas and Web APIs. You can disconnect from the internet and the conversion still works.</p>
 
@@ -5464,19 +5506,19 @@
     <p>Most metadata is preserved in the JPG output. You can strip EXIF in Settings if you want to remove location and camera info before sharing.</p>
 
     <h3>Related image converters</h3>
+    <p>Other free in-browser converters from imgready — same privacy, same workflow:</p>
     <ul class="seo-related">
-      <li><a href="/tiff-to-jpg">TIFF to JPG</a></li>
-      <li><a href="/heic-to-jpg">HEIC to JPG</a></li>
-      <li><a href="/webp-to-jpg">WebP to JPG</a></li>
-      <li><a href="/png-to-jpg">PNG to JPG</a></li>
-      <li><a href="/jpg-to-png">JPG to PNG</a></li>
-      <li><a href="/jpg-to-webp">JPG to WebP</a></li>
-      <li><a href="/avif-to-jpg">AVIF to JPG</a></li>
+      <li><a href="/tiff-to-jpg">Convert TIFF photos to JPG (<strong>TIFF → JPG</strong>)</a></li>
+      <li><a href="/heic-to-jpg">Open HEIC iPhone photos as JPG (<strong>HEIC → JPG</strong>)</a></li>
+      <li><a href="/webp-to-jpg">Convert WebP back to JPG (<strong>WebP → JPG</strong>)</a></li>
+      <li><a href="/png-to-jpg">Shrink PNG screenshots to JPG (<strong>PNG → JPG</strong>)</a></li>
+      <li><a href="/avif-to-jpg">AVIF to JPG converter (<strong>AVIF → JPG</strong>)</a></li>
+      <li><a href="/jpg-to-png">Save JPG as PNG (<strong>JPG → PNG</strong>)</a></li>
+      <li><a href="/jpg-to-webp">Compress JPG to WebP for the web (<strong>JPG → WebP</strong>)</a></li>
     </ul>
+    <p><a href="/">← Back to imgready home</a></p>
 
     <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:32px 0;">
-    
-
     <h2>What imgready does</h2>
     <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use — WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Compare before/after with a live slider.</p>
     <p>Encoding runs in your browser. The <a href="/why/">thinking behind it</a> goes deeper into what that means for speed and file-size limits.</p>
@@ -14561,9 +14603,6 @@ function doClear(){
 
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"aa1ebadf430e4a21a278fbcecd3f04ae","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script>
-/* R77 landing-page bootstrap: announce intended format pair to the
-   compress/convert tool when the page loads. Settings panel reads
-   data-default-format and pre-selects JPG. */
 document.documentElement.dataset.defaultFormat = 'jpg';
 document.documentElement.dataset.fromFormat = 'bmp';
 </script>
