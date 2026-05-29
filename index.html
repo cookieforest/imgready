@@ -10736,8 +10736,7 @@ function _hideAdjSectionPill(){
 function _renderFiltersTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
-  /* R51 — show the floating FILTERS pill over the photo. */
-  try { _ensureAdjSectionPill('Filters', ''); } catch(_){}
+  /* R75 — pill creation moved AFTER body.innerHTML below (was wiped). */
   if (!_editState.pendingEdits.photoAdjust) {
     _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, globalBlur: 0, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
   }
@@ -10777,6 +10776,8 @@ function _renderFiltersTab(body){
       </div>
     </div>
   `;
+  /* R75 — create pill AFTER innerHTML so it persists. */
+  try { _ensureAdjSectionPill('Filters', ''); } catch(_){}
   body.querySelectorAll('.filter-thumb').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.preset;
