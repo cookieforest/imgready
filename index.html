@@ -10227,6 +10227,26 @@ function _renderAdjustTab(body){
   `;
   /* R65 — populate ticks for the Adjust scrubber. */
   try { _buildRulerTicks(document.getElementById('adjScrubberWrap')); } catch(_){}
+  /* R71b — ensure section pill is created on initial render. The pill
+     is created lazily by _syncScrubberToSelected; queue a microtask call
+     after the scrubber wiring finishes so the pill exists on first paint.
+     Plus directly call _ensureAdjSectionPill upfront so the pill renders
+     even if scrubber wiring is short-circuited. */
+  try {
+    const _initKey = (adj.selected || 'brightness');
+    const _initLabel = ({brightness:'Brightness',contrast:'Contrast',saturation:'Saturation',vignette:'Vignette',globalBlur:'Blur'})[_initKey] || _initKey;
+    let _initVal = '';
+    if (_initKey === 'vignette') {
+      const v = vig.amount || 0;
+      _initVal = v === 0 ? '' : (v > 0 ? '+' + v : String(v));
+    } else if (_initKey === 'globalBlur') {
+      _initVal = (adj.globalBlur && adj.globalBlur > 0) ? '+' + adj.globalBlur : '';
+    } else {
+      const d = adj[_initKey] - 100;
+      _initVal = d === 0 ? '' : (d > 0 ? '+' + d : String(d));
+    }
+    _ensureAdjSectionPill(_initLabel, _initVal);
+  } catch(_){}
   const previewImg = document.getElementById('editAdjPreview');
   function _getAdjFilter(){
     const a = _editState.pendingEdits.photoAdjust;
