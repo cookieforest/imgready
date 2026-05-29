@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>imgready — Compress, convert, resize. No upload.</title>
+<title>Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready</title>
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Compress, resize and convert images online for free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
-<meta property="og:title" content="imgready — Compress, convert, resize. No upload.">
-<meta property="og:description" content="Compress, resize and convert any image free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
+<meta name="description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device — private, fast, unlimited.">
+<meta property="og:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
+<meta property="og:description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device — private, fast, unlimited.">
 <meta property="og:image" content="https://imgready.app/demo.webp">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="795">
@@ -15,8 +15,8 @@
 <meta property="og:url" content="https://imgready.app/">
 <meta property="og:site_name" content="imgready">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="imgready — Compress, convert, resize. No upload.">
-<meta name="twitter:description" content="Compress, resize and convert any image — free, private, in-browser. HEIC, TIFF, WebP, AVIF and more.">
+<meta name="twitter:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
+<meta name="twitter:description" content="Convert TIFF, HEIC, WebP, PNG to JPG free in your browser. No upload, no sign-up. Files stay private on your device.">
 <meta name="twitter:image" content="https://imgready.app/demo.webp">
 <link rel="canonical" href="https://imgready.app/">
 
@@ -26,37 +26,51 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "WebApplication",
+      "@type": "SoftwareApplication",
       "@id": "https://imgready.app/#app",
       "name": "imgready",
-      "description": "Free browser-based image compressor, converter and resizer. Supports HEIC, TIFF, WebP, AVIF, PNG, JPG, GIF and more. Files are processed locally in your browser and never uploaded.",
+      "alternateName": ["image ready", "imgready image converter"],
       "url": "https://imgready.app/",
+      "description": "Free browser-based image converter. Convert TIFF, HEIC, WebP, PNG to JPG (and back) without uploading. Runs 100% in your browser — files stay private.",
       "applicationCategory": "MultimediaApplication",
-      "operatingSystem": "Any (web browser)",
-      "browserRequirements": "Requires HTML5 Canvas and WebAssembly support.",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "applicationSubCategory": "Image Converter",
+      "operatingSystem": "Any (Web Browser)",
+      "browserRequirements": "Requires a modern browser with HTML5 Canvas + File API. Chrome, Firefox, Safari, Edge.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
       "featureList": [
-        "Compress JPG, PNG, WebP, HEIC, TIFF",
-        "Convert between WebP, AVIF, PNG, JPG, GIF",
-        "Resize to any pixel target and crop to standard aspect ratios",
-        "Batch processing and ZIP download",
-        "Live quality editor with before/after compare",
-        "100% in-browser — files never uploaded"
-      ]
+        "TIFF to JPG conversion",
+        "HEIC to JPG conversion",
+        "WebP to JPG conversion",
+        "PNG to JPG / JPEG conversion",
+        "AVIF support",
+        "Batch image compression",
+        "Image resizing",
+        "Photo adjustments (brightness, contrast, saturation, vignette, blur)",
+        "Filter presets",
+        "Crop + rotate",
+        "100% client-side — no upload"
+      ],
+      "permissions": "No permissions required. No file upload.",
+      "screenshot": "https://imgready.app/demo.webp",
+      "softwareVersion": "1.0"
     },
     {
-      "@type": "FAQPage",
-      "@id": "https://imgready.app/#faq",
-      "mainEntity": [
-        { "@type": "Question", "name": "Are my images uploaded?", "acceptedAnswer": { "@type": "Answer", "text": "No. Encoding runs in your browser. To verify, open DevTools and watch the Network tab while dropping a file — no requests carry image data." } },
-        { "@type": "Question", "name": "What is the difference between WebP and AVIF?", "acceptedAnswer": { "@type": "Answer", "text": "Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly." } },
-        { "@type": "Question", "name": "How big a batch can I drop in?", "acceptedAnswer": { "@type": "Answer", "text": "The soft cap is 200 files with a confirmation prompt above that. There's no hard limit because there's no server queue, only your computer's RAM." } },
-        { "@type": "Question", "name": "Is there a file-size cap?", "acceptedAnswer": { "@type": "Answer", "text": "No. imgready has no caps because there's no server to bill for storage. The only constraint is your browser's available memory." } },
-        { "@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Open Settings, pick a preset, and choose your output format. Crop ratios and EXIF stripping are in the same panel." } },
-        { "@type": "Question", "name": "What if a file fails to convert?", "acceptedAnswer": { "@type": "Answer", "text": "Two common reasons: the file is corrupted, or it uses a TIFF compression imgready does not support. Re-saving the file in any image editor usually fixes it." } },
-        { "@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder. Smaller batches (30 to 50) are recommended on mobile." } },
-        { "@type": "Question", "name": "Is imgready free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free with no caps. Supported by voluntary Ko-fi contributions. Your image data never leaves your device." } }
-      ]
+      "@type": "Organization",
+      "@id": "https://imgready.app/#org",
+      "name": "imgready",
+      "url": "https://imgready.app/",
+      "logo": "https://imgready.app/favicon.svg"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://imgready.app/#site",
+      "url": "https://imgready.app/",
+      "name": "imgready",
+      "publisher": { "@id": "https://imgready.app/#org" }
     }
   ]
 }
@@ -5326,7 +5340,7 @@
     </span>
     <h2>
       Your image, <span class="dz-loop is-in" id="dzLoop" aria-hidden="true">compressed.</span>
-      <span class="sr-only">Your image, compressed, converted, resized, optimized, or ready.</span>
+      <span class="sr-only">TIFF → JPG, HEIC → JPG, WebP → JPG, PNG → JPG — and compression, resize, edit. No upload, no sign-up.</span>
     </h2>
     <p>Drop, click, or paste &middot; up to 200 files</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
@@ -5389,7 +5403,7 @@
     <header class="hero-below">
     <h1 class="brand-h1">
       The image tool that <span class="brand-ready">never uploads.</span>
-      <span class="sr-tagline">imgready — Free in-browser image compressor, converter and resizer.</span>
+      <span class="sr-tagline">imgready converts TIFF, HEIC, WebP, PNG and more to JPG — all in your browser. No upload, no sign-up, no watermark. Files stay on your device.</span>
     </h1>
     <p>Compress, convert and resize photos right in your browser.</p>
     <!-- Verifiable trust signals — privacy-focused social-proof
@@ -7972,14 +7986,13 @@ function _editTabsForType(t){
     return tabs;
   }
   if (isPhoto) {
+    /* R76 — Hid Pixelate / Text / Remove BG per user audit: half-baked
+       features dilute the conversion-first SEO message. Renderers
+       remain in code (no breakage) but tab buttons are not exposed. */
     tabs.push({ id: 'adjust',   label: 'Adjust',  icon: 'i-sliders-horizontal' });
     tabs.push({ id: 'filters',  label: 'Filters', icon: 'i-palette' });
     tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
     tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
-    tabs.push({ id: 'pixelate', label: 'Pixelate',icon: 'i-grid' });
-    /* R59 — Blur folded into Adjust (now a single global slider there). */
-    tabs.push({ id: 'text',     label: 'Text',    icon: 'i-type' });
-    tabs.push({ id: 'bg',       label: 'Remove BG',icon: 'i-eraser' });
   } else {
     tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
     tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
