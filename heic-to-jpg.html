@@ -26,6 +26,24 @@
   "@context": "https://schema.org",
   "@graph": [
     {
+      "@type": "Article",
+      "@id": "https://imgready.app/heic-to-jpg#article",
+      "headline": "How to convert HEIC to JPG (free, in-browser, no upload)",
+      "description": "Convert HEIC to JPG free in your browser. No upload, no sign-up, no watermark. Files stay on your device — fast, private, unlimited.",
+      "author": { "@id": "https://imgready.app/about#author" },
+      "publisher": { "@id": "https://imgready.app/#org" },
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-15",
+      "mainEntityOfPage": "https://imgready.app/heic-to-jpg",
+      "image": "https://imgready.app/demo.webp"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://imgready.app/about#author",
+      "name": "Jeffrey L.",
+      "url": "https://imgready.app/about"
+    },
+    {
       "@type": "SoftwareApplication",
       "@id": "https://imgready.app/heic-to-jpg#app",
       "name": "imgready HEIC to JPG Converter",
@@ -47,6 +65,13 @@
         { "@type": "HowToStep", "position": 1, "name": "Drop the HEIC file", "text": "Drop your HEIC file into the dropzone (or click to browse)." },
         { "@type": "HowToStep", "position": 2, "name": "Wait for conversion", "text": "imgready decodes the HEIC in your browser and prepares the JPG." },
         { "@type": "HowToStep", "position": 3, "name": "Download", "text": "Click Download to save the JPG to your device." }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://imgready.app/heic-to-jpg#faq",
+      "mainEntity": [
+        {"@type":"Question","name":"Is the conversion really private?","acceptedAnswer":{"@type":"Answer","text":"Yes. imgready is 100% client-side. The conversion logic runs in your browser via the Canvas API. No file ever leaves your device - open DevTools → Network and confirm there are zero requests when you drop a file. You can use the tool with WiFi off after the page has loaded."}},{"@type":"Question","name":"Is the conversion lossless?","acceptedAnswer":{"@type":"Answer","text":"HEIC to JPG usually involves a lossy step (JPEG compression). imgready uses a high default quality (~92) that's visually indistinguishable from the source for most photos. For perfect fidelity, pick PNG instead of JPG as the output."}},{"@type":"Question","name":"What's the file size limit?","acceptedAnswer":{"@type":"Answer","text":"Practically limited by your browser's available memory. imgready handles 50 MB files comfortably on a typical laptop. Batch processing 200+ files at once is also supported."}},{"@type":"Question","name":"Can I convert HEIC to JPG in batch?","acceptedAnswer":{"@type":"Answer","text":"Yes. Drop multiple HEIC files at once (or a folder); each gets its own JPG download. Use \"Download all\" to grab a ZIP of every converted file."}},{"@type":"Question","name":"Will EXIF and metadata be preserved?","acceptedAnswer":{"@type":"Answer","text":"Most metadata is preserved in the JPG output. You can strip EXIF in Settings if you want to remove location and camera info before sharing."}},{"@type":"Question","name":"Why does my iPhone save photos as HEIC?","acceptedAnswer":{"@type":"Answer","text":"Since iOS 11, iPhones default to HEIC because it's about 50% smaller than JPG at equivalent quality. You can switch back to JPG in Settings → Camera → Formats → Most Compatible. Or keep the default and convert with imgready when needed."}}
       ]
     },
     {
@@ -5474,38 +5499,60 @@
     </ol>
 
     <h2>How to convert HEIC to JPG in your browser</h2>
+    <p class="seo-byline">By <a href="/about">Jeffrey&nbsp;L.</a> · Updated November 2026 · Tool runs 100% in your browser</p>
     <p>imgready converts HEIC files to JPG locally, in your browser. Drop a file in the dropzone above and download the converted JPG when it's ready. Nothing is uploaded — encoding runs entirely in your browser via Canvas and Web APIs. You can disconnect from the internet and the conversion still works.</p>
 
-    <h3>3 steps to convert HEIC to JPG</h3>
+    <h3 id="steps">3 steps to convert HEIC to JPG</h3>
     <ol class="seo-steps">
       <li>Drop your <strong>HEIC</strong> file into the dropzone above (or click to browse, or paste from clipboard).</li>
       <li>imgready decodes the HEIC in your browser and shows the result. Tune compression in Settings if you want.</li>
       <li>Click <strong>Download</strong> to save the JPG.</li>
     </ol>
 
-    <h3>About the HEIC format</h3>
+    <h3 id="about-heic">About the HEIC format</h3>
     <p>HEIC is Apple's default photo format on iPhone. It's smaller than JPG and supports more color, but Windows, Android, and most web apps can't open it without a plugin.</p>
 
-    <h3>Why convert HEIC to JPG?</h3>
+    <h3 id="why">Why convert HEIC to JPG?</h3>
     <p>Convert to JPG when you need to share an iPhone photo with anyone who isn't on an Apple device — co-workers, family on Windows, social apps, email attachments. JPG is the universal fallback.</p>
 
-    <h3>Frequently asked questions</h3>
+    <h3 id="compare">HEIC vs JPG — at a glance</h3>
+    <div class="seo-compare-wrap">
+      <table class="seo-compare">
+        <thead><tr><th></th><th>HEIC</th><th>JPG</th></tr></thead>
+        <tbody>
+        <tr><th scope="row">Compression</th><td>Lossy (HEVC)</td><td>Lossy (DCT)</td></tr>
+        <tr><th scope="row">Transparency</th><td>Yes (multi-frame)</td><td>No</td></tr>
+        <tr><th scope="row">Typical file size</th><td>Small (~50% of JPG)</td><td>Small (1–3&nbsp;MB typical)</td></tr>
+        <tr><th scope="row">Best for</th><td>iPhone photos, storage savings</td><td>Photos, web, email, social</td></tr>
+        <tr><th scope="row">Browser support</th><td>Safari + iOS only</td><td>Universal (all browsers, all devices)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="when">When should you convert HEIC to JPG?</h3>
+    <ul class="seo-when">
+      <li>You AirDropped a photo to a Mac and someone forwarded it to a PC.</li>
+      <li>Your iPhone photo won't open in Slack, Discord, or a web upload form.</li>
+      <li>You're emailing photos to family — half of them are on Android.</li>
+      <li>A printing service rejected your HEIC upload.</li>
+      <li>You want to edit in Photoshop CS6 or older — HEIC needs Camera Raw 10.1+.</li>
+    </ul>
+
+    <h3 id="faq">Frequently asked questions</h3>
     <h4>Is the conversion really private?</h4>
     <p>Yes. imgready is 100% client-side. The conversion logic runs in your browser via the Canvas API. No file ever leaves your device — open DevTools → Network and confirm there are zero requests when you drop a file. You can use the tool with WiFi off after the page has loaded.</p>
-
     <h4>Is the conversion lossless?</h4>
     <p>HEIC to JPG usually involves a lossy step (JPEG compression). imgready uses a high default quality (~92) that's visually indistinguishable from the source for most photos. For perfect fidelity, pick PNG instead of JPG as the output.</p>
-
     <h4>What's the file size limit?</h4>
     <p>Practically limited by your browser's available memory. imgready handles 50&nbsp;MB files comfortably on a typical laptop. Batch processing 200+ files at once is also supported.</p>
-
     <h4>Can I convert HEIC to JPG in batch?</h4>
     <p>Yes. Drop multiple HEIC files at once (or a folder); each gets its own JPG download. Use "Download all" to grab a ZIP of every converted file.</p>
-
     <h4>Will EXIF and metadata be preserved?</h4>
     <p>Most metadata is preserved in the JPG output. You can strip EXIF in Settings if you want to remove location and camera info before sharing.</p>
+    <h4>Why does my iPhone save photos as HEIC?</h4>
+    <p>Since iOS 11, iPhones default to HEIC because it's about 50% smaller than JPG at equivalent quality. You can switch back to JPG in Settings → Camera → Formats → Most Compatible. Or keep the default and convert with imgready when needed.</p>
 
-    <h3>Related image converters</h3>
+    <h3 id="related">Related image converters</h3>
     <p>Other free in-browser converters from imgready — same privacy, same workflow:</p>
     <ul class="seo-related">
       <li><a href="/tiff-to-jpg">Convert TIFF photos to JPG (<strong>TIFF → JPG</strong>)</a></li>
@@ -5516,7 +5563,7 @@
       <li><a href="/jpg-to-png">Save JPG as PNG (<strong>JPG → PNG</strong>)</a></li>
       <li><a href="/jpg-to-webp">Compress JPG to WebP for the web (<strong>JPG → WebP</strong>)</a></li>
     </ul>
-    <p><a href="/">← Back to imgready home</a></p>
+    <p><a href="/">← Back to imgready home</a> · <a href="/about">About imgready</a></p>
 
     <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:32px 0;">
     <h2>What imgready does</h2>

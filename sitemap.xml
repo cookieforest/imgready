@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url><loc>https://imgready.app/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://imgready.app/tiff-to-jpg</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://imgready.app/heic-to-jpg</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://imgready.app/webp-to-jpg</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://imgready.app/png-to-jpg</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://imgready.app/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://imgready.app/about</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://imgready.app/tiff-to-jpg</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://imgready.app/heic-to-jpg</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://imgready.app/webp-to-jpg</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://imgready.app/png-to-jpg</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://imgready.app/jpg-to-png</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://imgready.app/jpg-to-webp</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://imgready.app/avif-to-jpg</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://imgready.app/bmp-to-jpg</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://imgready.app/avif-to-jpg</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://imgready.app/bmp-to-jpg</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
 </urlset>
