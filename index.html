@@ -5237,25 +5237,33 @@
 
 
 
-  /* R78 — homepage hub-to-spoke converter grid + visible breadcrumb on
-     landing pages. */
+  /* R80 — fixed: light-mode safe styles using the homepage design tokens
+     (--text, --card, --border, --accent). Previous version used pure
+     rgba(255,255,255,*) which is invisible on cream. */
   .seo-converter-grid{
     list-style:none;padding:0;margin:18px 0 8px;
     display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:10px 16px;
   }
   .seo-converter-grid li{margin:0;}
   .seo-converter-grid a{
-    display:block;padding:8px 12px;border-radius:8px;
-    color:rgba(255,255,255,.82);text-decoration:none;
-    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-    transition:background .15s ease, color .15s ease, transform .12s ease;
-    font-size:.86rem;line-height:1.35;
+    display:block;padding:10px 14px;border-radius:8px;
+    color:var(--text, #2a2a26);text-decoration:none;
+    background:var(--card, #fffefb);
+    border:1px solid var(--border, rgba(0,0,0,.10));
+    transition:background .15s ease, border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+    font-size:.88rem;line-height:1.4;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
   }
   .seo-converter-grid a:hover{
-    background:rgba(255,255,255,.10);color:#fff;transform:translateY(-1px);
+    background:var(--accent-light, rgba(90,122,90,.10));
+    border-color:var(--accent, #7a9a7a);
+    transform:translateY(-1px);
+    box-shadow:0 4px 10px rgba(0,0,0,.06);
   }
   .seo-converter-grid a strong{
-    display:inline-block;margin-left:4px;color:var(--accent, #7a9a7a);font-variant-numeric:tabular-nums;
+    display:inline-block;margin-left:4px;
+    color:var(--accent-strong, #5a7a5a);
+    font-variant-numeric:tabular-nums;
   }
   @media (max-width:640px){
     .seo-converter-grid{grid-template-columns:1fr;}
@@ -5263,13 +5271,73 @@
   .seo-breadcrumb{
     list-style:none;padding:0;margin:0 0 18px;
     display:flex;align-items:center;gap:6px;flex-wrap:wrap;
-    font-size:.78rem;color:rgba(255,255,255,.55);
+    font-size:.8rem;color:var(--muted, #5e5c54);
   }
   .seo-breadcrumb li{display:inline-flex;align-items:center;gap:6px;}
-  .seo-breadcrumb a{color:rgba(255,255,255,.72);text-decoration:none;}
-  .seo-breadcrumb a:hover{color:#fff;}
-  .seo-breadcrumb li[aria-current="page"]{color:rgba(255,255,255,.94);}
-  .seo-breadcrumb svg{width:11px;height:11px;opacity:.5;}
+  .seo-breadcrumb a{color:var(--muted, #5e5c54);text-decoration:none;}
+  .seo-breadcrumb a:hover{color:var(--accent-strong, #5a7a5a);text-decoration:underline;}
+  .seo-breadcrumb li[aria-current="page"]{color:var(--text, #2a2a26);font-weight:600;}
+  .seo-breadcrumb svg{width:11px;height:11px;opacity:.6;}
+
+  /* R80 — R79 hybrid components, light-mode token safe. */
+  .seo-byline{
+    margin:6px 0 14px;
+    font-size:.82rem;color:var(--muted, #5e5c54);
+  }
+  .seo-byline a{
+    color:var(--text, #2a2a26);text-decoration:none;
+    border-bottom:1px solid var(--border, rgba(0,0,0,.18));
+  }
+  .seo-byline a:hover{color:var(--accent-strong, #5a7a5a);border-color:var(--accent-strong, #5a7a5a);}
+  .seo-compare-wrap{overflow-x:auto;margin:14px 0 24px;}
+  .seo-compare{
+    width:100%;border-collapse:collapse;
+    font-size:.86rem;line-height:1.5;
+    background:var(--card, #fffefb);
+    border:1px solid var(--border, rgba(0,0,0,.10));border-radius:10px;overflow:hidden;
+  }
+  .seo-compare th, .seo-compare td{
+    text-align:left;padding:10px 14px;
+    border-bottom:1px solid var(--border, rgba(0,0,0,.06));
+  }
+  .seo-compare thead th{
+    background:var(--accent-light, rgba(90,122,90,.10));
+    color:var(--accent-ink, #3f5a3f);font-weight:700;font-size:.86rem;
+  }
+  .seo-compare tbody th{
+    color:var(--muted, #5e5c54);font-weight:600;font-size:.74rem;
+    text-transform:uppercase;letter-spacing:.04em;
+    width:140px;
+  }
+  .seo-compare tbody td{color:var(--text, #2a2a26);}
+  .seo-compare tr:last-child th, .seo-compare tr:last-child td{border-bottom:none;}
+  .seo-when{
+    padding:0 0 0 18px;margin:8px 0 24px;
+    color:var(--text, #2a2a26);line-height:1.55;
+  }
+  .seo-when li{margin:4px 0;}
+  /* Related links list (used by landing pages & /about). */
+  .seo-related{
+    list-style:none;padding:0;margin:12px 0 16px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .seo-related li a{
+    color:var(--text, #2a2a26);text-decoration:none;
+    border-bottom:1px solid transparent;
+    padding-bottom:1px;
+  }
+  .seo-related li a:hover{
+    color:var(--accent-strong, #5a7a5a);
+    border-bottom-color:var(--accent-strong, #5a7a5a);
+  }
+  .seo-related li a strong{color:var(--accent-strong, #5a7a5a);font-variant-numeric:tabular-nums;}
+  /* Numbered step list (3 steps to convert ...). */
+  .seo-steps{
+    padding:0 0 0 24px;margin:8px 0 22px;
+    color:var(--text, #2a2a26);line-height:1.55;
+  }
+  .seo-steps li{margin:6px 0;}
+  .seo-steps strong{color:var(--accent-strong, #5a7a5a);}
 
   /* R79 — hybrid landing-page components. */
   .seo-byline{
