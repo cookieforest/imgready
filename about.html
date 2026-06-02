@@ -5234,17 +5234,15 @@
   .seo-converter-grid a{
     display:block;padding:10px 14px;border-radius:8px;
     color:var(--text, #2a2a26);text-decoration:none;
-    background:var(--card, #fffefb);
+    background:transparent;
     border:1px solid var(--border, rgba(0,0,0,.10));
-    transition:background .15s ease, border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+    transition:background .15s ease, border-color .15s ease, transform .12s ease;
     font-size:.88rem;line-height:1.4;
-    box-shadow:0 1px 2px rgba(0,0,0,.04);
   }
   .seo-converter-grid a:hover{
     background:var(--accent-light, rgba(90,122,90,.10));
     border-color:var(--accent, #7a9a7a);
     transform:translateY(-1px);
-    box-shadow:0 4px 10px rgba(0,0,0,.06);
   }
   .seo-converter-grid a strong{
     display:inline-block;margin-left:4px;
@@ -5279,7 +5277,7 @@
   .seo-compare{
     width:100%;border-collapse:collapse;
     font-size:.86rem;line-height:1.5;
-    background:var(--card, #fffefb);
+    background:transparent;
     border:1px solid var(--border, rgba(0,0,0,.10));border-radius:10px;overflow:hidden;
   }
   .seo-compare th, .seo-compare td{
@@ -5583,7 +5581,7 @@
       <li><a href="/#all-converters">All free image converters</a></li>
     </ul>
 
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:32px 0;">
+    <hr style="border:none;border-top:1px solid var(--border, rgba(0,0,0,.10));margin:32px 0;">
     <h2>What imgready does</h2>
     <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use — WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Compare before/after with a live slider.</p>
     <p>Encoding runs in your browser. The <a href="/why/">thinking behind it</a> goes deeper into what that means for speed and file-size limits.</p>
