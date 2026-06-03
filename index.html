@@ -8232,7 +8232,6 @@ function _switchEditTab(tabId){
   else if (tabId === 'adjust') _renderAdjustTab(body);
   else if (tabId === 'filters') _renderFiltersTab(body);
   else if (tabId === 'transform') _renderTransformTab(body);
-  else if (tabId === 'retouch') _renderRetouchTab(body);
   else if (tabId === 'add') { _renderTextTab(body).catch(e => console.warn('[add]', e)); }
   else if (tabId === 'rotate') _renderRotateTab(body);
   else if (tabId === 'crop') { _renderCropTab(body).catch(e => console.warn('[crop]', e)); }
@@ -8287,20 +8286,6 @@ function _renderTransformTab(body){
   });
   if (sub === 'rotate') _renderRotateTab(subBody);
   else if (sub === 'crop') _renderCropTab(subBody).catch(e => console.warn('[crop]', e));
-}
-function _renderRetouchTab(body){
-  const sub = _editState._retouchSub || 'pixelate';
-  _editState._retouchSub = sub;
-  const subBody = _renderSubToggle(body, [
-    { id: 'pixelate', label: 'Pixelate', icon: 'i-x' },
-    { id: 'blur',     label: 'Blur',     icon: 'i-brush' }
-  ], sub, (newSub) => {
-    _editState._retouchSub = newSub;
-    body.innerHTML = '';
-    _renderRetouchTab(body);
-  });
-  if (sub === 'pixelate') _renderPixelateTab(subBody).catch(e => console.warn('[pixelate]', e));
-  else if (sub === 'blur') _renderBlurTab(subBody).catch(e => console.warn('[blur]', e));
 }
 function cancelEdit(){
   /* R30 — Clean up portalled adjust-tab dropdowns (filter / vignette menus

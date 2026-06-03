@@ -1,3 +1,37 @@
+/* R88 — Self-hosted brand fonts (Fraunces display serif, Inter body sans).
+   Defined site-wide via app.css so landing pages get them without the
+   homepage's inline <style>. font-display:swap means we render with
+   the system fallback (Segoe UI / -apple-system) first, then swap to
+   the woff2 once it arrives — no FOIT. */
+@font-face{
+  font-family:'Fraunces';
+  src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),
+      url('/fonts/fraunces-latin.woff2') format('woff2');
+  font-weight:400 700;font-style:normal;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:'Inter';
+  src:url('/fonts/inter-latin.woff2') format('woff2-variations'),
+      url('/fonts/inter-latin.woff2') format('woff2');
+  font-weight:400 700;font-style:normal;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('/fonts/jetbrainsmono-latin.woff2') format('woff2-variations'),
+      url('/fonts/jetbrainsmono-latin.woff2') format('woff2');
+  font-weight:400 600;font-style:normal;font-display:swap;
+  unicode-range:U+0000-00FF,U+2000-206F,U+FEFF,U+FFFD;
+}
+/* Baseline tokens for pages that don't set data-theme="light" (homepage
+   has its own inline tokens; this block matches the light defaults so
+   var(--font-body) etc. resolve even without the data-theme attr). */
+:root{
+  --font-display:'Fraunces',ui-serif,Georgia,'Times New Roman',serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
 
 :root[data-theme="light"]{
   --bg:#f5f0e8;--bg2:#ede7d9;--surface:#faf7f2;--surface2:#ede7d9;
@@ -5,6 +39,8 @@
   --success:#4a8c6a;--warn:#b07d3a;--danger:#b05a4a;
   --text:#2e2a22;--text2:#5a5448;--muted:#8a8070;
   --shadow:rgba(90,80,60,.12);--card-shadow:0 2px 12px rgba(90,80,60,.1);--radius:12px;
+  --font-display:'Fraunces',ui-serif,Georgia,'Times New Roman',serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
 }
 :root[data-theme="dark"]{
   --bg:#1c2018;--bg2:#222820;--surface:#252b22;--surface2:#2e3629;
@@ -12,9 +48,11 @@
   --success:#6aba8a;--warn:#c49a50;--danger:#c07060;
   --text:#e8e4d8;--text2:#b0aa98;--muted:#7a8070;
   --shadow:rgba(0,0,0,.3);--card-shadow:0 2px 14px rgba(0,0,0,.25);--radius:12px;
+  --font-display:'Fraunces',ui-serif,Georgia,'Times New Roman',serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;transition:background .3s,color .3s;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 /* A11y: visible focus rings in brand color, replacing browser default */
 :focus{outline:none;}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
@@ -146,7 +184,7 @@ header.hero-below p{margin:12px 0 0;max-width:none;font-size:.94rem;line-height:
 @media(max-width:760px){header.hero-below h1.brand-h1{font-size:32px;}}
 body.has-images header.hero-below{display:none;}
 header p{font-size:.92rem;color:var(--muted);margin:0;max-width:520px;line-height:1.6;}
-header h1.brand-h1{font-family:'Segoe UI',system-ui,sans-serif;font-size:38px;font-weight:700;letter-spacing:-1.2px;line-height:1.12;margin:0;max-width:600px;}
+header h1.brand-h1{font-family:var(--font-display);font-size:38px;font-weight:700;letter-spacing:-1.2px;line-height:1.12;margin:0;max-width:600px;}
 header h1.brand-h1 .brand-ready{color:var(--accent);}
 header h1.brand-h1 .sr-tagline{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 @media(max-width:600px){header h1.brand-h1{font-size:28px;letter-spacing:-.8px;line-height:1.15;}header p{font-size:.86rem;}header{margin:6px 0 28px;gap:10px;}}
