@@ -2,6 +2,7 @@
   "name": "imgready \u2014 image tool that never uploads",
   "short_name": "imgready",
   "description": "Compress, convert and resize images entirely in your browser. HEIC, TIFF, WebP, AVIF, PNG, JPG. Your photo stays on your screen.",
+  "id": "/",
   "start_url": "/?utm_source=pwa",
   "scope": "/",
   "display": "standalone",
