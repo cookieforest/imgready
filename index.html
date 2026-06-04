@@ -10113,7 +10113,7 @@ function _renderAdjustTab(body){
   const adjPreviewCol = _editPreviewEl();
   if (adjPreviewCol) {
     const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
-    adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false"><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>`;
+    adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false" alt=""><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>`;
   }
   const _aeOn = !!_editState.pendingEdits.autoEnhanced;
   /* R30 — Adjust tab now mirrors home toolbar density:
@@ -10753,7 +10753,7 @@ function _renderFiltersTab(body){
   const adjPreviewCol = _editPreviewEl();
   if (adjPreviewCol) {
     const _src = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
-    adjPreviewCol.innerHTML = '<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="' + _src + '" class="edit-adjust-preview" draggable="false"><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>';
+    adjPreviewCol.innerHTML = '<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="' + _src + '" class="edit-adjust-preview" draggable="false" alt=""><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>';
     const _img = document.getElementById('editAdjPreview');
     if (_img) {
       const filterOn = adj.filterEnabled !== false;
