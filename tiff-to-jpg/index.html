@@ -111,6 +111,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Convert TIFF to JPG online for free","description":"Convert a TIFF file to JPG entirely in your browser using imgready. No upload, no sign-up.","totalTime":"PT10S","supply":[{"@type":"HowToSupply","name":"A TIFF file"}],"tool":[{"@type":"HowToTool","name":"A web browser (Chrome, Firefox, Safari, or Edge)"}],"step":[{"@type":"HowToStep","name":"Open imgready","text":"Go to imgready.app/tiff-to-jpg/ in your browser. Make sure JPG is selected as the output format.","url":"https://imgready.app/tiff-to-jpg/"},{"@type":"HowToStep","name":"Drop your TIFF","text":"Drag the TIFF into the drop zone or click to browse. imgready decodes it directly in your browser using WebAssembly."},{"@type":"HowToStep","name":"Download the JPG","text":"Adjust the quality slider if needed (default 82 is invisible loss). Click Download. A 100 MB TIFF becomes a 1-3 MB JPG."}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "TIFF to JPG", "item": "https://imgready.app/tiff-to-jpg/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What TIFF compressions does imgready support?", "acceptedAnswer": {"@type": "Answer", "text": "Uncompressed, LZW, and PackBits — the three most common. If your TIFF uses Deflate, JPEG-in-TIFF, or CCITT compression, you may need to re-save it in a more common format first using a desktop editor."}}, {"@type": "Question", "name": "Why is my TIFF file so huge?", "acceptedAnswer": {"@type": "Answer", "text": "TIFFs are designed for archival quality, not file-size efficiency. A 24-megapixel uncompressed TIFF is around 100 MB. LZW compression brings that down maybe 30%. JPG, by contrast, compresses the same image to 1–4 MB at a quality indistinguishable from the source."}}, {"@type": "Question", "name": "Will TIFF to JPG lose quality?", "acceptedAnswer": {"@type": "Answer", "text": "TIFFs are typically lossless and JPG is lossy, so technically yes. At imgready's default quality 82, the loss is invisible at typical viewing distances. For pixel-perfect output, convert to PNG instead."}}, {"@type": "Question", "name": "Is TIFF to JPG private?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. imgready decodes TIFF entirely in your browser. The file never reaches our servers. This matters for scanned documents, medical imaging, and other sensitive content."}}, {"@type": "Question", "name": "Can imgready handle multi-page TIFFs?", "acceptedAnswer": {"@type": "Answer", "text": "imgready converts the first image plane in a TIFF. Multi-page TIFFs (often used for fax or scanned documents) only have their first page converted. For all pages, use a desktop tool like ImageMagick to split the TIFF first."}}, {"@type": "Question", "name": "How can I convert TIFF to WebP instead of JPG?", "acceptedAnswer": {"@type": "Answer", "text": "Use the TIFF to WebP converter, or just toggle the format buttons after dropping a TIFF — imgready handles the same conversion to WebP, AVIF, or PNG."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "TIFF to JPG Converter Online Free — Convert TIFF Files Instantly | imgready", "description": "Convert TIFF to JPG online for free. Open and share print-quality TIFF files anywhere. Supports uncompressed, LZW, and PackBits TIFF. 100% in-browser — your files stay private.", "url": "https://imgready.app/tiff-to-jpg/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}}</script>
@@ -519,6 +520,43 @@ tr:nth-child(even) td{background:#faf7f2;}
       <tr><td>WebP (quality 82)</td><td>Smallest</td><td>Web publishing — blogs, e-commerce</td></tr>
     </tbody>
   </table>
+
+
+  <h3 class="sub">Color space and bit depth — what changes when TIFF becomes JPG</h3>
+  <p>TIFFs and JPGs handle color differently in two ways that matter for print and archival work.</p>
+  <p><strong>Bit depth.</strong> Many professional TIFFs use 16 bits per channel — that's 65,536 levels of red, green, and blue, giving a total of 281 trillion possible colors. JPG can only store 8 bits per channel (256 levels per color, 16.7 million total). When imgready converts, it intelligently dithers 16-bit data down to 8-bit. The visible result is identical for finished photos: the human eye can't resolve more than about 200 distinct shades of any color anyway. The reason to keep 16-bit is for further editing, not for viewing.</p>
+  <p><strong>Color space.</strong> Photographic TIFFs are usually in sRGB or Adobe RGB. Print-house TIFFs may be in CMYK. JPG can technically store CMYK, but in practice most software expects RGB. imgready converts CMYK TIFFs to sRGB on output so the resulting JPG opens correctly in browsers, phones, and photo apps. If your TIFF is in Adobe RGB, the colors may look slightly muted in the JPG — this is correct behavior for sRGB display, not a bug.</p>
+  <p><strong>ICC profiles.</strong> An ICC profile is a small color calibration block embedded in the file. imgready preserves the source profile when possible (sRGB on most browsers, ProPhoto on professional displays). For files destined for print, your printer may want the ICC profile embedded — check with them before converting.</p>
+
+  <h3 class="sub">Recommended JPG quality settings by use case</h3>
+  <p>imgready's quality slider goes from 1 to 100. Lower means smaller file, more compression artifacts. Here's what to pick for common scenarios.</p>
+  <table>
+    <thead><tr><th>Use case</th><th>Quality</th><th>Typical 50 MB TIFF → JPG</th></tr></thead>
+    <tbody>
+      <tr><td>Archival, print master</td><td>95–100</td><td>3–5 MB</td></tr>
+      <tr><td>Client delivery, photo lab</td><td>88–92</td><td>1.5–3 MB</td></tr>
+      <tr><td>Web publishing, e-commerce</td><td>78–85</td><td>500 KB – 1.5 MB</td></tr>
+      <tr><td>Email attachment, social</td><td>72–80</td><td>200–700 KB</td></tr>
+      <tr><td>Thumbnail, preview</td><td>60–72</td><td>40–150 KB</td></tr>
+    </tbody>
+  </table>
+  <p>Default quality is 82 — a balance point that's invisible to the eye at typical viewing distance but compresses to about 1–2% of the source TIFF size. Skip the "100" setting unless you have a specific archival reason; visually it's identical to 95 but the file is 30–50% larger.</p>
+
+  <h3 class="sub">TIFF flavors imgready can't handle yet</h3>
+  <p>TIFF is more of a container format than a single standard. imgready supports the three compressions that cover ~95% of real-world TIFFs: <strong>uncompressed</strong>, <strong>LZW</strong>, and <strong>PackBits</strong>. If your file uses something else, the conversion will fail with a clear error. Specifically not supported:</p>
+  <ul>
+    <li><strong>JPEG-in-TIFF</strong> (compression scheme 7) — common in older Canon DSLR raw exports. Workaround: open in Photoshop or GIMP and re-save with no compression.</li>
+    <li><strong>Deflate (compression scheme 8)</strong> — used by some professional scanners. Same workaround.</li>
+    <li><strong>BigTIFF</strong> — a variant for files larger than 4 GB. Rare; mostly used in scientific imaging.</li>
+    <li><strong>CCITT Group 3/4</strong> — fax and bilevel scan compression. The output is monochrome only; convert to PNG or use a desktop tool first.</li>
+    <li><strong>Multi-page TIFFs</strong> — imgready extracts only the first page. For scanned multi-page documents, split with ImageMagick or Preview first.</li>
+  </ul>
+  <p>If a TIFF refuses to open in imgready, the safest fallback is to open it in any desktop image editor and re-save as a standard uncompressed or LZW TIFF, then drop the new file into imgready.</p>
+
+  <h3 class="sub">Three real workflows for TIFF&nbsp;→&nbsp;JPG</h3>
+  <p><strong>Scanned old photos for sharing.</strong> Your scanner outputs 50–80 MB TIFFs at 600 DPI. For family group chats and email, convert to JPG at quality 80 and resize the longest side to 2000 px. Result: 200–400 KB files that still print sharply at 8&times;10. imgready does both in one drop.</p>
+  <p><strong>Print-master to client preview.</strong> You shoot in RAW, edit in Lightroom, export a 100 MB TIFF at 16-bit ProPhoto RGB. For client previews, convert to sRGB JPG at quality 88. The 2–3 MB result reviews fine on any phone or laptop while you keep the TIFF as the working master.</p>
+  <p><strong>Medical or legal scan for review.</strong> A document scanner produces multi-page TIFFs at 300 DPI grayscale. Privacy is non-negotiable — these can't go through any upload-based service. imgready converts the first page locally; for all pages, split the TIFF first with a desktop tool, then batch-convert in imgready. Files never leave the device.</p>
 
   <h2>How to convert TIFF to JPG in three steps</h2>
   <p>Converting TIFF to JPG with imgready takes about 10 seconds and requires no software installation.</p>
