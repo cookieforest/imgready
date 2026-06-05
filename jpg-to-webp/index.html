@@ -533,7 +533,39 @@ tr:nth-child(even) td{background:#faf7f2;}
 
 <h3 class="sub">Quality settings for JPEG to WebP conversion</h3>
 <p>WebP quality settings don&#39;t map 1:1 to JPEG quality. A JPEG at quality 85 looks roughly equivalent to WebP at quality 80 — WebP&#39;s compression is more efficient so you can use a lower number to get the same visual result. For web images, WebP quality 75–82 is the sweet spot: significantly smaller than the source JPEG, with no visible quality loss at typical screen viewing sizes. For print-quality output or archival use, WebP quality 90+ is safer.</p>
-<h2>Frequently asked questions</h2>
+
+  <h3 class="sub">How WebP gets to 25-35% smaller than JPG</h3>
+  <p>WebP's lossy encoder is based on VP8, the same video codec that became part of WebM. Three structural improvements over JPG's 1992 design account for the size win:</p>
+  <ul>
+    <li><strong>Intra-block prediction.</strong> WebP encodes each 4&times;4 or 8&times;8 block as the difference from a prediction of its neighbors, then compresses the difference. JPG encodes blocks independently. Real photographic content has lots of local correlation, which WebP exploits.</li>
+    <li><strong>Arithmetic coding.</strong> WebP uses range coding (arithmetic coding) for the entropy stage. JPG uses Huffman coding. Arithmetic is 5-10% more efficient at the cost of slightly slower encode/decode.</li>
+    <li><strong>Adaptive deblocking filter.</strong> JPG's block artifacts at low quality look like visible squares; WebP's in-loop deblocker smooths them out invisibly. This means WebP can run at lower quality settings while looking as good as JPG at higher quality.</li>
+  </ul>
+  <p>The combined effect is a typical 25-35% size reduction at visually equivalent quality. The reduction is larger on flat or low-detail content (skies, blurred backgrounds) and smaller on busy high-frequency content (foliage, hair, sand). It is generally smaller on JPGs that were already heavily compressed before — re-encoding low-quality JPG to WebP is a bad idea regardless of the savings, since you're compounding two rounds of lossy compression.</p>
+
+  <h3 class="sub">When JPG to WebP makes the biggest difference</h3>
+  <p>Three scenarios where WebP saves the most bandwidth:</p>
+  <p><strong>Hero images on landing pages.</strong> Large above-the-fold photos are the single biggest LCP contributor on most sites. Trimming a 400 KB JPG to a 280 KB WebP can move a Core Web Vitals score from "Needs Improvement" into "Good" on mobile. Browser support: every browser since 2020 supports WebP natively. For the rare older browser, serve via &lt;picture&gt; with a JPG fallback.</p>
+  <p><strong>E-commerce product galleries.</strong> A 20-photo product gallery at 500 KB each is 10 MB. The same gallery at WebP is 6-7 MB — meaningful page-weight reduction, faster swipe response on mobile, lower CDN bills.</p>
+  <p><strong>CDN-hosted media libraries.</strong> Bulk converting 10,000 JPGs to WebP can save 2-4 GB of CDN egress per month for a moderately busy site.</p>
+
+  <h3 class="sub">Browser support — when to skip the JPG fallback</h3>
+  <p>WebP has been supported in every major evergreen browser since 2020:</p>
+  <ul>
+    <li>Chrome: since 2010 (version 9)</li>
+    <li>Firefox: since 2019 (version 65)</li>
+    <li>Safari: since 2020 (version 14)</li>
+    <li>Edge: since 2018 (Chromium-based versions)</li>
+    <li>Samsung Internet, Opera, Brave: all current versions</li>
+  </ul>
+  <p>If your analytics show less than 1% traffic from Internet Explorer, very old Android stock browsers, or Safari before 14, you can serve WebP directly without a JPG fallback. For older audiences, use the &lt;picture&gt; element so non-supporting browsers automatically fall back to JPG:</p>
+  <pre style="background:#ede7d9;padding:14px;border-radius:8px;font-size:.82rem;line-height:1.55;overflow-x:auto;">&lt;picture&gt;
+  &lt;source srcset="hero.webp" type="image/webp"&gt;
+  &lt;img src="hero.jpg" alt="..."&gt;
+&lt;/picture&gt;</pre>
+
+
+  <h2>Frequently asked questions</h2>
     <details class="faq-item"><summary>Will JPG to WebP look the same as the original?</summary><p>At imgready's default quality of 82, the WebP output is visually indistinguishable from the JPG at normal viewing distance. The savings come from WebP's more efficient compression, not from quality loss.</p></details>
     <details class="faq-item"><summary>How much smaller will my files be?</summary><p>Typically 25–35% smaller for already-compressed JPGs, much more (often 80%+) for high-quality JPGs straight from a camera.</p></details>
     <details class="faq-item"><summary>Will old browsers display the WebP?</summary><p>Browsers shipped since 2020 will. For older browsers (Internet Explorer, pre-2020 Android stock), use the <picture> element to serve a JPG fallback.</p></details>
