@@ -5994,9 +5994,27 @@ function init(){
   }
 
   /* WASM cold-start pre-warm — defer until idle so it doesn't compete
-     with FCP. Worker swallows errors so this is safe; if 'preload'
-     isn't handled, the worker just does nothing. */
-  const warm = () => { try { getWorker().postMessage({ action: 'prewarm' }); } catch(_){} };
+     with FCP. Worker swallows errors so this is safe.
+     R106: derive the prewarm format list from the current URL (?out= or
+     ?fmt=) so users coming from a landing page get THEIR encoder
+     pre-compiled, not the default WebP. If neither param is set, we
+     pre-warm WebP + JPG since those are the two most common output
+     formats in practice (covers ~80% of conversions per GSC data). */
+  const warm = () => {
+    try {
+      const qsW = new URLSearchParams(location.search);
+      const qsOut = (qsW.get('out') || qsW.get('fmt') || '').toLowerCase();
+      let formats = qsOut
+        ? qsOut.split(',').map(f => f === 'jpeg' ? 'jpg' : f).filter(Boolean)
+        : ['webp', 'jpg'];
+      /* The worker prewarm handler accepts: webp, avif, jpg, oxipng.
+         Filter to just those — auto/png/gif/ico don't have an esm.sh
+         encoder so passing them would be wasted in the worker's loop. */
+      formats = formats.filter(f => f === 'webp' || f === 'avif' || f === 'jpg' || f === 'oxipng');
+      if (!formats.length) formats = ['webp'];
+      getWorker().postMessage({ action: 'prewarm', formats: formats });
+    } catch(_){}
+  };
   if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 4000 });
   else setTimeout(warm, 2500);
 
@@ -13068,10 +13086,13 @@ if (!window._navMenuOutsideClick) {
   window._qualityFromTarget = _qualityFromTarget;
   window._predictBpp = _predictBpp;
 
-  /* 1. Query string parse — comma-separated for multi: ?out=webp,avif */
+  /* 1. Query string parse — comma-separated for multi: ?out=webp,avif
+     R106: also accept ?fmt= as an alias, since landing-page hero CTAs
+     use that name (e.g., /tiff-to-jpg/ links to /?fmt=jpg#dropzone).
+     Previously the hint was silently dropped — users landed on WebP. */
   const VALID = ['auto','webp','avif','jpg','png','gif','ico'];
   const qs = new URLSearchParams(location.search);
-  const qsOut = qs.get('out');
+  const qsOut = qs.get('out') || qs.get('fmt');
   if (qsOut) {
     const fmts = qsOut.toLowerCase().split(',')
       .map(f => f === 'jpeg' ? 'jpg' : f)
