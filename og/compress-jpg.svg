@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f5f0e8"/>
+  <!-- subtle pattern -->
+  <circle cx="1080" cy="120" r="160" fill="#5a7a5a" opacity="0.06"/>
+  <circle cx="1140" cy="80" r="60" fill="#5a7a5a" opacity="0.10"/>
+  <!-- brand wordmark -->
+  <text x="80" y="100" font-family="Georgia, 'Times New Roman', serif"
+        font-style="italic" font-weight="700" font-size="44"
+        fill="#2e2a22" letter-spacing="-0.6">img<tspan fill="#5a7a5a">ready</tspan></text>
+  <!-- headline -->
+  <text x="80" y="350" font-family="Georgia, 'Times New Roman', serif"
+        font-style="italic" font-weight="700" font-size="132"
+        fill="#2e2a22" letter-spacing="-2">Compress JPG</text>
+  <!-- subtitle -->
+  <text x="80" y="430" font-family="-apple-system, 'Segoe UI', sans-serif"
+        font-weight="500" font-size="34" fill="#5a5448">Reduce JPEG size online</text>
+  <!-- bottom signature line -->
+  <text x="80" y="560" font-family="-apple-system, 'Segoe UI', sans-serif"
+        font-weight="600" font-size="22" fill="#5a7a5a">imgready.app · no upload · no sign-up · free</text>
+</svg>
