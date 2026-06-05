@@ -9,6 +9,10 @@
 <meta property="og:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
 <meta property="og:description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device — private, fast, unlimited.">
 <meta property="og:image" content="https://imgready.app/demo.webp">
+<meta property="og:image:type" content="image/webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="imgready — free in-browser image converter, no upload">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="795">
 <meta property="og:type" content="website">
@@ -18,6 +22,7 @@
 <meta name="twitter:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
 <meta name="twitter:description" content="Convert TIFF, HEIC, WebP, PNG to JPG free in your browser. No upload, no sign-up. Files stay private on your device.">
 <meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image:alt" content="imgready — free in-browser image converter, no upload">
 <link rel="canonical" href="https://imgready.app/">
 
 <!-- Structured data: WebApplication + FAQPage (preserved from stable) -->
@@ -26,7 +31,7 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "SoftwareApplication",
+      "@type": ["SoftwareApplication", "WebApplication"],
       "@id": "https://imgready.app/#app",
       "name": "imgready",
       "alternateName": ["image ready", "imgready image converter"],
@@ -55,7 +60,12 @@
         "100% client-side — no upload"
       ],
       "permissions": "No permissions required. No file upload.",
-      "screenshot": "https://imgready.app/demo.webp",
+      "screenshot": {
+        "@type": "ImageObject",
+        "url": "https://imgready.app/demo.webp",
+        "width": 1200,
+        "height": 630
+      },
       "softwareVersion": "1.0"
     },
     {
