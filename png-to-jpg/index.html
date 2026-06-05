@@ -517,6 +517,30 @@ tr:nth-child(even) td{background:#faf7f2;}
   <p>A typical 12-megapixel PNG photograph is around 12&nbsp;MB. The same image as JPG quality 95 is around 4&nbsp;MB. As JPG quality 82, around 1.2&nbsp;MB. As WebP quality 82, around 800&nbsp;KB. The visual difference between any of these and the source PNG, viewed at normal monitor resolution, is invisible. Converting the PNG to JPG saves over 90% of the file size for free — and converting to WebP saves another 30%.</p>
 
 
+
+  <h3 class="sub">Why PNGs of photos are so big</h3>
+  <p>PNG was designed for graphics with sharp edges and limited color palettes — logos, icons, screenshots, line art. Its compression algorithm (deflate with predictive filtering) works brilliantly on those. On photographs, where every pixel is slightly different from its neighbor due to natural noise and gradients, the predictor has nothing to predict, so the file balloons. A 12-megapixel photo as PNG can be 15–30 MB; the exact same photo as quality-82 JPG is 800 KB to 2 MB — a 90–95% reduction with no visible quality loss.</p>
+  <p>This is why every camera, every photo-management app, and every social network defaults to JPG for photographs. PNG's only photographic advantage is that re-saving doesn't introduce additional compression loss, which matters only if you're editing repeatedly. For the final shareable version, JPG always wins on size.</p>
+
+  <h3 class="sub">8-bit vs 16-bit PNG and why it doesn't matter for JPG</h3>
+  <p>PNG supports 16-bit-per-channel color (281 trillion possible colors) for cases like medical imaging or astrophotography. JPG only supports 8-bit (16.7 million colors). Most PNGs in the wild are already 8-bit, so the conversion is straightforward. If your PNG is 16-bit, imgready dithers down to 8-bit before encoding — visually indistinguishable for any photograph.</p>
+
+  <h3 class="sub">Chroma subsampling and what it means for your file size</h3>
+  <p>JPG can compress color information more aggressively than luminance (brightness) because the human eye is more sensitive to brightness detail than color detail. This is called chroma subsampling. imgready uses 4:2:0 subsampling at quality below 90 (smaller files, imperceptible color loss) and 4:4:4 above 90 (full color resolution, larger files). For photographic content this is the right default. For text-heavy screenshots or sharp graphics — convert to WebP instead, where the encoder handles edges better.</p>
+
+  <h3 class="sub">Workflow examples for PNG → JPG</h3>
+  <p><strong>Screenshots shared in chat.</strong> Modern phone and desktop screenshot tools save as PNG by default. A full-resolution screenshot of a phone screen is 1.5–4 MB as PNG, 200–500 KB as quality-85 JPG. Faster upload, faster preview generation for the receiver. imgready handles screenshots well at quality 80–88; below 75 you'll start to see fringing around text.</p>
+  <p><strong>Photos exported from a design tool.</strong> Figma, Sketch, Photoshop, and Affinity all let you export at PNG by default. For photographic content, this is a waste — switch the export to JPG-quality-85 directly, or convert the PNG export through imgready in batch.</p>
+  <p><strong>Game screenshots and stills.</strong> Steam, Discord, and most game capture tools save as PNG. For sharing screenshots in posts, threads, or community wikis where each KB matters, convert through imgready at quality 88 — the result is visually identical and 3–5× smaller.</p>
+
+  <h3 class="sub">When NOT to convert PNG to JPG</h3>
+  <p>Three cases where JPG is genuinely worse:</p>
+  <ul>
+    <li><strong>Anything with transparency you need to keep.</strong> JPG can't hold an alpha channel. Convert to WebP instead.</li>
+    <li><strong>Screenshots with text overlay.</strong> JPG's lossy compression introduces ringing artifacts around sharp text edges. The artifacts are visible at any quality setting. WebP (lossless mode) is better for text-heavy images.</li>
+    <li><strong>Pixel art, logos, line art, icons.</strong> Same reason as screenshots — sharp edges fight JPG compression. PNG (or SVG, if vector) is correct here.</li>
+  </ul>
+  <p>imgready can convert PNG to WebP-lossless directly if you need smaller files without losing the lossless guarantee — typically 25% smaller than the source PNG at pixel-perfect fidelity. Use the WebP converter for that workflow.</p>
   <h3 class="sub">How much smaller will the JPG be?</h3>
   <table>
     <thead><tr><th>PNG type</th><th>Typical PNG size</th><th>JPG at quality 82</th><th>Saving</th></tr></thead>
