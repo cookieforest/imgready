@@ -180,7 +180,7 @@
     color:var(--text);background:var(--bg);}
   /* R24 — display type for hero headings + brand wordmark + Edit modal
      title. Fraunces opsz axis auto-adjusts at large sizes to read warmer. */
-  h1,h2,.brand,.hero h2,.edit-modal .edit-header h2,.edit-modal .edit-brand-link{
+  h1,h2,.brand,.hero h2,.edit-modal .edit-header h2,.edit-modal .edit-brand-link,.tc-brand-name,.footer-brand{
     font-family:var(--font-display);
     font-feature-settings:"ss01" on;
     letter-spacing:-.01em;
@@ -207,7 +207,7 @@
   .brand-bar{height:var(--brand-h);display:flex;align-items:center;gap:14px;
     padding:0 16px;background:var(--bg);position:relative;z-index:10;}
   .brand{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
-  .brand .g{color:var(--accent);}
+  .brand .g,.footer-brand .g{color:var(--accent);}
   .brand-spacer{flex:1;}
   .exit-link{
     color:var(--muted);font-size:.74rem;text-decoration:none;
@@ -5509,7 +5509,7 @@
   </div>
 
     <footer class="site-footer">
-    <div style="font-weight:700;color:var(--text2);">img<span class="g">ready</span></div>
+    <div class="footer-brand" style="font-weight:700;color:var(--text2);font-style:italic;">img<span class="g">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a><a href="/support/">♥ Support</a>
