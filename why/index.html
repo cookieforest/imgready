@@ -108,6 +108,10 @@ a{color:#5a7a5a;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){h1{font-size:1.7rem;letter-spacing:-.6px;}.lede{font-size:.96rem;}}
+  .related{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:14px 0 28px;}
+  .related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+  .related a:hover{border-color:#5a7a5a;}
+  .related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Why imgready Never Uploads Your Images | imgready","description":"Most online image compressors upload your photos to a server you don't control. imgready doesn't.","url":"https://imgready.app/why/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does imgready ever touch a server?","acceptedAnswer":{"@type":"Answer","text":"Your image files never leave your device. The only network requests imgready makes are for the page assets, optional WebAssembly decoders (downloaded once and cached), and ad/analytics scripts — none of which carry your image data."}},{"@type":"Question","name":"Can I verify that files aren't uploaded?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open your browser's DevTools (F12), go to the Network tab, drop a file, and click Process. You'll see no outbound requests carrying image data."}},{"@type":"Question","name":"Why does it matter if images are uploaded?","acceptedAnswer":{"@type":"Answer","text":"Professional photos, personal documents, medical images, and business materials carry sensitive information. Uploading them to a third-party server means accepting their privacy policy, storage practices, and data retention. In-browser processing avoids that entirely."}},{"@type":"Question","name":"Does imgready strip EXIF data and other metadata?","acceptedAnswer":{"@type":"Answer","text":"Yes — imgready removes all metadata including EXIF, IPTC, XMP, and embedded color profiles when converting images. Location data, camera model, timestamps, and other sensitive embedded information are automatically discarded during processing."}},{"@type":"Question","name":"Is imgready GDPR compliant?","acceptedAnswer":{"@type":"Answer","text":"Yes. Since image processing happens entirely in-browser with no data transmission to servers, GDPR requirements around personal data processing don't apply in the traditional sense. No personal data is collected, stored, or processed server-side."}},{"@type":"Question","name":"Could a government force imgready to log or access user images?","acceptedAnswer":{"@type":"Answer","text":"No. There is no backend infrastructure that holds image data. The developer cannot access, log, or decrypt user images because they never leave the user's device. The tool has no servers, no databases, and no ability to surveil — making it impossible for third parties to subpoena image data."}}]}</script>
@@ -184,6 +188,17 @@ a{color:#5a7a5a;}
   <details class="faq-item"><summary>Does imgready strip EXIF data and other metadata?</summary><p>Yes — imgready removes all metadata including EXIF, IPTC, XMP, and embedded color profiles when converting images. Location data, camera model, timestamps, and other sensitive embedded information are automatically discarded during processing.</p></details>
   <details class="faq-item"><summary>Is imgready GDPR compliant?</summary><p>Yes. Since image processing happens entirely in-browser with no data transmission to servers, GDPR requirements around personal data processing don't apply in the traditional sense. No personal data is collected, stored, or processed server-side.</p></details>
   <details class="faq-item"><summary>Could a government force imgready to log or access user images?</summary><p>No. There is no backend infrastructure that holds image data. The developer cannot access, log, or decrypt user images because they never leave the user's device. The tool has no servers, no databases, and no ability to surveil — making it impossible for third parties to subpoena image data.</p></details>
+  
+  <h2>Related reading</h2>
+  <div class="related">
+    <a href="/about/">About imgready<small>How it works and who built it</small></a>
+    <a href="/privacy/">Privacy policy<small>What we collect — and what we don't</small></a>
+    <a href="/compress/">Compress images privately<small>No upload, no waiting</small></a>
+    <a href="/heic-to-jpg/">HEIC to JPG, in your browser<small>iPhone photos, no third-party server</small></a>
+    <a href="/tiff-to-jpg/">TIFF to JPG, in your browser<small>Sensitive scans never uploaded</small></a>
+    <a href="/developers/">Developer SDK<small>Same privacy guarantee for your app</small></a>
+  </div>
+
   <footer class="site-footer">
     <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>

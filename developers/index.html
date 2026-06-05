@@ -138,6 +138,10 @@ pre{background:#2e2a22;color:#e8e4d8;border-radius:10px;padding:20px 24px;font-s
   .pricing-grid{grid-template-columns:1fr;}
   .attr-box{flex-direction:column;}
 }
+  .related{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:14px 0 28px;}
+  .related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+  .related a:hover{border-color:#5a7a5a;}
+  .related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"Developers","item":"https://imgready.app/developers/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"imgready for Developers \u2014 Free Image Optimization SDK & API","description":"Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. REST API coming soon.","url":"https://imgready.app/developers/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
@@ -498,6 +502,17 @@ imgready.<span class="c-fn">init</span>({
   <details class="faq-item"><summary>Where is the SDK documentation?</summary><p>Full API reference, options object, and code examples are on this page. The SDK is also available as an ES module import — see the Quickstart section above.</p></details>
   <details class="faq-item"><summary>Does the SDK work with React, Vue, Angular, and other frameworks?</summary><p>Yes. The SDK works in any framework — React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in.</p></details>
   <details class="faq-item"><summary>What's the bundle size impact of the SDK?</summary><p>The main SDK script is ~2 KB minified. WebAssembly encoders (WebP, AVIF, HEIC) are lazy-loaded on demand, adding ~1.5 MB each only when needed and cached after first use. Pages using only PNG/JPG output have zero encoder overhead until a user actually compresses.</p></details>
+  
+  <h2>Related</h2>
+  <div class="related">
+    <a href="/about/">About imgready<small>The story behind the tool</small></a>
+    <a href="/why/">Why never uploading matters<small>The privacy thesis</small></a>
+    <a href="/privacy/">Privacy policy<small>What the SDK collects (nothing)</small></a>
+    <a href="/compress/">Try the consumer tool<small>See what your users will get</small></a>
+    <a href="/webp-converter/">WebP converter<small>The format the SDK favors</small></a>
+    <a href="/support/">Support imgready<small>Help keep the SDK free</small></a>
+  </div>
+
   <footer class="site-footer">
     <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
