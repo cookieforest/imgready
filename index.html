@@ -6005,11 +6005,17 @@ function init(){
       const qsW = new URLSearchParams(location.search);
       const qsOut = (qsW.get('out') || qsW.get('fmt') || '').toLowerCase();
       let formats = qsOut
-        ? qsOut.split(',').map(f => f === 'jpeg' ? 'jpg' : f).filter(Boolean)
+        ? qsOut.split(',').map(f => {
+            if (f === 'jpeg') return 'jpg';
+            if (f === 'png')  return 'oxipng';  // R110: png output uses oxipng encoder
+            return f;
+          }).filter(Boolean)
         : ['webp', 'jpg'];
       /* The worker prewarm handler accepts: webp, avif, jpg, oxipng.
-         Filter to just those — auto/png/gif/ico don't have an esm.sh
-         encoder so passing them would be wasted in the worker's loop. */
+         Filter to just those — auto/gif/ico don't have an esm.sh
+         encoder so passing them would be wasted in the worker's loop.
+         png is mapped to oxipng above (the encoder we actually use for
+         PNG output). */
       formats = formats.filter(f => f === 'webp' || f === 'avif' || f === 'jpg' || f === 'oxipng');
       if (!formats.length) formats = ['webp'];
       getWorker().postMessage({ action: 'prewarm', formats: formats });
