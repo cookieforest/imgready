@@ -8924,11 +8924,17 @@ document.addEventListener('keydown', e => {
       e.preventDefault();
     }
   }
-  /* R22 — number keys 1-5 jump to Edit modal tabs. Adobe convention. */
-  else if (/^[1-5]$/.test(e.key) && !isInput && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey){
-    const tabIds = ['adjust', 'transform', 'retouch', 'add', 'bg'];
+  /* R22 — number keys 1-N jump to Edit modal tabs. Adobe convention.
+     R107 — derive tab IDs from the live DOM rather than a hard-coded
+     list. R88 reduced the editor to 4 tabs (adjust, filters, rotate,
+     crop); the old hard-coded list still referenced removed tabs
+     (transform, retouch, add, bg), so keys 2-5 silently no-op'd.
+     Querying the DOM keeps the shortcut wired to whatever tabs are
+     actually visible. */
+  else if (/^[1-9]$/.test(e.key) && !isInput && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey){
+    const tabs = document.querySelectorAll('.edit-modal .edit-tab[data-tab]');
     const idx = parseInt(e.key, 10) - 1;
-    const target = document.querySelector('.edit-modal .edit-tab[data-tab="' + tabIds[idx] + '"]');
+    const target = tabs[idx];
     if (target){ target.click(); e.preventDefault(); }
   }
   /* R22 — Caps Lock toggle for precise crosshair (Photoshop standard). */
