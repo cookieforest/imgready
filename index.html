@@ -6921,6 +6921,13 @@ function showRejectedToast(count){
   if (!_rejectedToastEl) {
     _rejectedToastEl = document.createElement('div');
     _rejectedToastEl.className = 'reject-toast';
+    /* R114 — A11y: role="alert" makes screen readers announce the toast
+       immediately (WCAG 4.1.3 Status Messages AA). Without it, blind users
+       drop an unsupported file and get silence — same UX bug as our
+       earlier "drop appeared to silently no-op" issue, just for SR users.
+       aria-atomic=true so the whole text is read each time, not diffed. */
+    _rejectedToastEl.setAttribute('role', 'alert');
+    _rejectedToastEl.setAttribute('aria-atomic', 'true');
     document.body.appendChild(_rejectedToastEl);
   }
   _rejectedToastEl.textContent = count === 1
