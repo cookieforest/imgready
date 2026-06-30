@@ -10314,7 +10314,7 @@ function _renderAdjustTab(body){
   }
   function _markDirty(){
     const a = _editState.pendingEdits.photoAdjust;
-    a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none');
+    a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none' && !(a.globalBlur > 0));
     previewImg.style.filter = _getAdjFilter();
     /* R48 — old ADJUST chip is gone; just sync the icon row's modified
        state. Filter chip + Vignette chip still have their own modified
@@ -10838,7 +10838,7 @@ function _renderFiltersTab(body){
       _editPushUndo();
       a.preset = id;
       a.presetCss = css;
-      a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none');
+      a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none' && !(a.globalBlur > 0));
       body.querySelectorAll('.filter-thumb').forEach(b => {
         const on = b.dataset.preset === id;
         b.classList.toggle('active', on);

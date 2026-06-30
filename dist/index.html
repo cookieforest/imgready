@@ -8685,7 +8685,7 @@ function _renderAdjustTab(body){
   }
   function _markDirty(){
     const a = _editState.pendingEdits.photoAdjust;
-    a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none');
+    a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none' && !(a.globalBlur > 0));
     previewImg.style.filter = _getAdjFilter();
     /* R30b — keep the Adjust dropdown trigger in sync */
     const _trig = document.getElementById('editAdjustTrigger');
