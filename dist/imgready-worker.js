@@ -183,7 +183,7 @@ async function decodeHeic(file){
 async function decodeTiff(file){
   // Try native createImageBitmap first (Chrome handles many TIFFs)
   try {
-    return await createImageBitmap(file);
+    return await createImageBitmap(file, { imageOrientation: 'from-image' }); /* R123: bake EXIF orientation before we drop metadata */
   } catch (e) { /* fall through to manual parser */ }
   const buf = await file.arrayBuffer();
   const canvas = parseTiff(buf);
@@ -322,7 +322,7 @@ async function decodeToBitmap(file){
   if (isHeic(file)) return await decodeHeic(file);
   if (isTiff(file)) return await decodeTiff(file);
   if (isSvg(file)) throw new Error('SVG decoding stays on main thread');
-  return await createImageBitmap(file);
+  return await createImageBitmap(file, { imageOrientation: 'from-image' }); /* R123: bake EXIF orientation before we drop metadata */
 }
 
 /* ---------- R48: encode already-drawn canvas at integer quality (0-100) ----------
