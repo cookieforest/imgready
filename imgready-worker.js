@@ -392,6 +392,27 @@ async function encodeStaticGif(ctx, w, h){
   return new Blob([enc.bytes()], { type: 'image/gif' });
 }
 
+/* R122 — PNG-8 fallback so same-format PNG optimization obeys the
+   always-smaller rule. PNG has no quality dial, so when a lossless
+   re-save is >= the source we quantize (UPNG, pngquant-style) with
+   decreasing colour counts and return the highest-colour palette that
+   lands under the original. Fresh getImageData per iteration (UPNG may
+   consume the buffer). */
+async function shrinkPngToUnder(ctx, w, h, maxBytes, currentBlob){
+  try {
+    await ensureUPNG();
+    let smallest = currentBlob;
+    for (const cnum of [256, 128, 64, 32, 16, 8]) {
+      const id = ctx.getImageData(0, 0, w, h);
+      const buf = self.UPNG.encode([id.data.buffer], w, h, cnum);
+      const blob = new Blob([buf], { type: 'image/png' });
+      if (blob.size < smallest.size) smallest = blob;
+      if (blob.size < maxBytes) return blob;
+    }
+    return smallest;
+  } catch (e) { return currentBlob; }
+}
+
 /* ---------- quality → color count for PNG-8 ---------- */
 function qualityToColors(q){
   if (q >= 1.0) return 0;
@@ -749,10 +770,10 @@ async function processOne(file, fmt, settings){
     /* PNG path:
        - Q < 1.0: lossy quantization via UPNG (PNG-8). Already small, fast.
        - Q = 1.0: lossless via canvas.convertToBlob.
-       OxiPNG is opt-in via settings.extraOptimize. It's a strong size win
-       (~30%) but adds ~600ms per image — measured user-noticeable on
-       larger batches. Default is OFF; user can flip it on when they care
-       about size more than speed. */
+       OxiPNG is opt-in via settings.extraOptimize (~30% win, ~600ms cost).
+       R122: same-format PNG optimization then obeys always-smaller via a
+       PNG-8 fallback below. */
+    let pngOut;
     if (q !== undefined && q < 1.0) {
       await ensureUPNG();
       const id = ctx.getImageData(0, 0, w, h);
@@ -761,7 +782,6 @@ async function processOne(file, fmt, settings){
       if (settings.extraOptimize) {
         try {
           const optimise = await ensureOxipng();
-          /* R23 — OxiPNG advanced: level 0..6, interlace toggle. */
           const advP = (settings.advanced && settings.advanced.png) || {};
           const oxiOpts = {
             level: (advP.level != null) ? Math.max(0, Math.min(6, advP.level)) : 2,
@@ -771,26 +791,29 @@ async function processOne(file, fmt, settings){
           if (opt && opt.byteLength < pngBuf.byteLength) pngBuf = opt;
         } catch (e) { /* keep un-optimized */ }
       }
-      return new Blob([pngBuf], { type: 'image/png' });
-    }
-    /* Lossless PNG */
-    if (settings.extraOptimize) {
+      pngOut = new Blob([pngBuf], { type: 'image/png' });
+    } else if (settings.extraOptimize) {
       const blob = await c.convertToBlob({ type: 'image/png' });
       const buf = await blob.arrayBuffer();
+      pngOut = new Blob([buf], { type: 'image/png' });
       try {
         const optimise = await ensureOxipng();
-        /* R23 — OxiPNG advanced (lossless PNG path). */
         const advP2 = (settings.advanced && settings.advanced.png) || {};
         const oxiOpts2 = {
           level: (advP2.level != null) ? Math.max(0, Math.min(6, advP2.level)) : 2,
           interlace: !!advP2.interlace,
         };
         const opt = await optimise(buf, oxiOpts2);
-        if (opt && opt.byteLength < buf.byteLength) return new Blob([opt], { type: 'image/png' });
+        if (opt && opt.byteLength < buf.byteLength) pngOut = new Blob([opt], { type: 'image/png' });
       } catch (e) { /* keep un-optimized */ }
-      return new Blob([buf], { type: 'image/png' });
+    } else {
+      pngOut = await c.convertToBlob({ type: 'image/png' });
     }
-    return await c.convertToBlob({ type: 'image/png' });
+    /* R122 — same-format PNG optimize must never come back larger. */
+    if (sameFmt && originalSize && pngOut.size >= originalSize) {
+      pngOut = await shrinkPngToUnder(ctx, w, h, originalSize, pngOut);
+    }
+    return pngOut;
   }
 
   if (fmt === 'jpg') {
