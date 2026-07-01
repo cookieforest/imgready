@@ -15,11 +15,18 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="WebP Converter Free — Convert Images to WebP | imgready">
 <meta name="twitter:description" content="Convert JPG, PNG, HEIC, TIFF and more to WebP online for free. 25–35% smaller than JPEG. Works in every modern browser. 100% in-browser.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image" content="https://imgready.app/og/webp-converter.svg">
 <link rel="canonical" href="https://imgready.app/webp-converter/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="dns-prefetch" href="https://esm.sh">
+<link rel="preload" href="/imgready-worker.js" as="script">
+<link rel="prefetch" href="/vendor/UPNG.min.js">
+<link rel="prefetch" href="/vendor/pako.min.js">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
      interaction OR after window.onload + 1.5s idle. See index.html for the
@@ -59,21 +66,21 @@
 })();
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -83,7 +90,7 @@ body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-seri
 .feat{background:#faf7f2;border:1px solid #d6cebb;border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.9rem;font-weight:700;color:#2e2a22;margin-bottom:6px;}
 .feat p{font-size:.78rem;color:#8a8070;line-height:1.5;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -109,6 +116,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Convert any image to WebP online for free", "description": "Convert JPG, PNG, HEIC, TIFF, AVIF, GIF, or BMP to WebP entirely in your browser. No upload, no sign-up.", "totalTime": "PT10S", "supply": [{"@type": "HowToSupply", "name": "A JPG, PNG, HEIC, TIFF, AVIF, GIF, or BMP image"}], "tool": [{"@type": "HowToTool", "name": "A web browser (Chrome, Firefox, Safari, or Edge)"}], "step": [{"@type": "HowToStep", "name": "Open imgready", "text": "Go to imgready.app/webp-converter/ in your browser. WebP is selected as the output format by default.", "url": "https://imgready.app/webp-converter/"}, {"@type": "HowToStep", "name": "Drop your image", "text": "Drag any supported image into the drop zone or click to browse. imgready decodes the source and re-encodes as WebP locally."}, {"@type": "HowToStep", "name": "Download the WebP", "text": "Adjust the quality slider for the size/quality balance you want. Click Download. Typical WebP is 25-35% smaller than the equivalent JPG."}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "WebP converter", "item": "https://imgready.app/webp-converter/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is WebP supported by all browsers?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — every major browser (Chrome, Edge, Firefox, Safari, Samsung Internet, Opera) has supported WebP since 2020. The only browsers that don't are Internet Explorer and very old Android stock browsers."}}, {"@type": "Question", "name": "How much smaller are WebP files compared to JPG?", "acceptedAnswer": {"@type": "Answer", "text": "Typically 25–35% smaller at the same visible quality. The exact savings depend on the image content — high-detail photographs save less, flat illustrations and screenshots save more."}}, {"@type": "Question", "name": "Can WebP have transparency like PNG?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. WebP has a full alpha channel. WebP-lossless is typically 26% smaller than the equivalent PNG with identical pixel-perfect transparency."}}, {"@type": "Question", "name": "What's the difference between lossy and lossless WebP?", "acceptedAnswer": {"@type": "Answer", "text": "Lossy WebP is what you want for photographs — smaller files at the cost of imperceptible quality loss. Lossless WebP is what you want for screenshots and graphics — smaller PNG-equivalent files. imgready picks based on the quality slider: 100 = lossless, 1–99 = lossy."}}, {"@type": "Question", "name": "Should I serve WebP to old browsers with a JPG fallback?", "acceptedAnswer": {"@type": "Answer", "text": "If you support browsers older than 2020 (Internet Explorer, very old mobile), use the <picture> element with a WebP source and JPG fallback. For newer audiences, just serving WebP directly is fine."}}, {"@type": "Question", "name": "Does imgready convert HEIC iPhone photos to WebP?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. imgready decodes HEIC/HEIF in-browser using a JavaScript decoder, then re-encodes as WebP. This is the most space-efficient way to share iPhone photos on any modern website."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "WebP Converter Online Free — Convert Images to WebP Instantly | imgready", "description": "Convert JPG, PNG, HEIC, TIFF, and more to WebP online for free. Reduce image file sizes by 25–35% with broad browser support. 100% in-browser — your files stay private.", "url": "https://imgready.app/webp-converter/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}}</script>
@@ -385,11 +393,11 @@ tr:nth-child(even) td{background:#faf7f2;}
 <div class="fs-modal" id="fsModal" role="dialog" aria-modal="true" aria-label="Compare original and result">
   <div class="fs-inner" id="fsInner" oncontextmenu="return false">
     <div class="fs-zoom-wrap" id="fsZoom">
-      <img class="fs-before" id="fsBefore" alt="original">
+      <img class="fs-before" id="fsBefore" alt="original" loading="lazy" decoding="async">
     </div>
     <div class="fs-clip" id="fsClip">
       <div class="fs-zoom-after" id="fsZoomAfter">
-        <img class="fs-after" id="fsAfter" alt="optimized">
+        <img class="fs-after" id="fsAfter" alt="optimized" loading="lazy" decoding="async">
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
@@ -563,7 +571,7 @@ tr:nth-child(even) td{background:#faf7f2;}
   </div>
 
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

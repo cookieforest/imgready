@@ -15,11 +15,19 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="HEIC to JPG Converter Free — iPhone Photos | imgready">
 <meta name="twitter:description" content="Convert HEIC to JPG, PNG, or WebP online for free. Open iPhone photos on any device. 100% in-browser — your files never leave your device.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image" content="https://imgready.app/og/heic-to-jpg.svg">
 <link rel="canonical" href="https://imgready.app/heic-to-jpg/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="dns-prefetch" href="https://esm.sh">
+<link rel="preload" href="/imgready-worker.js" as="script">
+<link rel="prefetch" href="/vendor/UPNG.min.js">
+<link rel="prefetch" href="/vendor/pako.min.js">
+<link rel="prefetch" href="/vendor/libheif.js">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
      interaction OR after window.onload + 1.5s idle. See index.html for the
@@ -59,21 +67,21 @@
 })();
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -83,7 +91,7 @@ body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-seri
 .feat{background:#faf7f2;border:1px solid #d6cebb;border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.9rem;font-weight:700;color:#2e2a22;margin-bottom:6px;}
 .feat p{font-size:.78rem;color:#8a8070;line-height:1.5;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -109,6 +117,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Convert HEIC to JPG online for free","description":"Convert iPhone HEIC photos to JPG entirely in your browser. No upload, no sign-up, no software needed.","totalTime":"PT10S","supply":[{"@type":"HowToSupply","name":"A HEIC file from iPhone or iPad"}],"tool":[{"@type":"HowToTool","name":"A web browser (Chrome, Firefox, Safari, or Edge)"}],"step":[{"@type":"HowToStep","name":"Open imgready","text":"Go to imgready.app/heic-to-jpg/ in your browser. JPG is selected as the output format by default.","url":"https://imgready.app/heic-to-jpg/"},{"@type":"HowToStep","name":"Drop your HEIC files","text":"Drag the HEIC files into the drop zone or click to browse. imgready decodes them using the libheif WebAssembly library, in your browser."},{"@type":"HowToStep","name":"Download the JPG(s)","text":"Adjust the quality slider if needed (default 82 is invisible loss). Click Download for a single file or ZIP for batches."}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "HEIC to JPG", "item": "https://imgready.app/heic-to-jpg/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why can't I open HEIC files on Windows?", "acceptedAnswer": {"@type": "Answer", "text": "HEIC is an Apple-developed format that requires specific decoder support. Windows 10 and 11 require the HEIF Image Extensions (free) and HEVC Video Extensions (paid) from the Microsoft Store. imgready sidesteps the issue entirely by decoding HEIC in your browser."}}, {"@type": "Question", "name": "Is HEIC conversion private?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The libheif decoder library is downloaded from a public CDN, but your actual photos never leave your device. All decoding and re-encoding happens locally in your browser's memory."}}, {"@type": "Question", "name": "How big is the libheif decoder download?", "acceptedAnswer": {"@type": "Answer", "text": "About 1.5 MB. It's downloaded once on your first HEIC conversion and cached for the rest of the session — subsequent HEIC files decode instantly."}}, {"@type": "Question", "name": "Can imgready convert HEIC in batch?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drop dozens or hundreds of HEIC files at once and click Process. The soft cap is 200 files; the practical limit is your device's memory."}}, {"@type": "Question", "name": "Does converting HEIC to JPG reduce quality?", "acceptedAnswer": {"@type": "Answer", "text": "Slightly. HEIC is a lossy format and JPG is a lossy format, so the conversion is technically a second round of compression. At imgready's default quality 82, the difference is invisible at normal viewing distance. If you need pixel-perfect output, convert to PNG instead — it's lossless but the file will be larger."}}, {"@type": "Question", "name": "Can imgready handle HEIC bursts and Live Photos?", "acceptedAnswer": {"@type": "Answer", "text": "imgready decodes the still-image component of HEIC files. Live Photos store an additional MOV video alongside the still — imgready only converts the still image; the video portion is not extracted."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "HEIC to JPG Converter Online Free — Convert iPhone Photos Instantly | imgready", "description": "Convert HEIC to JPG, PNG, or WebP online for free. Open iPhone and iPad photos on any device. 100% in-browser — your files never leave your device.", "url": "https://imgready.app/heic-to-jpg/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}}</script>
@@ -385,11 +394,11 @@ tr:nth-child(even) td{background:#faf7f2;}
 <div class="fs-modal" id="fsModal" role="dialog" aria-modal="true" aria-label="Compare original and result">
   <div class="fs-inner" id="fsInner" oncontextmenu="return false">
     <div class="fs-zoom-wrap" id="fsZoom">
-      <img class="fs-before" id="fsBefore" alt="original">
+      <img class="fs-before" id="fsBefore" alt="original" loading="lazy" decoding="async">
     </div>
     <div class="fs-clip" id="fsClip">
       <div class="fs-zoom-after" id="fsZoomAfter">
-        <img class="fs-after" id="fsAfter" alt="optimized">
+        <img class="fs-after" id="fsAfter" alt="optimized" loading="lazy" decoding="async">
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
@@ -514,6 +523,43 @@ tr:nth-child(even) td{background:#faf7f2;}
   <div class="callout"><strong>Privacy note:</strong> iPhone photos carry EXIF metadata including the GPS coordinates of where they were taken. By default, imgready strips this on conversion (you can opt back in via Settings → Metadata). If you're sharing a photo publicly, leaving GPS in is a privacy risk worth thinking about.</div>
 
 
+
+  <h3 class="sub">Why iPhones use HEIC and why it's a problem to share</h3>
+  <p>iPhones have shot photos in HEIC by default since iOS 11 (2017) on iPhone 7 and later. The format is technically excellent — about half the size of JPG at the same visible quality, with support for 10-bit color depth and HDR. The catch is compatibility. Apple, Microsoft, and Google all license the underlying HEVC patent pool, but only Apple ships the decoder by default. Send a HEIC to an Android user, a Windows 10 user without the paid HEVC extension, or any web service that hasn't built HEIC support — they get nothing, an error, or a black image. JPG opens everywhere, on every system, with zero extra installs.</p>
+  <p>This is why "convert HEIC to JPG" is one of the most-searched image conversion queries on Google. The format is genuinely better; it's just not portable.</p>
+
+  <h3 class="sub">What's preserved (and what isn't) when converting</h3>
+  <p>HEIC stores more than just the image pixels. Here's what survives the trip to JPG:</p>
+  <ul>
+    <li><strong>Color</strong>: full color reproduction. HEIC's 10-bit-per-channel data is dithered to JPG's 8-bit — visually indistinguishable for photographs.</li>
+    <li><strong>Resolution</strong>: every pixel is preserved unless you explicitly resize.</li>
+    <li><strong>Orientation</strong>: rotation tags are honored, so the JPG opens right-side-up everywhere.</li>
+    <li><strong>EXIF data is stripped</strong> by imgready for privacy — GPS coordinates, camera serial, capture timestamps. If you need EXIF preserved, use a desktop tool like ExifTool or Apple Preview's export-as-JPG which keeps it.</li>
+    <li><strong>Depth maps</strong> from Portrait Mode are <em>not</em> preserved in the JPG; that data only lives in HEIC and the proprietary Apple Live Photo container.</li>
+    <li><strong>Burst sequences</strong> store multiple frames in one HEIC. imgready extracts only the primary frame.</li>
+  </ul>
+
+  <h3 class="sub">Recommended JPG quality settings for iPhone photos</h3>
+  <p>iPhone HEIC photos typically range 1.5–4 MB. Here's what to pick depending on where the JPG is going.</p>
+  <table>
+    <thead><tr><th>Use case</th><th>Quality</th><th>Typical 3 MB HEIC &rarr; JPG</th></tr></thead>
+    <tbody>
+      <tr><td>Print, archival</td><td>92–100</td><td>2–4 MB</td></tr>
+      <tr><td>Sharing via Messages / email</td><td>82–88</td><td>800 KB – 1.5 MB</td></tr>
+      <tr><td>Posting to social media</td><td>78–85</td><td>500 KB – 1 MB</td></tr>
+      <tr><td>Web upload, cloud storage</td><td>75–82</td><td>300–800 KB</td></tr>
+      <tr><td>Thumbnail, preview</td><td>60–72</td><td>50–150 KB</td></tr>
+    </tbody>
+  </table>
+  <p>imgready defaults to 82 — the inflection point where JPG compression artifacts become invisible. Going above 90 rapidly inflates file size with diminishing visible gain. Going below 70 starts to show banding in skies and skin tones.</p>
+
+  <h3 class="sub">HEIC vs HEIF — same thing, different name</h3>
+  <p>You'll see both extensions in the wild. HEIC is the format Apple ships with iPhones. HEIF (High Efficiency Image Format) is the ISO standard underneath. <code>.heic</code> is Apple's naming convention; <code>.heif</code> is the generic ISO extension. Both decode identically. imgready handles both extensions and MIME types — drop either and it works.</p>
+
+  <h3 class="sub">Three concrete iPhone-to-JPG scenarios</h3>
+  <p><strong>Sharing vacation photos to a non-Apple friend.</strong> AirDrop converts HEIC to JPG automatically when sending to non-Apple devices, but if you're using Messages, email, or Google Drive, the HEIC arrives unchanged and your recipient can't open it on a non-Apple device. Drop the HEICs into imgready at quality 85 — they become ~600 KB JPGs that open instantly on Windows, Android, Linux, and any web mail.</p>
+  <p><strong>Uploading photos to a job application or insurance claim.</strong> Most web forms reject HEIC because the back-end processing pipeline can't read it. Convert each photo to JPG at quality 88 before upload. imgready batches: drop all the photos at once, download the ZIP, upload from there.</p>
+  <p><strong>Posting iPhone photos to Reddit, Twitter, or other social.</strong> Web uploaders for most services either reject HEIC outright or re-encode them server-side at quality you don't control. Pre-converting to JPG at quality 82 gives you control over the final compression — the version you upload is the version that gets published.</p>
   <h3 class="sub">HEIC to JPG vs alternatives</h3>
   <table>
     <thead><tr><th>Use case</th><th>Best output</th><th>Why</th></tr></thead>
@@ -555,7 +601,7 @@ tr:nth-child(even) td{background:#faf7f2;}
   </div>
 
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

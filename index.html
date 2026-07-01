@@ -2004,6 +2004,7 @@
     display:flex;justify-content:space-between;align-items:center;
     width:100%;
   }
+  .quality-menu button[data-quality-preset].active{background:rgba(255,255,255,.12);color:#fff;font-weight:600;} /* R47 */
   .quality-menu .quality-custom-row{
     display:flex;align-items:center;gap:8px;
     padding:8px 8px 4px;
@@ -6554,6 +6555,7 @@ const ENCODE = {
      populates it with all selected formats. The PRIMARY (in .encoded) is
      always the FIRST active format and drives the compare canvas. */
   allEncoded: new Map(),        // idx -> Map<format, {blob, url, size, format}>
+  outDims:    new Map(),        // idx -> {outW, outH} — post-resize dims from worker (R46)
 };
 const MULTI_OUT = { enabled: false };
 function getWorker(){
@@ -6580,6 +6582,8 @@ function getWorker(){
       if (m.type === 'result') {
         delete ENCODE.pending[m.id];
         if (entry.timer) clearTimeout(entry.timer);
+        /* R46 — stash output dims by file-idx so syncMainImage can attach to enc */
+        if (m.outW && m.outH) ENCODE.outDims.set(entry.idx, { outW: m.outW, outH: m.outH });
         entry.resolve(m.blob);
         /* Refresh the After-meta batch totals as each background-queue
            encode completes. Without this, the "↓ X MB · N files total"
@@ -6809,6 +6813,7 @@ function getActiveSettings(){
      read from the dropdown's stored value (set by preset clicks
      or slider drags). */
   let qualityRaw = NaN;
+  let _targetKbForWorker = 0; /* R48 — passed to worker for binary-search target-size encode */
   const qDropdown = document.querySelector('.quality-dropdown');
   const qMode = qDropdown && qDropdown.dataset.qualityMode;
   const isSmart = qMode === 'smart';
@@ -6816,10 +6821,11 @@ function getActiveSettings(){
   if (isSmart && _gasContextFile && typeof window._suggestQuality === 'function') {
     qualityRaw = window._suggestQuality(_gasContextFile, fmt);
   } else if (isTarget && _gasContextFile && typeof window._qualityFromTarget === 'function') {
-    /* Target-size mode: compute the quality that should land on the
-       user-specified KB ceiling. Uses cached dims (populated by
-       syncMainImage's createImageBitmap / HEIC pre-decode). */
+    /* Target-size mode: pass targetKb to the worker so it binary-searches
+       quality in the encode loop (R48). Also compute an estimated quality
+       as a reasonable fallback if the worker path is ever skipped. */
     const targetKb = parseInt(qDropdown.dataset.qualityTarget, 10) || 100;
+    _targetKbForWorker = targetKb; /* R48 */
     let tw = 0, th = 0;
     if (typeof FILES !== 'undefined') {
       const entry = FILES.find(f => f && f.file === _gasContextFile);
@@ -6834,9 +6840,13 @@ function getActiveSettings(){
     qualityRaw = qSlider ? parseInt(qSlider.value, 10) : 82;
   }
   const quality = Math.max(1, Math.min(100, qualityRaw)) / 100;
-  const activeMode = document.querySelector('body[data-state="multi"] .stage.multi .resize-mode-toggle .rmt-btn.active');
-  const sizeInp = document.querySelector('body[data-state="multi"] .stage.multi .resize-input');
-  const sizeVal = sizeInp && sizeInp.value ? parseInt(sizeInp.value) : 0;
+  /* R49-fix: read resize from the split dropdown's data-resize-current attribute.
+     The old .resize-input selector was orphaned when the resize UI became a split
+     dropdown — commitResize() writes to data-resize-current, not the input value. */
+  const resizeDd = document.querySelector('body[data-state="multi"] .stage.multi .resize-dropdown');
+  const activeMode = resizeDd ? null : document.querySelector('body[data-state="multi"] .stage.multi .resize-mode-toggle .rmt-btn.active');
+  const sizeVal = resizeDd ? (parseInt(resizeDd.dataset.resizeCurrent, 10) || 0)
+                           : (() => { const si = document.querySelector('body[data-state="multi"] .stage.multi .resize-input'); return si && si.value ? parseInt(si.value) : 0; })();
   const isPercent = activeMode && activeMode.dataset.mode === 'pct';
   const stripExifEl = document.querySelector('body[data-state="multi"] .stage.multi .switch input[type=checkbox]');
   const stripExif = stripExifEl ? stripExifEl.checked : true;
@@ -6855,6 +6865,7 @@ function getActiveSettings(){
       resizePct:  isPercent ? sizeVal : 0,
       stripExif,
       crop,
+      targetKb: _targetKbForWorker, /* R48 — worker binary-searches quality when > 0 */
     },
   };
 }
@@ -6949,6 +6960,10 @@ function setMetaCorners(beforeFile, encoded){
   const idx = CFLOW.selected;
   const dims = (FILES[idx] && FILES[idx].dims) ? FILES[idx].dims : null;
   const dimsStr = dims ? `${dims.w} × ${dims.h} · ` : '';
+  /* R46 — after-meta uses output (post-resize) dims when available */
+  const encDimsStr = (encoded && encoded.outW && encoded.outH)
+    ? `${encoded.outW} × ${encoded.outH} · `
+    : dimsStr;
   const beforeMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.l');
   if (beforeMeta) {
     const span = beforeMeta.querySelector('span:not(.lbl-title)');
@@ -6998,11 +7013,11 @@ function setMetaCorners(beforeFile, encoded){
       if (MULTI_OUT.enabled && bundle && bundle.size > 1) {
         const parts = Array.from(bundle.values()).map(e =>
           `${e.format.toUpperCase()} ${fmtSize(e.size)}`).join(' · ');
-        if (sizeSpan) sizeSpan.textContent = `${dimsStr}${parts}`;
+        if (sizeSpan) sizeSpan.textContent = `${encDimsStr}${parts}`; /* R46 */
       } else {
         const fmtUpper = (encoded.format||'').toUpperCase();
         if (sizeSpan) {
-          sizeSpan.textContent = `${dimsStr}${fmtSize(encoded.size)} · ${fmtUpper}`;
+          sizeSpan.textContent = `${encDimsStr}${fmtSize(encoded.size)} · ${fmtUpper}`; /* R46 */
         }
       }
       const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
@@ -7213,7 +7228,8 @@ async function syncMainImage(force, opts){
     /* Attach any encoder-side meta captured from the gif-diag message.
        Stored by idx in ENCODE._lastDiag (set inside worker.onmessage). */
     const meta = (ENCODE._lastDiag && ENCODE._lastDiag.idx === idx) ? ENCODE._lastDiag.data : null;
-    const enc = { blob, url, size: blob.size, format: fmtFromMime, meta };
+    const _od = ENCODE.outDims.get(idx); /* R46 */
+    const enc = { blob, url, size: blob.size, format: fmtFromMime, meta, outW: _od ? _od.outW : 0, outH: _od ? _od.outH : 0 };
     ENCODE.encoded.set(idx, enc);
     /* Announce encode result for screen readers. Only on success.
        Throttled inside srAnnounce; safe to call per file. */
@@ -7330,7 +7346,8 @@ async function processQueue(){
           if (myGen !== ENCODE.gen) break;
           const url = URL.createObjectURL(blob);
           const fmt = mimeToFmt(blob.type);
-          const entry = { blob, url, size: blob.size, format: fmt };
+          const _od2 = ENCODE.outDims.get(idx); /* R46 */
+          const entry = { blob, url, size: blob.size, format: fmt, outW: _od2 ? _od2.outW : 0, outH: _od2 ? _od2.outH : 0 };
           bundle.set(fmt, entry);
           if (!primary) primary = entry;
         }
@@ -12792,11 +12809,14 @@ window.toggleTheme = window.toggleTheme || function(){
 };
 window.openCmpSettings = window.openCmpSettings || function(){};
 
-/* Panda demo init: fetch demo-original.png, encode via canvas.toBlob
-   to webp@60, render before/after compare slider with drag handler.
+/* Homepage before/after demo. Uses two REAL committed files and reports
+   their real byte sizes — no runtime re-encoding (R117):
+     before = /demo-panda.png  (lossless PNG original of the panda)
+     after  = /demo.webp       (the imgready-compressed panda; same file
+                                 used for the social/OG cards site-wide)
+   Same panda on both sides; the saving is the real PNG->WebP size drop.
    Lives in the empty state only. Lightweight (no worker, no JSZip). */
 (function initPandaDemo(){
-  /* Wait for DOM ready so the demo elements exist. */
   function start(){
     const slider = document.getElementById('demoSlider');
     const stats  = document.getElementById('demoStats');
@@ -12807,7 +12827,6 @@ window.openCmpSettings = window.openCmpSettings || function(){};
     const divider= document.getElementById('demoDivider');
     const handle = slider && slider.querySelector('.demo-handle');
     if (!slider || !before || !after) return;
-    /* Hide ornament until ready. */
     [divider, handle].forEach(el => { if (el) el.style.display = 'none'; });
     slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = 'none');
     function fmtSizeDemo(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
@@ -12817,66 +12836,46 @@ window.openCmpSettings = window.openCmpSettings || function(){};
       if (divider) divider.style.left = pct + '%';
       if (handle) handle.style.left = pct + '%';
     }
-    /* Use /demo.webp (the panda) as the source. We decode it via Image(),
-       draw to a canvas, then encode the canvas to PNG (the "Original" stat
-       — what the same panda would weigh as a flat PNG) and to WebP@60
-       (the "imgready" stat). Same panda visible on both sides; the savings
-       number is "how much smaller WebP is than PNG of the same panda". */
-    const srcImg = new Image();
-    srcImg.crossOrigin = 'anonymous';
-    srcImg.onload = () => {
-      const cv = document.createElement('canvas');
-      cv.width = srcImg.naturalWidth; cv.height = srcImg.naturalHeight;
-      cv.getContext('2d').drawImage(srcImg, 0, 0);
-      /* Encode as PNG (the "before" / "original" stat). PNG is lossless
-         so this is the apples-to-apples size comparison. */
-      cv.toBlob(pngBlob => {
-        if (!pngBlob) {
-          if (loading) loading.innerHTML = 'Demo unavailable';
-          return;
+    function wireDrag(){
+      let dragging = false;
+      const updatePos = e => {
+        const r = slider.getBoundingClientRect();
+        const x = (e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)) - r.left;
+        setSplit(x / r.width * 100);
+      };
+      slider.addEventListener('pointerdown', e => {
+        dragging = true; updatePos(e); e.preventDefault();
+        try { slider.setPointerCapture && slider.setPointerCapture(e.pointerId); } catch(_){}
+      });
+      slider.addEventListener('pointermove', e => { if (dragging) updatePos(e); });
+      slider.addEventListener('pointerup', () => dragging = false);
+      slider.addEventListener('pointercancel', () => dragging = false);
+    }
+    /* Fetch the two real committed files and use their real byte sizes. */
+    Promise.all([ fetch('/demo-panda.png'), fetch('/demo.webp') ])
+      .then(rs => {
+        if (!rs[0].ok || !rs[1].ok) throw new Error('demo assets missing');
+        return Promise.all([ rs[0].blob(), rs[1].blob() ]);
+      })
+      .then(blobs => {
+        const pngBlob = blobs[0], webpBlob = blobs[1];
+        const origSize = pngBlob.size, afterSize = webpBlob.size;
+        before.src = URL.createObjectURL(pngBlob);
+        after.src  = URL.createObjectURL(webpBlob);
+        const pct = origSize ? Math.round((1 - afterSize / origSize) * 100) : 0;
+        if (stats) {
+          stats.innerHTML =
+            `<span class="demo-stat"><span class="label">Original PNG:</span><span class="value">${fmtSizeDemo(origSize)}</span></span>` +
+            `<span class="demo-stat"><span class="label">imgready WebP:</span><span class="value">${fmtSizeDemo(afterSize)}</span></span>` +
+            `<span class="demo-stat"><span class="saving">${pct}% smaller</span></span>`;
         }
-        const pngSize = pngBlob.size;
-        const beforeUrl = URL.createObjectURL(pngBlob);
-        before.src = beforeUrl;
-        /* Encode again as WebP @ quality 60 (the "after" / "imgready" stat). */
-        cv.toBlob(afterBlob => {
-          if (!afterBlob) {
-            if (loading) loading.innerHTML = 'Demo unavailable';
-            return;
-          }
-          const afterUrl = URL.createObjectURL(afterBlob);
-          after.src = afterUrl;
-          const origSize = pngSize;
-          const pct = Math.round((1 - afterBlob.size / origSize) * 100);
-          if (stats) {
-            stats.innerHTML =
-              `<span class="demo-stat"><span class="label">Original PNG:</span><span class="value">${fmtSizeDemo(origSize)}</span></span>` +
-              `<span class="demo-stat"><span class="label">imgready WebP:</span><span class="value">${fmtSizeDemo(afterBlob.size)}</span></span>` +
-              `<span class="demo-stat"><span class="saving">${pct}% smaller</span></span>`;
-          }
-          if (loading) loading.style.display = 'none';
-          [divider, handle].forEach(el => { if (el) el.style.display = ''; });
-          slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = '');
-          setSplit(50);
-          /* Drag handler. Pointer-based for mouse + touch. */
-          let dragging = false;
-          const updatePos = e => {
-            const r = slider.getBoundingClientRect();
-            const x = (e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)) - r.left;
-            setSplit(x / r.width * 100);
-          };
-          slider.addEventListener('pointerdown', e => {
-            dragging = true; updatePos(e); e.preventDefault();
-            try { slider.setPointerCapture && slider.setPointerCapture(e.pointerId); } catch(_){}
-          });
-          slider.addEventListener('pointermove', e => { if (dragging) updatePos(e); });
-          slider.addEventListener('pointerup', () => dragging = false);
-          slider.addEventListener('pointercancel', () => dragging = false);
-        }, 'image/webp', 0.60);
-      }, 'image/png');
-    };
-    srcImg.onerror = () => { if (loading) loading.innerHTML = 'Demo unavailable'; };
-    srcImg.src = '/demo.webp';
+        if (loading) loading.style.display = 'none';
+        [divider, handle].forEach(el => { if (el) el.style.display = ''; });
+        slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = '');
+        setSplit(50);
+        wireDrag();
+      })
+      .catch(() => { if (loading) loading.innerHTML = 'Demo unavailable'; });
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start, { once: true });
@@ -13035,7 +13034,7 @@ if (!window._navMenuOutsideClick) {
     const ratio = Math.max(0, targetBpp / k);
     if (ratio <= 0) return 50;
     const q = Math.pow(ratio, 1/1.7) * 100;
-    return Math.max(50, Math.min(95, Math.round(q)));
+    return Math.max(10, Math.min( /* R47: floor 50→10 */95, Math.round(q)));
   }
   function _predictBpp(quality, fmt){
     const qf = Math.pow(Math.max(0.4, quality / 100), 1.7);
@@ -13373,7 +13372,7 @@ if (!window._navMenuOutsideClick) {
        Quality-IGNORING: png (lossless), ico (PNG wrap). */
     const dd = document.querySelector('.quality-dropdown');
     if (!dd) return;
-    const losslessBtn = dd.querySelector('button[data-quality-preset="lossless"]');
+    const losslessBtn = document.querySelector('.quality-menu button[data-quality-preset="lossless"]'); /* R47: menu is portalled */
     const fmts = (window.PREFS && window.PREFS.outFormats) || ['webp'];
     /* (a) lossless-button visibility — uses primary format only */
     if (losslessBtn) {

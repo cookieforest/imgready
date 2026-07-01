@@ -4,18 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#5a7a5a">
-<title>Compress Images for WordPress — Speed Up Your Site | imgready</title>
+<title>Compress WordPress Images Free — Faster Pages | imgready</title>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="dns-prefetch" href="https://esm.sh">
+<link rel="preload" href="/imgready-worker.js" as="script">
+<link rel="prefetch" href="/vendor/UPNG.min.js">
+<link rel="prefetch" href="/vendor/pako.min.js">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="description" content="How to compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.">
-<meta property="og:title" content="Compress Images for WordPress — Speed Up Your Site | imgready">
+<meta property="og:title" content="Compress WordPress Images Free — Faster Pages | imgready">
 <meta property="og:description" content="How to compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.">
 <meta property="og:image" content="https://imgready.app/demo.webp">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://imgready.app/compress-images-for-wordpress/">
 <meta property="og:site_name" content="imgready">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Compress Images for WordPress — Speed Up Your Site | imgready">
+<meta name="twitter:title" content="Compress WordPress Images Free — Faster Pages | imgready">
 <meta name="twitter:description" content="How to compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image" content="https://imgready.app/og/compress-images-for-wordpress.svg">
 <link rel="canonical" href="https://imgready.app/compress-images-for-wordpress/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
@@ -57,22 +64,24 @@
   }
 })();
 </script>
-<style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+<style>@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),url('/fonts/fraunces-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+@font-face{font-family:'Inter';src:url('/fonts/inter-latin.woff2') format('woff2-variations'),url('/fonts/inter-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -87,7 +96,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .ok{color:#5a7a5a;font-weight:700;}
 .warn-text{color:#b08030;font-weight:700;}
 .bad{color:#a04040;font-weight:700;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -113,7 +122,7 @@ li{font-size:.92rem;line-height:1.75;color:#5a5448;margin-bottom:8px;}
 
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"Compress Images for WordPress","item":"https://imgready.app/compress-images-for-wordpress/"}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to Compress Images for WordPress — The Complete Guide","description":"Compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.","url":"https://imgready.app/compress-images-for-wordpress/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-05","dateModified":"2026-05-05"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to Compress Images for WordPress — The Complete Guide","description":"Compress images for WordPress to improve Core Web Vitals and page speed. Format guide, size targets, and a free in-browser compression tool.","url":"https://imgready.app/compress-images-for-wordpress/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-05","dateModified":"2026-05-05","image":"https://imgready.app/og/compress-images-for-wordpress.svg","publisher":{"@type":"Organization","name":"imgready","url":"https://imgready.app/","logo":{"@type":"ImageObject","url":"https://imgready.app/favicon.svg"}}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What image format is best for WordPress?","acceptedAnswer":{"@type":"Answer","text":"WebP is the best modern format for WordPress — it's 25–35% smaller than JPEG with better quality, and has near-universal browser support. Always serve a JPEG fallback for older browsers. AVIF offers even better compression but has limited support. PNG is fine for logos and graphics, but avoid it for photographs."}},{"@type":"Question","name":"What size should images be for WordPress?","acceptedAnswer":{"@type":"Answer","text":"Hero/featured images should be around 1200px wide (landscape). Thumbnail images and featured image smaller displays work well at 600px wide. For post content, 800–1000px is ideal. Keep all images under 200 KB — most should be 50–150 KB after compression."}},{"@type":"Question","name":"Does image size affect WordPress SEO?","acceptedAnswer":{"@type":"Answer","text":"Yes, absolutely. Large uncompressed images slow down page load, which increases bounce rate and hurts SEO rankings. Google's Core Web Vitals metric includes Largest Contentful Paint (LCP), which is directly affected by image file size and dimensions. Optimized images improve both user experience and search rankings."}},{"@type":"Question","name":"How do I convert images to WebP in WordPress?","acceptedAnswer":{"@type":"Answer","text":"You can convert images to WebP using imgready's free WebP converter before uploading. Alternatively, WordPress plugins like Imagify or ShortPixel can automatically convert on upload. For maximum control and smallest file sizes, convert with imgready first, then upload the WebP file and keep a JPEG backup."}},{"@type":"Question","name":"What is Core Web Vitals and why do images matter?","acceptedAnswer":{"@type":"Answer","text":"Core Web Vitals are three metrics Google uses to measure page experience: Largest Contentful Paint (LCP), First Input Delay (FID), and Cumulative Layout Shift (CLS). Images are the leading cause of slow LCP — large uncompressed images delay rendering and slow perceived load time. Compress images to improve LCP and overall rankings."}},{"@type":"Question","name":"Can I use AVIF in WordPress?","acceptedAnswer":{"@type":"Answer","text":"AVIF is an excellent format for WordPress — it compresses to 50–60% of JPEG size — but support is still limited (not available in Safari, iOS, or older Firefox). If you use AVIF, always provide a WebP fallback and a JPEG final fallback using <picture> tags. Most WordPress image plugins don't support AVIF yet, so serve it manually or use Cloudinary."}}]}</script>
 </head>
 <body>

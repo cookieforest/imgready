@@ -16,7 +16,7 @@
 
 // Bump on every deploy. Tag is just for humans; what matters is that the
 // string changes so old caches get evicted in the activate step.
-const CACHE_VERSION = 'imgready-2026-06-30-sample-thumbs';
+const CACHE_VERSION = 'imgready-dev-17828674';
 const PRECACHE  = `${CACHE_VERSION}-precache`;
 const RUNTIME   = `${CACHE_VERSION}-runtime`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -28,6 +28,15 @@ const PRECACHE_URLS = [
   '/imgready-worker.js',
   '/manifest.webmanifest',
   '/favicon.svg',
+  // R105 — small WASM deps used by every PNG/TIFF conversion.
+  // UPNG decodes PNG; pako handles deflate streams (PNG + TIFF Deflate).
+  // 18 KB + 47 KB = 65 KB total. Small enough to precache eagerly so
+  // the very first conversion is instant on repeat visits.
+  // libheif (1.85 MB) is intentionally NOT precached — too heavy for
+  // users who never touch HEIC. Targeted prefetch on the HEIC converter
+  // pages handles that case (R104).
+  '/vendor/UPNG.min.js',
+  '/vendor/pako.min.js',
 ];
 
 // CDN libraries we want to cache aggressively. URLs are pinned to versions,

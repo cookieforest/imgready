@@ -4,22 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>imgready for Developers — Free Image Optimization SDK & API</title>
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="description" content="Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. No server required — compresses client-side.">
 <meta property="og:title" content="imgready for Developers — SDK & API">
 <meta property="og:description" content="Free JavaScript SDK for image optimization. WebP, AVIF, HEIC, PNG-8 quantization. Drop-in script tag, no backend required.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="/demo.png">
+<meta property="og:image" content="https://imgready.app/demo.webp">
 <meta property="og:url" content="https://imgready.app/developers/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://imgready.app/developers/">
-<style>
+<style>@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),url('/fonts/fraunces-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+@font-face{font-family:'Inter';src:url('/fonts/inter-latin.woff2') format('woff2-variations'),url('/fonts/inter-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:820px;margin:0 auto;padding:0 24px 80px;}
 
 /* NAV */
 nav{padding:18px 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 nav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
 nav a.nav-link:hover{text-decoration:underline;}
@@ -30,7 +34,7 @@ nav a.nav-link:hover{text-decoration:underline;}
 /* HERO */
 .hero{padding:52px 0 44px;border-bottom:1px solid #d6cebb;}
 .hero-badge{display:inline-block;background:#e8f0e8;color:#5a7a5a;border:1px solid #b8d4b8;border-radius:99px;font-size:.75rem;font-weight:700;padding:4px 14px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:18px;}
-.hero h1{font-size:2.2rem;font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:16px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:16px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p{font-size:1rem;color:#5a5448;max-width:580px;line-height:1.75;margin-bottom:28px;}
 .hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;}
@@ -46,14 +50,14 @@ nav a.nav-link:hover{text-decoration:underline;}
 .option-card h3{font-size:1.05rem;font-weight:700;color:#2e2a22;margin-bottom:8px;}
 .option-card p{font-size:.84rem;color:#5a5448;line-height:1.65;margin-bottom:14px;}
 .option-card ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
-.option-card ul li{font-size:.82rem;color:#5a5448;padding-left:18px;position:relative;}
+.option-card ul li{font-size:.92rem;color:#5a5448;padding-left:18px;position:relative;}
 .option-card ul li::before{content:'✓';position:absolute;left:0;color:#5a7a5a;font-weight:700;}
 .option-card ul li.soon-item::before{content:'·';color:#8a8070;}
 .option-card ul li.soon-item{color:#8a8070;}
 
 /* SECTION */
 section{margin-top:52px;}
-section h2{font-size:1.4rem;font-weight:700;color:#2e2a22;margin-bottom:6px;letter-spacing:-.5px;}
+section h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.4rem;font-weight:700;color:#2e2a22;margin-bottom:6px;letter-spacing:-.5px;}
 .section-sub{font-size:.88rem;color:#8a8070;margin-bottom:28px;}
 
 /* CODE BLOCKS */
@@ -120,11 +124,11 @@ pre{background:#2e2a22;color:#e8e4d8;border-radius:10px;padding:20px 24px;font-s
 .waitlist-embed iframe{display:block;width:100%;border:none;min-height:420px;}
 
 /* CALLOUT */
-.callout{background:#e8f0e8;border:1px solid #b8d4b8;border-radius:10px;padding:16px 20px;font-size:.86rem;color:#5a5448;line-height:1.65;margin:20px 0;}
+.callout{background:#e8f0e8;border:1px solid #b8d4b8;border-radius:10px;padding:14px 18px;font-size:.92rem;color:#5a5448;line-height:1.65;margin:20px 0;}
 .callout strong{color:#2e2a22;}
 
 /* FOOTER */
-.site-footer{margin-top:64px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
+.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
 
@@ -134,6 +138,10 @@ pre{background:#2e2a22;color:#e8e4d8;border-radius:10px;padding:20px 24px;font-s
   .pricing-grid{grid-template-columns:1fr;}
   .attr-box{flex-direction:column;}
 }
+  .related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:14px 0 28px;}
+  .related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+  .related a:hover{border-color:#5a7a5a;}
+  .related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"Developers","item":"https://imgready.app/developers/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"imgready for Developers \u2014 Free Image Optimization SDK & API","description":"Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. REST API coming soon.","url":"https://imgready.app/developers/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
@@ -494,8 +502,19 @@ imgready.<span class="c-fn">init</span>({
   <details class="faq-item"><summary>Where is the SDK documentation?</summary><p>Full API reference, options object, and code examples are on this page. The SDK is also available as an ES module import — see the Quickstart section above.</p></details>
   <details class="faq-item"><summary>Does the SDK work with React, Vue, Angular, and other frameworks?</summary><p>Yes. The SDK works in any framework — React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in.</p></details>
   <details class="faq-item"><summary>What's the bundle size impact of the SDK?</summary><p>The main SDK script is ~2 KB minified. WebAssembly encoders (WebP, AVIF, HEIC) are lazy-loaded on demand, adding ~1.5 MB each only when needed and cached after first use. Pages using only PNG/JPG output have zero encoder overhead until a user actually compresses.</p></details>
+  
+  <h2>Related</h2>
+  <div class="related">
+    <a href="/about/">About imgready<small>The story behind the tool</small></a>
+    <a href="/why/">Why never uploading matters<small>The privacy thesis</small></a>
+    <a href="/privacy/">Privacy policy<small>What the SDK collects (nothing)</small></a>
+    <a href="/compress/">Try the consumer tool<small>See what your users will get</small></a>
+    <a href="/webp-converter/">WebP converter<small>The format the SDK favors</small></a>
+    <a href="/support/">Support imgready<small>Help keep the SDK free</small></a>
+  </div>
+
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

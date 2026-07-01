@@ -15,11 +15,13 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="JPG vs PNG vs WebP — Which Format Should You Use? | imgready">
 <meta name="twitter:description" content="JPG vs PNG vs WebP: what's the difference and which should you use? 2026 comparison of file size, quality, transparency support, and browser compatibility.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image" content="https://imgready.app/og/webp-vs-png-vs-jpg.svg">
 <link rel="canonical" href="https://imgready.app/webp-vs-png-vs-jpg/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
      interaction OR after window.onload + 1.5s idle. See index.html for the
@@ -59,21 +61,21 @@
 })();
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -83,7 +85,7 @@ body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-seri
 .feat{background:#faf7f2;border:1px solid #d6cebb;border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.9rem;font-weight:700;color:#2e2a22;margin-bottom:6px;}
 .feat p{font-size:.78rem;color:#8a8070;line-height:1.5;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -109,6 +111,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "JPG vs PNG vs WebP: which image format should you use?", "description": "A practical comparison of JPG, PNG, and WebP — file size, browser support, transparency, photographic vs graphic content. Pick the right format for your use case.", "url": "https://imgready.app/webp-vs-png-vs-jpg/", "author": {"@type": "Organization", "name": "imgready", "url": "https://imgready.app/"}, "publisher": {"@type": "Organization", "name": "imgready", "url": "https://imgready.app/", "logo": {"@type": "ImageObject", "url": "https://imgready.app/favicon.svg"}}, "image": "https://imgready.app/og/webp-vs-png-vs-jpg.svg", "datePublished": "2026-05-05", "dateModified": "2026-06-05", "inLanguage": "en"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "WebP vs PNG vs JPG", "item": "https://imgready.app/webp-vs-png-vs-jpg/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is WebP really always better than JPG?", "acceptedAnswer": {"@type": "Answer", "text": "For photographs displayed on a modern web browser, yes — typically 25–35% smaller at the same visible quality. For email or non-browser destinations, JPG is still safer because of broader compatibility."}}, {"@type": "Question", "name": "Should I just use AVIF for everything?", "acceptedAnswer": {"@type": "Answer", "text": "AVIF compresses tighter than WebP but encodes 5–10x slower and has slightly less universal browser support. For static assets compiled once, AVIF is fine. For dynamic content, WebP is a better default."}}, {"@type": "Question", "name": "Can I serve WebP and have old browsers fall back to JPG?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Use the HTML <picture> element with a WebP source first and a JPG <img> fallback. Browsers that support WebP use it; older browsers fall back automatically."}}, {"@type": "Question", "name": "What about PNG-8 vs WebP-lossless?", "acceptedAnswer": {"@type": "Answer", "text": "Both are lossless options for graphics. WebP-lossless is typically 26% smaller than PNG-24 for the same content. PNG-8 (color-quantized) can be smaller still for very flat illustrations but introduces visible color banding on photographs."}}, {"@type": "Question", "name": "Is AVIF supported by Safari?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — Safari has supported AVIF since macOS Ventura (2022) / iOS 16. Total browser support is ~95%+ as of 2026. For production, still use a fallback in the <picture> element."}}, {"@type": "Question", "name": "Why would I ever pick JPG today?", "acceptedAnswer": {"@type": "Answer", "text": "Compatibility. Email clients, photo printing services, and a handful of older or specialised pipelines still expect JPG. If your audience or destination might fall in those categories, JPG is the safe choice."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "WebP vs PNG vs JPG — Which Image Format Should You Use? | imgready", "description": "A practical comparison of WebP, PNG, and JPG image formats. Learn which gives the best file size, quality, and compatibility for your specific use case.", "url": "https://imgready.app/webp-vs-png-vs-jpg/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}}</script>
@@ -385,11 +388,11 @@ tr:nth-child(even) td{background:#faf7f2;}
 <div class="fs-modal" id="fsModal" role="dialog" aria-modal="true" aria-label="Compare original and result">
   <div class="fs-inner" id="fsInner" oncontextmenu="return false">
     <div class="fs-zoom-wrap" id="fsZoom">
-      <img class="fs-before" id="fsBefore" alt="original">
+      <img class="fs-before" id="fsBefore" alt="original" loading="lazy" decoding="async">
     </div>
     <div class="fs-clip" id="fsClip">
       <div class="fs-zoom-after" id="fsZoomAfter">
-        <img class="fs-after" id="fsAfter" alt="optimized">
+        <img class="fs-after" id="fsAfter" alt="optimized" loading="lazy" decoding="async">
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
@@ -595,7 +598,7 @@ tr:nth-child(even) td{background:#faf7f2;}
   </div>
 
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

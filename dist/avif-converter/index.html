@@ -15,11 +15,18 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AVIF Converter Free — Max Compression Online | imgready">
 <meta name="twitter:description" content="Convert JPG, PNG, WebP, HEIC to AVIF free. Up to 50% smaller than JPEG. 100% in-browser — your files never leave your device. No uploads required.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image" content="https://imgready.app/og/avif-converter.svg">
 <link rel="canonical" href="https://imgready.app/avif-converter/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="dns-prefetch" href="https://esm.sh">
+<link rel="preload" href="/imgready-worker.js" as="script">
+<link rel="prefetch" href="/vendor/UPNG.min.js">
+<link rel="prefetch" href="/vendor/pako.min.js">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
      interaction OR after window.onload + 1.5s idle. See index.html for the
@@ -59,21 +66,21 @@
 })();
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -83,7 +90,7 @@ body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-seri
 .feat{background:#faf7f2;border:1px solid #d6cebb;border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.9rem;font-weight:700;color:#2e2a22;margin-bottom:6px;}
 .feat p{font-size:.78rem;color:#8a8070;line-height:1.5;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -385,11 +392,11 @@ tr:nth-child(even) td{background:#faf7f2;}
 <div class="fs-modal" id="fsModal" role="dialog" aria-modal="true" aria-label="Compare original and result">
   <div class="fs-inner" id="fsInner" oncontextmenu="return false">
     <div class="fs-zoom-wrap" id="fsZoom">
-      <img class="fs-before" id="fsBefore" alt="original">
+      <img class="fs-before" id="fsBefore" alt="original" loading="lazy" decoding="async">
     </div>
     <div class="fs-clip" id="fsClip">
       <div class="fs-zoom-after" id="fsZoomAfter">
-        <img class="fs-after" id="fsAfter" alt="optimized">
+        <img class="fs-after" id="fsAfter" alt="optimized" loading="lazy" decoding="async">
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
@@ -568,7 +575,7 @@ tr:nth-child(even) td{background:#faf7f2;}
   </div>
 
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

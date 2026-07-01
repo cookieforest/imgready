@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About imgready — Free In-Browser Image Tool</title>
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="description" content="imgready is a free, private, browser-based image optimizer. No uploads, no accounts. Learn how it works, who built it, and why files never leave your device.">
 <meta property="og:title" content="About imgready — Free In-Browser Image Tool">
 <meta property="og:description" content="imgready is a free, private, browser-based image optimizer. No uploads, no accounts. Learn how it works, who built it, and why files never leave your device.">
-<meta property="og:image" content="/demo.png">
+<meta property="og:image" content="https://imgready.app/demo.webp">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/about/">
 <meta name="twitter:card" content="summary_large_image">
@@ -51,20 +53,22 @@
 })();
 </script>
 -->
-<style>
+<style>@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),url('/fonts/fraunces-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+@font-face{font-family:'Inter';src:url('/fonts/inter-latin.woff2') format('woff2-variations'),url('/fonts/inter-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+  body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;}
   .wrap{max-width:720px;margin:0 auto;padding:0 24px 80px;}
   nav{padding:18px 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-  .nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+  .nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
   .nav-brand .g{color:var(--accent,#5a7a5a);}
   nav a{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
   nav a:hover{text-decoration:underline;}
   .nav-sep{color:#d6cebb;}
-  .brand-big{font-size:42px;font-weight:700;letter-spacing:-2px;margin:24px 0 8px;}
+  .brand-big{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:42px;font-weight:700;font-style:italic;letter-spacing:-.01em;margin:24px 0 8px;}
   .brand-big .g{color:var(--accent,#5a7a5a);}
-  h1{font-size:1.5rem;margin-bottom:16px;}
-  h2{font-size:1.05rem;margin:32px 0 10px;color:#5a7a5a;}
+  h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:1.5rem;font-weight:700;letter-spacing:-.4px;margin-bottom:16px;}
+  h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:1.05rem;font-weight:700;letter-spacing:-.3px;margin:32px 0 10px;color:#5a7a5a;}
   p,li{font-size:.92rem;line-height:1.75;color:#5a5448;margin-bottom:14px;}
   ul{padding-left:20px;margin-bottom:14px;}
   a{color:#5a7a5a;}
@@ -83,13 +87,17 @@
   .support-nudge{background:#e8f0e8;border:1px solid #5a7a5a;border-radius:10px;padding:16px 20px;margin:28px 0;font-size:.9rem;color:#5a5448;line-height:1.75;}
   .support-nudge a{color:#5a7a5a;font-weight:700;}
   .faq-item{margin-bottom:18px;}
-  .faq-item summary{font-size:.95rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:10px 0;border-bottom:1px solid #d6cebb;}
+  .faq-item summary{font-size:.97rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:12px 0;border-bottom:1px solid #d6cebb;}
   .faq-item summary:hover{color:#5a7a5a;}
   .faq-item p{font-size:.88rem;color:#5a5448;line-height:1.7;margin-top:10px;padding-left:4px;}
   .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
   .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
   .site-footer a:hover{text-decoration:underline;}
   @media(max-width:560px){.author-card{flex-direction:column;gap:14px;}.author-avatar{width:52px;height:52px;font-size:1.3rem;}}
+  .related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:14px 0 28px;}
+  .related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+  .related a:hover{border-color:#5a7a5a;}
+  .related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"About","item":"https://imgready.app/about/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"About imgready — Free In-Browser Image Tool","description":"imgready is a free, private, browser-based image optimizer. No uploads, no accounts. Learn how it works, who built it, and why files never leave your device.","url":"https://imgready.app/about/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
@@ -183,8 +191,19 @@
   <details class="faq-item"><summary>Is there a mobile app?</summary><p>No dedicated app — imgready works in any modern mobile browser. Add it to your home screen for quick access. On iOS, tap Share → Add to Home Screen.</p></details>
   <details class="faq-item"><summary>Can I convert TIFF and other professional formats?</summary><p>Yes. imgready accepts TIFF (with uncompressed, LZW, and PackBits compression), SVG, BMP, and GIF in addition to JPEG, PNG, WebP, AVIF, and HEIC. It's designed to handle formats that most online tools cannot.</p></details>
   <details class="faq-item"><summary>Does imgready preserve metadata like EXIF data?</summary><p>No — imgready strips all metadata including EXIF, IPTC, and XMP when converting images. This protects your privacy by removing location, camera settings, and other embedded information from your photos before download.</p></details>
+  
+  <h2>Explore imgready</h2>
+  <div class="related">
+    <a href="/why/">Why imgready never uploads<small>The privacy thesis behind the tool</small></a>
+    <a href="/compress/">Compress images<small>Shrink any image without quality loss</small></a>
+    <a href="/heic-to-jpg/">Convert HEIC to JPG<small>Open iPhone photos anywhere</small></a>
+    <a href="/webp-converter/">WebP converter<small>Modern format, smaller files</small></a>
+    <a href="/developers/">Developer SDK<small>Embed imgready in your app</small></a>
+    <a href="/support/">Support imgready<small>Help keep it free</small></a>
+  </div>
+
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

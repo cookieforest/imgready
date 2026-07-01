@@ -15,11 +15,18 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Compress PNG Free — Keep Transparency | imgready">
 <meta name="twitter:description" content="Compress PNG images online for free. PNG-8 quantization or convert to WebP for 40–80% savings. Transparency preserved. 100% in-browser.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image" content="https://imgready.app/og/compress-png.svg">
 <link rel="canonical" href="https://imgready.app/compress-png/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="dns-prefetch" href="https://esm.sh">
+<link rel="preload" href="/imgready-worker.js" as="script">
+<link rel="prefetch" href="/vendor/UPNG.min.js">
+<link rel="prefetch" href="/vendor/pako.min.js">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
      interaction OR after window.onload + 1.5s idle. See index.html for the
@@ -59,21 +66,21 @@
 })();
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -83,7 +90,7 @@ body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-seri
 .feat{background:#faf7f2;border:1px solid #d6cebb;border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.9rem;font-weight:700;color:#2e2a22;margin-bottom:6px;}
 .feat p{font-size:.78rem;color:#8a8070;line-height:1.5;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -109,6 +116,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Compress PNG online for free", "description": "Compress PNG files entirely in your browser. No upload, no sign-up.", "totalTime": "PT10S", "supply": [{"@type": "HowToSupply", "name": "A PNG file"}], "tool": [{"@type": "HowToTool", "name": "A web browser (Chrome, Firefox, Safari, or Edge)"}], "step": [{"@type": "HowToStep", "name": "Open imgready", "text": "Go to imgready.app/compress-png/ in your browser.", "url": "https://imgready.app/compress-png/"}, {"@type": "HowToStep", "name": "Drop your PNG file", "text": "Drag the PNG into the drop zone or click to browse. imgready re-encodes it with optimal compression."}, {"@type": "HowToStep", "name": "Download the compressed PNG", "text": "Adjust the quality slider for the size/quality tradeoff you want. Click Download."}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Compress PNG", "item": "https://imgready.app/compress-png/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will PNG compression hurt the transparency?", "acceptedAnswer": {"@type": "Answer", "text": "No. imgready preserves the alpha channel through both PNG-8 quantization and WebP-lossless conversion. Transparent areas remain transparent in the output."}}, {"@type": "Question", "name": "What is PNG-8 and is it really smaller than PNG-24?", "acceptedAnswer": {"@type": "Answer", "text": "PNG-8 stores at most 256 colors (or 8-bit indexed) instead of 16.7 million. For images with limited color variety — illustrations, icons, screenshots — PNG-8 is typically 40–70% smaller than PNG-24 with imperceptible visual difference."}}, {"@type": "Question", "name": "How is this different from TinyPNG?", "acceptedAnswer": {"@type": "Answer", "text": "TinyPNG uploads your file to their server. imgready does the same kind of quantization (using UPNG.js) entirely in your browser — no upload, no quota, no signup, free."}}, {"@type": "Question", "name": "Should I just convert PNG to WebP instead?", "acceptedAnswer": {"@type": "Answer", "text": "If your audience uses modern browsers (essentially everyone since 2020), WebP-lossless is typically 26% smaller than PNG-lossless with identical fidelity and full alpha support. Many sites benefit from doing both — keeping a PNG fallback for old browsers via the <picture> element."}}, {"@type": "Question", "name": "Does compress-PNG work on transparent UI screenshots?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — UI screenshots are exactly the kind of content PNG quantization handles best. Expect savings around 50–70%."}}, {"@type": "Question", "name": "Why is my PNG still huge after compression?", "acceptedAnswer": {"@type": "Answer", "text": "Most likely it's a photograph saved as PNG. PNG is a lossless format and photographs simply do not compress losslessly into a small file. Convert to JPG (around 85 quality) or WebP — both will be 80%+ smaller."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Compress PNG Online Free — Reduce PNG File Size While Keeping Transparency | imgready", "description": "Compress PNG images online for free. Use PNG-8 color quantization for 40–70% savings, or convert to WebP for dramatic reductions while keeping transparency. 100% in-browser.", "url": "https://imgready.app/compress-png/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}}</script>
@@ -385,11 +393,11 @@ tr:nth-child(even) td{background:#faf7f2;}
 <div class="fs-modal" id="fsModal" role="dialog" aria-modal="true" aria-label="Compare original and result">
   <div class="fs-inner" id="fsInner" oncontextmenu="return false">
     <div class="fs-zoom-wrap" id="fsZoom">
-      <img class="fs-before" id="fsBefore" alt="original">
+      <img class="fs-before" id="fsBefore" alt="original" loading="lazy" decoding="async">
     </div>
     <div class="fs-clip" id="fsClip">
       <div class="fs-zoom-after" id="fsZoomAfter">
-        <img class="fs-after" id="fsAfter" alt="optimized">
+        <img class="fs-after" id="fsAfter" alt="optimized" loading="lazy" decoding="async">
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
@@ -546,7 +554,7 @@ tr:nth-child(even) td{background:#faf7f2;}
   </div>
 
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

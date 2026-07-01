@@ -5,21 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#5a7a5a">
 <title>PNG to JPG / JPEG Converter Free — Smaller Files | imgready</title>
-<meta name="description" content="Convert PNG to JPG or JPEG online free. Switch from lossless to lossy for dramatically smaller files. No visible quality loss. 100% in-browser, nothing uploaded.">
+<meta name="description" content="Convert PNG to JPG or JPEG online free. Switch from lossless to lossy for dramatically smaller files. No visible quality loss. Private, in-browser.">
 <meta property="og:title" content="PNG to JPG / JPEG Converter Free — Smaller Files | imgready">
-<meta property="og:description" content="Convert PNG to JPG or JPEG online free. Switch from lossless to lossy for dramatically smaller files. No visible quality loss. 100% in-browser, nothing uploaded.">
+<meta property="og:description" content="Convert PNG to JPG or JPEG online free. Switch from lossless to lossy for dramatically smaller files. No visible quality loss. Private, in-browser.">
 <meta property="og:image" content="https://imgready.app/demo.webp">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/png-to-jpg/">
 <meta property="og:site_name" content="imgready">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PNG to JPG / JPEG Converter Free — Smaller Files | imgready">
-<meta name="twitter:description" content="Convert PNG to JPG or JPEG online free. Switch from lossless to lossy for dramatically smaller files. No visible quality loss. 100% in-browser, nothing uploaded.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:description" content="Convert PNG to JPG or JPEG online free. Switch from lossless to lossy for dramatically smaller files. No visible quality loss. Private, in-browser.">
+<meta name="twitter:image" content="https://imgready.app/og/png-to-jpg.svg">
 <link rel="canonical" href="https://imgready.app/png-to-jpg/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="dns-prefetch" href="https://esm.sh">
+<link rel="preload" href="/imgready-worker.js" as="script">
+<link rel="prefetch" href="/vendor/UPNG.min.js">
+<link rel="prefetch" href="/vendor/pako.min.js">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
      interaction OR after window.onload + 1.5s idle. See index.html for the
@@ -59,21 +66,21 @@
 })();
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -83,7 +90,7 @@ body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-seri
 .feat{background:#faf7f2;border:1px solid #d6cebb;border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.9rem;font-weight:700;color:#2e2a22;margin-bottom:6px;}
 .feat p{font-size:.78rem;color:#8a8070;line-height:1.5;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -109,6 +116,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Convert PNG to JPG online for free", "description": "Convert PNG to JPG entirely in your browser. No upload, no sign-up.", "totalTime": "PT10S", "supply": [{"@type": "HowToSupply", "name": "A PNG file"}], "tool": [{"@type": "HowToTool", "name": "A web browser (Chrome, Firefox, Safari, or Edge)"}], "step": [{"@type": "HowToStep", "name": "Open imgready", "text": "Go to imgready.app/png-to-jpg/ in your browser. JPG is selected as the output format by default.", "url": "https://imgready.app/png-to-jpg/"}, {"@type": "HowToStep", "name": "Drop your PNG file", "text": "Drag the PNG file into the drop zone or click to browse. imgready decodes and re-encodes locally."}, {"@type": "HowToStep", "name": "Download the JPG", "text": "Adjust the quality slider if needed. Click Download."}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "PNG to JPG", "item": "https://imgready.app/png-to-jpg/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is my PNG photograph so much smaller as a JPG?", "acceptedAnswer": {"@type": "Answer", "text": "PNG is lossless. JPG is lossy and is purpose-built for photographs. For continuous-tone images, JPG can throw away high-frequency detail the eye doesn't notice and end up at a small fraction of the PNG size with no visible difference."}}, {"@type": "Question", "name": "Will PNG to JPG add a black background?", "acceptedAnswer": {"@type": "Answer", "text": "No. imgready fills transparent pixels with white before encoding. If you need a different fill color, edit the PNG in your image tool first."}}, {"@type": "Question", "name": "How much quality am I losing?", "acceptedAnswer": {"@type": "Answer", "text": "At imgready's default quality 82 you're losing data the human eye cannot perceive at typical viewing distance. The original PNG was lossless, so technically yes — pixels change. In practice, you cannot tell."}}, {"@type": "Question", "name": "Can I convert PNG screenshots to JPG?", "acceptedAnswer": {"@type": "Answer", "text": "You can, but you usually shouldn't. JPG handles screenshots poorly — text edges get fuzzy and UI elements smear. Convert to WebP-lossless or PNG-8 instead for a much better result."}}, {"@type": "Question", "name": "Does PNG to JPG keep transparency?", "acceptedAnswer": {"@type": "Answer", "text": "No, because JPG does not support transparency. imgready replaces transparent pixels with white. If transparency matters, convert to WebP instead."}}, {"@type": "Question", "name": "Can I batch convert many PNGs to JPG?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drop them all in and click Process. The soft cap is 200 files; the practical limit is your device's memory."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "PNG to JPG Converter Online Free — Convert PNG to JPEG Instantly | imgready", "description": "Convert PNG to JPG online for free. Reduce file sizes dramatically by switching from lossless to lossy compression. 100% in-browser — your files stay private.", "url": "https://imgready.app/png-to-jpg/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}}</script>
@@ -385,11 +393,11 @@ tr:nth-child(even) td{background:#faf7f2;}
 <div class="fs-modal" id="fsModal" role="dialog" aria-modal="true" aria-label="Compare original and result">
   <div class="fs-inner" id="fsInner" oncontextmenu="return false">
     <div class="fs-zoom-wrap" id="fsZoom">
-      <img class="fs-before" id="fsBefore" alt="original">
+      <img class="fs-before" id="fsBefore" alt="original" loading="lazy" decoding="async">
     </div>
     <div class="fs-clip" id="fsClip">
       <div class="fs-zoom-after" id="fsZoomAfter">
-        <img class="fs-after" id="fsAfter" alt="optimized">
+        <img class="fs-after" id="fsAfter" alt="optimized" loading="lazy" decoding="async">
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
@@ -514,6 +522,30 @@ tr:nth-child(even) td{background:#faf7f2;}
   <p>A typical 12-megapixel PNG photograph is around 12&nbsp;MB. The same image as JPG quality 95 is around 4&nbsp;MB. As JPG quality 82, around 1.2&nbsp;MB. As WebP quality 82, around 800&nbsp;KB. The visual difference between any of these and the source PNG, viewed at normal monitor resolution, is invisible. Converting the PNG to JPG saves over 90% of the file size for free — and converting to WebP saves another 30%.</p>
 
 
+
+  <h3 class="sub">Why PNGs of photos are so big</h3>
+  <p>PNG was designed for graphics with sharp edges and limited color palettes — logos, icons, screenshots, line art. Its compression algorithm (deflate with predictive filtering) works brilliantly on those. On photographs, where every pixel is slightly different from its neighbor due to natural noise and gradients, the predictor has nothing to predict, so the file balloons. A 12-megapixel photo as PNG can be 15–30 MB; the exact same photo as quality-82 JPG is 800 KB to 2 MB — a 90–95% reduction with no visible quality loss.</p>
+  <p>This is why every camera, every photo-management app, and every social network defaults to JPG for photographs. PNG's only photographic advantage is that re-saving doesn't introduce additional compression loss, which matters only if you're editing repeatedly. For the final shareable version, JPG always wins on size.</p>
+
+  <h3 class="sub">8-bit vs 16-bit PNG and why it doesn't matter for JPG</h3>
+  <p>PNG supports 16-bit-per-channel color (281 trillion possible colors) for cases like medical imaging or astrophotography. JPG only supports 8-bit (16.7 million colors). Most PNGs in the wild are already 8-bit, so the conversion is straightforward. If your PNG is 16-bit, imgready dithers down to 8-bit before encoding — visually indistinguishable for any photograph.</p>
+
+  <h3 class="sub">Chroma subsampling and what it means for your file size</h3>
+  <p>JPG can compress color information more aggressively than luminance (brightness) because the human eye is more sensitive to brightness detail than color detail. This is called chroma subsampling. imgready uses 4:2:0 subsampling at quality below 90 (smaller files, imperceptible color loss) and 4:4:4 above 90 (full color resolution, larger files). For photographic content this is the right default. For text-heavy screenshots or sharp graphics — convert to WebP instead, where the encoder handles edges better.</p>
+
+  <h3 class="sub">Workflow examples for PNG → JPG</h3>
+  <p><strong>Screenshots shared in chat.</strong> Modern phone and desktop screenshot tools save as PNG by default. A full-resolution screenshot of a phone screen is 1.5–4 MB as PNG, 200–500 KB as quality-85 JPG. Faster upload, faster preview generation for the receiver. imgready handles screenshots well at quality 80–88; below 75 you'll start to see fringing around text.</p>
+  <p><strong>Photos exported from a design tool.</strong> Figma, Sketch, Photoshop, and Affinity all let you export at PNG by default. For photographic content, this is a waste — switch the export to JPG-quality-85 directly, or convert the PNG export through imgready in batch.</p>
+  <p><strong>Game screenshots and stills.</strong> Steam, Discord, and most game capture tools save as PNG. For sharing screenshots in posts, threads, or community wikis where each KB matters, convert through imgready at quality 88 — the result is visually identical and 3–5× smaller.</p>
+
+  <h3 class="sub">When NOT to convert PNG to JPG</h3>
+  <p>Three cases where JPG is genuinely worse:</p>
+  <ul>
+    <li><strong>Anything with transparency you need to keep.</strong> JPG can't hold an alpha channel. Convert to WebP instead.</li>
+    <li><strong>Screenshots with text overlay.</strong> JPG's lossy compression introduces ringing artifacts around sharp text edges. The artifacts are visible at any quality setting. WebP (lossless mode) is better for text-heavy images.</li>
+    <li><strong>Pixel art, logos, line art, icons.</strong> Same reason as screenshots — sharp edges fight JPG compression. PNG (or SVG, if vector) is correct here.</li>
+  </ul>
+  <p>imgready can convert PNG to WebP-lossless directly if you need smaller files without losing the lossless guarantee — typically 25% smaller than the source PNG at pixel-perfect fidelity. Use the WebP converter for that workflow.</p>
   <h3 class="sub">How much smaller will the JPG be?</h3>
   <table>
     <thead><tr><th>PNG type</th><th>Typical PNG size</th><th>JPG at quality 82</th><th>Saving</th></tr></thead>
@@ -550,7 +582,7 @@ tr:nth-child(even) td{background:#faf7f2;}
   </div>
 
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

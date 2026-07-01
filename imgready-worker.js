@@ -48,6 +48,7 @@ let avifEncode = null;
 let jpegEncode = null;
 let oxipngOptimise = null;
 
+let _lastW = 0, _lastH = 0; /* R46: output dims for main thread */
 const CROP_RATIOS = { 'none': null, '1:1': 1, '4:3': 4/3, '3:4': 3/4, '16:9': 16/9, '9:16': 9/16 };
 
 /* ---------- file detection ---------- */
@@ -302,6 +303,33 @@ async function decodeToBitmap(file){
   if (isTiff(file)) return await decodeTiff(file);
   if (isSvg(file)) throw new Error('SVG decoding stays on main thread');
   return await createImageBitmap(file);
+}
+
+/* ---------- R48: encode already-drawn canvas at integer quality (0-100) ----------
+   Used by the target-size binary-search loop in processOne.
+   Returns a Blob for WebP / AVIF / JPG; null for formats without quality control. */
+async function encodeCanvasAtQ(ctx, w, h, fmt, q100) {
+  const id = ctx.getImageData(0, 0, w, h);
+  if (fmt === 'avif') {
+    const enc = await ensureAvif();
+    const buf = await enc(id, { quality: q100 });
+    return new Blob([buf], { type: 'image/avif' });
+  }
+  if (fmt === 'webp') {
+    const enc = await ensureWebp();
+    const buf = await enc(id, { quality: q100 });
+    return new Blob([buf], { type: 'image/webp' });
+  }
+  if (fmt === 'jpg') {
+    try {
+      const enc = await ensureJpeg();
+      const buf = await enc(id, { quality: q100, progressive: true, optimize_coding: true });
+      return new Blob([buf], { type: 'image/jpeg' });
+    } catch(e) {
+      return await ctx.canvas.convertToBlob({ type: 'image/jpeg', quality: q100 / 100 });
+    }
+  }
+  return null; // PNG, GIF, ICO — no quality dial
 }
 
 /* ---------- quality → color count for PNG-8 ---------- */
@@ -582,8 +610,33 @@ async function processOne(file, fmt, settings){
   }
   ctx.drawImage(bmp, sx, sy, sw, sh, 0, 0, w, h);
   bmp.close();
+  _lastW = w; _lastH = h; /* R46: record final output dims */
 
-  const q = settings.quality;
+  /* R48 — Target-size mode: binary-search quality until output is within 5%
+     of the requested byte budget. Works for WebP / AVIF / JPG. PNG / GIF / ICO
+     fall through to their normal paths (lossless or fixed). Up to 8 encodes;
+     converges in 4–5 iterations for typical images. */
+  if (settings.targetKb && settings.targetKb > 0 &&
+      (fmt === 'webp' || fmt === 'avif' || fmt === 'jpg')) {
+    const targetBytes = settings.targetKb * 1024;
+    let lo = 5, hi = 95;
+    let bestBlob = null, bestDiff = Infinity;
+    for (let iter = 0; iter < 8; iter++) {
+      const q = Math.round((lo + hi) / 2);
+      const blob = await encodeCanvasAtQ(ctx, w, h, fmt, q);
+      if (!blob) break;
+      const diff = Math.abs(blob.size - targetBytes);
+      if (diff < bestDiff) { bestDiff = diff; bestBlob = blob; }
+      if (bestDiff < targetBytes * 0.05) break; // within 5% — good enough
+      if (blob.size > targetBytes) hi = q - 1;
+      else lo = q + 1;
+      if (lo > hi) break;
+    }
+    if (bestBlob) return bestBlob; /* R48-fix: _R was undefined */
+    // Fall through to normal encode if binary search somehow yields nothing
+  }
+
+    const q = settings.quality;
 
   if (fmt === 'avif') {
     const enc = await ensureAvif();
@@ -762,7 +815,7 @@ self.onmessage = async (e) => {
   try {
     self.postMessage({ id, type: 'progress', stage: 'decoding' });
     const blob = await processOne(file, fmt, settings || {});
-    self.postMessage({ id, type: 'result', blob });
+    self.postMessage({ id, type: 'result', blob, outW: _lastW, outH: _lastH }); /* R46 */
   } catch (err) {
     self.postMessage({ id, type: 'error', message: String(err && err.message || err) });
   }

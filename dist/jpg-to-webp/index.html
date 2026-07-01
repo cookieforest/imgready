@@ -15,11 +15,18 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="JPG to WebP Converter Free — 25–35% Smaller | imgready">
 <meta name="twitter:description" content="Convert JPG to WebP online for free. Get 25–35% smaller files with no visible quality loss. Perfect for websites and blogs. 100% in-browser.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image" content="https://imgready.app/og/jpg-to-webp.svg">
 <link rel="canonical" href="https://imgready.app/jpg-to-webp/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="dns-prefetch" href="https://esm.sh">
+<link rel="preload" href="/imgready-worker.js" as="script">
+<link rel="prefetch" href="/vendor/UPNG.min.js">
+<link rel="prefetch" href="/vendor/pako.min.js">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
      interaction OR after window.onload + 1.5s idle. See index.html for the
@@ -59,21 +66,21 @@
 })();
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:#5a7a5a;color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -83,7 +90,7 @@ body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-seri
 .feat{background:#faf7f2;border:1px solid #d6cebb;border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.9rem;font-weight:700;color:#2e2a22;margin-bottom:6px;}
 .feat p{font-size:.78rem;color:#8a8070;line-height:1.5;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -109,6 +116,7 @@ tr:nth-child(even) td{background:#faf7f2;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Convert JPG to WebP online for free", "description": "Convert JPG to WebP entirely in your browser. No upload, no sign-up.", "totalTime": "PT10S", "supply": [{"@type": "HowToSupply", "name": "A JPG file"}], "tool": [{"@type": "HowToTool", "name": "A web browser (Chrome, Firefox, Safari, or Edge)"}], "step": [{"@type": "HowToStep", "name": "Open imgready", "text": "Go to imgready.app/jpg-to-webp/ in your browser. WebP is selected as the output format by default.", "url": "https://imgready.app/jpg-to-webp/"}, {"@type": "HowToStep", "name": "Drop your JPG file", "text": "Drag the JPG file into the drop zone or click to browse. imgready decodes and re-encodes locally."}, {"@type": "HowToStep", "name": "Download the WebP", "text": "Adjust the quality slider if needed. Click Download."}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "JPG to WebP", "item": "https://imgready.app/jpg-to-webp/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will JPG to WebP look the same as the original?", "acceptedAnswer": {"@type": "Answer", "text": "At imgready's default quality of 82, the WebP output is visually indistinguishable from the JPG at normal viewing distance. The savings come from WebP's more efficient compression, not from quality loss."}}, {"@type": "Question", "name": "How much smaller will my files be?", "acceptedAnswer": {"@type": "Answer", "text": "Typically 25–35% smaller for already-compressed JPGs, much more (often 80%+) for high-quality JPGs straight from a camera."}}, {"@type": "Question", "name": "Will old browsers display the WebP?", "acceptedAnswer": {"@type": "Answer", "text": "Browsers shipped since 2020 will. For older browsers (Internet Explorer, pre-2020 Android stock), use the <picture> element to serve a JPG fallback."}}, {"@type": "Question", "name": "Can WebP have transparency?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — WebP has a full alpha channel. For converting JPG to WebP this rarely matters (JPGs don't have transparency), but it makes WebP a great PNG replacement separately."}}, {"@type": "Question", "name": "Should I just always use WebP for everything on my website?", "acceptedAnswer": {"@type": "Answer", "text": "For modern audiences, yes. For email and print, stay with JPG. The simplest universal answer is to generate both and use the <picture> element."}}, {"@type": "Question", "name": "Does converting JPG to WebP lose any more quality?", "acceptedAnswer": {"@type": "Answer", "text": "Technically yes — re-encoding from one lossy format to another adds a small amount of additional loss. At quality 82 it is invisible. To minimize the loss, stay at quality 85+ when re-encoding from a high-quality source."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "JPG to WebP Converter Online Free — Smaller Files, Same Quality | imgready", "description": "Convert JPG to WebP online for free. Get 25–35% smaller files with no visible quality loss. Perfect for websites, blogs, and e-commerce. 100% in-browser — files never leave your device.", "url": "https://imgready.app/jpg-to-webp/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}}</script>
@@ -385,11 +393,11 @@ tr:nth-child(even) td{background:#faf7f2;}
 <div class="fs-modal" id="fsModal" role="dialog" aria-modal="true" aria-label="Compare original and result">
   <div class="fs-inner" id="fsInner" oncontextmenu="return false">
     <div class="fs-zoom-wrap" id="fsZoom">
-      <img class="fs-before" id="fsBefore" alt="original">
+      <img class="fs-before" id="fsBefore" alt="original" loading="lazy" decoding="async">
     </div>
     <div class="fs-clip" id="fsClip">
       <div class="fs-zoom-after" id="fsZoomAfter">
-        <img class="fs-after" id="fsAfter" alt="optimized">
+        <img class="fs-after" id="fsAfter" alt="optimized" loading="lazy" decoding="async">
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
@@ -530,7 +538,39 @@ tr:nth-child(even) td{background:#faf7f2;}
 
 <h3 class="sub">Quality settings for JPEG to WebP conversion</h3>
 <p>WebP quality settings don&#39;t map 1:1 to JPEG quality. A JPEG at quality 85 looks roughly equivalent to WebP at quality 80 — WebP&#39;s compression is more efficient so you can use a lower number to get the same visual result. For web images, WebP quality 75–82 is the sweet spot: significantly smaller than the source JPEG, with no visible quality loss at typical screen viewing sizes. For print-quality output or archival use, WebP quality 90+ is safer.</p>
-<h2>Frequently asked questions</h2>
+
+  <h3 class="sub">How WebP gets to 25-35% smaller than JPG</h3>
+  <p>WebP's lossy encoder is based on VP8, the same video codec that became part of WebM. Three structural improvements over JPG's 1992 design account for the size win:</p>
+  <ul>
+    <li><strong>Intra-block prediction.</strong> WebP encodes each 4&times;4 or 8&times;8 block as the difference from a prediction of its neighbors, then compresses the difference. JPG encodes blocks independently. Real photographic content has lots of local correlation, which WebP exploits.</li>
+    <li><strong>Arithmetic coding.</strong> WebP uses range coding (arithmetic coding) for the entropy stage. JPG uses Huffman coding. Arithmetic is 5-10% more efficient at the cost of slightly slower encode/decode.</li>
+    <li><strong>Adaptive deblocking filter.</strong> JPG's block artifacts at low quality look like visible squares; WebP's in-loop deblocker smooths them out invisibly. This means WebP can run at lower quality settings while looking as good as JPG at higher quality.</li>
+  </ul>
+  <p>The combined effect is a typical 25-35% size reduction at visually equivalent quality. The reduction is larger on flat or low-detail content (skies, blurred backgrounds) and smaller on busy high-frequency content (foliage, hair, sand). It is generally smaller on JPGs that were already heavily compressed before — re-encoding low-quality JPG to WebP is a bad idea regardless of the savings, since you're compounding two rounds of lossy compression.</p>
+
+  <h3 class="sub">When JPG to WebP makes the biggest difference</h3>
+  <p>Three scenarios where WebP saves the most bandwidth:</p>
+  <p><strong>Hero images on landing pages.</strong> Large above-the-fold photos are the single biggest LCP contributor on most sites. Trimming a 400 KB JPG to a 280 KB WebP can move a Core Web Vitals score from "Needs Improvement" into "Good" on mobile. Browser support: every browser since 2020 supports WebP natively. For the rare older browser, serve via &lt;picture&gt; with a JPG fallback.</p>
+  <p><strong>E-commerce product galleries.</strong> A 20-photo product gallery at 500 KB each is 10 MB. The same gallery at WebP is 6-7 MB — meaningful page-weight reduction, faster swipe response on mobile, lower CDN bills.</p>
+  <p><strong>CDN-hosted media libraries.</strong> Bulk converting 10,000 JPGs to WebP can save 2-4 GB of CDN egress per month for a moderately busy site.</p>
+
+  <h3 class="sub">Browser support — when to skip the JPG fallback</h3>
+  <p>WebP has been supported in every major evergreen browser since 2020:</p>
+  <ul>
+    <li>Chrome: since 2010 (version 9)</li>
+    <li>Firefox: since 2019 (version 65)</li>
+    <li>Safari: since 2020 (version 14)</li>
+    <li>Edge: since 2018 (Chromium-based versions)</li>
+    <li>Samsung Internet, Opera, Brave: all current versions</li>
+  </ul>
+  <p>If your analytics show less than 1% traffic from Internet Explorer, very old Android stock browsers, or Safari before 14, you can serve WebP directly without a JPG fallback. For older audiences, use the &lt;picture&gt; element so non-supporting browsers automatically fall back to JPG:</p>
+  <pre style="background:#ede7d9;padding:14px;border-radius:8px;font-size:.82rem;line-height:1.55;overflow-x:auto;">&lt;picture&gt;
+  &lt;source srcset="hero.webp" type="image/webp"&gt;
+  &lt;img src="hero.jpg" alt="..."&gt;
+&lt;/picture&gt;</pre>
+
+
+  <h2>Frequently asked questions</h2>
     <details class="faq-item"><summary>Will JPG to WebP look the same as the original?</summary><p>At imgready's default quality of 82, the WebP output is visually indistinguishable from the JPG at normal viewing distance. The savings come from WebP's more efficient compression, not from quality loss.</p></details>
     <details class="faq-item"><summary>How much smaller will my files be?</summary><p>Typically 25–35% smaller for already-compressed JPGs, much more (often 80%+) for high-quality JPGs straight from a camera.</p></details>
     <details class="faq-item"><summary>Will old browsers display the WebP?</summary><p>Browsers shipped since 2020 will. For older browsers (Internet Explorer, pre-2020 Android stock), use the <picture> element to serve a JPG fallback.</p></details>
@@ -555,7 +595,7 @@ tr:nth-child(even) td{background:#faf7f2;}
   </div>
 
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

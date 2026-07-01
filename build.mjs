@@ -120,6 +120,7 @@ const COPY_EXCLUDE = new Set([
   'wrangler.toml',
   'app.js', 'app.css',                /* Phase 3: removed; mirrorDir won't see them */
   'index.html.bak', 'index.html.broken_truncated',
+  'archive',                          /* R117: archived old versions + dev logs, not deployed */
 ]);
 
 function shouldCopy(entry) {

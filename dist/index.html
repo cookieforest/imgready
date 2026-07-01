@@ -2,22 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>imgready — Compress, convert, resize. No upload.</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready</title>
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Compress, resize and convert images online for free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
-<meta property="og:title" content="imgready — Compress, convert, resize. No upload.">
-<meta property="og:description" content="Compress, resize and convert any image free. Supports HEIC, TIFF, WebP, AVIF and more. 100% in-browser — your files never leave your device.">
+<meta name="description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device — private, fast, unlimited.">
+<meta property="og:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
+<meta property="og:description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device — private, fast, unlimited.">
 <meta property="og:image" content="https://imgready.app/demo.webp">
+<meta property="og:image:type" content="image/webp">
+<meta property="og:image:alt" content="imgready — free in-browser image converter, no upload">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="795">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/">
 <meta property="og:site_name" content="imgready">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="imgready — Compress, convert, resize. No upload.">
-<meta name="twitter:description" content="Compress, resize and convert any image — free, private, in-browser. HEIC, TIFF, WebP, AVIF and more.">
+<meta name="twitter:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
+<meta name="twitter:description" content="Convert TIFF, HEIC, WebP, PNG to JPG free in your browser. No upload, no sign-up. Files stay private on your device.">
 <meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image:alt" content="imgready — free in-browser image converter, no upload">
 <link rel="canonical" href="https://imgready.app/">
 
 <!-- Structured data: WebApplication + FAQPage (preserved from stable) -->
@@ -26,37 +29,56 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "WebApplication",
+      "@type": ["SoftwareApplication", "WebApplication"],
       "@id": "https://imgready.app/#app",
       "name": "imgready",
-      "description": "Free browser-based image compressor, converter and resizer. Supports HEIC, TIFF, WebP, AVIF, PNG, JPG, GIF and more. Files are processed locally in your browser and never uploaded.",
+      "alternateName": ["image ready", "imgready image converter"],
       "url": "https://imgready.app/",
+      "description": "Free browser-based image converter. Convert TIFF, HEIC, WebP, PNG to JPG (and back) without uploading. Runs 100% in your browser — files stay private.",
       "applicationCategory": "MultimediaApplication",
-      "operatingSystem": "Any (web browser)",
-      "browserRequirements": "Requires HTML5 Canvas and WebAssembly support.",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "applicationSubCategory": "Image Converter",
+      "operatingSystem": "Any (Web Browser)",
+      "browserRequirements": "Requires a modern browser with HTML5 Canvas + File API. Chrome, Firefox, Safari, Edge.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
       "featureList": [
-        "Compress JPG, PNG, WebP, HEIC, TIFF",
-        "Convert between WebP, AVIF, PNG, JPG, GIF",
-        "Resize to any pixel target and crop to standard aspect ratios",
-        "Batch processing and ZIP download",
-        "Live quality editor with before/after compare",
-        "100% in-browser — files never uploaded"
-      ]
+        "TIFF to JPG conversion",
+        "HEIC to JPG conversion",
+        "WebP to JPG conversion",
+        "PNG to JPG / JPEG conversion",
+        "AVIF support",
+        "Batch image compression",
+        "Image resizing",
+        "Photo adjustments (brightness, contrast, saturation, vignette, blur)",
+        "Filter presets",
+        "Crop + rotate",
+        "100% client-side — no upload"
+      ],
+      "permissions": "No permissions required. No file upload.",
+      "screenshot": {
+        "@type": "ImageObject",
+        "url": "https://imgready.app/demo.webp",
+        "width": 1200,
+        "height": 795
+      },
+      "softwareVersion": "1.0"
     },
     {
-      "@type": "FAQPage",
-      "@id": "https://imgready.app/#faq",
-      "mainEntity": [
-        { "@type": "Question", "name": "Are my images uploaded?", "acceptedAnswer": { "@type": "Answer", "text": "No. Encoding runs in your browser. To verify, open DevTools and watch the Network tab while dropping a file — no requests carry image data." } },
-        { "@type": "Question", "name": "What is the difference between WebP and AVIF?", "acceptedAnswer": { "@type": "Answer", "text": "Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly." } },
-        { "@type": "Question", "name": "How big a batch can I drop in?", "acceptedAnswer": { "@type": "Answer", "text": "The soft cap is 200 files with a confirmation prompt above that. There's no hard limit because there's no server queue, only your computer's RAM." } },
-        { "@type": "Question", "name": "Is there a file-size cap?", "acceptedAnswer": { "@type": "Answer", "text": "No. imgready has no caps because there's no server to bill for storage. The only constraint is your browser's available memory." } },
-        { "@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Open Settings, pick a preset, and choose your output format. Crop ratios and EXIF stripping are in the same panel." } },
-        { "@type": "Question", "name": "What if a file fails to convert?", "acceptedAnswer": { "@type": "Answer", "text": "Two common reasons: the file is corrupted, or it uses a TIFF compression imgready does not support. Re-saving the file in any image editor usually fixes it." } },
-        { "@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder. Smaller batches (30 to 50) are recommended on mobile." } },
-        { "@type": "Question", "name": "Is imgready free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free with no caps. Supported by voluntary Ko-fi contributions. Your image data never leaves your device." } }
-      ]
+      "@type": "Organization",
+      "@id": "https://imgready.app/#org",
+      "name": "imgready",
+      "url": "https://imgready.app/",
+      "logo": "https://imgready.app/favicon.svg"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://imgready.app/#site",
+      "url": "https://imgready.app/",
+      "name": "imgready",
+      "publisher": { "@id": "https://imgready.app/#org" }
     }
   ]
 }
@@ -71,7 +93,15 @@
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="dns-prefetch" href="https://esm.sh">
+<link rel="preload" href="/imgready-worker.js" as="script">
+<link rel="prefetch" href="/vendor/UPNG.min.js">
+<link rel="prefetch" href="/vendor/pako.min.js">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/editor.css">
 <style>
   /* R24 — Brand type system. Three self-hosted OFL variable fonts:
      - Fraunces (display): Adobe Fonts/Google Fonts via OFL, opsz+wght axes.
@@ -163,7 +193,7 @@
     color:var(--text);background:var(--bg);}
   /* R24 — display type for hero headings + brand wordmark + Edit modal
      title. Fraunces opsz axis auto-adjusts at large sizes to read warmer. */
-  h1,h2,.brand,.hero h2,.edit-modal .edit-header h2{
+  h1,h2,.brand,.hero h2,.edit-modal .edit-header h2,.edit-modal .edit-brand-link,.tc-brand-name,.footer-brand{
     font-family:var(--font-display);
     font-feature-settings:"ss01" on;
     letter-spacing:-.01em;
@@ -190,7 +220,7 @@
   .brand-bar{height:var(--brand-h);display:flex;align-items:center;gap:14px;
     padding:0 16px;background:var(--bg);position:relative;z-index:10;}
   .brand{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
-  .brand .g{color:var(--accent);}
+  .brand .g,.footer-brand .g{color:var(--accent);}
   .brand-spacer{flex:1;}
   .exit-link{
     color:var(--muted);font-size:.74rem;text-decoration:none;
@@ -1974,6 +2004,7 @@
     display:flex;justify-content:space-between;align-items:center;
     width:100%;
   }
+  .quality-menu button[data-quality-preset].active{background:rgba(255,255,255,.12);color:#fff;font-weight:600;} /* R47 */
   .quality-menu .quality-custom-row{
     display:flex;align-items:center;gap:8px;
     padding:8px 8px 4px;
@@ -2373,7 +2404,7 @@
     flex:0 0 auto;
     font-family:var(--font-display);
     font-style:italic;font-weight:700;
-    font-size:.94rem;
+    font-size:.95rem;
     letter-spacing:-.01em;
     color:rgba(255,255,255,.95);
     text-decoration:none;
@@ -2413,12 +2444,16 @@
     color:#fff;
     display:flex;flex-direction:column;
     overflow:hidden;
-    /* R33 — bottom padding gives the pill strip breathing room before
-       the card's overflow:hidden clips it at the rounded corner. */
-    /* padding-bottom removed R34 — edit-bottom-pill handles spacing */
-    /* R30 — removed max-width:1100px. Home .menu-card has no max-width
-       (it fills the wrap with 16px gutters on each side); matching that
-       gives the edit toolbar the same on-screen presence on wide displays. */
+    /* R55 — the wrap is flex-direction:row with justify-content:center.
+       Without flex:1 or width:100%, the card shrinks to its content
+       width (~500px) and sits as a small island in the middle of wide
+       viewports — looks skewed/off-center even though the icons inside
+       are mathematically centered. Force it to fill the wrap so the
+       icon row spans the available width. Max-width prevents absurd
+       sprawl on ultra-wide screens. */
+    flex:1 1 auto;
+    width:100%;
+    max-width:880px;
   }
   /* R28 — options strip lives ABOVE the bottom row inside the card.
      Has a border-bottom that separates it visually from the bottom row
@@ -2854,6 +2889,1101 @@
   }
   .edit-split-label.before{left:10px;}
   .edit-split-label.after {right:10px;}
+  
+
+  /* R47 — Tap-to-disable dot, iPhone Photos pattern. Lives inside the
+     dropdown trigger button as its first child. Visible only when the
+     chip is "modified" (parent .edit-X-dd-trigger has .modified). Click
+     stops propagation so the chip's dropdown doesn't open. */
+  .edit-section-toggle{
+    flex:0 0 auto;
+    width:10px;height:10px;border-radius:50%;
+    border:1.5px solid var(--accent, #7a9a7a);
+    background:var(--accent, #7a9a7a);
+    margin-right:2px;
+    cursor:pointer;
+    transition:transform .12s ease,background .12s ease,opacity .12s ease;
+    align-self:center;
+  }
+  .edit-section-toggle:hover{transform:scale(1.25);}
+  .edit-section-toggle.off{
+    background:transparent;
+  }
+  /* When section is disabled, dim the chip's label + chevron to signal
+     "modified but not applied". The dot stays at full opacity so the
+     re-enable affordance is clear. */
+  .edit-adjust-dd-trigger.section-disabled .dd-value,
+  .edit-filter-dd-trigger.section-disabled .dd-value,
+  .edit-vignette-dd-trigger.section-disabled .dd-value,
+  .edit-adjust-dd-trigger.section-disabled .chev,
+  .edit-filter-dd-trigger.section-disabled .chev,
+  .edit-vignette-dd-trigger.section-disabled .chev{
+    opacity:.55;
+  }
+
+    /* R46 — Single-row toolbar wrapper used by Rotate + Adjust tabs.
+     The options strip uses flex-direction:column at the strip level so
+     each tool gets its own block; this toolbar overrides direction to
+     row for tools whose controls fit on one line. */
+  .edit-tool-toolbar{
+    display:flex;flex-direction:row;flex-wrap:wrap;
+    align-items:center;gap:8px;
+    width:100%;
+  }
+  /* Rotate buttons: icon-only 36x36 for CW/CCW/Flip H/Flip V; text-only
+     pill for 180° and Reset. Title attribute carries the full label. */
+  .edit-rotate-btn{
+    height:36px;border-radius:8px;
+    background:var(--e-bg-2, rgba(255,255,255,.08));
+    color:var(--e-fg-1, rgba(255,255,255,.92));
+    border:1px solid var(--e-border, rgba(255,255,255,.10));
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:background var(--e-t-fast, .12s ease),color var(--e-t-fast, .12s ease);
+  }
+  .edit-rotate-btn:hover{background:var(--e-bg-3, rgba(255,255,255,.12));}
+  /* R47 — explicit dimensions + flex-centering so the icon stays
+     truly centered inside the 36×36 square regardless of the
+     font-size:0 trick. line-height:0 prevents inherited line-height
+     from offsetting the icon vertically. */
+  .edit-rotate-btn.rot-icon-only{
+    width:36px;height:36px;padding:0;gap:0;
+    font-size:0;line-height:0;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .edit-rotate-btn.rot-icon-only .ico{
+    width:18px;height:18px;
+    display:block;flex:none;
+  }
+  .edit-rotate-btn.rot-icon-only .rot-lbl{
+    /* sr-only — keep label in DOM for accessibility tree but hide visually */
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  .edit-rotate-btn.rot-text{
+    padding:0 14px;font-size:.78rem;font-weight:600;
+    letter-spacing:.01em;
+  }
+  /* R46 — Adjust + Rotate dropdown chips become content-width inside
+     the toolbar (was width:100% which forced each onto its own row). */
+  .edit-rotate-toolbar .edit-tool-dd,
+  .edit-adjust-toolbar .edit-filter-dd,
+  .edit-adjust-toolbar .edit-vignette-dd,
+  .edit-adjust-toolbar .edit-adjust-dd,
+  .edit-adjust-toolbar .edit-tool-dd{
+    width:auto;flex:0 1 auto;
+    gap:6px;
+  }
+  .edit-rotate-toolbar .edit-tool-dd-trigger,
+  .edit-adjust-toolbar .edit-filter-dd-trigger,
+  .edit-adjust-toolbar .edit-vignette-dd-trigger,
+  .edit-adjust-toolbar .edit-adjust-dd-trigger,
+  .edit-adjust-toolbar .edit-tool-dd-trigger{
+    flex:0 0 auto;
+    min-width:100px;
+  }
+  /* Auto-enhance pill in adjust toolbar: content-width too. */
+  .edit-adjust-toolbar .edit-auto-enhance-row{
+    width:auto;flex:0 0 auto;
+  }
+  .edit-adjust-toolbar .edit-auto-enhance-btn{
+    flex:0 0 auto;min-width:130px;
+  }
+
+  
+
+  /* R48b — Zero detent on the scrubber. Apple Photos marks the neutral
+     position with a small dot on the slider track; users scrub there
+     to reset. We use a background image on the track at 50% (the
+     middle of a 0–200 range, which represents the default value of
+     100). */
+  .adj-scrubber input[type=range]{
+    background:linear-gradient(to right,
+      transparent 0%, transparent calc(50% - 1.5px),
+      rgba(255,255,255,.6) calc(50% - 1.5px), rgba(255,255,255,.6) calc(50% + 1.5px),
+      transparent calc(50% + 1.5px), transparent 100%
+    ) no-repeat;
+    background-size:100% 6px;
+    background-position:center;
+  }
+
+  
+  /* R48b — per-tab reset button at end of the icon row. Discreet (no
+     border, dim color) so it doesn't compete with the adjustment icons
+     for attention; activates only when at least one adjustment is
+     modified. */
+  .adj-row-reset{
+    flex:0 0 auto;width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;
+    background:transparent;border:none;border-radius:8px;
+    color:rgba(255,255,255,.55);cursor:pointer;
+    transition:background .12s ease,color .12s ease,opacity .12s ease;
+    align-self:center;
+    margin-left:4px;
+  }
+  .adj-row-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adj-row-reset:disabled{opacity:.32;cursor:default;pointer-events:none;}
+  .adj-row-reset .ico{width:14px;height:14px;}
+
+    /* R48 — Apple Photos scrubber + icon carousel. The Adjust tab's
+     core 3 adjustments (Brightness / Contrast / Saturation) share one
+     horizontal scrubber slider; tapping an icon below switches which
+     adjustment the slider controls. Modified state per-icon shown via
+     a small dot. */
+  .adj-scrubber{
+    width:100%;
+    display:flex;flex-direction:column;gap:6px;
+    padding:8px 4px 10px;
+  }
+  .adj-scrubber-header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:8px;
+  }
+  .adj-scrubber-label{
+    font-family:var(--font-display, inherit);
+    font-size:.92rem;font-weight:600;letter-spacing:-.005em;
+    color:#fff;
+  }
+  .adj-scrubber-value{
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-size:.78rem;color:rgba(255,255,255,.65);
+    font-variant-numeric:tabular-nums;
+  }
+  .adj-scrubber input[type=range]{
+    width:100%;
+  }
+  /* Icon row — horizontal flex, each icon a tall vertical pill with
+     icon + label + corner dot for modified state. */
+  .adj-icon-row{
+    display:flex;align-items:stretch;gap:6px;
+    width:100%;
+  }
+  .adj-icon-btn{
+    flex:1 1 0;min-width:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:0;
+    padding:10px 6px;
+    /* R48b — labels are gone; pad vertically so icon sits centered. */
+    background:rgba(255,255,255,.04);
+    border:1px solid transparent;border-radius:10px;
+    color:rgba(255,255,255,.75);
+    font-family:inherit;font-size:.62rem;font-weight:600;letter-spacing:.02em;
+    text-transform:uppercase;
+    cursor:pointer;position:relative;
+    transition:background .12s ease,color .12s ease,border-color .12s ease;
+  }
+  .adj-icon-btn .ico{width:18px;height:18px;color:rgba(255,255,255,.85);}
+  .adj-icon-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adj-icon-btn.selected{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.20);
+    color:#fff;
+  }
+  .adj-icon-btn.selected .ico{color:var(--accent, #7a9a7a);}
+  /* R48b — labels removed from carousel; Apple-Photos-style icon-only.
+     The active label appears above the scrubber via .adj-scrubber-label. */
+  .adj-icon-btn .adj-icon-label{display:none;}
+  /* Modified dot: small accent-filled circle at the top-right corner */
+  /* R48b — Apple Photos pattern: a thin ring around the icon shows
+     adjustment magnitude. CSS conic-gradient draws a partial arc from
+     the top of the ring proportional to |value - 100|. Sign is encoded
+     in arc direction (positive sweeps CW, negative CCW) via the
+     --r48-arc-from custom property set by JS. */
+  .adj-icon-btn .adj-icon-dot{
+    position:absolute;inset:4px;
+    border-radius:50%;
+    pointer-events:none;
+    background:conic-gradient(from var(--r48-arc-from, -90deg),
+      var(--accent, #7a9a7a) 0deg,
+      var(--accent, #7a9a7a) var(--r48-arc-deg, 0deg),
+      transparent var(--r48-arc-deg, 0deg) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 56%, #000 58% 64%, transparent 66%);
+            mask:radial-gradient(circle, transparent 56%, #000 58% 64%, transparent 66%);
+    opacity:0;transition:opacity .12s ease;
+  }
+  .adj-icon-btn.modified .adj-icon-dot{opacity:1;}
+
+  
+  /* R49 — flat icon carousel. Adjustments and filter presets share the
+     same horizontal row. No popovers. Tap = single action. */
+  .adj-flat-carousel{
+    display:flex;flex-direction:row;align-items:center;gap:8px;
+    width:100%;padding:4px 2px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  .adj-flat-carousel::-webkit-scrollbar{display:none;}
+  .adj-flat-btn{
+    flex:0 0 auto;width:48px;height:48px;
+    display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:0;
+    background:rgba(255,255,255,.04);
+    border:1px solid transparent;border-radius:12px;
+    color:rgba(255,255,255,.75);
+    font-family:inherit;font-size:.6rem;font-weight:600;
+    cursor:pointer;position:relative;
+    scroll-snap-align:center;
+    transition:background .12s ease,color .12s ease,border-color .12s ease;
+  }
+  .adj-flat-btn .ico{width:18px;height:18px;color:rgba(255,255,255,.85);}
+  .adj-flat-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adj-flat-btn.selected{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.20);
+    color:#fff;
+  }
+  .adj-flat-btn.selected .ico{color:var(--accent, #7a9a7a);}
+  .adj-flat-btn.active{
+    background:var(--accent, #7a9a7a);color:#fff;border-color:var(--accent, #7a9a7a);
+  }
+  .adj-flat-btn.active .ico{color:#fff;}
+  .adj-icon-val{
+    position:absolute;bottom:5px;left:0;right:0;
+    text-align:center;
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-size:.62rem;font-weight:700;color:#fff;
+    letter-spacing:.02em;line-height:1;
+    pointer-events:none;font-variant-numeric:tabular-nums;
+  }
+  .adj-icon-btn.modified .ico{transform:translateY(-3px);}
+  .adj-flat-divider{
+    flex:0 0 auto;width:1px;height:32px;
+    background:rgba(255,255,255,.10);margin:0 4px;
+  }
+  .adj-filter-btn{flex-direction:column;gap:3px;padding:4px 0 6px;}
+  .adj-filter-btn .adj-filter-swatch{
+    width:24px;height:24px;border-radius:50%;
+    background-color:#888;background-size:cover;background-position:center;
+    border:1.5px solid rgba(255,255,255,.18);
+    transition:border-color .12s ease,transform .12s ease;
+  }
+  .adj-filter-btn:hover .adj-filter-swatch{transform:scale(1.05);}
+  .adj-filter-btn.active .adj-filter-swatch{
+    border-color:#fff;
+    box-shadow:0 0 0 2px var(--accent, #7a9a7a);
+  }
+  .adj-filter-btn .adj-filter-name{
+    font-size:.52rem;font-weight:600;letter-spacing:.02em;
+    text-transform:uppercase;color:rgba(255,255,255,.7);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    max-width:48px;line-height:1;
+  }
+  .adj-filter-btn.active .adj-filter-name{color:#fff;}
+  .adj-flat-carousel .adj-row-reset{
+    flex:0 0 auto;width:36px;height:36px;margin-left:auto;
+    background:transparent;border:none;border-radius:8px;
+    color:rgba(255,255,255,.55);cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:background .12s ease,color .12s ease,opacity .12s ease;
+  }
+  .adj-flat-carousel .adj-row-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .adj-flat-carousel .adj-row-reset:disabled{opacity:.32;cursor:default;pointer-events:none;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /* ====================================================================
+     R61 — hide size info from top bar (user does not want it visible)
+     ==================================================================== */
+  .edit-modal .edit-size-info{display:none !important;}
+
+  /* R62 — match home tool top chrome: ONE 780px-wide centered pill with
+     3 sections inside (left: history / center: brand / right: actions).
+     We keep the original .edit-top-chrome rule untouched (translucent
+     dark pill anchored top-center). Just slot in our new groups using
+     flex order + flex:1 on the side groups so the brand stays centered
+     even when groups have different widths. */
+  .edit-modal .edit-top-chrome .edit-top-history{
+    order:1;
+    flex:1 1 0;
+    display:flex;align-items:center;gap:4px;
+    justify-content:flex-start;
+    background:transparent;
+    pointer-events:auto;
+  }
+  .edit-modal .edit-top-chrome .edit-brand-link{
+    order:2;
+    flex:0 0 auto;
+    /* No own pill background — it sits inside the chrome pill. */
+    background:transparent !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    border:none !important;
+    border-radius:0 !important;
+    padding:0 !important;
+    margin:0 !important;
+    position:static !important;
+    transform:none !important;
+  }
+  .edit-modal .edit-top-chrome .edit-top-actions{
+    order:3;
+    flex:1 1 0;
+    display:flex;align-items:center;
+    justify-content:flex-end;
+    margin:0;
+    background:transparent;
+    pointer-events:auto;
+  }
+  .edit-modal .edit-top-chrome .edit-filename-chip{display:none !important;}
+  .edit-modal .edit-top-chrome .edit-size-info{display:none !important;}
+
+  /* Top-bar buttons inside the chrome — smaller, transparent so they
+     read as items WITHIN the pill, not separate pills. */
+  .edit-modal .edit-top-history-btn{
+    background:transparent !important;
+    border:none !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    color:rgba(255,255,255,.78) !important;
+    padding:5px 9px !important;
+    border-radius:8px !important;
+    font-size:.76rem !important;
+  }
+  .edit-modal .edit-top-history-btn:hover{
+    background:rgba(255,255,255,.08) !important;
+    color:#fff !important;
+  }
+  .edit-modal .edit-top-history-btn:disabled{
+    opacity:.32;
+  }
+  .edit-modal .edit-top-history-btn .ico{width:13px;height:13px;}
+
+  /* Save/Done button stays as a small accent/neutral pill on the right. */
+  .edit-modal .edit-top-btn{
+    padding:5px 14px !important;
+    font-size:.78rem !important;
+    border-radius:999px !important;
+  }
+  .edit-modal .edit-top-save{
+    background:rgba(255,255,255,.12) !important;
+    border:1px solid transparent !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    color:#fff !important;
+  }
+  .edit-modal .edit-top-save.has-edits{
+    background:var(--accent, #7a9a7a) !important;
+    border-color:var(--accent, #7a9a7a) !important;
+  }
+
+  /* ====================================================================
+     R60 — top-chrome history controls + dynamic Save/Done
+     ==================================================================== */
+  .edit-modal .edit-top-history{
+    pointer-events:auto;
+    display:flex;align-items:center;gap:4px;
+    margin-left:8px;
+  }
+  .edit-modal .edit-top-history-btn{
+    font-family:inherit;font-size:.78rem;font-weight:600;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(0,0,0,.45);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    color:rgba(255,255,255,.85);
+    cursor:pointer;
+    transition:background .12s ease,border-color .12s ease,color .12s ease,opacity .12s ease;
+    display:inline-flex;align-items:center;gap:5px;
+    line-height:1;
+  }
+  .edit-modal .edit-top-history-btn:hover{
+    background:rgba(255,255,255,.10);color:#fff;border-color:rgba(255,255,255,.22);
+  }
+  .edit-modal .edit-top-history-btn:disabled{
+    opacity:.32;cursor:default;pointer-events:none;
+  }
+  .edit-modal .edit-top-history-btn.edit-top-icon{
+    padding:6px 9px;
+  }
+  .edit-modal .edit-top-history-btn .ico{
+    width:14px;height:14px;
+  }
+
+  /* Dynamic Save/Done button — neutral when "Done", accent when "Save". */
+  .edit-modal .edit-top-save{
+    background:rgba(255,255,255,.10);
+    border-color:rgba(255,255,255,.18);
+    color:#fff;
+    font-weight:600;
+  }
+  .edit-modal .edit-top-save:hover{background:rgba(255,255,255,.16);}
+  .edit-modal .edit-top-save.has-edits{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+    color:#fff;
+    font-weight:700;
+  }
+  .edit-modal .edit-top-save.has-edits:hover{
+    background:var(--accent-strong, #6b8b6b);
+    border-color:var(--accent-strong, #6b8b6b);
+  }
+
+  /* Hide the now-unused action pill if any stray reference remains. */
+  .edit-modal .edit-action-pill{display:none !important;}
+
+  /* ====================================================================
+     R59 — top-chrome Cancel/Save buttons (Apple Photos style)
+     ==================================================================== */
+  .edit-modal .edit-top-actions{
+    pointer-events:auto;
+    margin-left:auto;
+    display:flex;align-items:center;gap:6px;
+  }
+  .edit-modal .edit-top-btn{
+    font-family:inherit;font-size:.82rem;font-weight:600;letter-spacing:.01em;
+    padding:7px 14px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.16);
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    color:#fff;
+    cursor:pointer;
+    transition:background .12s ease,border-color .12s ease,transform .08s ease;
+  }
+  .edit-modal .edit-top-cancel{background:rgba(0,0,0,.55);}
+  .edit-modal .edit-top-cancel:hover{background:rgba(255,255,255,.10);}
+  .edit-modal .edit-top-save{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+    color:#fff;font-weight:700;
+  }
+  .edit-modal .edit-top-save:hover{
+    background:var(--accent-strong, #6b8b6b);
+    border-color:var(--accent-strong, #6b8b6b);
+  }
+  .edit-modal .edit-top-btn:disabled{opacity:.4;cursor:default;pointer-events:none;}
+
+  .edit-modal .edit-top-chrome{
+    /* Add space at right for the action buttons. */
+    pointer-events:none;
+  }
+  .edit-modal .edit-top-chrome > * { pointer-events:auto; }
+
+
+
+  /* R63 — feedback pulse for icons that get tapped but have nothing
+     to act on (e.g. Angle icon already at 0). */
+  @keyframes ed-icon-pulse{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.10);}
+    100%{transform:scale(1);}
+  }
+  .edit-modal .ed-circle-btn.pulse,
+  .edit-modal .adj-circle-btn.pulse{animation:ed-icon-pulse .36s ease-out;}
+
+
+
+  /* ====================================================================
+     R67 — Floating tool surface (formerly inside menu-card).
+     Sits OVER the photo, anchored just above the menu-card. Apple Photos
+     pattern. The menu-card collapses to a thin tab-nav-only dock.
+     ==================================================================== */
+  .edit-modal .edit-tool-surface{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    /* Sit just above the menu-card. --menu-card-h is computed by JS so we
+       always sit ON the menu-card top edge with a small gap. */
+    bottom:calc(var(--menu-card-h, 56px) + 12px);
+    width:min(96vw, 760px);
+    max-width:96vw;
+    z-index:9;
+    pointer-events:none;
+    /* Inner items (buttons, sliders) opt back in. */
+  }
+  .edit-modal .edit-tool-surface > *,
+  .edit-modal .edit-tool-surface button,
+  .edit-modal .edit-tool-surface input,
+  .edit-modal .edit-tool-surface .ed-circle-btn,
+  .edit-modal .edit-tool-surface .filter-thumb,
+  .edit-modal .edit-tool-surface .adj-tick-input{
+    pointer-events:auto;
+  }
+  .edit-modal .edit-tool-surface:empty{display:none;}
+
+  /* R69 — bottom dock matches main tool .menu-card: solid #1a1a1a,
+     no backdrop-filter (Chrome's drawer-animation white-flash bug —
+     same reason the main card avoids it). */
+  .edit-modal .edit-menu-card-thin{
+    background:#1a1a1a;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    width:100%;
+    max-width:880px;
+    flex:1 1 auto;
+    overflow:hidden;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar{
+    padding:6px 10px;
+    border-bottom:none;
+  }
+
+  /* R69 — no wrapping card. Icons (their own .pi-icon-style pills)
+     and the scrubber float bare over the photo. Only the scrubber's
+     own backdrop preserves tick legibility. */
+  .edit-modal .edit-tool-surface .edit-tool-toolbar{
+    background:transparent;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    border:none;
+    border-radius:0;
+    padding:8px 6px;
+    width:100%;
+  }
+  .edit-modal .edit-tool-surface .adj-tab-r50,
+  .edit-modal .edit-tool-surface .filters-tab-r50{
+    padding:0;
+  }
+
+  /* Filter thumbs styled to match home tool's .cflow-thumb. */
+  .edit-modal .edit-tool-surface .filters-thumb-row{
+    padding:6px 4px;
+    gap:14px;
+    justify-content:center;
+  }
+  .edit-modal .edit-tool-surface .filter-thumb{
+    width:72px;
+  }
+  .edit-modal .edit-tool-surface .filter-thumb .filter-thumb-img{
+    width:64px;height:64px;
+    border-radius:10px;
+    box-shadow:0 1px 3px rgba(0,0,0,.22);
+  }
+  .edit-modal .edit-tool-surface .filter-thumb.active .filter-thumb-img{
+    box-shadow:0 0 0 2px var(--accent, #7a9a7a), 0 1px 3px rgba(0,0,0,.22);
+    border-color:transparent;
+  }
+
+  /* Top-chrome size — tighten the brand-link pill inside the chrome. */
+  .edit-modal .edit-top-chrome{ min-height:42px; }
+
+  /* ====================================================================
+     R56 — Cancel the global "edit-modal button .ico" 5px right-margin for
+     circle-family buttons. That rule was kicking every SVG icon inside
+     every circle 2.5px to the left of center, producing a tab-wide
+     "skewed left" illusion across the whole icon row.
+     ==================================================================== */
+  .edit-modal .ed-circle-btn .ico,
+  .edit-modal .ed-circle-btn .ed-circle-inner .ico,
+  .edit-modal .adj-circle-btn .ico,
+  .edit-modal .adj-circle-btn .adj-circle-inner .ico,
+  .edit-modal .ed-circle-btn .adj-circle-inner .ico,
+  .edit-modal .adj-circle-btn .ed-circle-inner .ico,
+  .edit-modal .filter-thumb .ico{
+    margin:0 !important;
+  }
+
+  /* ====================================================================
+     R54 — bold disable visual + locked tab height (no stretching)
+     ==================================================================== */
+
+  /* Disable toggle: when active, the inner is filled red with a
+     strikethrough overlay so the user can see clearly that the effect
+     is off. */
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner{
+    background:rgba(220,90,90,.32);
+    border-color:#e57a7a;
+  }
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner .ico{
+    color:#fff;
+  }
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner::after{
+    content:'';
+    position:absolute;left:6px;right:6px;top:50%;
+    height:2px;background:#fff;
+    transform:rotate(-45deg);
+    border-radius:1px;
+    pointer-events:none;
+  }
+  .edit-modal .ed-disable-btn .ed-circle-inner{position:relative;}
+
+  /* Lock toolbar height so swapping tabs doesn't shift the menu-card. */
+  .edit-modal .edit-tool-toolbar{
+    min-height:138px;
+  }
+  .edit-modal .edit-adjust-toolbar.adj-tab-r50,
+  .edit-modal .edit-rotate-toolbar.adj-tab-r50,
+  .edit-modal .edit-pixelate-controls.adj-tab-r50,
+  .edit-modal .edit-blur-controls.adj-tab-r50,
+  .edit-modal .edit-text-controls,
+  .edit-modal .filters-tab-r50{
+    min-height:138px;
+  }
+
+  /* Compact per-icon "modified" disable — icon goes dim with a small slash
+     overlay, value still shown so user knows the parameter is preserved. */
+  .edit-modal .adj-circle-btn.icon-disabled .ed-circle-inner,
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-inner{
+    background:rgba(255,255,255,.02);
+    border-color:rgba(255,255,255,.10);
+  }
+  .edit-modal .adj-circle-btn.icon-disabled .ed-circle-inner::after,
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-inner::after{
+    content:'';
+    position:absolute;left:6px;right:6px;top:50%;
+    height:2px;background:rgba(255,255,255,.6);
+    transform:rotate(-45deg);
+    border-radius:1px;
+    pointer-events:none;
+  }
+  .edit-modal .adj-circle-btn.icon-disabled .ed-circle-inner,
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-inner{position:relative;}
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-val{opacity:.45;}
+  .edit-modal .adj-circle-btn.icon-disabled .adj-circle-ring{
+    background:conic-gradient(from -90deg,
+      rgba(255,255,255,.10) 0deg,
+      rgba(255,255,255,.10) 360deg);
+  }
+
+  /* ====================================================================
+     R53 — captions off by default, disable-toggle visuals, tighter center
+     ==================================================================== */
+
+  /* Hide the caption beneath circle buttons by default. Apple Photos is
+     minimal — captions only appear on hover/focus or for active state. */
+  .edit-modal .ed-circle-btn .ed-circle-cap{display:none;}
+  .edit-modal .ed-circle-btn:hover .ed-circle-cap,
+  .edit-modal .ed-circle-btn:focus-visible .ed-circle-cap{display:block;}
+
+  /* R72 — match Adjust's .adj-flat-carousel padding so all tabs share
+     the same row height + spacing. */
+  .edit-modal .ed-func-row{
+    flex-wrap:nowrap;
+    justify-content:center;
+    padding:4px 8px;
+    gap:14px;
+  }
+
+  /* Disable toggle button — variant of .ed-circle-sm. When the tab is
+     disabled, the button is filled red-ish and the rest of the row dims. */
+  .edit-modal .ed-disable-btn .ed-circle-inner{
+    background:rgba(255,255,255,.06);
+    border-color:rgba(255,255,255,.18);
+  }
+  .edit-modal .ed-disable-btn .ed-circle-inner .ico{color:rgba(255,255,255,.65);}
+  .edit-modal .ed-disable-btn:hover .ed-circle-inner .ico{color:#fff;}
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner{
+    background:rgba(220,90,90,.18);
+    border-color:rgba(220,90,90,.55);
+  }
+  .edit-modal .ed-disable-btn.tab-disabled .ed-circle-inner .ico{color:#e57a7a;}
+
+  /* When the disable toggle is on, dim every other button in the same row. */
+  .edit-modal .ed-func-row.row-disabled .ed-circle-btn:not(.ed-disable-btn){
+    opacity:.32;pointer-events:none;
+  }
+  .edit-modal .ed-func-row.row-disabled .adj-tick-ruler,
+  .edit-modal .ed-func-row.row-disabled ~ .adj-tick-ruler{opacity:.32;pointer-events:none;}
+
+  /* Rotate's tick-ruler reuses .adj-tick-ruler — ensure good spacing under
+     the icon row. */
+  /* R74 — removed margin-top override; rotate ruler now matches Adjust. */
+
+  /* ====================================================================
+     R52 — Unified circular function-icon family (.ed-circle-btn)
+     Used across Rotate, Pixelate, Blur, Remove BG, Text tabs so every
+     function icon shares the same UI family as Adjust's .adj-circle-btn.
+     ==================================================================== */
+
+  /* R68 — match home tool .pi-icon: 44px solid-ish dark pill with
+     backdrop-blur, thin white border, no always-on inner ring. */
+  .edit-modal .ed-circle-btn{
+    flex:0 0 auto;width:44px;height:44px;
+    display:inline-grid;place-items:center;
+    padding:0;border:none;cursor:pointer;
+    position:relative;
+    border-radius:50%;
+    background:transparent;
+    transition:transform .12s ease;
+    font-family:inherit;
+  }
+  .edit-modal .ed-circle-btn:focus-visible{outline:2px solid var(--accent, #7a9a7a);outline-offset:3px;}
+  /* Ring overlay — transparent by default; only shows for selected /
+     modified states (set by JS via CSS custom properties). */
+  .edit-modal .ed-circle-btn .ed-circle-ring{
+    position:absolute;inset:-3px;
+    border-radius:50%;
+    background:transparent;
+    pointer-events:none;
+    transition:background .12s ease;
+  }
+  /* The icon container IS the pill — backdrop-blurred dark surface. */
+  .edit-modal .ed-circle-btn .ed-circle-inner{
+    position:relative;
+    width:44px;height:44px;
+    display:inline-grid;place-items:center;
+    border-radius:50%;
+    background:rgba(20,20,20,.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    transition:background .15s ease, transform .12s ease;
+  }
+  .edit-modal .ed-circle-btn .ed-circle-inner .ico{
+    width:18px;height:18px;color:#fff;
+  }
+  .edit-modal .ed-circle-btn:hover .ed-circle-inner{
+    background:rgba(50,50,50,.95);
+    transform:translateY(-1px);
+  }
+  .edit-modal .ed-circle-btn.active .ed-circle-inner{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+  }
+  .edit-modal .ed-circle-btn[disabled],
+  .edit-modal .ed-circle-btn:disabled{opacity:.35;cursor:default;pointer-events:none;}
+
+  /* Smaller variant for secondary actions (Reset, Clear, Whole-image). */
+  .edit-modal .ed-circle-btn.ed-circle-sm{width:36px;height:36px;}
+  .edit-modal .ed-circle-btn.ed-circle-sm .ed-circle-inner{width:36px;height:36px;}
+  .edit-modal .ed-circle-btn.ed-circle-sm .ed-circle-inner .ico{width:14px;height:14px;}
+
+
+  /* Optional caption beneath a circle button (used in Text / BG tabs). */
+  .edit-modal .ed-circle-btn .ed-circle-cap{
+    position:absolute;
+    top:calc(100% + 4px);left:50%;transform:translateX(-50%);
+    font-family:inherit;font-size:.55rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.62);
+    white-space:nowrap;pointer-events:none;
+  }
+  .edit-modal .ed-circle-btn:hover .ed-circle-cap,
+  .edit-modal .ed-circle-btn.active .ed-circle-cap{color:#fff;}
+
+  /* Function-row layout: horizontal flex, centered, gap matches Adjust. */
+  .edit-modal .ed-func-row{
+    display:flex;flex-direction:row;align-items:center;
+    gap:14px;
+    width:100%;
+    padding:4px 8px;
+    overflow-x:auto;
+    scrollbar-width:none;
+    justify-content:center;
+    flex-wrap:nowrap;
+  }
+  .edit-modal .ed-func-row::-webkit-scrollbar{display:none;}
+
+  /* ====================================================================
+     R50 — Apple Photos faithful Adjust + new Filters tab
+     ==================================================================== */
+
+  .edit-modal .adj-tab-r50,
+  .edit-modal .filters-tab-r50{
+    position:relative;
+    display:flex;flex-direction:column;
+    gap:10px;
+    padding:8px 8px 4px;
+  }
+
+  /* R71 — pill lives inside the floating tool surface as first child;
+     position relative (in flow) so it stacks above the icons naturally. */
+  .edit-modal #editBody > .adj-section-pill{
+    position:relative;
+    display:inline-flex;align-items:center;gap:6px;
+    margin:0 auto 8px;
+    background:rgba(0,0,0,.72);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    color:#fff;
+    font-family:inherit;font-size:.66rem;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:5px 11px;
+    border-radius:999px;
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  /* Center via the parent flex (editBody is column flex by default? force it). */
+  .edit-modal #editBody{
+    display:flex;flex-direction:column;align-items:center;
+  }
+  .edit-modal #editBody > .adj-section-pill[hidden]{display:none;}
+  /* Fallback for the legacy editPreviewCol anchor (defensive). */
+  .edit-modal #editPreviewCol > .adj-section-pill{display:none;}
+  .edit-modal .adj-section-pill-label{color:#fff;}
+  .edit-modal .adj-section-pill-val{
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-variant-numeric:tabular-nums;
+    color:rgba(255,255,255,.85);
+    letter-spacing:.04em;
+  }
+  .edit-modal .adj-section-pill-val:empty{display:none;}
+
+  /* R68 — adj-circle-btn (Adjust icons with conic magnitude ring) shares
+     the pi-icon pill base; ring sits OUTSIDE the pill as an overlay. */
+  .edit-modal .adj-circle-btn{
+    flex:0 0 auto;width:44px;height:44px;
+    display:inline-grid;place-items:center;
+    padding:0;background:transparent;border:none;
+    cursor:pointer;position:relative;
+    border-radius:50%;
+    transition:transform .12s ease;
+  }
+  .edit-modal .adj-circle-btn:focus-visible{outline:2px solid var(--accent, #7a9a7a);outline-offset:3px;}
+  .edit-modal .adj-circle-btn .adj-circle-ring{
+    position:absolute;inset:-3px;
+    border-radius:50%;
+    background:conic-gradient(from var(--r48-arc-from, -90deg),
+      transparent 0deg,
+      transparent var(--r48-arc-deg, 0deg),
+      transparent var(--r48-arc-deg, 0deg) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 72%, #000 74% 100%);
+            mask:radial-gradient(circle, transparent 72%, #000 74% 100%);
+    pointer-events:none;
+    transition:opacity .12s ease;
+  }
+  .edit-modal .adj-circle-btn .adj-circle-inner{
+    position:relative;
+    width:44px;height:44px;
+    display:inline-grid;place-items:center;
+    border-radius:50%;
+    background:rgba(20,20,20,.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    transition:background .15s ease, transform .12s ease;
+  }
+  .edit-modal .adj-circle-btn .adj-circle-inner .ico{
+    width:18px;height:18px;color:#fff;
+    transition:opacity .12s ease;
+  }
+  .edit-modal .adj-circle-btn:hover .adj-circle-inner{background:rgba(50,50,50,.95);transform:translateY(-1px);}
+
+  /* R68 — Selected = full accent ring overlay outside the pill. */
+  .edit-modal .adj-circle-btn.selected .adj-circle-ring{
+    background:conic-gradient(from -90deg,
+      var(--accent, #7a9a7a) 0deg,
+      var(--accent, #7a9a7a) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
+            mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
+  }
+  .edit-modal .adj-circle-btn.selected .adj-circle-inner{
+    border-color:rgba(255,255,255,.28);
+  }
+  /* R68 — Modified = arc segment of the ring fills accent. */
+  .edit-modal .adj-circle-btn.modified .adj-circle-ring{
+    background:conic-gradient(from var(--r48-arc-from, -90deg),
+      var(--accent, #7a9a7a) 0deg,
+      var(--accent, #7a9a7a) var(--r48-arc-deg, 0deg),
+      rgba(255,255,255,.12) var(--r48-arc-deg, 0deg) 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
+            mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
+  }
+  .edit-modal .adj-circle-btn.modified .adj-circle-inner .ico{opacity:0;}
+  .edit-modal .adj-circle-btn .adj-circle-val{
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-size:.72rem;font-weight:700;
+    font-variant-numeric:tabular-nums;
+    color:#fff;letter-spacing:.01em;
+    pointer-events:none;
+    opacity:0;transition:opacity .12s ease;
+  }
+  .edit-modal .adj-circle-btn.modified .adj-circle-val{opacity:1;}
+
+  .edit-modal .adj-circle-btn.adj-auto-btn.active .adj-circle-inner{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+  }
+  .edit-modal .adj-circle-btn.adj-auto-btn.active .adj-circle-inner .ico{color:#fff;}
+  .edit-modal .adj-circle-btn.busy .adj-circle-inner{
+    animation:adj-spin 1s linear infinite;
+  }
+  @keyframes adj-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+  .edit-modal .adj-carousel-r50{
+    display:flex;flex-direction:row;align-items:center;
+    gap:14px;
+    width:100%;
+    padding:4px 8px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    justify-content:center;
+  }
+  .edit-modal .adj-carousel-r50::-webkit-scrollbar{display:none;}
+  .edit-modal .adj-carousel-r50 .adj-circle-btn{scroll-snap-align:center;}
+  .edit-modal .adj-carousel-r50 .adj-row-reset{
+    flex:0 0 auto;width:36px;height:36px;margin-left:auto;
+    background:transparent;border:none;border-radius:50%;
+    color:rgba(255,255,255,.55);cursor:pointer;
+    display:inline-grid;place-items:center;
+    transition:background .12s ease,color .12s ease,opacity .12s ease;
+  }
+  .edit-modal .adj-carousel-r50 .adj-row-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .edit-modal .adj-carousel-r50 .adj-row-reset:disabled{opacity:.32;pointer-events:none;}
+  .edit-modal .adj-carousel-r50 .adj-row-reset .ico{width:14px;height:14px;}
+
+  /* R63 — clean scrubber. Default tick density set per slider via the
+     --range CSS variable on the ruler element (JS writes it). Tick
+     positions in the gradients are computed as (5 / range) * 100% for
+     minor ticks and (25 / range) * 100% for major ticks. */
+  .edit-modal .adj-tick-ruler{
+    position:relative;
+    width:100%;height:44px;
+    padding:0 12px;
+    margin-top:8px;
+    --range:200;
+    /* R71 — no backdrop. Ticks pop via a sharp text-shadow so they
+       stay legible against bright photos. */
+    background:transparent;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    border:none;
+    border-radius:0;
+  }
+  /* R65 — one DOM element per tick. JS populates .adj-tick spans into
+     .adj-tick-ticks; every Nth gets .major. Guaranteed pixel alignment
+     vs the gradient approach which rounded minor and major tracks
+     differently. */
+  .edit-modal .adj-tick-ticks{
+    position:absolute;left:6px;right:6px;top:12px;height:24px;
+    pointer-events:none;
+    mask-image:linear-gradient(to right, transparent 0%, #000 4%, #000 96%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  }
+  .edit-modal .adj-tick{
+    position:absolute;
+    top:9px;
+    width:1px;
+    height:6px;
+    background:rgba(255,255,255,.55);
+    transform:translateX(-0.5px);
+    pointer-events:none;
+    box-shadow:0 0 2px rgba(0,0,0,.85);
+  }
+  .edit-modal .adj-tick.major{
+    top:0;
+    height:24px;
+    width:2px;
+    background:rgba(255,255,255,.85);
+    transform:translateX(-1px);
+    box-shadow:0 0 2px rgba(0,0,0,.85);
+  }
+  /* Center indicator — accent vertical line at the "default" value. */
+  .edit-modal .adj-tick-center{
+    /* R73 — Apple gold (#ffd60a) center mark: distinct from green
+       accent, more obvious than white. Full-height + 3px wide with
+       drop-shadow for contrast against bright photos. */
+    position:absolute;
+    left:50%;top:0;
+    width:3px;height:44px;
+    background:#ffd60a;
+    transform:translateX(-1.5px);
+    border-radius:2px;
+    pointer-events:none;
+    box-shadow:0 0 4px rgba(0,0,0,.9);
+  }
+  /* Position indicator — clean white vertical line (no halo). Matches
+     Apple Photos: a single tick line, not a dot with shadow. */
+  .edit-modal .adj-tick-dot{
+    position:absolute;
+    top:0;
+    width:2px;height:44px;
+    background:#fff;
+    transform:translateX(-1px);
+    border-radius:1px;
+    pointer-events:none;
+    transition:left .08s ease-out;
+    box-shadow:0 0 3px rgba(0,0,0,.85);
+  }
+  .edit-modal .adj-tick-input{
+    position:absolute;left:0;right:0;top:0;bottom:0;
+    width:100%;height:100%;
+    -webkit-appearance:none;appearance:none;
+    background:transparent;
+    margin:0;padding:0;
+    cursor:pointer;
+    z-index:2;
+    background-image:none;
+  }
+  .edit-modal .adj-tick-input:focus{outline:none;}
+  .edit-modal .adj-tick-input::-webkit-slider-runnable-track{
+    background:transparent;border:none;height:100%;
+  }
+  .edit-modal .adj-tick-input::-moz-range-track{
+    background:transparent;border:none;height:100%;
+  }
+  .edit-modal .adj-tick-input::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:32px;height:42px;
+    background:transparent;border:none;
+    cursor:grab;
+  }
+  .edit-modal .adj-tick-input::-moz-range-thumb{
+    width:32px;height:42px;
+    background:transparent;border:none;
+    cursor:grab;
+  }
+  .edit-modal .adj-tick-input:active{cursor:grabbing;}
+
+  .edit-modal .filters-thumb-row{
+    display:flex;flex-direction:row;align-items:flex-start;
+    gap:12px;
+    width:100%;
+    padding:6px 4px 4px;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  .edit-modal .filters-thumb-row::-webkit-scrollbar{display:none;}
+  .edit-modal .filter-thumb{
+    flex:0 0 auto;
+    width:68px;
+    display:inline-flex;flex-direction:column;align-items:center;gap:6px;
+    padding:0;background:transparent;border:none;
+    color:rgba(255,255,255,.72);cursor:pointer;
+    scroll-snap-align:center;
+    transition:color .12s ease;
+  }
+  .edit-modal .filter-thumb:hover{color:#fff;}
+  .edit-modal .filter-thumb .filter-thumb-img{
+    width:60px;height:60px;border-radius:10px;
+    background-size:cover;background-position:center;
+    border:2px solid transparent;
+    transition:border-color .12s ease,transform .12s ease;
+  }
+  .edit-modal .filter-thumb:hover .filter-thumb-img{transform:scale(1.04);}
+  .edit-modal .filter-thumb.active{color:#fff;}
+  .edit-modal .filter-thumb.active .filter-thumb-img{
+    border-color:var(--accent, #7a9a7a);
+    box-shadow:0 0 0 1px var(--accent, #7a9a7a);
+  }
+  .edit-modal .filter-thumb-name{
+    font-size:.62rem;font-weight:700;letter-spacing:.05em;
+    text-transform:uppercase;line-height:1;
+    white-space:nowrap;
+  }
+
+  .edit-modal .adj-tab-r50 .adj-flat-divider{display:none;}
+
+  @media (max-width:640px){
+    .edit-modal .adj-carousel-r50{gap:10px;padding:4px 4px;}
+    .edit-modal .adj-circle-btn{width:48px;height:48px;}
+    .edit-modal .adj-circle-btn .adj-circle-inner{width:38px;height:38px;}
+    .edit-modal .filter-thumb{width:60px;}
+    .edit-modal .filter-thumb .filter-thumb-img{width:54px;height:54px;}
+  }
+  .adj-flat-carousel .adj-row-reset .ico{width:14px;height:14px;}
+
   @media (max-width:640px){
     .edit-action-pill{bottom:var(--split-btn-bottom,100px);padding:3px 5px;gap:1px;}
     .edit-split-handle::before{width:34px;height:34px;}
@@ -2874,7 +4004,11 @@
   .edit-preview-col .edit-rotate-preview{
     width:100%;height:100%;
     background-size:contain;background-position:center;background-repeat:no-repeat;
-    transition:transform .25s cubic-bezier(.22,1,.36,1);
+    /* R66 — drop transform transition. With raw-angle rotate values, a
+       sliding scrubber generates ~60 transform updates per second; the
+       transition was queuing them, causing the visible 360° flip when
+       the value direction reversed past zero. */
+    transition:none;
   }
   .edit-preview-col .edit-adjust-preview-wrap{
     width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;
@@ -3345,7 +4479,14 @@
   .edit-text-canvas.tx-grab{cursor:grab;}
   .edit-text-controls{display:flex;flex-direction:column;gap:10px;}
   .tx-add-row{display:flex;gap:6px;}
-  .tx-add-row .edit-frames-action-btn{flex:1;padding:7px 8px;font-size:.78rem;}
+  .tx-add-row .edit-frames-action-btn{
+    flex:1 1 0;min-width:0;
+    padding:7px 8px;font-size:.78rem;
+    /* R44 — keep single-line so "+ Watermark" stops wrapping inside
+       the 36px height. flex:1 1 0 + min-width:0 lets buttons shrink
+       equally; nowrap + ellipsis handle the longest label gracefully. */
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
   .tx-item-list{
     display:flex;flex-direction:column;gap:3px;max-height:140px;overflow-y:auto;
     background:rgba(0,0,0,.18);border-radius:6px;padding:4px;
@@ -3374,6 +4515,14 @@
     cursor:pointer;font-size:.86rem;padding:0 3px;line-height:1;
   }
   .tx-item-row .tx-item-del:hover{color:#ff7070;}
+  /* R71 — text-tab empty state cleaned up: centered subtle copy below icons. */
+  .edit-modal .edit-tool-surface .tx-empty{
+    text-align:center;
+    color:rgba(255,255,255,.55);
+    font-size:.72rem;font-weight:500;
+    padding:12px 8px 4px;
+    background:transparent;border:none;
+  }
   .tx-empty{
     padding:14px 6px;text-align:center;
     font-size:.72rem;color:rgba(255,255,255,.4);
@@ -3415,28 +4564,61 @@
   .tx-anchor-help{
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
+  /* R44 — Hide the "Drag any item…" help when the list shows the
+     "Nothing added yet" empty-state copy. They were both visible
+     in R43, competing for attention. Now: empty state → just the
+     empty copy; once items exist (no .tx-empty), the drag hint
+     reappears as contextual help. */
+  .edit-text-controls:has(.tx-empty) .tx-anchor-help{display:none;}
 
-  .edit-bg-card{display:flex;align-items:flex-start;gap:8px;padding:6px 2px;}
+  /* R44 — BG panel hierarchy. R43 hid the title (h3) and icon, which
+     left the panel with just a dim one-line description and no clear
+     anchor. Restore a tight title + subtitle stack so users know what
+     this tab does at a glance. */
+  .edit-bg-card{
+    display:block;padding:0;
+  }
   .edit-bg-card .bg-icon{display:none;}
-  .edit-bg-card h3{display:none;}
-  .edit-bg-card p{margin:0;color:rgba(255,255,255,.45);font-size:.74rem;line-height:1.4;}
-  /* R43 — Remove BG run button: proper height */
+  .edit-bg-card h3{
+    display:block;margin:0 0 4px;
+    font-family:var(--font-display, inherit);
+    font-size:.95rem;font-weight:600;color:#fff;
+    letter-spacing:-.005em;
+  }
+  .edit-bg-card p{
+    margin:0;
+    color:rgba(255,255,255,.62);
+    font-size:.76rem;line-height:1.4;
+  }
+  /* R44 — Remove background button: constrained width + centered so
+     the CTA reads as a deliberate action, not a wall. R43 had width:100%
+     which made it span the full panel and dwarf the surrounding controls. */
   .edit-bg-run{
-    width:100%;margin-top:0;padding:10px 14px;
-    background:rgba(255,255,255,.08);color:#fff;
-    border:1px solid rgba(255,255,255,.14);border-radius:8px;
+    width:auto;max-width:340px;
+    margin:0 auto;padding:10px 22px;
+    background:var(--accent-strong, var(--accent));color:#fff;
+    border:1px solid var(--accent-strong, var(--accent));border-radius:8px;
     font-size:.82rem;font-weight:600;cursor:pointer;
     display:flex;align-items:center;justify-content:center;gap:6px;
-    transition:background .15s,color .15s;
+    transition:background .15s,color .15s,filter .15s;
   }
-  .edit-bg-run:hover{background:rgba(255,255,255,.14);}
-  .edit-bg-run:disabled{opacity:.4;cursor:not-allowed;}
+  .edit-bg-run:hover{filter:brightness(1.06);}
+  .edit-bg-run:disabled{opacity:.4;cursor:not-allowed;filter:none;}
   .edit-bg-progress-wrap{margin-bottom:8px;}
   .edit-bg-progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden;margin-bottom:3px;}
   .edit-bg-progress-fill{height:100%;background:var(--accent);transition:width .25s ease;}
   .edit-bg-progress-label{font-size:.7rem;color:rgba(255,255,255,.4);}
   .edit-bg-success-msg{margin:4px 0;font-size:.76rem;color:#6fcf97;}
-  .edit-bg-hint{margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.28);line-height:1.4;}
+  /* R44 — disclaimer made readable. R43 had it at 28% opacity / .72rem
+     which made the important "60 MB one-time download" warning visually
+     invisible. Bumped to 70% opacity / .78rem + centered to match the
+     CTA, so users actually notice the model-download cost before clicking. */
+  .edit-bg-hint{
+    margin:8px auto 0;
+    max-width:520px;
+    font-size:.78rem;color:rgba(255,255,255,.70);
+    line-height:1.45;text-align:center;
+  }
   .bg-mode-toggle{
     display:flex;gap:4px;margin:8px 0 6px;padding:3px;
     background:rgba(255,255,255,.04);
@@ -3456,11 +4638,13 @@
     border-color:rgba(255,255,255,.18);
     box-shadow:0 1px 0 rgba(0,0,0,.18) inset;
   }
+  /* R44 — HQ "~110 MB" inline badge: slightly smaller + brighter and
+     shifted left so it reads as auxiliary metadata, not a label peer. */
   .bg-mode-pill{
-    font-size:.6rem;font-weight:500;
-    padding:1px 5px;border-radius:8px;
-    color:rgba(255,255,255,.6);
-    background:rgba(255,255,255,.08);
+    font-size:.62rem;font-weight:500;
+    padding:1px 6px;margin-left:4px;border-radius:8px;
+    color:rgba(255,255,255,.68);
+    background:rgba(255,255,255,.10);
     letter-spacing:.02em;
   }
   .bg-mode-btn.active .bg-mode-pill{background:rgba(255,255,255,.16);color:rgba(255,255,255,.92);}
@@ -3913,6 +5097,161 @@
     .empty-batch-dropzone h3{font-size:1.05rem;}
   }
 
+
+  /* ====================================================================
+     R70 — Targeted fixes (icon value display, crop, dock clipping,
+     tab bar polish, flip icon size).
+     ==================================================================== */
+
+  /* (1) When an Adjust icon is modified, hide the SVG glyph; show only
+     the numeric value. R68's rewrite dropped this rule by mistake. */
+  .edit-modal .adj-circle-btn.modified .adj-circle-inner .ico{
+    opacity:0;
+  }
+  .edit-modal .adj-circle-btn .adj-circle-val{
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    font-family:var(--font-mono, ui-monospace, monospace);
+    font-size:.7rem;font-weight:700;
+    font-variant-numeric:tabular-nums;
+    color:#fff;letter-spacing:.01em;
+    pointer-events:none;
+    opacity:0;transition:opacity .12s ease;
+  }
+  .edit-modal .adj-circle-btn.modified .adj-circle-val{opacity:1;}
+
+  /* (2) Crop tab — pi-icon-style ratio buttons + accent Apply pill. */
+  .edit-modal .edit-tool-surface .edit-crop-presets{
+    display:flex;align-items:center;justify-content:center;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:0 4px 8px;
+  }
+  .edit-modal .edit-tool-surface .edit-crop-presets > span:first-child{
+    /* "Ratio" label */
+    color:rgba(255,255,255,.6);
+    font-size:.66rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;
+    margin-right:2px;
+  }
+  .edit-modal .edit-tool-surface .edit-crop-presets .edit-preset-btn{
+    height:36px;padding:0 14px;
+    border-radius:999px;
+    background:rgba(20,20,20,.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    font-family:inherit;font-size:.78rem;font-weight:600;
+    cursor:pointer;
+    transition:background .12s, border-color .12s;
+  }
+  .edit-modal .edit-tool-surface .edit-crop-presets .edit-preset-btn:hover{
+    background:rgba(50,50,50,.95);
+  }
+  .edit-modal .edit-tool-surface .edit-crop-presets .edit-preset-btn.active{
+    background:var(--accent, #7a9a7a);
+    border-color:var(--accent, #7a9a7a);
+  }
+  /* Crop instruction text — keep but make subtle */
+  .edit-modal .edit-tool-surface #editBody > div + p {
+    text-align:center;
+    color:rgba(255,255,255,.45);
+    font-size:.7rem;
+    margin:6px 0;
+  }
+  /* Crop "Apply" button as accent pill */
+  .edit-modal .edit-tool-surface .edit-frames-action-btn,
+  .edit-modal .edit-tool-surface #editCropApplyBtn{
+    display:block;margin:8px auto 0;
+    width:auto !important;min-width:120px;
+    height:36px;padding:0 22px;
+    background:var(--accent, #7a9a7a);
+    color:#fff;font-weight:700;font-size:.82rem;
+    border:none;border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 1px 4px rgba(0,0,0,.3);
+  }
+  .edit-modal .edit-tool-surface .edit-frames-action-btn:hover{
+    background:var(--accent-strong, #6b8b6b);
+  }
+
+  /* (3) Push floating surface higher so it never clips into the dock. */
+  .edit-modal .edit-tool-surface{
+    bottom:calc(var(--menu-card-h, 56px) + 24px) !important;
+  }
+
+  /* (5) Flip H / Flip V icons bigger so the bracket glyphs read clearly. */
+  .edit-modal .ed-circle-btn[data-rot="fh"] .ed-circle-inner .ico,
+  .edit-modal .ed-circle-btn[data-rot="fv"] .ed-circle-inner .ico{
+    width:22px;height:22px;
+  }
+  /* (4) Pixelate grid icon — tone down stroke so it doesn't read as a
+     decorative ring around the active tab. */
+  .edit-modal .edit-tab-bar .edit-tab[data-tab="pixelate"] .ico{
+    transform:scale(.92);
+  }
+
+  /* (6) Tab bar polish — Apple Photos style: text-only labels with a
+     small accent indicator BELOW the active label. No wrap pill, no
+     icon, tighter spacing. */
+  .edit-modal .edit-menu-card-thin .edit-tab-bar{
+    background:transparent !important;
+    border:none !important;
+    border-radius:0 !important;
+    margin:0 !important;
+    padding:8px 4px !important;
+    mask-image:none !important;
+    -webkit-mask-image:none !important;
+    gap:4px;
+    justify-content:center;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab{
+    flex:0 0 auto;
+    min-width:auto;
+    height:38px;
+    padding:4px 14px;
+    background:transparent;
+    color:rgba(255,255,255,.62);
+    font-size:.78rem;font-weight:600;
+    letter-spacing:.01em;
+    display:inline-flex;align-items:center;gap:6px;
+    border-radius:8px;
+    flex-direction:row;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab .ico{
+    width:14px;height:14px;color:inherit;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab:hover{
+    color:#fff;background:rgba(255,255,255,.06);
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab.active{
+    color:#fff;background:transparent;
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab.active .ico{
+    color:var(--accent, #7a9a7a);
+  }
+  /* Move accent indicator below the label */
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab.active::before{
+    content:'';
+    position:absolute;
+    bottom:1px;left:50%;transform:translateX(-50%);
+    top:auto;
+    width:4px;height:4px;border-radius:50%;
+    background:var(--accent, #7a9a7a);
+  }
+  .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab{position:relative;}
+
+
+
+  /* R71 — kill the browser focus ring on tab buttons after click. The
+     accent dot ::before is the only "active" indicator. */
+  .edit-modal .edit-tab-bar .edit-tab:focus{outline:none;}
+  .edit-modal .edit-tab-bar .edit-tab:focus-visible{
+    outline:2px solid var(--accent, #7a9a7a);outline-offset:2px;border-radius:8px;
+  }
+
+
 </style>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
@@ -3938,6 +5277,15 @@
     <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol>
     <symbol id="i-droplets" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></symbol>
     <symbol id="i-eraser" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+    <symbol id="i-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12v12z"/></symbol>
+        <symbol id="i-aperture" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m14.31 8 5.74 9.94"/><path d="M9.69 8h11.48"/><path d="m7.38 12 5.74-9.94"/><path d="M9.69 16 3.95 6.06"/><path d="M14.31 16H2.83"/><path d="m16.62 12-5.74 9.94"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.438-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+    <symbol id="i-stamp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-2 0-3 1.5-3 3s1 2 1 3.5V13"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
     <symbol id="i-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></symbol>
   </defs>
 </svg>
@@ -4175,7 +5523,7 @@
   </div>
 
     <footer class="site-footer">
-    <div style="font-weight:700;color:var(--text2);">img<span class="g">ready</span></div>
+    <div class="footer-brand" style="font-weight:700;color:var(--text2);font-style:italic;">img<span class="g">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a><a href="/support/">♥ Support</a>
@@ -4647,9 +5995,33 @@ function init(){
   }
 
   /* WASM cold-start pre-warm — defer until idle so it doesn't compete
-     with FCP. Worker swallows errors so this is safe; if 'preload'
-     isn't handled, the worker just does nothing. */
-  const warm = () => { try { getWorker().postMessage({ action: 'prewarm' }); } catch(_){} };
+     with FCP. Worker swallows errors so this is safe.
+     R106: derive the prewarm format list from the current URL (?out= or
+     ?fmt=) so users coming from a landing page get THEIR encoder
+     pre-compiled, not the default WebP. If neither param is set, we
+     pre-warm WebP + JPG since those are the two most common output
+     formats in practice (covers ~80% of conversions per GSC data). */
+  const warm = () => {
+    try {
+      const qsW = new URLSearchParams(location.search);
+      const qsOut = (qsW.get('out') || qsW.get('fmt') || '').toLowerCase();
+      let formats = qsOut
+        ? qsOut.split(',').map(f => {
+            if (f === 'jpeg') return 'jpg';
+            if (f === 'png')  return 'oxipng';  // R110: png output uses oxipng encoder
+            return f;
+          }).filter(Boolean)
+        : ['webp', 'jpg'];
+      /* The worker prewarm handler accepts: webp, avif, jpg, oxipng.
+         Filter to just those — auto/gif/ico don't have an esm.sh
+         encoder so passing them would be wasted in the worker's loop.
+         png is mapped to oxipng above (the encoder we actually use for
+         PNG output). */
+      formats = formats.filter(f => f === 'webp' || f === 'avif' || f === 'jpg' || f === 'oxipng');
+      if (!formats.length) formats = ['webp'];
+      getWorker().postMessage({ action: 'prewarm', formats: formats });
+    } catch(_){}
+  };
   if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 4000 });
   else setTimeout(warm, 2500);
 
@@ -5183,6 +6555,7 @@ const ENCODE = {
      populates it with all selected formats. The PRIMARY (in .encoded) is
      always the FIRST active format and drives the compare canvas. */
   allEncoded: new Map(),        // idx -> Map<format, {blob, url, size, format}>
+  outDims:    new Map(),        // idx -> {outW, outH} — post-resize dims from worker (R46)
 };
 const MULTI_OUT = { enabled: false };
 function getWorker(){
@@ -5209,6 +6582,8 @@ function getWorker(){
       if (m.type === 'result') {
         delete ENCODE.pending[m.id];
         if (entry.timer) clearTimeout(entry.timer);
+        /* R46 — stash output dims by file-idx so syncMainImage can attach to enc */
+        if (m.outW && m.outH) ENCODE.outDims.set(entry.idx, { outW: m.outW, outH: m.outH });
         entry.resolve(m.blob);
         /* Refresh the After-meta batch totals as each background-queue
            encode completes. Without this, the "↓ X MB · N files total"
@@ -5361,7 +6736,20 @@ function markThumbEncoding(idx, on){
    .has-after class on the .image-canvas. */
 function setHasAfter(on){
   const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
-  if (canvas) canvas.classList.toggle('has-after', !!on);
+  if (!canvas) return;
+  const wasOn = canvas.classList.contains('has-after');
+  canvas.classList.toggle('has-after', !!on);
+  /* R68 — when after appears for the first time, snap the compare
+     divider to center. Previously the divider's transform was left
+     unset so it visually sat at translateX(0) = far left edge. */
+  if (on && !wasOn) {
+    window.SLIDER = window.SLIDER || { screenPct: 50 };
+    window.SLIDER.screenPct = 50;
+    try {
+      if (typeof window.setSplit === 'function') window.setSplit(canvas, 50, 50);
+      if (typeof refreshSliderFromZoom === 'function') refreshSliderFromZoom();
+    } catch(_){}
+  }
 }
 
 /* Backwards-compat shim — keeps any older callers from breaking. The corner
@@ -5425,6 +6813,7 @@ function getActiveSettings(){
      read from the dropdown's stored value (set by preset clicks
      or slider drags). */
   let qualityRaw = NaN;
+  let _targetKbForWorker = 0; /* R48 — passed to worker for binary-search target-size encode */
   const qDropdown = document.querySelector('.quality-dropdown');
   const qMode = qDropdown && qDropdown.dataset.qualityMode;
   const isSmart = qMode === 'smart';
@@ -5432,10 +6821,11 @@ function getActiveSettings(){
   if (isSmart && _gasContextFile && typeof window._suggestQuality === 'function') {
     qualityRaw = window._suggestQuality(_gasContextFile, fmt);
   } else if (isTarget && _gasContextFile && typeof window._qualityFromTarget === 'function') {
-    /* Target-size mode: compute the quality that should land on the
-       user-specified KB ceiling. Uses cached dims (populated by
-       syncMainImage's createImageBitmap / HEIC pre-decode). */
+    /* Target-size mode: pass targetKb to the worker so it binary-searches
+       quality in the encode loop (R48). Also compute an estimated quality
+       as a reasonable fallback if the worker path is ever skipped. */
     const targetKb = parseInt(qDropdown.dataset.qualityTarget, 10) || 100;
+    _targetKbForWorker = targetKb; /* R48 */
     let tw = 0, th = 0;
     if (typeof FILES !== 'undefined') {
       const entry = FILES.find(f => f && f.file === _gasContextFile);
@@ -5450,9 +6840,13 @@ function getActiveSettings(){
     qualityRaw = qSlider ? parseInt(qSlider.value, 10) : 82;
   }
   const quality = Math.max(1, Math.min(100, qualityRaw)) / 100;
-  const activeMode = document.querySelector('body[data-state="multi"] .stage.multi .resize-mode-toggle .rmt-btn.active');
-  const sizeInp = document.querySelector('body[data-state="multi"] .stage.multi .resize-input');
-  const sizeVal = sizeInp && sizeInp.value ? parseInt(sizeInp.value) : 0;
+  /* R49-fix: read resize from the split dropdown's data-resize-current attribute.
+     The old .resize-input selector was orphaned when the resize UI became a split
+     dropdown — commitResize() writes to data-resize-current, not the input value. */
+  const resizeDd = document.querySelector('body[data-state="multi"] .stage.multi .resize-dropdown');
+  const activeMode = resizeDd ? null : document.querySelector('body[data-state="multi"] .stage.multi .resize-mode-toggle .rmt-btn.active');
+  const sizeVal = resizeDd ? (parseInt(resizeDd.dataset.resizeCurrent, 10) || 0)
+                           : (() => { const si = document.querySelector('body[data-state="multi"] .stage.multi .resize-input'); return si && si.value ? parseInt(si.value) : 0; })();
   const isPercent = activeMode && activeMode.dataset.mode === 'pct';
   const stripExifEl = document.querySelector('body[data-state="multi"] .stage.multi .switch input[type=checkbox]');
   const stripExif = stripExifEl ? stripExifEl.checked : true;
@@ -5471,6 +6865,7 @@ function getActiveSettings(){
       resizePct:  isPercent ? sizeVal : 0,
       stripExif,
       crop,
+      targetKb: _targetKbForWorker, /* R48 — worker binary-searches quality when > 0 */
     },
   };
 }
@@ -5537,6 +6932,13 @@ function showRejectedToast(count){
   if (!_rejectedToastEl) {
     _rejectedToastEl = document.createElement('div');
     _rejectedToastEl.className = 'reject-toast';
+    /* R114 — A11y: role="alert" makes screen readers announce the toast
+       immediately (WCAG 4.1.3 Status Messages AA). Without it, blind users
+       drop an unsupported file and get silence — same UX bug as our
+       earlier "drop appeared to silently no-op" issue, just for SR users.
+       aria-atomic=true so the whole text is read each time, not diffed. */
+    _rejectedToastEl.setAttribute('role', 'alert');
+    _rejectedToastEl.setAttribute('aria-atomic', 'true');
     document.body.appendChild(_rejectedToastEl);
   }
   _rejectedToastEl.textContent = count === 1
@@ -5558,6 +6960,10 @@ function setMetaCorners(beforeFile, encoded){
   const idx = CFLOW.selected;
   const dims = (FILES[idx] && FILES[idx].dims) ? FILES[idx].dims : null;
   const dimsStr = dims ? `${dims.w} × ${dims.h} · ` : '';
+  /* R46 — after-meta uses output (post-resize) dims when available */
+  const encDimsStr = (encoded && encoded.outW && encoded.outH)
+    ? `${encoded.outW} × ${encoded.outH} · `
+    : dimsStr;
   const beforeMeta = document.querySelector('body[data-state="multi"] .stage.multi .compare-meta.l');
   if (beforeMeta) {
     const span = beforeMeta.querySelector('span:not(.lbl-title)');
@@ -5607,11 +7013,11 @@ function setMetaCorners(beforeFile, encoded){
       if (MULTI_OUT.enabled && bundle && bundle.size > 1) {
         const parts = Array.from(bundle.values()).map(e =>
           `${e.format.toUpperCase()} ${fmtSize(e.size)}`).join(' · ');
-        if (sizeSpan) sizeSpan.textContent = `${dimsStr}${parts}`;
+        if (sizeSpan) sizeSpan.textContent = `${encDimsStr}${parts}`; /* R46 */
       } else {
         const fmtUpper = (encoded.format||'').toUpperCase();
         if (sizeSpan) {
-          sizeSpan.textContent = `${dimsStr}${fmtSize(encoded.size)} · ${fmtUpper}`;
+          sizeSpan.textContent = `${encDimsStr}${fmtSize(encoded.size)} · ${fmtUpper}`; /* R46 */
         }
       }
       const pct = Math.round((1 - encoded.size/beforeFile.size) * 100);
@@ -5822,7 +7228,8 @@ async function syncMainImage(force, opts){
     /* Attach any encoder-side meta captured from the gif-diag message.
        Stored by idx in ENCODE._lastDiag (set inside worker.onmessage). */
     const meta = (ENCODE._lastDiag && ENCODE._lastDiag.idx === idx) ? ENCODE._lastDiag.data : null;
-    const enc = { blob, url, size: blob.size, format: fmtFromMime, meta };
+    const _od = ENCODE.outDims.get(idx); /* R46 */
+    const enc = { blob, url, size: blob.size, format: fmtFromMime, meta, outW: _od ? _od.outW : 0, outH: _od ? _od.outH : 0 };
     ENCODE.encoded.set(idx, enc);
     /* Announce encode result for screen readers. Only on success.
        Throttled inside srAnnounce; safe to call per file. */
@@ -5939,7 +7346,8 @@ async function processQueue(){
           if (myGen !== ENCODE.gen) break;
           const url = URL.createObjectURL(blob);
           const fmt = mimeToFmt(blob.type);
-          const entry = { blob, url, size: blob.size, format: fmt };
+          const _od2 = ENCODE.outDims.get(idx); /* R46 */
+          const entry = { blob, url, size: blob.size, format: fmt, outW: _od2 ? _od2.outW : 0, outH: _od2 ? _od2.outH : 0 };
           bundle.set(fmt, entry);
           if (!primary) primary = entry;
         }
@@ -6641,13 +8049,14 @@ function _editTabsForType(t){
     return tabs;
   }
   if (isPhoto) {
+    /* R76/R86 — Hid Pixelate / Text / Remove BG per user audit:
+       half-baked features dilute the conversion-first SEO message.
+       Renderers remain in code (no breakage) but tab buttons are
+       not exposed. */
     tabs.push({ id: 'adjust',   label: 'Adjust',  icon: 'i-sliders-horizontal' });
+    tabs.push({ id: 'filters',  label: 'Filters', icon: 'i-palette' });
     tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
     tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
-    tabs.push({ id: 'pixelate', label: 'Pixelate',icon: 'i-grid' });
-    tabs.push({ id: 'blur',     label: 'Blur',    icon: 'i-droplets' });
-    tabs.push({ id: 'text',     label: 'Text',    icon: 'i-type' });
-    tabs.push({ id: 'bg',       label: 'Remove BG',icon: 'i-eraser' });
   } else {
     tabs.push({ id: 'rotate',   label: 'Rotate',  icon: 'i-rotate-cw' });
     tabs.push({ id: 'crop',     label: 'Crop',    icon: 'i-crop' });
@@ -6876,13 +8285,16 @@ function _switchEditTab(tabId){
     previewCol.appendChild(_zl);
     _resetEditZoom();
   }
+  /* R51 — clear floating section pill before tab content renders;
+     _renderAdjustTab and _renderFiltersTab will re-show it. */
+  try { _hideAdjSectionPill(); } catch(_){}
   /* R20 routing - grouped tabs delegate to existing renderers via a
      sub-toggle wrapper. Legacy IDs still route for backward-compat. */
   if (tabId === 'frames') _renderFramesTab(body);
   else if (tabId === 'bg') _renderBackgroundTab(body);
   else if (tabId === 'adjust') _renderAdjustTab(body);
+  else if (tabId === 'filters') _renderFiltersTab(body);
   else if (tabId === 'transform') _renderTransformTab(body);
-  else if (tabId === 'retouch') _renderRetouchTab(body);
   else if (tabId === 'add') { _renderTextTab(body).catch(e => console.warn('[add]', e)); }
   else if (tabId === 'rotate') _renderRotateTab(body);
   else if (tabId === 'crop') { _renderCropTab(body).catch(e => console.warn('[crop]', e)); }
@@ -6891,6 +8303,12 @@ function _switchEditTab(tabId){
   else if (tabId === 'text') { _renderTextTab(body).catch(e => console.warn('[text]', e)); }
   /* Round 10: ensure split-compare UI persists across tab switches. */
   try { _ensureSplitUi(); } catch(_) {}
+  /* R45 — recompute pill position after the new tab's options strip
+     has measured its height. rAF gives the layout a tick to settle. */
+  requestAnimationFrame(() => {
+    try { _updateSplitBtnPos(); } catch(_){}
+    try { _updateMenuCardH(); } catch(_){}
+  });
 }
 /* R20 wrappers - Transform (Rotate|Crop) and Retouch (Pixelate|Blur). */
 function _renderSubToggle(body, items, activeId, onSwitch){
@@ -6931,20 +8349,6 @@ function _renderTransformTab(body){
   });
   if (sub === 'rotate') _renderRotateTab(subBody);
   else if (sub === 'crop') _renderCropTab(subBody).catch(e => console.warn('[crop]', e));
-}
-function _renderRetouchTab(body){
-  const sub = _editState._retouchSub || 'pixelate';
-  _editState._retouchSub = sub;
-  const subBody = _renderSubToggle(body, [
-    { id: 'pixelate', label: 'Pixelate', icon: 'i-x' },
-    { id: 'blur',     label: 'Blur',     icon: 'i-brush' }
-  ], sub, (newSub) => {
-    _editState._retouchSub = newSub;
-    body.innerHTML = '';
-    _renderRetouchTab(body);
-  });
-  if (sub === 'pixelate') _renderPixelateTab(subBody).catch(e => console.warn('[pixelate]', e));
-  else if (sub === 'blur') _renderBlurTab(subBody).catch(e => console.warn('[blur]', e));
 }
 function cancelEdit(){
   /* R30 — Clean up portalled adjust-tab dropdowns (filter / vignette menus
@@ -7018,24 +8422,29 @@ async function saveEdit(){
       if (_editState.pendingEdits.autoEnhanced) {
         workingBlob = _editState.pendingEdits.autoEnhanced;
       }
-      if (_editState.pendingEdits.rotate) {
+      if (_editState.pendingEdits.rotate && _editState.rotateState && _editState.rotateState.enabled !== false) {
         workingBlob = await _applyRotation(workingBlob, _editState.pendingEdits.rotate);
       }
+      /* R47 — skip if both sub-sections disabled. _applyPhotoAdjust itself
+         is now per-section aware. */
       if (_editState.pendingEdits.photoAdjust && _editState.pendingEdits.photoAdjust._dirty) {
-        workingBlob = await _applyPhotoAdjust(workingBlob, _editState.pendingEdits.photoAdjust);
+        const _pa = _editState.pendingEdits.photoAdjust;
+        if (_pa.sliderEnabled !== false || _pa.filterEnabled !== false) {
+          workingBlob = await _applyPhotoAdjust(workingBlob, _pa);
+        }
       }
       if (_editState.pendingEdits.photoCrop) {
         workingBlob = await _applyPhotoCrop(workingBlob, _editState.pendingEdits.photoCrop);
       }
-      if (_editState.pendingEdits.vignette && _editState.pendingEdits.vignette._dirty) {
+      if (_editState.pendingEdits.vignette && _editState.pendingEdits.vignette._dirty && _editState.pendingEdits.vignette.enabled !== false) {
         workingBlob = await _applyVignette(workingBlob, _editState.pendingEdits.vignette);
       }
-      if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length) {
+      if (_editState.pendingEdits.pixelate && _editState.pendingEdits.pixelate.strokes && _editState.pendingEdits.pixelate.strokes.length && _editState.pendingEdits.pixelate.enabled !== false) {
         workingBlob = await _applyPixelate(workingBlob, _editState.pendingEdits.pixelate);
       }
       if (_editState.pendingEdits.blur && (
             (_editState.pendingEdits.blur.strokes && _editState.pendingEdits.blur.strokes.length) ||
-            _editState.pendingEdits.blur.full)) {
+            _editState.pendingEdits.blur.full) && _editState.pendingEdits.blur.enabled !== false) {
         workingBlob = await _applyBlur(workingBlob, _editState.pendingEdits.blur);
       }
       if (_editState.pendingEdits.textOverlays && _editState.pendingEdits.textOverlays.items && _editState.pendingEdits.textOverlays.items.length) {
@@ -7173,10 +8582,30 @@ function _reRenderEditTab(){
   if (active) _switchEditTab(active.dataset.tab);
 }
 function _hasEdits(){
-  const pe = _editState.pendingEdits;
-  const rs = _editState.rotateState;
-  return Object.keys(pe).length > 0 ||
-    rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0;
+  /* R61 — real dirty check. The previous impl counted any pendingEdits
+     key as "edited", but renderers populate default state objects
+     (e.g. pendingEdits.photoAdjust gets initialized at neutral values
+     just to drive the UI). A fresh-opened editor would lie and report
+     "Save" required. Now we look at the actual dirty flags / non-default
+     values. */
+  const pe = _editState.pendingEdits || {};
+  const rs = _editState.rotateState  || {};
+  if (rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0) return true;
+  if (pe.photoAdjust) {
+    const a = pe.photoAdjust;
+    if (a._dirty) return true;
+    if (a.brightness !== 100 || a.contrast !== 100 || a.saturation !== 100) return true;
+    if (a.preset && a.preset !== 'none') return true;
+    if (a.globalBlur && a.globalBlur > 0) return true;
+  }
+  if (pe.vignette && pe.vignette._dirty) return true;
+  if (pe.photoCrop) return true;
+  if (pe.bgRemoved) return true;
+  if (pe.pixelate && pe.pixelate.strokes && pe.pixelate.strokes.length) return true;
+  if (pe.blur && ((pe.blur.strokes && pe.blur.strokes.length) || pe.blur.full)) return true;
+  if (pe.textOverlays && pe.textOverlays.items && pe.textOverlays.items.length) return true;
+  if (pe.autoEnhanced) return true;
+  return false;
 }
 function _updateEditHistoryUI(){
   const resetBtn = document.getElementById('editResetBtn');
@@ -7186,6 +8615,19 @@ function _updateEditHistoryUI(){
   if (undoBtn) undoBtn.disabled = !_editState._undoStack.length;
   const redoBtn = document.getElementById('editRedoBtn');
   if (redoBtn) redoBtn.disabled = !_editState._redoStack.length;
+  /* R60 — dynamic Save/Done label. */
+  const saveTop = document.getElementById('editSaveBtnTop');
+  if (saveTop) {
+    if (hasEdits) {
+      saveTop.textContent = 'Save';
+      saveTop.title = 'Save edits';
+      saveTop.classList.add('has-edits');
+    } else {
+      saveTop.textContent = 'Done';
+      saveTop.title = 'Close editor';
+      saveTop.classList.remove('has-edits');
+    }
+  }
   _updateEditSizeInfo();
 }
 function _updateEditSizeInfo(){
@@ -7201,6 +8643,56 @@ function _updateEditSizeInfo(){
   el.textContent = txt;
 }
 /* ---- Round 10 — Before/After split-slider ---- */
+
+/* R47 — Adjust tab tap-to-disable. Injects a small dot inside each
+   modified chip; click toggles the section's enabled flag (preserves
+   values), click elsewhere on the chip opens its dropdown as before. */
+function _r47WireSectionToggles(){
+  const pe = _editState.pendingEdits;
+  if (!pe || !pe.photoAdjust || !pe.vignette) return;
+  const adj = pe.photoAdjust;
+  const vig = pe.vignette;
+  const slidDirty   = !(adj.brightness === 100 && adj.contrast === 100 && adj.saturation === 100);
+  const filterDirty = (adj.preset !== 'none');
+  const vigDirty    = !!vig._dirty;
+  function wire(triggerId, isDirty, isEnabled, onToggle){
+    const trig = document.getElementById(triggerId);
+    if (!trig) return;
+    /* Clean any existing dot before re-inserting */
+    const old = trig.querySelector('.edit-section-toggle');
+    if (old) old.remove();
+    if (!isDirty) return;
+    const dot = document.createElement('span');
+    dot.className = 'edit-section-toggle' + (isEnabled ? ' on' : ' off');
+    dot.title = isEnabled ? 'Disable this adjustment (values kept)' : 'Re-enable this adjustment';
+    dot.setAttribute('role', 'switch');
+    dot.setAttribute('aria-checked', isEnabled ? 'true' : 'false');
+    dot.setAttribute('aria-label', dot.title);
+    dot.addEventListener('click', function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      onToggle();
+    });
+    /* Insert as the FIRST child of the trigger so the dot sits left of
+       the label, matching the iPhone Photos icon-on-the-left convention. */
+    trig.insertBefore(dot, trig.firstChild);
+    trig.classList.toggle('section-disabled', !isEnabled);
+  }
+  wire('editAdjustTrigger', slidDirty, adj.sliderEnabled !== false, function(){
+    adj.sliderEnabled = adj.sliderEnabled === false ? true : false;
+    /* Re-render the Adjust tab so chip state + preview update together. */
+    _reRenderEditTab();
+  });
+  wire('editFilterTrigger', filterDirty, adj.filterEnabled !== false, function(){
+    adj.filterEnabled = adj.filterEnabled === false ? true : false;
+    _reRenderEditTab();
+  });
+  wire('editVignetteTrigger', vigDirty, vig.enabled !== false, function(){
+    vig.enabled = vig.enabled === false ? true : false;
+    _reRenderEditTab();
+  });
+}
+
 function _editHasAnyEdit(){
   if (!_editState) return false;
   const r = _editState.rotateState || {};
@@ -7225,32 +8717,22 @@ function _editHasAnyEdit(){
 function _ensureSplitUi(){
   const col = document.getElementById('editPreviewCol');
   if (!col) return;
-  if (!col.querySelector('.edit-action-pill')){
-    const pill = document.createElement('div');
-    pill.className = 'edit-action-pill';
-    pill.id = 'editActionPill';
-    pill.innerHTML = ''
-      + '<button type="button" class="btn btn-ghost" id="editResetBtn" onclick="_editResetAll()" disabled title="Reset all edits">Reset</button>'
-      + '<button type="button" class="btn btn-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>'
-      + '<button type="button" class="btn btn-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>'
-      + '<button type="button" class="btn" onclick="cancelEdit()" title="Cancel \u2014 Esc">Cancel</button>'
-      + '<button type="button" class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">Save</button>';
-    col.appendChild(pill);
-    /* R37 — compare chip floats right of the pill, visible when edits exist. */
-    if (!col.querySelector('.edit-compare-chip')){
-      const cc = document.createElement('button');
-      cc.type = 'button';
-      cc.className = 'edit-compare-chip'; cc.id = 'editCompareChip';
-      cc.innerHTML = '<svg class="ico" aria-hidden="true" style="width:13px;height:13px"><use href="#i-arrow-left-right"/></svg>Compare';
-      cc.title = 'Compare original vs edited — drag the divider';
-      cc.addEventListener('click', _toggleSplitCompare);
-      col.appendChild(cc);
-    }
-    if (!col.querySelector('.edit-zoom-chip')){
-      const zc = document.createElement('div');
-      zc.className = 'edit-zoom-chip'; zc.id = 'editZoomChip';
-      col.appendChild(zc);
-    }
+  /* R60 — floating action pill removed; history controls live in the
+     top chrome now. Compare chip + zoom chip still get anchored to
+     editPreviewCol. */
+  if (!col.querySelector('.edit-compare-chip')){
+    const cc = document.createElement('button');
+    cc.type = 'button';
+    cc.className = 'edit-compare-chip'; cc.id = 'editCompareChip';
+    cc.innerHTML = '<svg class="ico" aria-hidden="true" style="width:13px;height:13px"><use href="#i-arrow-left-right"/></svg>Compare';
+    cc.title = 'Compare original vs edited — drag the divider';
+    cc.addEventListener('click', _toggleSplitCompare);
+    col.appendChild(cc);
+  }
+  if (!col.querySelector('.edit-zoom-chip')){
+    const zc = document.createElement('div');
+    zc.className = 'edit-zoom-chip'; zc.id = 'editZoomChip';
+    col.appendChild(zc);
   }
   if (!col.querySelector('.edit-split-overlay')){
     const ov = document.createElement('div');
@@ -7295,17 +8777,32 @@ function _ensureSplitUi(){
    the card. The card (edit-menu-wrap) is position:absolute bottom:16px,
    so the button should sit card_height + 16 + 12px gap above the screen
    bottom. Called on every tab switch and on window resize. */
+function _updateMenuCardH(){
+  /* R67 — expose .edit-menu-card height as --menu-card-h on the modal
+     so the floating tool surface can anchor directly above it. */
+  const card = document.querySelector('.edit-modal .edit-menu-card');
+  const modal = document.querySelector('.edit-modal');
+  if (!card || !modal) return;
+  const h = Math.round(card.getBoundingClientRect().height);
+  if (h > 0) modal.style.setProperty('--menu-card-h', h + 'px');
+}
 function _updateSplitBtnPos(){
-  /* R43 — anchor 32px above the tab bar. 15px was too tight: the pill's
-     box-shadow (offset 4px, blur 20px) bleeds visually ~24px below the
-     element boundary, so 15px looked like it was touching. 32px gives a
-     clear, comfortable gap across all screen sizes. */
-  const tabBar = document.querySelector('.edit-modal .edit-tab-bar');
-  const modal  = document.querySelector('.edit-modal');
-  if (!tabBar || !modal) return;
-  const tabTop   = tabBar.getBoundingClientRect().top;
+  _updateMenuCardH();
+  /* R45 — anchor the pill above the WHOLE menu-card, not just the
+     tab-bar. R43 anchored to tabBar.top which works only when the
+     options strip above the tabs is short. On tabs with tall content
+     (Adjust: Auto-enhance + ADJUST + FILTER + VIGNETTE dropdowns), the
+     options strip pushes the card top way up while the tab-bar stays
+     at the card bottom — so anchoring 32px above the tab-bar landed
+     the pill INSIDE the options strip, overlapping content. Now we
+     anchor 12px above the menu-card's top edge regardless of how
+     tall the strip grows. */
+  const menuCard = document.querySelector('.edit-modal .edit-menu-card');
+  const modal    = document.querySelector('.edit-modal');
+  if (!menuCard || !modal) return;
+  const cardTop  = menuCard.getBoundingClientRect().top;
   const modalBot = modal.getBoundingClientRect().bottom;
-  modal.style.setProperty('--split-btn-bottom', (modalBot - tabTop + 32) + 'px');
+  modal.style.setProperty('--split-btn-bottom', (modalBot - cardTop + 12) + 'px');
 }
 function _updateSplitBtnState(){
   /* R37 — compare chip replaces the split-btn in the pill. */
@@ -7457,11 +8954,17 @@ document.addEventListener('keydown', e => {
       e.preventDefault();
     }
   }
-  /* R22 — number keys 1-5 jump to Edit modal tabs. Adobe convention. */
-  else if (/^[1-5]$/.test(e.key) && !isInput && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey){
-    const tabIds = ['adjust', 'transform', 'retouch', 'add', 'bg'];
+  /* R22 — number keys 1-N jump to Edit modal tabs. Adobe convention.
+     R107 — derive tab IDs from the live DOM rather than a hard-coded
+     list. R88 reduced the editor to 4 tabs (adjust, filters, rotate,
+     crop); the old hard-coded list still referenced removed tabs
+     (transform, retouch, add, bg), so keys 2-5 silently no-op'd.
+     Querying the DOM keeps the shortcut wired to whatever tabs are
+     actually visible. */
+  else if (/^[1-9]$/.test(e.key) && !isInput && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey){
+    const tabs = document.querySelectorAll('.edit-modal .edit-tab[data-tab]');
     const idx = parseInt(e.key, 10) - 1;
-    const target = document.querySelector('.edit-modal .edit-tab[data-tab="' + tabIds[idx] + '"]');
+    const target = tabs[idx];
     if (target){ target.click(); e.preventDefault(); }
   }
   /* R22 — Caps Lock toggle for precise crosshair (Photoshop standard). */
@@ -7503,81 +9006,148 @@ function _renderRotateTab(body){
   if (previewCol) {
     previewCol.innerHTML = `<div class="edit-rotate-preview" id="editRotatePreview" style="background-image:url('${_editState.originalUrl || f.url}');"></div>`;
   }
-  /* R30c — Angle slider lives in an "Angle ▾" chip. Buttons stay inline. */
+  /* R53 — Angle is now a circular icon + tick-ruler scrubber below
+     (Apple-Photos style). Disable toggle replaces Reset; values persist. */
   const _rotAng = _editState.rotateState.angle;
-  const _angleSummary = _rotAng === 0 ? '0°' : (_rotAng > 0 ? '+' + _rotAng + '°' : _rotAng + '°');
   const _angleMod = _rotAng !== 0;
-  const _chevR = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
+  const _rotEnabled = (_editState.rotateState.enabled !== false);
+  const _anglePct = ((_rotAng - (-180)) / 360) * 100;
   body.innerHTML = `
-    <div class="edit-rotate-row">
-      <button type="button" class="edit-rotate-btn" data-rot="cw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>90\u00b0 CW</button>
-      <button type="button" class="edit-rotate-btn" data-rot="ccw"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>90\u00b0 CCW</button>
-      <button type="button" class="edit-rotate-btn" data-rot="180"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg>180\u00b0</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fh"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg>Flip horizontal</button>
-      <button type="button" class="edit-rotate-btn" data-rot="fv"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg>Flip vertical</button>
-      <button type="button" class="edit-rotate-btn" data-rot="reset">Reset</button>
-    </div>
-    <div class="edit-tool-dd" id="editAngleDD">
-      <span class="adj-label">Angle</span>
-      <button type="button" class="edit-tool-dd-trigger${_angleMod?' modified':''}" id="editAngleTrigger" aria-haspopup="dialog" aria-expanded="false">
-        <span class="dd-value" id="editAngleSummary">${_angleSummary}</span>
-        ${_chevR}
-      </button>
-      <div class="edit-tool-dd-menu" id="editAngleMenu" role="dialog" aria-label="Fine angle">
-        <p class="dd-section-label">Fine angle</p>
-        <div class="adj-row">
-          <span class="adj-label">Angle</span>
-          <input type="range" id="editAngleSlider" min="-180" max="180" step="1" value="${_editState.rotateState.angle}">
-          <span id="editAngleVal" class="adj-val">${_editState.rotateState.angle}°</span>
-        </div>
+    <div class="edit-tool-toolbar edit-rotate-toolbar adj-tab-r50">
+      <div class="ed-func-row${_rotEnabled ? '' : ' row-disabled'}" id="editRotateRow">
+        <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="cw" title="Rotate 90° clockwise" aria-label="Rotate 90° clockwise">
+          <span class="ed-circle-ring" aria-hidden="true"></span>
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-cw"/></svg></span>
+        </button>
+        <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="ccw" title="Rotate 90° counter-clockwise" aria-label="Rotate 90° counter-clockwise">
+          <span class="ed-circle-ring" aria-hidden="true"></span>
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></span>
+        </button>
+        <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fh" title="Flip horizontal" aria-label="Flip horizontal">
+          <span class="ed-circle-ring" aria-hidden="true"></span>
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-horizontal"/></svg></span>
+        </button>
+        <button type="button" class="ed-circle-btn edit-rotate-btn" data-rot="fv" title="Flip vertical" aria-label="Flip vertical">
+          <span class="ed-circle-ring" aria-hidden="true"></span>
+          <span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-flip-vertical"/></svg></span>
+        </button>
+      </div>
+      <div class="adj-tick-ruler" id="editAngleRuler" style="--range:360;">
+        <div class="adj-tick-ticks" aria-hidden="true"></div>
+        <div class="adj-tick-center" aria-hidden="true"></div>
+        <div class="adj-tick-dot" id="editAngleTickDot" style="left:${_anglePct.toFixed(2)}%;" aria-hidden="true"></div>
+        <input type="range" id="editAngleSlider" class="adj-tick-input" min="-180" max="180" step="1" value="${_editState.rotateState.angle}" aria-label="Angle">
       </div>
     </div>
   `;
+  /* R53 — show floating ANGLE pill over photo. */
+  try {
+    const _val = _angleMod ? (_rotAng > 0 ? '+' + _rotAng + '°' : _rotAng + '°') : '';
+    _ensureAdjSectionPill('Angle', _val);
+  } catch(_){}
+  /* R65 — populate ticks for the Angle ruler. */
+  try { _buildRulerTicks(document.getElementById('editAngleRuler')); } catch(_){}
   const preview = document.getElementById('editRotatePreview');
   function _updateRot(){
     const rs = _editState.rotateState;
-    const total = (rs.deg + rs.angle + 360) % 360;
-    const tx = `rotate(${total}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`;
+    const enabled = (rs.enabled !== false);
+    /* R66 — feed the RAW combined angle to CSS rotate so dragging the
+       slider across 0 doesn't snap modulo and trigger a 360° spin. The
+       encoded payload (used by the bake step) still normalizes to 0–360. */
+    const totalRaw = rs.deg + rs.angle;
+    const totalNorm = ((totalRaw % 360) + 360) % 360;
+    const tx = enabled
+      ? `rotate(${totalRaw}deg) scaleX(${rs.flipH ? -1 : 1}) scaleY(${rs.flipV ? -1 : 1})`
+      : 'none';
     preview.style.transform = tx;
-    const dirty = rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0;
-    _editState.pendingEdits.rotate = dirty ? { deg: total, flipH: rs.flipH, flipV: rs.flipV } : null;
+    const dirty = enabled && (rs.deg !== 0 || rs.flipH || rs.flipV || rs.angle !== 0);
+    _editState.pendingEdits.rotate = dirty ? { deg: totalNorm, flipH: rs.flipH, flipV: rs.flipV } : null;
   }
+  /* R53 — discrete rotate icons (CW/CCW/Flip H/Flip V) + angle slider. */
   document.querySelectorAll('#editBody .edit-rotate-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (btn.dataset.rot !== 'reset') _editPushUndo();
+      _editPushUndo();
       const rs = _editState.rotateState;
       switch (btn.dataset.rot) {
         case 'cw':    rs.deg = (rs.deg + 90) % 360; break;
         case 'ccw':   rs.deg = (rs.deg + 270) % 360; break;
-        case '180':   rs.deg = (rs.deg + 180) % 360; break;
         case 'fh':    rs.flipH = !rs.flipH; break;
         case 'fv':    rs.flipV = !rs.flipV; break;
-        case 'reset': rs.deg = 0; rs.flipH = false; rs.flipV = false; rs.angle = 0;
-          const sl2 = document.getElementById('editAngleSlider');
-          const vl2 = document.getElementById('editAngleVal');
-          if (sl2) sl2.value = 0;
-          if (vl2) vl2.textContent = '0°';
+        case 'angle':
+          /* R63 — tap-on-icon when angle !== 0 resets to 0. When already
+             at 0, give the user a small visual nudge instead of silent
+             no-op: briefly pulse the selected ring via a one-off class. */
+          if (rs.angle !== 0) {
+            rs.angle = 0;
+            const sl = document.getElementById('editAngleSlider');
+            const dot = document.getElementById('editAngleTickDot');
+            if (sl) sl.value = 0;
+            if (dot) dot.style.left = '50%';
+          } else {
+            btn.classList.remove('pulse');
+            void btn.offsetWidth;  /* restart animation */
+            btn.classList.add('pulse');
+            setTimeout(() => btn.classList.remove('pulse'), 360);
+          }
           break;
       }
       _updateRot();
+      _r53SyncAngleUI();
     });
   });
   const slider = document.getElementById('editAngleSlider');
-  const valLabel = document.getElementById('editAngleVal');
+  const tickDot = document.getElementById('editAngleTickDot');
+  function _r53UpdatePill(v){
+    const lbl = document.getElementById('adjSectionPillLabel');
+    const val = document.getElementById('adjSectionPillVal');
+    if (lbl) lbl.textContent = 'ANGLE';
+    if (val) val.textContent = (v === 0) ? '' : (v > 0 ? '+' + v + '°' : v + '°');
+  }
+  function _r53SyncAngleUI(){
+    const v = _editState.rotateState.angle;
+    if (slider) slider.value = String(v);
+    if (tickDot) tickDot.style.left = (((v + 180) / 360) * 100).toFixed(2) + '%';
+    /* Update the angle icon's modified/value display. */
+    const angBtn = document.querySelector('#editBody .edit-rotate-btn[data-rot="angle"]');
+    if (angBtn) {
+      angBtn.classList.toggle('modified', v !== 0);
+      const valEl = angBtn.querySelector('.adj-circle-val');
+      if (valEl) valEl.textContent = (v === 0) ? '' : (v > 0 ? '+' + v : String(v));
+      const dot = angBtn.querySelector('.adj-icon-dot');
+      if (dot) {
+        const mag = Math.min(180, Math.abs(v));
+        const deg = (mag / 180) * 180;
+        if (v >= 0) dot.style.setProperty('--r48-arc-from', '-90deg');
+        else dot.style.setProperty('--r48-arc-from', (-90 - deg) + 'deg');
+        dot.style.setProperty('--r48-arc-deg', deg + 'deg');
+      }
+    }
+    _r53UpdatePill(v);
+  }
   if (slider) {
     slider.addEventListener('input', () => {
       const v = parseInt(slider.value, 10);
       _editState.rotateState.angle = v;
-      if (valLabel) valLabel.textContent = v + '°';
-      const sum = document.getElementById('editAngleSummary');
-      const trg = document.getElementById('editAngleTrigger');
-      if (sum) sum.textContent = v === 0 ? '0°' : (v > 0 ? '+' + v + '°' : v + '°');
-      if (trg) trg.classList.toggle('modified', v !== 0);
       _updateRot();
+      _r53SyncAngleUI();
     });
     slider.addEventListener('change', () => { _editPushUndo(); });
   }
-  _editWireDropdown('editAngleDD','editAngleTrigger','editAngleMenu');
+  /* Disable toggle for Rotate. */
+  const _rotDisable = document.getElementById('editRotateDisable');
+  if (_rotDisable) {
+    _rotDisable.addEventListener('click', () => {
+      const rs = _editState.rotateState;
+      rs.enabled = (rs.enabled === false);  /* flip — default true means click sets false */
+      _rotDisable.classList.toggle('tab-disabled', rs.enabled === false);
+      _rotDisable.setAttribute('aria-pressed', rs.enabled === false ? 'true' : 'false');
+      _rotDisable.title = rs.enabled === false ? 'Enable rotate' : 'Disable rotate';
+      const row = document.getElementById('editRotateRow');
+      if (row) row.classList.toggle('row-disabled', rs.enabled === false);
+      _updateRot();
+    });
+  }
+  _r53SyncAngleUI();
 }
 async function _applyRotation(file, rotation){
   const bmp = await createImageBitmap(file);
@@ -8115,9 +9685,15 @@ function _renderBackgroundTab(body){
   const refineHTML = hasDone ? (''
     + '<div class="bg-refine-section">'
     +   '<h4>Refine mask</h4>'
-    +   '<div class="bg-refine-tool-strip">'
-    +     '<button type="button" class="edit-preset-btn' + (ref.mode==='erase'?' active':'') + '" data-bgr-mode="erase">Erase</button>'
-    +     '<button type="button" class="edit-preset-btn' + (ref.mode==='restore'?' active':'') + '" data-bgr-mode="restore">Restore</button>'
+    +   '<div class="bg-refine-tool-strip ed-toggle-pair">'
+    +     '<button type="button" class="ed-circle-btn' + (ref.mode==="erase"?" active":"") + '" data-bgr-mode="erase" title="Erase" aria-pressed="' + (ref.mode==="erase") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-eraser"/></svg></span>'
+    +       '<span class="ed-circle-cap">ERASE</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn' + (ref.mode==="restore"?" active":"") + '" data-bgr-mode="restore" title="Restore" aria-pressed="' + (ref.mode==="restore") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-brush"/></svg></span>'
+    +       '<span class="ed-circle-cap">RESTORE</span>'
+    +     '</button>'
     +   '</div>'
     +   '<div class="adj-row">'
     +     '<span class="adj-label">Brush</span>'
@@ -8129,7 +9705,9 @@ function _renderBackgroundTab(body){
     +     '<input type="range" id="bgrHardness" min="0" max="100" step="1" value="' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '">'
     +     '<span class="adj-val" id="bgrHardnessVal">' + Math.round((ref.hardness != null ? ref.hardness : 0.5) * 100) + '%</span>'
     +   '</div>'
-    +   '<button type="button" class="edit-frames-action-btn" id="bgrClear">Clear refinements</button>'
+    +   '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (((_editState.pendingEdits.bgRefine && _editState.pendingEdits.bgRefine.enabled === false) ? " tab-disabled" : "")) + '" id="bgrDisable" title="' + (((_editState.pendingEdits.bgRefine && _editState.pendingEdits.bgRefine.enabled === false) ? "Enable refinements" : "Disable refinements")) + '" aria-pressed="' + (((_editState.pendingEdits.bgRefine && _editState.pendingEdits.bgRefine.enabled === false) ? "true" : "false")) + '">'
+    +     '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
+    +   '</button>'
     +   '<p class="bg-refine-help">Erase trims extra pixels; Restore brings back the original. Lower Soft = feathered edges, higher = crisp. Use [ and ] to resize.</p>'
     + '</div>'
   ) : '';
@@ -8574,12 +10152,22 @@ function _renderAdjustTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
   if (!_editState.pendingEdits.photoAdjust) {
-    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, preset: 'none', presetCss: '', _dirty: false };
+    /* R47 — sliderEnabled + filterEnabled let users tap-to-disable each
+       section while preserving the slider/preset values. iPhone Photos pattern. */
+    /* R48 — `selected` tracks which adjustment the shared scrubber
+       controls. iPhone Photos pattern: one slider, many icons. */
+    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, globalBlur: 0, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
   }
   const adj = _editState.pendingEdits.photoAdjust;
+  /* R47 — back-fill flags for state restored from older sessions/undo snapshots. */
+  if (adj.sliderEnabled === undefined) adj.sliderEnabled = true;
+  if (adj.filterEnabled === undefined) adj.filterEnabled = true;
+  if (adj.selected === undefined) adj.selected = 'brightness';  /* R48 */
+  if (adj.globalBlur === undefined) adj.globalBlur = 0;          /* R59 */
   if (!_editState.pendingEdits.vignette) {
-    _editState.pendingEdits.vignette = { amount: 0, midpoint: 50, _dirty: false };
+    _editState.pendingEdits.vignette = { amount: 0, midpoint: 50, _dirty: false, enabled: true };
   }
+  if (_editState.pendingEdits.vignette.enabled === undefined) _editState.pendingEdits.vignette.enabled = true;
   const vig = _editState.pendingEdits.vignette;
   const PRESETS = [
     { id: 'none',    label: 'Original', css: '' },
@@ -8594,7 +10182,7 @@ function _renderAdjustTab(body){
   const adjPreviewCol = _editPreviewEl();
   if (adjPreviewCol) {
     const _adjSrcUrl = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
-    adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false"><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>`;
+    adjPreviewCol.innerHTML = `<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="${_adjSrcUrl}" class="edit-adjust-preview" draggable="false" alt=""><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>`;
   }
   const _aeOn = !!_editState.pendingEdits.autoEnhanced;
   /* R30 — Adjust tab now mirrors home toolbar density:
@@ -8611,125 +10199,395 @@ function _renderAdjustTab(body){
   const _adjModified = !(adj.brightness === 100 && adj.contrast === 100 && adj.saturation === 100);
   const _adjSummary = _adjModified ? 'Modified' : 'Default';
   const _chev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
+  /* R46 — Adjust controls now flow inline in a single toolbar row,
+     mirroring home .adjust-panel density. The 4 chips (auto-enhance,
+     ADJUST▾, FILTER▾, VIGNETTE▾) used to stack into 4 vertical rows
+     because each chip had width:100%. Wrapping them in
+     .edit-tool-toolbar forces horizontal flex; per-chip CSS in R46
+     drops the 100% width to content-width. */
+    /* R49b — restore missing const declarations consumed by the flat
+     carousel template. The first R49 transform's OLD_BLOCK match
+     silently failed (a whitespace mismatch I didn't catch), so the
+     consts never made it into the file. _renderAdjustTab threw
+     ReferenceError on render, leaving the Adjust tab blank. */
+  const _fmtV = (val, def) => { const d = val - def; return d > 0 ? ('+' + d) : ('' + d); };
+  const _adjVignetteVal = (vig.amount === 0) ? '' : (vig.amount > 0 ? '+' + vig.amount : String(vig.amount));
+  const _FILTER_SWATCH = {
+    none:    '#888',
+    bw:      'linear-gradient(135deg, #fff 0%, #fff 50%, #1a1a1a 50%, #1a1a1a 100%)',
+    sepia:   '#a87a5c',
+    vintage: '#b8a47c',
+    invert:  'radial-gradient(circle, #fff 30%, #111 70%)',
+    cool:    '#6090d8',
+    warm:    '#d89060',
+  };
+  /* R50 — Apple Photos pattern. Section-label pill floats over the
+     photo; circular icons sit in a horizontal row; tick-mark ruler
+     drives the currently-selected adjustment. Filters live in their
+     own tab (see _renderFiltersTab). */
+  const _scrubKey = adj.selected || 'brightness';
+  const _scrubMin = (_scrubKey === 'vignette') ? -100 : 0;
+  const _scrubMax = (_scrubKey === 'vignette') ?  100 : 200;
+  const _scrubDef = (_scrubKey === 'vignette') ?    0 : 100;
+  const _scrubVal = (_scrubKey === 'vignette') ? (vig.amount || 0) : adj[_scrubKey];
+  const _scrubDelta = _scrubVal - _scrubDef;
+  const _scrubLabel = ({brightness:'BRIGHTNESS',contrast:'CONTRAST',saturation:'SATURATION',vignette:'VIGNETTE'})[_scrubKey];
+  const _scrubPct = ((_scrubVal - _scrubMin) / (_scrubMax - _scrubMin)) * 100;
+  const _scrubValDisplay = (_scrubKey === 'vignette')
+    ? (_scrubVal === 0 ? '0' : (_scrubVal > 0 ? '+' + _scrubVal : String(_scrubVal)))
+    : fmt(_scrubVal);
   body.innerHTML = `
-    <div class="edit-auto-enhance-row">
-      <button type="button" class="edit-auto-enhance-btn${_aeOn?' active':''}" id="adjAutoEnhanceBtn">${_aeOn?'<svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Auto enhanced':'<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance'}</button>
-      ${_aeOn?'<button type="button" class="edit-auto-enhance-undo" id="adjAutoEnhanceUndo">Undo</button>':''}
-    </div>
-    <div class="edit-adjust-dd" id="editAdjustDD">
-      <span class="adj-label">Adjust</span>
-      <button type="button" class="edit-adjust-dd-trigger${_adjModified?' modified':''}" id="editAdjustTrigger" aria-haspopup="dialog" aria-expanded="false">
-        <span class="dd-value" id="editAdjustValue">${_adjSummary}</span>
-        ${_chev}
-      </button>
-      <div class="edit-adjust-dd-menu" id="editAdjustMenu" role="dialog" aria-label="Light adjustments">
-        <p class="dd-section-label">Light</p>
-        <div class="adj-row">
-          <span class="adj-label">Brightness</span>
-          <input type="range" id="adjBrightness" min="0" max="200" step="1" value="${adj.brightness}">
-          <span class="adj-val" id="adjBrightnessVal">${fmt(adj.brightness)}</span>
-        </div>
-        <div class="adj-row">
-          <span class="adj-label">Contrast</span>
-          <input type="range" id="adjContrast" min="0" max="200" step="1" value="${adj.contrast}">
-          <span class="adj-val" id="adjContrastVal">${fmt(adj.contrast)}</span>
-        </div>
-        <div class="adj-row">
-          <span class="adj-label">Saturation</span>
-          <input type="range" id="adjSaturation" min="0" max="200" step="1" value="${adj.saturation}">
-          <span class="adj-val" id="adjSaturationVal">${fmt(adj.saturation)}</span>
-        </div>
-        <div class="adj-reset-row">
-          <button type="button" id="adjResetBtn" aria-label="Reset light adjustments">Reset</button>
-        </div>
+    <div class="edit-tool-toolbar edit-adjust-toolbar adj-tab-r50">
+      <div class="adj-flat-carousel adj-carousel-r50" role="tablist" aria-label="Adjustments">
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-auto-btn${_aeOn?' active':''}" data-adj-action="auto" title="Auto enhance" aria-label="Auto enhance" aria-pressed="${_aeOn}">
+          <span class="adj-circle-ring" aria-hidden="true"></span>
+          <span class="adj-circle-inner"><svg class="ico" aria-hidden="true"><use href="#${_aeOn?'i-check':'i-wand-sparkles'}"/></svg></span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='brightness'?' selected':''}${adj.brightness!==100?' modified':''}" data-adj-key="brightness" title="Brightness (double-click to reset)" aria-label="Brightness" role="tab" aria-selected="${_scrubKey==='brightness'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="brightness">${adj.brightness !== 100 ? _fmtV(adj.brightness, 100) : ''}</span>
+          </span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='contrast'?' selected':''}${adj.contrast!==100?' modified':''}" data-adj-key="contrast" title="Contrast (double-click to reset)" aria-label="Contrast" role="tab" aria-selected="${_scrubKey==='contrast'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-contrast"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="contrast">${adj.contrast !== 100 ? _fmtV(adj.contrast, 100) : ''}</span>
+          </span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='saturation'?' selected':''}${adj.saturation!==100?' modified':''}" data-adj-key="saturation" title="Saturation (double-click to reset)" aria-label="Saturation" role="tab" aria-selected="${_scrubKey==='saturation'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="saturation">${adj.saturation !== 100 ? _fmtV(adj.saturation, 100) : ''}</span>
+          </span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='vignette'?' selected':''}${vig.amount!==0?' modified':''}" data-adj-key="vignette" title="Vignette (double-click to reset)" aria-label="Vignette" role="tab" aria-selected="${_scrubKey==='vignette'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="vignette">${_adjVignetteVal}</span>
+          </span>
+        </button>
+        <button type="button" class="adj-flat-btn adj-circle-btn adj-icon-btn${_scrubKey==='globalBlur'?' selected':''}${adj.globalBlur!==0?' modified':''}" data-adj-key="globalBlur" title="Blur (whole image)" aria-label="Blur" role="tab" aria-selected="${_scrubKey==='globalBlur'}">
+          <span class="adj-circle-ring adj-icon-dot" aria-hidden="true"></span>
+          <span class="adj-circle-inner">
+            <svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg>
+            <span class="adj-circle-val adj-icon-val" data-key="globalBlur">${adj.globalBlur ? '+' + adj.globalBlur : ''}</span>
+          </span>
+        </button>
       </div>
-    </div>
-    <div class="edit-filter-dd" id="editFilterDD">
-      <span class="adj-label">Filter</span>
-      <button type="button" class="edit-filter-dd-trigger" id="editFilterTrigger" aria-haspopup="listbox" aria-expanded="false">
-        <span class="dd-value" id="editFilterValue">${_currentPresetLabel}</span>
-        ${_chev}
-      </button>
-      <div class="edit-filter-dd-menu" id="editFilterMenu" role="listbox" aria-label="Filter preset">
-        ${PRESETS.map(p => `<button type="button" class="edit-preset-btn${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}" role="option" aria-selected="${p.id === adj.preset}">${p.label}</button>`).join('')}
-      </div>
-    </div>
-    <div class="edit-vignette-dd" id="editVignetteDD">
-      <span class="adj-label">Vignette</span>
-      <button type="button" class="edit-vignette-dd-trigger" id="editVignetteTrigger" aria-haspopup="dialog" aria-expanded="false">
-        <span class="dd-value" id="editVignetteValue">${_vigSummary}</span>
-        ${_chev}
-      </button>
-      <div class="edit-vignette-dd-menu" id="editVignetteMenu" role="dialog" aria-label="Vignette controls">
-        <div class="adj-row">
-          <span class="adj-label">Amount</span>
-          <input type="range" id="vigAmount" min="-100" max="100" step="1" value="${vig.amount}">
-          <span class="adj-val" id="vigAmountVal">${vig.amount>0?'+'+vig.amount:String(vig.amount)}</span>
-        </div>
-        <div class="adj-row">
-          <span class="adj-label">Midpoint</span>
-          <input type="range" id="vigMid" min="0" max="100" step="1" value="${vig.midpoint}">
-          <span class="adj-val" id="vigMidVal">${vig.midpoint}</span>
-        </div>
-        <div class="vig-reset-row">
-          <button type="button" id="vigReset" aria-label="Reset vignette">Reset</button>
-        </div>
+      <div class="adj-tick-ruler" id="adjScrubberWrap" data-scrub-key="${_scrubKey}" style="--range:${(_scrubMax - _scrubMin)};">
+        <div class="adj-tick-ticks" aria-hidden="true"></div>
+        <div class="adj-tick-center" aria-hidden="true"></div>
+        <div class="adj-tick-dot" id="adjTickDot" style="left:${_scrubPct.toFixed(2)}%;" aria-hidden="true"></div>
+        <input type="range" id="adjScrubSlider" class="adj-tick-input" min="${_scrubMin}" max="${_scrubMax}" step="1" value="${_scrubVal}" aria-label="Adjustment value">
       </div>
     </div>
   `;
+  /* R65 — populate ticks for the Adjust scrubber. */
+  try { _buildRulerTicks(document.getElementById('adjScrubberWrap')); } catch(_){}
+  /* R71b — ensure section pill is created on initial render. The pill
+     is created lazily by _syncScrubberToSelected; queue a microtask call
+     after the scrubber wiring finishes so the pill exists on first paint.
+     Plus directly call _ensureAdjSectionPill upfront so the pill renders
+     even if scrubber wiring is short-circuited. */
+  try {
+    const _initKey = (adj.selected || 'brightness');
+    const _initLabel = ({brightness:'Brightness',contrast:'Contrast',saturation:'Saturation',vignette:'Vignette',globalBlur:'Blur'})[_initKey] || _initKey;
+    let _initVal = '';
+    if (_initKey === 'vignette') {
+      const v = vig.amount || 0;
+      _initVal = v === 0 ? '' : (v > 0 ? '+' + v : String(v));
+    } else if (_initKey === 'globalBlur') {
+      _initVal = (adj.globalBlur && adj.globalBlur > 0) ? '+' + adj.globalBlur : '';
+    } else {
+      const d = adj[_initKey] - 100;
+      _initVal = d === 0 ? '' : (d > 0 ? '+' + d : String(d));
+    }
+    _ensureAdjSectionPill(_initLabel, _initVal);
+  } catch(_){}
   const previewImg = document.getElementById('editAdjPreview');
   function _getAdjFilter(){
     const a = _editState.pendingEdits.photoAdjust;
-    const pre = (a.preset !== 'none' && a.presetCss) ? a.presetCss + ' ' : '';
-    return pre + `brightness(${a.brightness}%) contrast(${a.contrast}%) saturate(${a.saturation}%)`;
+    /* R54 — per-key enabled flags (brightnessEnabled, contrastEnabled,
+       saturationEnabled). Disabled keys are skipped from the filter
+       composition so their value is visually nullified while preserved
+       in state. */
+    const filterOn = a.filterEnabled !== false;
+    const sliderOn = a.sliderEnabled !== false;
+    const pre = (filterOn && a.preset !== 'none' && a.presetCss) ? a.presetCss + ' ' : '';
+    let sliders = '';
+    if (sliderOn) {
+      if (a.brightnessEnabled !== false) sliders += `brightness(${a.brightness}%) `;
+      if (a.contrastEnabled   !== false) sliders += `contrast(${a.contrast}%) `;
+      if (a.saturationEnabled !== false) sliders += `saturate(${a.saturation}%) `;
+      /* R59 — global Blur as part of the CSS filter chain. */
+      if (a.globalBlurEnabled !== false && a.globalBlur > 0) sliders += `blur(${a.globalBlur}px) `;
+    }
+    return (pre + sliders.trim()) || 'none';
   }
   function _markDirty(){
     const a = _editState.pendingEdits.photoAdjust;
     a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none' && !(a.globalBlur > 0));
     previewImg.style.filter = _getAdjFilter();
-    /* R30b — keep the Adjust dropdown trigger in sync */
-    const _trig = document.getElementById('editAdjustTrigger');
-    const _val  = document.getElementById('editAdjustValue');
-    const _rst  = document.getElementById('adjResetBtn');
-    const _mod  = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100);
-    if (_trig) _trig.classList.toggle('modified', _mod);
-    if (_val)  _val.textContent  = _mod ? 'Modified' : 'Default';
-    if (_rst)  _rst.disabled     = !_mod;
+    /* R48 — old ADJUST chip is gone; just sync the icon row's modified
+       state. Filter chip + Vignette chip still have their own modified
+       dot wiring from R47 (no change needed). */
+    if (typeof _syncIconStates === 'function') _syncIconStates();
   }
   _markDirty();
-  [['adjBrightness','brightness','adjBrightnessVal'],
-   ['adjContrast','contrast','adjContrastVal'],
-   ['adjSaturation','saturation','adjSaturationVal']].forEach(([id, key, valId]) => {
-    const sl = document.getElementById(id);
-    const vl = document.getElementById(valId);
-    if (!sl) return;
-    sl.addEventListener('input', () => {
-      const v = parseInt(sl.value, 10);
-      _editState.pendingEdits.photoAdjust[key] = v;
-      if (vl) vl.textContent = fmt(v);
+  /* R48 — single scrubber routes input to the currently-selected
+     adjustment. Icon clicks switch which key the scrubber controls. */
+  /* R50 — scrubber drives tick ruler + floating section pill. */
+  const _adjLabels = { brightness: 'BRIGHTNESS', contrast: 'CONTRAST', saturation: 'SATURATION', vignette: 'VIGNETTE', globalBlur: 'BLUR' };
+  const scrubSlider = document.getElementById('adjScrubSlider');
+  const scrubRuler  = document.getElementById('adjScrubberWrap');
+  const scrubDot    = document.getElementById('adjTickDot');
+  const pillLabel   = document.getElementById('adjSectionPillLabel');
+  const pillVal     = document.getElementById('adjSectionPillVal');
+  function _scrubRange(key){
+    if (key === 'vignette')   return { min: -100, max: 100, def: 0 };
+    if (key === 'globalBlur') return { min: 0,    max: 40,  def: 0 };
+    return { min: 0, max: 200, def: 100 };
+  }
+  function _scrubValueFor(key){
+    if (key === 'vignette') return _editState.pendingEdits.vignette.amount || 0;
+    if (key === 'globalBlur') return _editState.pendingEdits.photoAdjust.globalBlur || 0;
+    return _editState.pendingEdits.photoAdjust[key];
+  }
+  function _scrubDisplay(key, v){
+    if (key === 'vignette') return v === 0 ? '0' : (v > 0 ? '+' + v : String(v));
+    return fmt(v);
+  }
+  function _syncTickPos(){
+    if (!scrubSlider || !scrubDot) return;
+    const k = (_editState.pendingEdits.photoAdjust.selected || 'brightness');
+    const r = _scrubRange(k);
+    const v = _scrubValueFor(k);
+    const pct = ((v - r.min) / (r.max - r.min)) * 100;
+    scrubDot.style.left = pct.toFixed(2) + '%';
+  }
+  function _syncScrubberToSelected(){
+    const a = _editState.pendingEdits.photoAdjust;
+    const key = a.selected || 'brightness';
+    const r = _scrubRange(key);
+    const v = _scrubValueFor(key);
+    if (scrubSlider) {
+      scrubSlider.min = String(r.min);
+      scrubSlider.max = String(r.max);
+      scrubSlider.value = String(v);
+    }
+    if (scrubRuler) {
+      scrubRuler.dataset.scrubKey = key;
+      scrubRuler.style.setProperty('--range', String(r.max - r.min));
+      try { _buildRulerTicks(scrubRuler); } catch(_){}
+    }
+    /* R51 — the pill now lives in editPreviewCol; resolve refs lazily so
+       re-rendering the tab picks them up. */
+    const _pillEl = document.getElementById('adjSectionPill') || _ensureAdjSectionPill(_adjLabels[key] || key.toUpperCase(), '');
+    const _lbl = document.getElementById('adjSectionPillLabel');
+    const _val = document.getElementById('adjSectionPillVal');
+    if (_lbl) _lbl.textContent = _adjLabels[key] || key.toUpperCase();
+    if (_val) _val.textContent = (v === r.def) ? '' : _scrubDisplay(key, v);
+    if (_pillEl) _pillEl.hidden = false;
+    _syncTickPos();
+  }
+  function _syncIconStates(){
+    const a = _editState.pendingEdits.photoAdjust;
+    const v = _editState.pendingEdits.vignette;
+    document.querySelectorAll('#editBody .adj-icon-btn').forEach(btn => {
+      const k = btn.dataset.adjKey;
+      let val, defVal, mag, delta, disabled;
+      if (k === 'vignette') {
+        val = v.amount; defVal = 0; delta = val; mag = Math.min(100, Math.abs(val));
+        disabled = (v.enabled === false);
+      } else if (k === 'globalBlur') {
+        val = a.globalBlur || 0; defVal = 0; delta = val; mag = Math.min(40, val) / 40 * 100;
+        disabled = (a.globalBlurEnabled === false);
+      } else {
+        val = a[k]; defVal = 100; delta = val - defVal; mag = Math.min(100, Math.abs(delta));
+        disabled = (a[k + 'Enabled'] === false);
+      }
+      btn.classList.toggle('selected', a.selected === k);
+      btn.classList.toggle('modified', val !== defVal);
+      btn.classList.toggle('icon-disabled', disabled);
+      btn.setAttribute('aria-selected', a.selected === k ? 'true' : 'false');
+      const valEl = btn.querySelector('.adj-icon-val');
+      if (valEl) {
+        valEl.textContent = (val !== defVal) ? (delta > 0 ? '+'+delta : String(delta)) : '';
+      }
+      const dot = btn.querySelector('.adj-icon-dot');
+      if (dot) {
+        const deg = (mag / 100) * 180;
+        if (delta >= 0) dot.style.setProperty('--r48-arc-from', '-90deg');
+        else dot.style.setProperty('--r48-arc-from', (-90 - deg) + 'deg');
+        dot.style.setProperty('--r48-arc-deg', deg + 'deg');
+      }
+    });
+  }
+  /* R57 — iOS-style center detent.
+     When the value crosses the default, brief resistance + haptic feedback
+     before continuing. State held on the slider element so we don't leak
+     between renders. */
+  function _applyDetent(slider, newV, prevV, defV){
+    /* Only act if we just crossed the default in either direction. */
+    const crossed = (prevV < defV && newV > defV) || (prevV > defV && newV < defV) || (prevV !== defV && newV === defV);
+    if (!crossed) return newV;
+    /* Snap to default and require the user to drag the slider in this
+       direction once more to leave. We mark a "sticky" state on the
+       element; the next input that goes past default by >= 2 units is
+       allowed through, otherwise we clamp back to default. */
+    if (newV === defV) {
+      slider._detentSticky = true;
+      try { if (navigator.vibrate) navigator.vibrate(8); } catch(_){}
+      return defV;
+    }
+    /* Crossed past default in one event — snap to default for this tick. */
+    slider._detentSticky = true;
+    slider._detentDir = newV > defV ? 1 : -1;
+    slider._detentMomentum = 0;
+    try { if (navigator.vibrate) navigator.vibrate(8); } catch(_){}
+    return defV;
+  }
+  function _checkDetentRelease(slider, newV, defV){
+    /* If sticky and user is dragging away again, count momentum until 2 units */
+    if (!slider._detentSticky) return newV;
+    if (newV === defV) { slider._detentMomentum = 0; return defV; }
+    const dir = newV > defV ? 1 : -1;
+    /* If user reversed past default, allow through immediately. */
+    if (slider._detentDir && dir !== slider._detentDir && Math.abs(newV - defV) >= 1) {
+      slider._detentSticky = false;
+      return newV;
+    }
+    slider._detentMomentum = (slider._detentMomentum || 0) + 1;
+    if (slider._detentMomentum >= 2) {
+      slider._detentSticky = false;
+      return newV;
+    }
+    return defV;
+  }
+  if (scrubSlider) {
+    scrubSlider.addEventListener('input', () => {
+      /* R74 — dropped during-drag detent. User feedback was that it
+         felt sluggish (had to drag past zero an extra tick to release).
+         Visual gold center mark already gives the "where zero is" cue
+         and the on-release snap below handles the final detent. */
+      const a = _editState.pendingEdits.photoAdjust;
+      const v_ = _editState.pendingEdits.vignette;
+      const key = a.selected || 'brightness';
+      const r = _scrubRange(key);
+      let v = parseInt(scrubSlider.value, 10);
+      if (key === 'vignette') {
+        v_.amount = v;
+        _vigMarkDirty();
+      } else if (key === 'globalBlur') {
+        a.globalBlur = v;
+        a._dirty = a._dirty || v !== 0;
+      } else {
+        a[key] = v;
+      }
+      const _val = document.getElementById('adjSectionPillVal');
+      if (_val) _val.textContent = (v === r.def) ? '' : _scrubDisplay(key, v);
+      _syncTickPos();
+      _syncIconStates();
       _markDirty();
     });
-    sl.addEventListener('change', () => { _editPushUndo(); });
-  });
-  /* R30 — filter preset click: select, update trigger label, close dropdown. */
-  document.querySelectorAll('#editBody .edit-preset-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
+    /* R50 — soft snap-to-default on release. */
+    scrubSlider.addEventListener('change', () => {
+      /* R57 — reset detent on release so next drag starts fresh. */
+      scrubSlider._detentSticky = false;
+      scrubSlider._detentMomentum = 0;
+      scrubSlider._detentDir = 0;
+      const a = _editState.pendingEdits.photoAdjust;
+      const v_ = _editState.pendingEdits.vignette;
+      const key = a.selected || 'brightness';
+      const r = _scrubRange(key);
+      const cur = _scrubValueFor(key);
+      /* R74 — moderate release snap: ±2 around default snaps on lift.
+         Lets users land deliberately at ±1, ±2 with a confident grip
+         (release while clearly off-center); but a sloppy lift near 0
+         confirms 0. Tested feel: "responsive snap" the user asked for. */
+      if (Math.abs(cur - r.def) <= 2 && cur !== r.def) {
+        if (key === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
+        else { a[key] = r.def; }
+        scrubSlider.value = String(r.def);
+        const _val = document.getElementById('adjSectionPillVal');
+        if (_val) _val.textContent = '';
+        _syncTickPos();
+        _syncIconStates();
+        _markDirty();
+      }
       _editPushUndo();
-      document.querySelectorAll('#editBody .edit-preset-btn').forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-      _editState.pendingEdits.photoAdjust.preset = btn.dataset.preset;
-      _editState.pendingEdits.photoAdjust.presetCss = btn.dataset.css;
-      const fv = document.getElementById('editFilterValue');
-      if (fv) fv.textContent = btn.textContent;
-      _editCloseAdjustDropdowns();
+    });
+  }
+  document.querySelectorAll('#editBody .adj-icon-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const a = _editState.pendingEdits.photoAdjust;
+      const v_ = _editState.pendingEdits.vignette;
+      const k = btn.dataset.adjKey;
+      if (!k) return;
+      if (a.selected === k) {
+        /* R64 — toggle disable ONLY when the value is non-default.
+           Default state already pre-selects 'brightness'; without this
+           guard, the very first click on Brightness was treated as
+           "selected → toggle" and set brightnessEnabled=false, leaving
+           subsequent scrubber drags invisible because brightness was
+           silently disabled. */
+        const r = _scrubRange(k);
+        const v = _scrubValueFor(k);
+        if (v !== r.def) {
+          if (k === 'vignette') {
+            v_.enabled = (v_.enabled === false);
+          } else {
+            const flag = k + 'Enabled';
+            a[flag] = (a[flag] === false);
+          }
+          _editPushUndo();
+          _syncScrubberToSelected();
+          _syncIconStates();
+          _markDirty();
+          return;
+        }
+        /* Selected + unmodified — give a pulse so the click isn't silent. */
+        btn.classList.remove('pulse');
+        void btn.offsetWidth;
+        btn.classList.add('pulse');
+        setTimeout(() => btn.classList.remove('pulse'), 360);
+        return;
+      }
+      a.selected = k;
+      _syncScrubberToSelected();
+      _syncIconStates();
+    });
+    /* R48b — double-click resets that adjustment to default (100).
+       Apple Photos has no per-section reset gesture on touch; this is
+       the Lightroom Mobile convention adapted for desktop where
+       double-click is free. */
+    btn.addEventListener('dblclick', () => {
+      const a = _editState.pendingEdits.photoAdjust;
+      const v_ = _editState.pendingEdits.vignette;
+      const k = btn.dataset.adjKey;
+      if (!k) return;
+      const r = _scrubRange(k);
+      const cur = _scrubValueFor(k);
+      if (cur === r.def) return;
+      _editPushUndo();
+      if (k === 'vignette') { v_.amount = r.def; _vigMarkDirty(); }
+      else { a[k] = r.def; }
+      if (a.selected === k && scrubSlider) {
+        scrubSlider.value = String(r.def);
+        const _val = document.getElementById('adjSectionPillVal');
+        if (_val) _val.textContent = '';
+        _syncTickPos();
+      }
+      _syncIconStates();
       _markDirty();
     });
   });
+  /* R49 — old filter popover handler removed; new flat .adj-filter-btn handler is wired above. */
   /* R30c — Helpers are file-level now; just wire the three dropdowns. */
   _editWireDropdown('editFilterDD','editFilterTrigger','editFilterMenu');
   _editWireDropdown('editVignetteDD','editVignetteTrigger','editVignetteMenu');
@@ -8754,11 +10612,24 @@ function _renderAdjustTab(body){
       _updateEditHistoryUI();
     });
   }
-  const aeBtn = document.getElementById('adjAutoEnhanceBtn');
+  /* R50 — Auto enhance is the first circle in the carousel. Click toggles. */
+  const aeBtn = body.querySelector('[data-adj-action="auto"]');
   if (aeBtn) {
     aeBtn.addEventListener('click', async () => {
       if (aeBtn.disabled) return;
-      aeBtn.disabled = true; aeBtn.textContent = 'Enhancing…';
+      if (_editState.pendingEdits.autoEnhanced) {
+        _editPushUndo();
+        if (_editState.pendingEdits.autoEnhancedUrl) {
+          try { URL.revokeObjectURL(_editState.pendingEdits.autoEnhancedUrl); } catch(_){}
+        }
+        delete _editState.pendingEdits.autoEnhanced;
+        delete _editState.pendingEdits.autoEnhancedUrl;
+        _updateEditHistoryUI();
+        _reRenderEditTab();
+        return;
+      }
+      aeBtn.disabled = true;
+      aeBtn.classList.add('busy');
       _editPushUndo();
       try {
         const enhanced = await _runAutoEnhance(_editState.originalFile);
@@ -8772,7 +10643,8 @@ function _renderAdjustTab(body){
       } catch (err) {
         console.warn('[auto-enhance]', err);
         alert('Auto enhance failed: ' + (err.message || err));
-        aeBtn.disabled = false; aeBtn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-wand-sparkles"/></svg>Auto enhance';
+        aeBtn.disabled = false;
+        aeBtn.classList.remove('busy');
       }
     });
   }
@@ -8794,6 +10666,8 @@ function _renderAdjustTab(body){
   function _vigBuildBg(){
     const v = _editState.pendingEdits.vignette;
     if (!v || v.amount === 0) return 'transparent';
+    /* R47 — respect tap-to-disable */
+    if (v.enabled === false) return 'transparent';
     const amt = Math.abs(v.amount) / 100;
     const start = Math.max(0, Math.min(100, v.midpoint));
     const col = v.amount > 0 ? '0,0,0' : '255,255,255';
@@ -8810,6 +10684,12 @@ function _renderAdjustTab(body){
   }
   _vigPaintPreview();
   const vigReset = document.getElementById('vigReset');
+  /* R48b — reset-all button: zeros brightness/contrast/saturation in
+     one click. Distinct from the global Reset in the action pill —
+     that one clears every edit (rotate, crop, etc.); this one only
+     touches the 3 adjustment values, like a per-tab revert. */
+  /* R47 — wire tap-to-disable dots on the 3 modified-able chips */
+  try { _r47WireSectionToggles(); } catch(_){}
   function _vigUpdateResetState(){
     if (vigReset) vigReset.disabled = !(_editState.pendingEdits.vignette._dirty);
   }
@@ -8855,13 +10735,162 @@ function _renderAdjustTab(body){
     });
   }
 }
+
+/* R50 — Filters tab. Split out of Adjust. VSCO/Apple Photos pattern. */
+
+
+/* R65 — Build tick DOM elements inside a .adj-tick-ticks container.
+   range, minorStep, majorEvery are derived from the ruler's --range
+   CSS variable. */
+function _buildRulerTicks(rulerEl){
+  /* R73 — fixed visual density. 40 minor ticks total, major every 5
+     (9 majors visible). Same visual on every scrubber, independent of
+     the underlying unit range. Apple Photos uses constant density too. */
+  if (!rulerEl) return;
+  const ticksEl = rulerEl.querySelector('.adj-tick-ticks');
+  if (!ticksEl) return;
+  const MINOR_COUNT = 40;
+  const MAJOR_EVERY = 5;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i <= MINOR_COUNT; i++) {
+    const pct = (i / MINOR_COUNT) * 100;
+    const tick = document.createElement('span');
+    tick.className = 'adj-tick' + ((i % MAJOR_EVERY === 0) ? ' major' : '');
+    tick.style.left = pct.toFixed(4) + '%';
+    frag.appendChild(tick);
+  }
+  ticksEl.innerHTML = '';
+  ticksEl.appendChild(frag);
+}
+
+/* R51 — floating section-label pill (BRIGHTNESS, SATURATION, etc.).
+   Lives in editPreviewCol so it floats OVER the photo, above the action
+   pill, matching Apple Photos. _renderAdjustTab + _renderFiltersTab call
+   this to set the label; _switchEditTab clears it on other tabs. */
+function _ensureAdjSectionPill(label, value){
+  /* R71 — host the pill INSIDE the floating tool surface as its first
+     child. That way it stacks above the icons naturally (in flow) and
+     can't drift over the icon row. Falls back to editPreviewCol if
+     the tool surface isn't present yet. */
+  const surface = document.getElementById('editBody');
+  const host = surface || document.getElementById('editPreviewCol');
+  if (!host) return null;
+  let pill = host.querySelector(':scope > .adj-section-pill');
+  if (!pill) {
+    pill = document.createElement('div');
+    pill.className = 'adj-section-pill';
+    pill.innerHTML = '<span class="adj-section-pill-label"></span><span class="adj-section-pill-val"></span>';
+    /* Insert at top so it's the first floating element above the toolbar. */
+    if (host.firstChild) host.insertBefore(pill, host.firstChild);
+    else host.appendChild(pill);
+  }
+  const lblEl = pill.querySelector('.adj-section-pill-label');
+  const valEl = pill.querySelector('.adj-section-pill-val');
+  if (lblEl) lblEl.textContent = (label || '').toUpperCase();
+  if (valEl) valEl.textContent = value || '';
+  pill.hidden = !label;
+  pill.id = 'adjSectionPill';
+  if (lblEl) lblEl.id = 'adjSectionPillLabel';
+  if (valEl) valEl.id = 'adjSectionPillVal';
+  return pill;
+}
+function _hideAdjSectionPill(){
+  const col = document.getElementById('editPreviewCol');
+  if (!col) return;
+  const pill = col.querySelector('.adj-section-pill');
+  if (pill) pill.hidden = true;
+}
+
+function _renderFiltersTab(body){
+  const f = FILES[_editState.idx];
+  if (!f) return;
+  /* R75 — pill creation moved AFTER body.innerHTML below (was wiped). */
+  if (!_editState.pendingEdits.photoAdjust) {
+    _editState.pendingEdits.photoAdjust = { brightness: 100, contrast: 100, saturation: 100, globalBlur: 0, preset: 'none', presetCss: '', _dirty: false, sliderEnabled: true, filterEnabled: true, selected: 'brightness' };
+  }
+  const adj = _editState.pendingEdits.photoAdjust;
+  if (adj.filterEnabled === undefined) adj.filterEnabled = true;
+  const PRESETS = [
+    { id: 'none',    label: 'Original', css: '' },
+    { id: 'bw',      label: 'B&W',      css: 'grayscale(100%)' },
+    { id: 'sepia',   label: 'Sepia',    css: 'sepia(100%)' },
+    { id: 'vintage', label: 'Vintage',  css: 'sepia(40%) contrast(110%) brightness(90%) saturate(130%)' },
+    { id: 'invert',  label: 'Invert',   css: 'invert(100%)' },
+    { id: 'cool',    label: 'Cool',     css: 'hue-rotate(200deg) saturate(140%) brightness(105%)' },
+    { id: 'warm',    label: 'Warm',     css: 'sepia(30%) saturate(180%) brightness(105%)' },
+  ];
+  const adjPreviewCol = _editPreviewEl();
+  if (adjPreviewCol) {
+    const _src = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
+    adjPreviewCol.innerHTML = '<div class="edit-adjust-preview-wrap"><div class="edit-adjust-img-frame"><img id="editAdjPreview" src="' + _src + '" class="edit-adjust-preview" draggable="false" alt=""><div class="edit-vignette-overlay" id="editAdjVignette"></div></div></div>';
+    const _img = document.getElementById('editAdjPreview');
+    if (_img) {
+      const filterOn = adj.filterEnabled !== false;
+      const pre = (filterOn && adj.preset !== 'none' && adj.presetCss) ? adj.presetCss + ' ' : '';
+      const sliders = (adj.sliderEnabled !== false) ? 'brightness(' + adj.brightness + '%) contrast(' + adj.contrast + '%) saturate(' + adj.saturation + '%)' : '';
+      _img.style.filter = (pre + sliders) || 'none';
+    }
+  }
+  const _previewSrc = _editState.pendingEdits.autoEnhancedUrl || _editState.originalUrl || f.url;
+  body.innerHTML = `
+    <div class="edit-tool-toolbar filters-tab-r50">
+      <div class="filters-thumb-row" role="tablist" aria-label="Filters">
+        ${PRESETS.map(p => `
+          <button type="button" class="filter-thumb${p.id === adj.preset ? ' active' : ''}" data-preset="${p.id}" data-css="${p.css}" title="${p.label}" aria-pressed="${p.id === adj.preset}">
+            <span class="filter-thumb-img" style="background-image:url('${_previewSrc}');${p.css ? 'filter:' + p.css + ';' : ''}"></span>
+            <span class="filter-thumb-name">${p.label}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  /* R75 — create pill AFTER innerHTML so it persists. */
+  try { _ensureAdjSectionPill('Filters', ''); } catch(_){}
+  body.querySelectorAll('.filter-thumb').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.preset;
+      const css = btn.dataset.css || '';
+      const a = _editState.pendingEdits.photoAdjust;
+      if (a.preset === id) return;
+      _editPushUndo();
+      a.preset = id;
+      a.presetCss = css;
+      a._dirty = !(a.brightness === 100 && a.contrast === 100 && a.saturation === 100 && a.preset === 'none' && !(a.globalBlur > 0));
+      body.querySelectorAll('.filter-thumb').forEach(b => {
+        const on = b.dataset.preset === id;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      const _img = document.getElementById('editAdjPreview');
+      if (_img) {
+        const filterOn = a.filterEnabled !== false;
+        const pre = (filterOn && a.preset !== 'none' && a.presetCss) ? a.presetCss + ' ' : '';
+        const sliders = (a.sliderEnabled !== false) ? 'brightness(' + a.brightness + '%) contrast(' + a.contrast + '%) saturate(' + a.saturation + '%)' : '';
+        _img.style.filter = (pre + sliders) || 'none';
+      }
+      _updateEditHistoryUI();
+    });
+  });
+}
+
 async function _applyPhotoAdjust(file, adjInfo){
   const bmp = await createImageBitmap(file);
   const canvas = document.createElement('canvas');
   canvas.width = bmp.width; canvas.height = bmp.height;
   const ctx = canvas.getContext('2d');
-  const pre = (adjInfo.preset !== 'none' && adjInfo.presetCss) ? adjInfo.presetCss + ' ' : '';
-  ctx.filter = pre + `brightness(${adjInfo.brightness}%) contrast(${adjInfo.contrast}%) saturate(${adjInfo.saturation}%)`;
+  /* R47 — honor per-section enables. If both disabled the function
+     would have been skipped by the saveEdit gate; defensive only. */
+  const _filtOn = adjInfo.filterEnabled !== false;
+  const _slidOn = adjInfo.sliderEnabled !== false;
+  const pre = (_filtOn && adjInfo.preset !== 'none' && adjInfo.presetCss) ? adjInfo.presetCss + ' ' : '';
+  let slid = '';
+  if (_slidOn) {
+    if (adjInfo.brightnessEnabled !== false) slid += `brightness(${adjInfo.brightness}%) `;
+    if (adjInfo.contrastEnabled   !== false) slid += `contrast(${adjInfo.contrast}%) `;
+    if (adjInfo.saturationEnabled !== false) slid += `saturate(${adjInfo.saturation}%) `;
+    if (adjInfo.globalBlurEnabled !== false && adjInfo.globalBlur > 0) slid += `blur(${adjInfo.globalBlur}px) `;
+  }
+  ctx.filter = (pre + slid.trim()) || 'none';
   ctx.drawImage(bmp, 0, 0);
   ctx.filter = 'none';
   try { bmp.close && bmp.close(); } catch(_){}
@@ -9183,44 +11212,56 @@ async function _renderPixelateTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
   if (!_editState.pendingEdits.pixelate){
-    _editState.pendingEdits.pixelate = { strokes: [], blockSize: 14, brushPx: 38, mode: 'paint' };
+    _editState.pendingEdits.pixelate = { strokes: [], blockSize: 14, brushPx: 38, mode: 'paint', enabled: true };
   }
   const px = _editState.pendingEdits.pixelate;
   const previewCol = _editPreviewEl();
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-pixelate-wrap"><canvas id="editPixelateCanvas" class="edit-pixelate-canvas"></canvas></div>';
   }
-  /* R30c — Brush + Cell size live inside a single "Brush ▾" chip. */
-  const _pxChev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
-  const _pxSummary = 'Brush ' + px.brushPx + ' · Cell ' + px.blockSize;
+  /* R54 — unified pattern. Selectable params (Brush, Cell) live as
+     circular icons; the shared scrubber drives whichever is selected.
+     Paint/Erase remain mode toggles. */
+  if (px.selected === undefined) px.selected = 'brush';
+  const _pxKey = px.selected;
+  const _pxRangeNow = (_pxKey === 'cell') ? { min: 4, max: 60 } : { min: 6, max: 160 };
+  const _pxValNow = (_pxKey === 'cell') ? px.blockSize : px.brushPx;
+  const _pxPct = ((_pxValNow - _pxRangeNow.min) / (_pxRangeNow.max - _pxRangeNow.min)) * 100;
   body.innerHTML = ''
-    + '<div class="edit-pixelate-controls">'
-    +   '<div class="px-tool-strip">'
-    +     '<button type="button" class="edit-preset-btn' + (px.mode==='paint'?' active':'') + '" data-px-mode="paint">Paint</button>'
-    +     '<button type="button" class="edit-preset-btn' + (px.mode==='erase'?' active':'') + '" data-px-mode="erase">Erase</button>'
-    +   '</div>'
-    +   '<div class="edit-tool-dd" id="editPxDD">'
-    +     '<span class="adj-label">Brush</span>'
-    +     '<button type="button" class="edit-tool-dd-trigger" id="editPxTrigger" aria-haspopup="dialog" aria-expanded="false">'
-    +       '<span class="dd-value" id="editPxSummary">' + _pxSummary + '</span>' + _pxChev
+    + '<div class="edit-pixelate-controls adj-tab-r50">'
+    +   '<div class="ed-func-row' + (px.enabled === false ? ' row-disabled' : '') + '" id="pxRow">'
+    +     '<button type="button" class="ed-circle-btn' + (px.mode==="paint"?" active":"") + '" data-px-mode="paint" title="Paint" aria-pressed="' + (px.mode==="paint") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-brush"/></svg></span>'
     +     '</button>'
-    +     '<div class="edit-tool-dd-menu" id="editPxMenu" role="dialog" aria-label="Pixelate brush">'
-    +       '<p class="dd-section-label">Pixelate brush</p>'
-    +       '<div class="adj-row">'
-    +         '<span class="adj-label">Brush</span>'
-    +         '<input type="range" id="pxBrush" min="6" max="160" step="1" value="' + px.brushPx + '" title="Brush size — [ and ]">'
-    +         '<span class="adj-val" id="pxBrushVal">' + px.brushPx + '</span>'
-    +       '</div>'
-    +       '<div class="adj-row">'
-    +         '<span class="adj-label">Cell size</span>'
-    +         '<input type="range" id="pxBlock" min="4" max="60" step="1" value="' + px.blockSize + '">'
-    +         '<span class="adj-val" id="pxBlockVal">' + px.blockSize + '</span>'
-    +       '</div>'
-    +     '</div>'
+    +     '<button type="button" class="ed-circle-btn' + (px.mode==="erase"?" active":"") + '" data-px-mode="erase" title="Erase" aria-pressed="' + (px.mode==="erase") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-eraser"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn adj-circle-btn' + (_pxKey==="brush"?" selected":"") + '" data-px-key="brush" title="Brush size" aria-pressed="' + (_pxKey==="brush") + '">'
+    +       '<span class="ed-circle-ring" aria-hidden="true"></span>'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn adj-circle-btn' + (_pxKey==="cell"?" selected":"") + '" data-px-key="cell" title="Cell size" aria-pressed="' + (_pxKey==="cell") + '">'
+    +       '<span class="ed-circle-ring" aria-hidden="true"></span>'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (px.enabled === false ? " tab-disabled" : "") + '" id="pxDisable" title="' + (px.enabled === false ? "Enable pixelate" : "Disable pixelate") + '" aria-pressed="' + (px.enabled === false ? "true" : "false") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
+    +     '</button>'
     +   '</div>'
-    +   '<button type="button" class="edit-frames-action-btn" id="pxClear">Clear all</button>'
-    +   '<p class="edit-pixelate-help">Drag over areas you want to hide. Switch to Erase to clear pixelation. Use [ and ] to resize the brush.</p>'
+    +   '<div class="adj-tick-ruler" id="pxRuler" style="--range:' + (_pxRangeNow.max - _pxRangeNow.min) + ';">'
+    +     '<div class="adj-tick-ticks" aria-hidden="true"></div>'
+    +     '<div class="adj-tick-center" aria-hidden="true"></div>'
+    +     '<div class="adj-tick-dot" id="pxTickDot" style="left:' + _pxPct.toFixed(2) + '%;" aria-hidden="true"></div>'
+    +     '<input type="range" id="pxScrub" class="adj-tick-input" min="' + _pxRangeNow.min + '" max="' + _pxRangeNow.max + '" step="1" value="' + _pxValNow + '" aria-label="Pixelate scrubber">'
+    +   '</div>'
     + '</div>';
+  /* R54 — show floating PIXELATE pill over photo. */
+  try {
+    const _lbl = _pxKey === 'cell' ? 'CELL' : 'BRUSH';
+    _ensureAdjSectionPill('Pixelate · ' + _lbl, String(_pxValNow));
+  } catch(_){}
+  /* R65 — populate ticks for Pixelate ruler. */
+  try { _buildRulerTicks(document.getElementById('pxRuler')); } catch(_){}
   /* Build preview source (applies upstream edits) */
   await _pxBaseBlob();
   let bmp = _editState._pxBitmap;
@@ -9345,6 +11386,67 @@ async function _renderPixelateTab(body){
   canvas.addEventListener('touchstart', down, { passive: false });
   canvas.addEventListener('touchmove', move, { passive: false });
   window.addEventListener('touchend', up);
+  /* R54 — Disable toggle. */
+  const _pxDisable = document.getElementById('pxDisable');
+  if (_pxDisable) {
+    _pxDisable.addEventListener('click', () => {
+      const p = _editState.pendingEdits.pixelate;
+      p.enabled = (p.enabled === false);
+      _pxDisable.classList.toggle('tab-disabled', p.enabled === false);
+      _pxDisable.setAttribute('aria-pressed', p.enabled === false ? 'true' : 'false');
+      _pxDisable.title = p.enabled === false ? 'Enable pixelate' : 'Disable pixelate';
+      const row = document.getElementById('pxRow');
+      if (row) row.classList.toggle('row-disabled', p.enabled === false);
+      try { if (typeof render === 'function') render(); } catch(_){}
+    });
+  }
+  /* R54 — selectable param icons drive the scrubber. */
+  const _pxScrub = document.getElementById('pxScrub');
+  const _pxTickDot = document.getElementById('pxTickDot');
+  function _pxRange(k){ return (k === 'cell') ? { min:4, max:60 } : { min:6, max:160 }; }
+  function _pxVal(k){ return (k === 'cell') ? px.blockSize : px.brushPx; }
+  function _pxSetVal(k, v){
+    if (k === 'cell') px.blockSize = v; else px.brushPx = v;
+  }
+  function _pxSyncUI(){
+    const k = px.selected || 'brush';
+    const r = _pxRange(k);
+    const v = _pxVal(k);
+    if (_pxScrub){ _pxScrub.min = String(r.min); _pxScrub.max = String(r.max); _pxScrub.value = String(v); }
+    if (_pxTickDot) _pxTickDot.style.left = (((v - r.min)/(r.max - r.min))*100).toFixed(2) + '%';
+    /* R65 — rebuild ticks when key changes (range differs Brush vs Cell). */
+    const ruler = document.getElementById('pxRuler');
+    if (ruler) {
+      ruler.style.setProperty('--range', String(r.max - r.min));
+      try { _buildRulerTicks(ruler); } catch(_){}
+    }
+    const lbl = document.getElementById('adjSectionPillLabel');
+    const val = document.getElementById('adjSectionPillVal');
+    if (lbl) lbl.textContent = ('PIXELATE · ' + (k === 'cell' ? 'CELL' : 'BRUSH'));
+    if (val) val.textContent = String(v);
+  }
+  document.querySelectorAll('#editBody [data-px-key]').forEach(b => {
+    b.addEventListener('click', () => {
+      px.selected = b.dataset.pxKey;
+      document.querySelectorAll('#editBody [data-px-key]').forEach(o => {
+        const sel = o.dataset.pxKey === px.selected;
+        o.classList.toggle('selected', sel);
+        o.setAttribute('aria-pressed', sel ? 'true' : 'false');
+      });
+      _pxSyncUI();
+    });
+  });
+  if (_pxScrub){
+    _pxScrub.addEventListener('input', () => {
+      const k = px.selected || 'brush';
+      const v = parseInt(_pxScrub.value, 10);
+      _pxSetVal(k, v);
+      _pxSyncUI();
+      if (typeof _pxRefreshCursor === 'function') _pxRefreshCursor();
+      if (typeof render === 'function') render();
+    });
+    _pxScrub.addEventListener('change', () => { _editPushUndo(); });
+  }
   document.querySelectorAll('#editBody [data-px-mode]').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('#editBody [data-px-mode]').forEach(x => x.classList.remove('active'));
@@ -9352,31 +11454,43 @@ async function _renderPixelateTab(body){
       px.mode = b.dataset.pxMode;
     });
   });
+  /* R54 — legacy pxBrush/pxBlock sliders removed; their values are now
+     driven by the unified scrubber. Guard the lookups so a missing
+     element doesn't throw and abort the remaining wiring. */
   const brushSl = document.getElementById('pxBrush');
   const brushVal = document.getElementById('pxBrushVal');
-  brushSl.addEventListener('input', () => {
-    px.brushPx = parseInt(brushSl.value, 10);
-    brushVal.textContent = px.brushPx;
-    _pxRefreshCursor();
-    _pxRefreshSummary();
-  });
+  if (brushSl) {
+    brushSl.addEventListener('input', () => {
+      px.brushPx = parseInt(brushSl.value, 10);
+      if (brushVal) brushVal.textContent = px.brushPx;
+      if (typeof _pxRefreshCursor === 'function') _pxRefreshCursor();
+      if (typeof _pxRefreshSummary === 'function') _pxRefreshSummary();
+    });
+  }
   const blockSl = document.getElementById('pxBlock');
   const blockVal = document.getElementById('pxBlockVal');
-  blockSl.addEventListener('input', () => {
-    px.blockSize = parseInt(blockSl.value, 10);
-    blockVal.textContent = px.blockSize;
-    pixCache = null;
-    render();
-    _pxRefreshSummary();
-  });
-  blockSl.addEventListener('change', () => { _editPushUndo(); });
-  document.getElementById('pxClear').addEventListener('click', () => {
-    if (!px.strokes.length) return;
-    _editPushUndo();
-    px.strokes = [];
-    render();
-    _updateEditHistoryUI();
-  });
+  if (blockSl) {
+    blockSl.addEventListener('input', () => {
+      px.blockSize = parseInt(blockSl.value, 10);
+      if (blockVal) blockVal.textContent = px.blockSize;
+      pixCache = null;
+      render();
+      if (typeof _pxRefreshSummary === 'function') _pxRefreshSummary();
+    });
+    blockSl.addEventListener('change', () => { _editPushUndo(); });
+  }
+  /* R54 — Clear is gone (replaced by Disable). Guard the legacy lookup
+     so a missing button doesn't throw and abort the rest of the wiring. */
+  const _pxClearBtn = document.getElementById('pxClear');
+  if (_pxClearBtn) {
+    _pxClearBtn.addEventListener('click', () => {
+      if (!px.strokes.length) return;
+      _editPushUndo();
+      px.strokes = [];
+      render();
+      _updateEditHistoryUI();
+    });
+  }
 }
 async function _applyPixelate(file, pixInfo){
   if (!pixInfo || !pixInfo.strokes || !pixInfo.strokes.length) return file;
@@ -9480,47 +11594,56 @@ async function _renderBlurTab(body){
   const f = FILES[_editState.idx];
   if (!f) return;
   if (!_editState.pendingEdits.blur){
-    _editState.pendingEdits.blur = { strokes: [], radius: 14, brushPx: 50, mode: 'paint', full: false };
+    _editState.pendingEdits.blur = { strokes: [], radius: 14, brushPx: 50, mode: 'paint', full: false, enabled: true };
   }
   const bl = _editState.pendingEdits.blur;
   const previewCol = _editPreviewEl();
   if (previewCol){
     previewCol.innerHTML = '<div class="edit-blur-wrap"><canvas id="editBlurCanvas" class="edit-blur-canvas"></canvas></div>';
   }
-  /* R30c — Brush + Amount sliders live inside a single "Brush ▾" chip. */
-  const _blChev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 7 6 4 9 7"/></svg>';
-  const _blSummary = 'Brush ' + bl.brushPx + ' · Amt ' + bl.radius;
+  /* R54 — unified Blur layout. */
+  if (bl.selected === undefined) bl.selected = 'brush';
+  const _blKey = bl.selected;
+  const _blR = (_blKey === 'amount') ? { min:2, max:40 } : { min:6, max:160 };
+  const _blV = (_blKey === 'amount') ? bl.radius : bl.brushPx;
+  const _blPct = ((_blV - _blR.min) / (_blR.max - _blR.min)) * 100;
   body.innerHTML = ''
-    + '<div class="edit-blur-controls">'
-    +   '<div class="blur-tool-strip">'
-    +     '<button type="button" class="edit-preset-btn' + (bl.mode==='paint'?' active':'') + '" data-bl-mode="paint">Paint</button>'
-    +     '<button type="button" class="edit-preset-btn' + (bl.mode==='erase'?' active':'') + '" data-bl-mode="erase">Erase</button>'
-    +   '</div>'
-    +   '<div class="edit-tool-dd" id="editBlDD">'
-    +     '<span class="adj-label">Brush</span>'
-    +     '<button type="button" class="edit-tool-dd-trigger" id="editBlTrigger" aria-haspopup="dialog" aria-expanded="false">'
-    +       '<span class="dd-value" id="editBlSummary">' + _blSummary + '</span>' + _blChev
+    + '<div class="edit-blur-controls adj-tab-r50">'
+    +   '<div class="ed-func-row' + (bl.enabled === false ? ' row-disabled' : '') + '" id="blRow">'
+    +     '<button type="button" class="ed-circle-btn' + (bl.mode==="paint"?" active":"") + '" data-bl-mode="paint" title="Paint" aria-pressed="' + (bl.mode==="paint") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-brush"/></svg></span>'
     +     '</button>'
-    +     '<div class="edit-tool-dd-menu" id="editBlMenu" role="dialog" aria-label="Blur brush">'
-    +       '<p class="dd-section-label">Blur brush</p>'
-    +       '<div class="adj-row">'
-    +         '<span class="adj-label">Brush</span>'
-    +         '<input type="range" id="blBrush" min="6" max="160" step="1" value="' + bl.brushPx + '" title="Brush size — [ and ]">'
-    +         '<span class="adj-val" id="blBrushVal">' + bl.brushPx + '</span>'
-    +       '</div>'
-    +       '<div class="adj-row">'
-    +         '<span class="adj-label">Amount</span>'
-    +         '<input type="range" id="blRadius" min="2" max="40" step="1" value="' + bl.radius + '" title="Blur strength — Shift+[ and Shift+]">'
-    +         '<span class="adj-val" id="blRadiusVal">' + bl.radius + '</span>'
-    +       '</div>'
-    +     '</div>'
+    +     '<button type="button" class="ed-circle-btn' + (bl.mode==="erase"?" active":"") + '" data-bl-mode="erase" title="Erase" aria-pressed="' + (bl.mode==="erase") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-eraser"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn' + (bl.full ? " active" : "") + '" id="blApplyAll" title="' + (bl.full ? "Brush only" : "Whole image") + '" aria-pressed="' + (bl.full?"true":"false") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-globe"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn adj-circle-btn' + (_blKey==="brush"?" selected":"") + '" data-bl-key="brush" title="Brush size" aria-pressed="' + (_blKey==="brush") + '">'
+    +       '<span class="ed-circle-ring" aria-hidden="true"></span>'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-aperture"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn adj-circle-btn' + (_blKey==="amount"?" selected":"") + '" data-bl-key="amount" title="Blur amount" aria-pressed="' + (_blKey==="amount") + '">'
+    +       '<span class="ed-circle-ring" aria-hidden="true"></span>'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-droplets"/></svg></span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn ed-circle-sm ed-disable-btn' + (bl.enabled === false ? " tab-disabled" : "") + '" id="blDisable" title="' + (bl.enabled === false ? "Enable blur" : "Disable blur") + '" aria-pressed="' + (bl.enabled === false ? "true" : "false") + '">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-power"/></svg></span>'
+    +     '</button>'
     +   '</div>'
-    +   '<div class="edit-blur-actions">'
-    +     '<button type="button" class="edit-frames-action-btn" id="blApplyAll">' + (bl.full ? 'Brush only' : 'Whole image') + '</button>'
-    +     '<button type="button" class="edit-frames-action-btn" id="blClear">Clear all</button>'
+    +   '<div class="adj-tick-ruler" id="blRuler" style="--range:' + (_blR.max - _blR.min) + ';">'
+    +     '<div class="adj-tick-ticks" aria-hidden="true"></div>'
+    +     '<div class="adj-tick-center" aria-hidden="true"></div>'
+    +     '<div class="adj-tick-dot" id="blTickDot" style="left:' + _blPct.toFixed(2) + '%;" aria-hidden="true"></div>'
+    +     '<input type="range" id="blScrub" class="adj-tick-input" min="' + _blR.min + '" max="' + _blR.max + '" step="1" value="' + _blV + '" aria-label="Blur scrubber">'
     +   '</div>'
-    +   '<p class="edit-blur-help">Drag over areas you want to soften. Switch to Erase to clear blur. Use [ and ] to resize.<strong>Whole image</strong> blurs everything (depth-of-field style).</p>'
     + '</div>';
+  try {
+    const _lbl = _blKey === 'amount' ? 'AMOUNT' : 'BRUSH';
+    _ensureAdjSectionPill('Blur · ' + _lbl, String(_blV));
+  } catch(_){}
+  /* R65 — populate ticks for Blur ruler. */
+  try { _buildRulerTicks(document.getElementById('blRuler')); } catch(_){}
   /* Build preview source */
   await _blurBaseBlob();
   let bmp = _editState._blurBitmap;
@@ -9667,6 +11790,64 @@ async function _renderBlurTab(body){
   canvas.addEventListener('touchstart', down, { passive: false });
   canvas.addEventListener('touchmove', move, { passive: false });
   window.addEventListener('touchend', up);
+  /* R54 — Disable toggle for Blur. */
+  const _blDisable = document.getElementById('blDisable');
+  if (_blDisable) {
+    _blDisable.addEventListener('click', () => {
+      const b = _editState.pendingEdits.blur;
+      b.enabled = (b.enabled === false);
+      _blDisable.classList.toggle('tab-disabled', b.enabled === false);
+      _blDisable.setAttribute('aria-pressed', b.enabled === false ? 'true' : 'false');
+      _blDisable.title = b.enabled === false ? 'Enable blur' : 'Disable blur';
+      const row = document.getElementById('blRow');
+      if (row) row.classList.toggle('row-disabled', b.enabled === false);
+      try { if (typeof render === 'function') render(); } catch(_){}
+    });
+  }
+  /* R54 — selectable param icons drive the scrubber. */
+  const _blScrub = document.getElementById('blScrub');
+  const _blTickDot = document.getElementById('blTickDot');
+  function _blRange(k){ return (k === 'amount') ? { min:2, max:40 } : { min:6, max:160 }; }
+  function _blVal(k){ return (k === 'amount') ? bl.radius : bl.brushPx; }
+  function _blSetVal(k, v){ if (k === 'amount') bl.radius = v; else bl.brushPx = v; }
+  function _blSyncUI(){
+    const k = bl.selected || 'brush';
+    const r = _blRange(k);
+    const v = _blVal(k);
+    if (_blScrub){ _blScrub.min = String(r.min); _blScrub.max = String(r.max); _blScrub.value = String(v); }
+    if (_blTickDot) _blTickDot.style.left = (((v - r.min)/(r.max - r.min))*100).toFixed(2) + '%';
+    const ruler = document.getElementById('blRuler');
+    if (ruler) {
+      ruler.style.setProperty('--range', String(r.max - r.min));
+      try { _buildRulerTicks(ruler); } catch(_){}
+    }
+    const lbl = document.getElementById('adjSectionPillLabel');
+    const val = document.getElementById('adjSectionPillVal');
+    if (lbl) lbl.textContent = ('BLUR · ' + (k === 'amount' ? 'AMOUNT' : 'BRUSH'));
+    if (val) val.textContent = String(v);
+  }
+  document.querySelectorAll('#editBody [data-bl-key]').forEach(b => {
+    b.addEventListener('click', () => {
+      bl.selected = b.dataset.blKey;
+      document.querySelectorAll('#editBody [data-bl-key]').forEach(o => {
+        const sel = o.dataset.blKey === bl.selected;
+        o.classList.toggle('selected', sel);
+        o.setAttribute('aria-pressed', sel ? 'true' : 'false');
+      });
+      _blSyncUI();
+    });
+  });
+  if (_blScrub){
+    _blScrub.addEventListener('input', () => {
+      const k = bl.selected || 'brush';
+      const v = parseInt(_blScrub.value, 10);
+      _blSetVal(k, v);
+      _blSyncUI();
+      if (typeof _blRefreshCursor === 'function') _blRefreshCursor();
+      if (typeof render === 'function') render();
+    });
+    _blScrub.addEventListener('change', () => { _editPushUndo(); });
+  }
   document.querySelectorAll('#editBody [data-bl-mode]').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('#editBody [data-bl-mode]').forEach(x => x.classList.remove('active'));
@@ -9674,41 +11855,55 @@ async function _renderBlurTab(body){
       bl.mode = b.dataset.blMode;
     });
   });
+  /* R54 — legacy Blur sliders removed; their values are now driven by
+     the unified scrubber. Guard lookups. */
   const brushSl = document.getElementById('blBrush');
   const brushVal = document.getElementById('blBrushVal');
-  brushSl.addEventListener('input', () => {
-    bl.brushPx = parseInt(brushSl.value, 10);
-    brushVal.textContent = bl.brushPx;
-    _blRefreshCursor();
-    _blRefreshSummary();
-  });
+  if (brushSl) {
+    brushSl.addEventListener('input', () => {
+      bl.brushPx = parseInt(brushSl.value, 10);
+      if (brushVal) brushVal.textContent = bl.brushPx;
+      if (typeof _blRefreshCursor === 'function') _blRefreshCursor();
+      if (typeof _blRefreshSummary === 'function') _blRefreshSummary();
+    });
+  }
   const radiusSl = document.getElementById('blRadius');
   const radiusVal = document.getElementById('blRadiusVal');
-  radiusSl.addEventListener('input', () => {
-    bl.radius = parseInt(radiusSl.value, 10);
-    radiusVal.textContent = bl.radius;
-    blurCache = null;
-    render();
-    _blRefreshSummary();
-  });
-  radiusSl.addEventListener('change', () => { _editPushUndo(); });
-  document.getElementById('blApplyAll').addEventListener('click', (ev) => {
-    _editPushUndo();
-    bl.full = !bl.full;
-    ev.target.textContent = bl.full ? 'Brush only' : 'Whole image';
-    render();
-    _updateEditHistoryUI();
-  });
-  document.getElementById('blClear').addEventListener('click', () => {
-    if (!bl.strokes.length && !bl.full) return;
-    _editPushUndo();
-    bl.strokes = [];
-    bl.full = false;
-    const btn = document.getElementById('blApplyAll');
-    if (btn) btn.textContent = 'Whole image';
-    render();
-    _updateEditHistoryUI();
-  });
+  if (radiusSl) {
+    radiusSl.addEventListener('input', () => {
+      bl.radius = parseInt(radiusSl.value, 10);
+      if (radiusVal) radiusVal.textContent = bl.radius;
+      blurCache = null;
+      render();
+      if (typeof _blRefreshSummary === 'function') _blRefreshSummary();
+    });
+    radiusSl.addEventListener('change', () => { _editPushUndo(); });
+  }
+  /* R54 — blApplyAll is now a circular icon (no textContent label). */
+  const _blApplyAll = document.getElementById('blApplyAll');
+  if (_blApplyAll) {
+    _blApplyAll.addEventListener('click', () => {
+      _editPushUndo();
+      bl.full = !bl.full;
+      _blApplyAll.classList.toggle('active', bl.full);
+      _blApplyAll.setAttribute('aria-pressed', bl.full ? 'true' : 'false');
+      _blApplyAll.title = bl.full ? 'Brush only' : 'Whole image';
+      render();
+      _updateEditHistoryUI();
+    });
+  }
+  /* R54 — Clear replaced by Disable; guard null. */
+  const _blClearBtn = document.getElementById('blClear');
+  if (_blClearBtn) {
+    _blClearBtn.addEventListener('click', () => {
+      if (!bl.strokes.length && !bl.full) return;
+      _editPushUndo();
+      bl.strokes = [];
+      bl.full = false;
+      render();
+      _updateEditHistoryUI();
+    });
+  }
 }
 async function _applyBlur(file, blurInfo){
   if (!blurInfo) return file;
@@ -9968,10 +12163,19 @@ async function _renderTextTab(body){
   }
   body.innerHTML = ''
     + '<div class="edit-text-controls">'
-    +   '<div class="tx-add-row">'
-    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="text">+ Text</button>'
-    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="watermark">+ Watermark</button>'
-    +     '<button type="button" class="edit-frames-action-btn" data-tx-add="logo" title="Upload an image logo">+ Logo</button>'
+    +   '<div class="tx-add-row ed-func-row">'
+    +     '<button type="button" class="ed-circle-btn" data-tx-add="text" title="Add text" aria-label="Add text">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-type"/></svg></span>'
+    +       '<span class="ed-circle-cap">TEXT</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn" data-tx-add="watermark" title="Add watermark" aria-label="Add watermark">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-stamp"/></svg></span>'
+    +       '<span class="ed-circle-cap">MARK</span>'
+    +     '</button>'
+    +     '<button type="button" class="ed-circle-btn" data-tx-add="logo" title="Upload an image logo" aria-label="Add logo">'
+    +       '<span class="ed-circle-inner"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span>'
+    +       '<span class="ed-circle-cap">LOGO</span>'
+    +     '</button>'
     +   '</div>'
     +   '<input type="file" id="txLogoInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;">'
     +   '<div class="tx-item-list" id="txItemList"></div>'
@@ -10471,6 +12675,8 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
      user pan the image to find an area of interest and use the slider as
      a fixed gauge — pan and slider are independent gestures. */
   window.SLIDER = window.SLIDER || { screenPct: 50 };
+  /* R68 — expose setSplit so setHasAfter (outside this IIFE) can call it. */
+  window.setSplit = setSplit;
   window.refreshSliderFromZoom = function(){
     const canvas = document.querySelector('body[data-state="multi"] .stage.multi .image-canvas');
     if (!canvas || !canvas.classList.contains('has-after')) return;
@@ -10603,11 +12809,14 @@ window.toggleTheme = window.toggleTheme || function(){
 };
 window.openCmpSettings = window.openCmpSettings || function(){};
 
-/* Panda demo init: fetch demo-original.png, encode via canvas.toBlob
-   to webp@60, render before/after compare slider with drag handler.
+/* Homepage before/after demo. Uses two REAL committed files and reports
+   their real byte sizes — no runtime re-encoding (R117):
+     before = /demo-panda.png  (lossless PNG original of the panda)
+     after  = /demo.webp       (the imgready-compressed panda; same file
+                                 used for the social/OG cards site-wide)
+   Same panda on both sides; the saving is the real PNG->WebP size drop.
    Lives in the empty state only. Lightweight (no worker, no JSZip). */
 (function initPandaDemo(){
-  /* Wait for DOM ready so the demo elements exist. */
   function start(){
     const slider = document.getElementById('demoSlider');
     const stats  = document.getElementById('demoStats');
@@ -10618,7 +12827,6 @@ window.openCmpSettings = window.openCmpSettings || function(){};
     const divider= document.getElementById('demoDivider');
     const handle = slider && slider.querySelector('.demo-handle');
     if (!slider || !before || !after) return;
-    /* Hide ornament until ready. */
     [divider, handle].forEach(el => { if (el) el.style.display = 'none'; });
     slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = 'none');
     function fmtSizeDemo(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
@@ -10628,66 +12836,46 @@ window.openCmpSettings = window.openCmpSettings || function(){};
       if (divider) divider.style.left = pct + '%';
       if (handle) handle.style.left = pct + '%';
     }
-    /* Use /demo.webp (the panda) as the source. We decode it via Image(),
-       draw to a canvas, then encode the canvas to PNG (the "Original" stat
-       — what the same panda would weigh as a flat PNG) and to WebP@60
-       (the "imgready" stat). Same panda visible on both sides; the savings
-       number is "how much smaller WebP is than PNG of the same panda". */
-    const srcImg = new Image();
-    srcImg.crossOrigin = 'anonymous';
-    srcImg.onload = () => {
-      const cv = document.createElement('canvas');
-      cv.width = srcImg.naturalWidth; cv.height = srcImg.naturalHeight;
-      cv.getContext('2d').drawImage(srcImg, 0, 0);
-      /* Encode as PNG (the "before" / "original" stat). PNG is lossless
-         so this is the apples-to-apples size comparison. */
-      cv.toBlob(pngBlob => {
-        if (!pngBlob) {
-          if (loading) loading.innerHTML = 'Demo unavailable';
-          return;
+    function wireDrag(){
+      let dragging = false;
+      const updatePos = e => {
+        const r = slider.getBoundingClientRect();
+        const x = (e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)) - r.left;
+        setSplit(x / r.width * 100);
+      };
+      slider.addEventListener('pointerdown', e => {
+        dragging = true; updatePos(e); e.preventDefault();
+        try { slider.setPointerCapture && slider.setPointerCapture(e.pointerId); } catch(_){}
+      });
+      slider.addEventListener('pointermove', e => { if (dragging) updatePos(e); });
+      slider.addEventListener('pointerup', () => dragging = false);
+      slider.addEventListener('pointercancel', () => dragging = false);
+    }
+    /* Fetch the two real committed files and use their real byte sizes. */
+    Promise.all([ fetch('/demo-panda.png'), fetch('/demo.webp') ])
+      .then(rs => {
+        if (!rs[0].ok || !rs[1].ok) throw new Error('demo assets missing');
+        return Promise.all([ rs[0].blob(), rs[1].blob() ]);
+      })
+      .then(blobs => {
+        const pngBlob = blobs[0], webpBlob = blobs[1];
+        const origSize = pngBlob.size, afterSize = webpBlob.size;
+        before.src = URL.createObjectURL(pngBlob);
+        after.src  = URL.createObjectURL(webpBlob);
+        const pct = origSize ? Math.round((1 - afterSize / origSize) * 100) : 0;
+        if (stats) {
+          stats.innerHTML =
+            `<span class="demo-stat"><span class="label">Original PNG:</span><span class="value">${fmtSizeDemo(origSize)}</span></span>` +
+            `<span class="demo-stat"><span class="label">imgready WebP:</span><span class="value">${fmtSizeDemo(afterSize)}</span></span>` +
+            `<span class="demo-stat"><span class="saving">${pct}% smaller</span></span>`;
         }
-        const pngSize = pngBlob.size;
-        const beforeUrl = URL.createObjectURL(pngBlob);
-        before.src = beforeUrl;
-        /* Encode again as WebP @ quality 60 (the "after" / "imgready" stat). */
-        cv.toBlob(afterBlob => {
-          if (!afterBlob) {
-            if (loading) loading.innerHTML = 'Demo unavailable';
-            return;
-          }
-          const afterUrl = URL.createObjectURL(afterBlob);
-          after.src = afterUrl;
-          const origSize = pngSize;
-          const pct = Math.round((1 - afterBlob.size / origSize) * 100);
-          if (stats) {
-            stats.innerHTML =
-              `<span class="demo-stat"><span class="label">Original PNG:</span><span class="value">${fmtSizeDemo(origSize)}</span></span>` +
-              `<span class="demo-stat"><span class="label">imgready WebP:</span><span class="value">${fmtSizeDemo(afterBlob.size)}</span></span>` +
-              `<span class="demo-stat"><span class="saving">${pct}% smaller</span></span>`;
-          }
-          if (loading) loading.style.display = 'none';
-          [divider, handle].forEach(el => { if (el) el.style.display = ''; });
-          slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = '');
-          setSplit(50);
-          /* Drag handler. Pointer-based for mouse + touch. */
-          let dragging = false;
-          const updatePos = e => {
-            const r = slider.getBoundingClientRect();
-            const x = (e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0)) - r.left;
-            setSplit(x / r.width * 100);
-          };
-          slider.addEventListener('pointerdown', e => {
-            dragging = true; updatePos(e); e.preventDefault();
-            try { slider.setPointerCapture && slider.setPointerCapture(e.pointerId); } catch(_){}
-          });
-          slider.addEventListener('pointermove', e => { if (dragging) updatePos(e); });
-          slider.addEventListener('pointerup', () => dragging = false);
-          slider.addEventListener('pointercancel', () => dragging = false);
-        }, 'image/webp', 0.60);
-      }, 'image/png');
-    };
-    srcImg.onerror = () => { if (loading) loading.innerHTML = 'Demo unavailable'; };
-    srcImg.src = '/demo.webp';
+        if (loading) loading.style.display = 'none';
+        [divider, handle].forEach(el => { if (el) el.style.display = ''; });
+        slider.querySelectorAll('.demo-lbl').forEach(el => el.style.display = '');
+        setSplit(50);
+        wireDrag();
+      })
+      .catch(() => { if (loading) loading.innerHTML = 'Demo unavailable'; });
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start, { once: true });
@@ -10846,7 +13034,7 @@ if (!window._navMenuOutsideClick) {
     const ratio = Math.max(0, targetBpp / k);
     if (ratio <= 0) return 50;
     const q = Math.pow(ratio, 1/1.7) * 100;
-    return Math.max(50, Math.min(95, Math.round(q)));
+    return Math.max(10, Math.min( /* R47: floor 50→10 */95, Math.round(q)));
   }
   function _predictBpp(quality, fmt){
     const qf = Math.pow(Math.max(0.4, quality / 100), 1.7);
@@ -10916,10 +13104,13 @@ if (!window._navMenuOutsideClick) {
   window._qualityFromTarget = _qualityFromTarget;
   window._predictBpp = _predictBpp;
 
-  /* 1. Query string parse — comma-separated for multi: ?out=webp,avif */
+  /* 1. Query string parse — comma-separated for multi: ?out=webp,avif
+     R106: also accept ?fmt= as an alias, since landing-page hero CTAs
+     use that name (e.g., /tiff-to-jpg/ links to /?fmt=jpg#dropzone).
+     Previously the hint was silently dropped — users landed on WebP. */
   const VALID = ['auto','webp','avif','jpg','png','gif','ico'];
   const qs = new URLSearchParams(location.search);
-  const qsOut = qs.get('out');
+  const qsOut = qs.get('out') || qs.get('fmt');
   if (qsOut) {
     const fmts = qsOut.toLowerCase().split(',')
       .map(f => f === 'jpeg' ? 'jpg' : f)
@@ -11181,7 +13372,7 @@ if (!window._navMenuOutsideClick) {
        Quality-IGNORING: png (lossless), ico (PNG wrap). */
     const dd = document.querySelector('.quality-dropdown');
     if (!dd) return;
-    const losslessBtn = dd.querySelector('button[data-quality-preset="lossless"]');
+    const losslessBtn = document.querySelector('.quality-menu button[data-quality-preset="lossless"]'); /* R47: menu is portalled */
     const fmts = (window.PREFS && window.PREFS.outFormats) || ['webp'];
     /* (a) lossless-button visibility — uses primary format only */
     if (losslessBtn) {
@@ -12192,8 +14383,18 @@ function doClear(){
        space between the pills. -->
   <div class="edit-top-chrome">
     <a class="edit-brand-link" href="#" onclick="event.preventDefault();cancelEdit();" aria-label="Exit edit and return to imgready home">img<span class="g">ready</span></a>
+    <!-- R60 — history controls (Reset / Undo / Redo) moved into top chrome. -->
+    <div class="edit-top-history">
+      <button type="button" class="edit-top-history-btn edit-top-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
+      <button type="button" class="edit-top-history-btn edit-top-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
+    </div>
     <span class="edit-filename-chip" id="editTitle" aria-live="polite">Edit</span>
     <span class="edit-size-info" id="editSizeInfo"></span>
+    <!-- R60 — single dynamic action button. Shows "Save" when edits are
+         pending (accent), "Done" otherwise (neutral). Same handler. -->
+    <div class="edit-top-actions">
+      <button type="button" class="edit-top-btn edit-top-save" id="editSaveBtnTop" onclick="saveEdit()" title="Done">Done</button>
+    </div>
   </div>
   <!-- R28 — bottom menu card mirroring home .menu-wrap > .menu-card.
        Solid #1a1a1a background (no backdrop-filter — see home CSS
@@ -12201,9 +14402,10 @@ function doClear(){
        Two stacked sections: options strip (only renders when active tab
        has controls; auto-collapses via :empty) + bottom row of tabs +
        action cluster. -->
+  <!-- R67 — tool surface floats over the photo (Apple Photos pattern). -->
+  <section class="edit-tool-surface" id="editBody" role="region" aria-label="Tool options"></section>
   <div class="edit-menu-wrap">
-    <div class="edit-menu-card">
-      <section class="edit-options-strip" id="editBody" role="region" aria-label="Tool options"></section>
+    <div class="edit-menu-card edit-menu-card-thin">
       <nav class="edit-tab-bar" role="tablist" id="editTabs" aria-label="Edit tools"></nav>
     </div>
   </div>

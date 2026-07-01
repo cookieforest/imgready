@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#5a7a5a">
 <title>What Is AVIF? The Next-Gen Image Format Explained | imgready</title>
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="description" content="AVIF is the latest image format — 50% smaller than JPEG with no visible quality loss. Learn what AVIF is, browser support, and how to create AVIF files free.">
 <meta property="og:title" content="What Is AVIF? The Next-Gen Image Format Explained | imgready">
 <meta property="og:description" content="AVIF is the latest image format — 50% smaller than JPEG with no visible quality loss. Learn what AVIF is, browser support, and how to create AVIF files free.">
@@ -15,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="What Is AVIF? The Next-Gen Image Format Explained | imgready">
 <meta name="twitter:description" content="AVIF is the next-generation image format — 50% smaller than JPEG. Learn what AVIF is and how to create and convert AVIF files free.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:image" content="https://imgready.app/og/what-is-avif.svg">
 <link rel="canonical" href="https://imgready.app/what-is-avif/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
@@ -57,22 +59,24 @@
   }
 })();
 </script>
-<style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+<style>@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),url('/fonts/fraunces-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+@font-face{font-family:'Inter';src:url('/fonts/inter-latin.woff2') format('woff2-variations'),url('/fonts/inter-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
 .hero h1 em{font-style:normal;color:#5a7a5a;}
 .hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
 .callout{background:#e8f0e8;border-left:3px solid #5a7a5a;padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:#5a5448;line-height:1.75;}
@@ -81,7 +85,7 @@ th,td{text-align:left;padding:9px 12px;border:1px solid #d6cebb;color:#5a5448;ve
 th{background:#ede7d9;color:#2e2a22;font-weight:700;}
 tr:nth-child(even) td{background:#faf7f2;}
 .winner{color:#5a7a5a;font-weight:700;}
-h2{font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
 p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -113,7 +117,7 @@ li{font-size:.92rem;line-height:1.75;color:#5a5448;margin-bottom:8px;}
 
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"What is AVIF","item":"https://imgready.app/what-is-avif/"}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"What Is AVIF? The Next-Generation Image Format Explained","description":"AVIF is the latest image format developed by the Alliance for Open Media, offering 50% compression compared to JPEG with superior quality. Learn about browser support, when to use AVIF, and how to create AVIF files.","url":"https://imgready.app/what-is-avif/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-06","dateModified":"2026-05-06"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"What Is AVIF? The Next-Generation Image Format Explained","description":"AVIF is the latest image format developed by the Alliance for Open Media, offering 50% compression compared to JPEG with superior quality. Learn about browser support, when to use AVIF, and how to create AVIF files.","url":"https://imgready.app/what-is-avif/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-06","dateModified":"2026-05-06","image":"https://imgready.app/og/what-is-avif.svg","publisher":{"@type":"Organization","name":"imgready","url":"https://imgready.app/","logo":{"@type":"ImageObject","url":"https://imgready.app/favicon.svg"}}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is AVIF?","acceptedAnswer":{"@type":"Answer","text":"AVIF (AV1 Image File Format) is a modern image format developed by the Alliance for Open Media. It's based on the AV1 video codec and typically produces files 50% smaller than JPEG at equivalent quality. AVIF supports lossy and lossless compression, transparency, HDR photography, animation, and wide color gamut — making it the most feature-complete image format available in 2026."}},{"@type":"Question","name":"Which browsers support AVIF?","acceptedAnswer":{"@type":"Answer","text":"As of 2026, AVIF is supported by Chrome 85+ (2020), Firefox 93+ (2021), Edge 121+ (2024), and Safari 16+ (2022). In total, approximately 93% of global browser traffic supports AVIF. The remaining gap consists mainly of older iOS Safari versions and legacy browsers. For maximum compatibility, serve AVIF with WebP or JPEG fallback using the HTML picture element."}},{"@type":"Question","name":"Is AVIF better than WebP?","acceptedAnswer":{"@type":"Answer","text":"AVIF offers superior compression — typically 20–30% smaller files than WebP at the same quality. However, WebP has broader browser support (97% vs 93%) and much faster encoding speed. For photographic content and maximum compression, AVIF wins. For speed and universal compatibility, WebP is more practical. The best approach is using both with fallbacks."}},{"@type":"Question","name":"Can Photoshop open AVIF?","acceptedAnswer":{"@type":"Answer","text":"Photoshop (2022 and later) supports AVIF opening and export. Older versions of Photoshop do not support AVIF natively. For desktop image editors, most modern software including Affinity Photo, GIMP, and Krita now support AVIF. For online viewing and conversion, use imgready or other browser-based tools."}},{"@type":"Question","name":"How do I create an AVIF file?","acceptedAnswer":{"@type":"Answer","text":"The easiest approach for individuals is using a free online converter like imgready — just upload a JPG or PNG and download the AVIF. For developers, use command-line tools like ImageMagick, libavif, or online APIs. Most modern image processing libraries in JavaScript, Python, and Node.js now include AVIF support natively."}},{"@type":"Question","name":"Is AVIF good for all images?","acceptedAnswer":{"@type":"Answer","text":"AVIF excels with photographs and high-detail images where its 50% compression advantage is most visible. For flat graphics, logos, and illustrations, AVIF's advantage narrows significantly — lossless PNG may remain the better choice. AVIF is not ideal for very small images where file size overhead barely matters. For most websites with photographic content, AVIF is the optimal choice."}}]}</script>
 </head>
 <body>

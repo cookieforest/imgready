@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#5a7a5a">
 <title>Why imgready Never Uploads Your Images | imgready</title>
-<meta name="description" content="Most image tools upload your photos to a server you do not control. imgready compresses and converts everything in your browser. Your files never leave your device.">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="description" content="Most image tools upload your photos. imgready compresses and converts everything in your browser. Your files never leave your device.">
 <meta property="og:title" content="Why imgready Never Uploads Your Images | imgready">
-<meta property="og:description" content="Most image tools upload your photos to a server you do not control. imgready compresses and converts everything in your browser. Your files never leave your device.">
+<meta property="og:description" content="Most image tools upload your photos. imgready compresses and converts everything in your browser. Your files never leave your device.">
 <meta property="og:image" content="https://imgready.app/demo.webp">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://imgready.app/why/">
 <meta property="og:site_name" content="imgready">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Why imgready Never Uploads Your Images | imgready">
-<meta name="twitter:description" content="Most image tools upload your photos to a server you do not control. imgready compresses and converts everything in your browser. Your files never leave your device.">
-<meta name="twitter:image" content="https://imgready.app/demo.webp">
+<meta name="twitter:description" content="Most image tools upload your photos. imgready compresses and converts everything in your browser. Your files never leave your device.">
+<meta name="twitter:image" content="https://imgready.app/og/why.svg">
 <link rel="canonical" href="https://imgready.app/why/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/favicon.svg">
@@ -63,27 +65,29 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"Why we built imgready","item":"https://imgready.app/why/"}]}
 </script>
-<style>
+<style>@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),url('/fonts/fraunces-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+@font-face{font-family:'Inter';src:url('/fonts/inter-latin.woff2') format('woff2-variations'),url('/fonts/inter-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:680px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-size:22px;font-weight:700;font-style:italic;letter-spacing:-1px;text-decoration:none;color:#2e2a22;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
 .nav-brand .g{color:var(--accent,#5a7a5a);}
 .nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
 .crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
-.crumbs a{color:#5a7a5a;text-decoration:none;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
-h1{font-size:2.4rem;font-weight:700;letter-spacing:-1.2px;line-height:1.1;margin:32px 0 12px;color:#2e2a22;max-width:540px;}
+h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:2.4rem;font-weight:700;letter-spacing:-1.2px;line-height:1.1;margin:32px 0 12px;color:#2e2a22;max-width:540px;}
 h1 em{font-style:normal;color:#5a7a5a;}
 .lede{font-size:1.05rem;color:#5a5448;line-height:1.7;margin-bottom:30px;max-width:560px;}
 .byline{font-size:.78rem;color:#8a8070;letter-spacing:.04em;text-transform:uppercase;margin-bottom:42px;}
 .byline a{color:#5a7a5a;text-decoration:none;}
-h2{font-size:1.4rem;margin:44px 0 14px;color:#2e2a22;letter-spacing:-.4px;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.4rem;margin:44px 0 14px;color:#2e2a22;letter-spacing:-.4px;}
 p{font-size:1rem;line-height:1.78;color:#3e3a32;margin-bottom:18px;}
 p strong{color:#2e2a22;}
 ul{padding-left:0;list-style:none;margin:0 0 22px;}
@@ -97,13 +101,17 @@ a{color:#5a7a5a;}
 .cta-strip a.btn{display:inline-block;padding:11px 24px;background:#5a7a5a;color:#fff;border-radius:9px;font-weight:700;font-size:.94rem;text-decoration:none;}
 .cta-strip a.btn:hover{background:#7a9e7a;}
 .faq-item{margin-bottom:18px;}
-.faq-item summary{font-size:.95rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:10px 0;border-bottom:1px solid #d6cebb;}
+.faq-item summary{font-size:.97rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:12px 0;border-bottom:1px solid #d6cebb;}
 .faq-item summary:hover{color:#5a7a5a;}
 .faq-item p{font-size:.88rem;color:#5a5448;line-height:1.7;margin-top:10px;padding-left:4px;}
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
 .site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){h1{font-size:1.7rem;letter-spacing:-.6px;}.lede{font-size:.96rem;}}
+  .related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:14px 0 28px;}
+  .related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+  .related a:hover{border-color:#5a7a5a;}
+  .related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Why imgready Never Uploads Your Images | imgready","description":"Most online image compressors upload your photos to a server you don't control. imgready doesn't.","url":"https://imgready.app/why/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does imgready ever touch a server?","acceptedAnswer":{"@type":"Answer","text":"Your image files never leave your device. The only network requests imgready makes are for the page assets, optional WebAssembly decoders (downloaded once and cached), and ad/analytics scripts — none of which carry your image data."}},{"@type":"Question","name":"Can I verify that files aren't uploaded?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open your browser's DevTools (F12), go to the Network tab, drop a file, and click Process. You'll see no outbound requests carrying image data."}},{"@type":"Question","name":"Why does it matter if images are uploaded?","acceptedAnswer":{"@type":"Answer","text":"Professional photos, personal documents, medical images, and business materials carry sensitive information. Uploading them to a third-party server means accepting their privacy policy, storage practices, and data retention. In-browser processing avoids that entirely."}},{"@type":"Question","name":"Does imgready strip EXIF data and other metadata?","acceptedAnswer":{"@type":"Answer","text":"Yes — imgready removes all metadata including EXIF, IPTC, XMP, and embedded color profiles when converting images. Location data, camera model, timestamps, and other sensitive embedded information are automatically discarded during processing."}},{"@type":"Question","name":"Is imgready GDPR compliant?","acceptedAnswer":{"@type":"Answer","text":"Yes. Since image processing happens entirely in-browser with no data transmission to servers, GDPR requirements around personal data processing don't apply in the traditional sense. No personal data is collected, stored, or processed server-side."}},{"@type":"Question","name":"Could a government force imgready to log or access user images?","acceptedAnswer":{"@type":"Answer","text":"No. There is no backend infrastructure that holds image data. The developer cannot access, log, or decrypt user images because they never leave the user's device. The tool has no servers, no databases, and no ability to surveil — making it impossible for third parties to subpoena image data."}}]}</script>
@@ -180,8 +188,19 @@ a{color:#5a7a5a;}
   <details class="faq-item"><summary>Does imgready strip EXIF data and other metadata?</summary><p>Yes — imgready removes all metadata including EXIF, IPTC, XMP, and embedded color profiles when converting images. Location data, camera model, timestamps, and other sensitive embedded information are automatically discarded during processing.</p></details>
   <details class="faq-item"><summary>Is imgready GDPR compliant?</summary><p>Yes. Since image processing happens entirely in-browser with no data transmission to servers, GDPR requirements around personal data processing don't apply in the traditional sense. No personal data is collected, stored, or processed server-side.</p></details>
   <details class="faq-item"><summary>Could a government force imgready to log or access user images?</summary><p>No. There is no backend infrastructure that holds image data. The developer cannot access, log, or decrypt user images because they never leave the user's device. The tool has no servers, no databases, and no ability to surveil — making it impossible for third parties to subpoena image data.</p></details>
+  
+  <h2>Related reading</h2>
+  <div class="related">
+    <a href="/about/">About imgready<small>How it works and who built it</small></a>
+    <a href="/privacy/">Privacy policy<small>What we collect — and what we don't</small></a>
+    <a href="/compress/">Compress images privately<small>No upload, no waiting</small></a>
+    <a href="/heic-to-jpg/">HEIC to JPG, in your browser<small>iPhone photos, no third-party server</small></a>
+    <a href="/tiff-to-jpg/">TIFF to JPG, in your browser<small>Sensitive scans never uploaded</small></a>
+    <a href="/developers/">Developer SDK<small>Same privacy guarantee for your app</small></a>
+  </div>
+
   <footer class="site-footer">
-    <div style="font-weight:700;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
