@@ -98,6 +98,10 @@
 <link rel="preload" href="/imgready-worker.js" as="script">
 <link rel="prefetch" href="/vendor/UPNG.min.js">
 <link rel="prefetch" href="/vendor/pako.min.js">
+<!-- R127: warm the sample sources at idle/low priority so clicking a sample loads instantly. Non-blocking (prefetch), respects browser idle scheduling. -->
+<link rel="prefetch" href="/samples/demo_1.png">
+<link rel="prefetch" href="/samples/demo_2.jpg">
+<link rel="prefetch" href="/samples/demo_3.heic">
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
