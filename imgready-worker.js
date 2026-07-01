@@ -612,27 +612,36 @@ async function processOne(file, fmt, settings){
   bmp.close();
   _lastW = w; _lastH = h; /* R46: record final output dims */
 
-  /* R48 — Target-size mode: binary-search quality until output is within 5%
-     of the requested byte budget. Works for WebP / AVIF / JPG. PNG / GIF / ICO
-     fall through to their normal paths (lossless or fixed). Up to 8 encodes;
-     converges in 4–5 iterations for typical images. */
+  /* R118 — Target-size ("by size") mode: return the HIGHEST quality whose
+     encoded output is still <= the requested byte budget, so the result
+     always MATCHES or comes in UNDER the user's selection (never over).
+     Encoded size is monotonic in quality, so we binary-search the ceiling.
+     Works for WebP / AVIF / JPG; PNG / GIF / ICO have no quality dial and
+     fall through. Up to 8 encodes; converges in 4-5 iterations. */
   if (settings.targetKb && settings.targetKb > 0 &&
       (fmt === 'webp' || fmt === 'avif' || fmt === 'jpg')) {
     const targetBytes = settings.targetKb * 1024;
     let lo = 5, hi = 95;
-    let bestBlob = null, bestDiff = Infinity;
+    let bestUnder = null;   // largest blob whose size <= target (best quality that fits)
+    let smallest  = null;   // smallest blob seen — fallback when nothing fits
     for (let iter = 0; iter < 8; iter++) {
       const q = Math.round((lo + hi) / 2);
       const blob = await encodeCanvasAtQ(ctx, w, h, fmt, q);
       if (!blob) break;
-      const diff = Math.abs(blob.size - targetBytes);
-      if (diff < bestDiff) { bestDiff = diff; bestBlob = blob; }
-      if (bestDiff < targetBytes * 0.05) break; // within 5% — good enough
-      if (blob.size > targetBytes) hi = q - 1;
-      else lo = q + 1;
+      if (!smallest || blob.size < smallest.size) smallest = blob;
+      if (blob.size <= targetBytes) {
+        /* Fits under the ceiling. Keep the largest fitting blob = highest
+           quality that still respects the budget. */
+        if (!bestUnder || blob.size > bestUnder.size) bestUnder = blob;
+        if (blob.size >= targetBytes * 0.95) break; // within 5% under — great fit, stop
+        lo = q + 1;   // headroom left → try higher quality
+      } else {
+        hi = q - 1;   // over budget → drop quality
+      }
       if (lo > hi) break;
     }
-    if (bestBlob) return bestBlob; /* R48-fix: _R was undefined */
+    if (bestUnder) return bestUnder;   // guaranteed <= target (match or under)
+    if (smallest)  return smallest;    // target unreachable even at low quality — return smallest we can produce
     // Fall through to normal encode if binary search somehow yields nothing
   }
 
