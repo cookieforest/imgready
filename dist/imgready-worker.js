@@ -56,6 +56,26 @@ function getExt(name){ return (name||'').split('.').pop().toLowerCase(); }
 function isHeic(file){ const e = getExt(file.name); return e==='heic' || e==='heif' || file.type==='image/heic' || file.type==='image/heif'; }
 function isTiff(file){ const e = getExt(file.name); return e==='tif' || e==='tiff' || file.type==='image/tiff'; }
 function isSvg(file){ const e = getExt(file.name); return e==='svg' || file.type==='image/svg+xml'; }
+/* R120 — normalise the SOURCE file's format so we can tell optimization
+   (same in/out format) from conversion (different). Always-smaller only
+   applies to same-format optimization; conversions prioritise quality. */
+function inputFmtOf(file){
+  const t = (file && file.type) || '';
+  if (t === 'image/webp') return 'webp';
+  if (t === 'image/avif') return 'avif';
+  if (t === 'image/jpeg') return 'jpg';
+  if (t === 'image/png')  return 'png';
+  if (t === 'image/gif')  return 'gif';
+  const e = getExt(file && file.name);
+  if (e === 'webp') return 'webp';
+  if (e === 'avif') return 'avif';
+  if (e === 'jpg' || e === 'jpeg') return 'jpg';
+  if (e === 'png')  return 'png';
+  if (e === 'gif')  return 'gif';
+  if (e === 'heic' || e === 'heif') return 'heic';
+  if (e === 'tif'  || e === 'tiff') return 'tiff';
+  return '';
+}
 
 /* ---------- lazy loaders ---------- */
 async function ensureLibheif(){
@@ -586,6 +606,7 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
 /* ---------- the main encode pipeline ---------- */
 async function processOne(file, fmt, settings){
   const originalSize = (file && typeof file.size === 'number') ? file.size : 0; /* R119: never exceed this */
+  const sameFmt = originalSize > 0 && inputFmtOf(file) === fmt; /* R120: always-smaller applies only to same-format optimization */
   /* Animated GIF → GIF: preserve frames + apply quality-driven palette
      / frame-skip reduction. Bails on any error to the single-frame path
      so we never block on browser quirks. */
@@ -687,7 +708,7 @@ async function processOne(file, fmt, settings){
     };
     const buf = await enc(id, avifOpts);
     const outBlob = new Blob([buf], { type: 'image/avif' });
-    return avifOpts.lossless ? outBlob : await shrinkToUnder(outBlob, ctx, w, h, 'avif', originalSize, avifOpts.quality); /* R119 */
+    return (avifOpts.lossless || !sameFmt) ? outBlob : await shrinkToUnder(outBlob, ctx, w, h, 'avif', originalSize, avifOpts.quality); /* R120: same-format only */
   }
 
   if (fmt === 'webp') {
@@ -704,7 +725,7 @@ async function processOne(file, fmt, settings){
     };
     const buf = await enc(id, webpOpts);
     const outBlob = new Blob([buf], { type: 'image/webp' });
-    return webpOpts.lossless ? outBlob : await shrinkToUnder(outBlob, ctx, w, h, 'webp', originalSize, webpOpts.quality); /* R119 */
+    return (webpOpts.lossless || !sameFmt) ? outBlob : await shrinkToUnder(outBlob, ctx, w, h, 'webp', originalSize, webpOpts.quality); /* R120: same-format only */
   }
 
   if (fmt === 'png') {
@@ -781,7 +802,7 @@ async function processOne(file, fmt, settings){
       }
       const buf = await enc(id, _jpgOpts);
       const outBlob = new Blob([buf], { type: 'image/jpeg' });
-      return await shrinkToUnder(outBlob, ctx, w, h, 'jpg', originalSize, _jpgOpts.quality); /* R119 */
+      return sameFmt ? await shrinkToUnder(outBlob, ctx, w, h, 'jpg', originalSize, _jpgOpts.quality) : outBlob; /* R120: same-format only */
     } catch (e) {
       /* Fallback path — canvas.toBlob is universally supported */
       return await c.convertToBlob({ type: 'image/jpeg', quality: q });
