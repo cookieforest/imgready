@@ -68,6 +68,7 @@ const TAIL_SENTINELS = {
   'imgready-worker.js':          '/* WORKER_EOF */',
   'sw.js':                       '/* SW_EOF */',
   'src/home-app.js':             '/* HOME_APP_EOF */',
+  'src/home-editor.js':          '/* HOME_EDITOR_EOF */',
 };
 
 function validateTailSentinels() {
@@ -199,6 +200,13 @@ async function buildOnce() {
         console.log('[imgready build] inlined src/home-app.js into dist/index.html (' + bundle.length + 'B)');
       }
     }
+  }
+
+  /* R129 — Stage 2: ship the lazy editor as a standalone chunk (not inlined),
+     fetched on first Edit click. */
+  if (existsSync('src/home-editor.js')) {
+    copyFileSync('src/home-editor.js', 'dist/home-editor.js');
+    console.log('[imgready build] editor chunk -> dist/home-editor.js (' + statSync('dist/home-editor.js').size + 'B)');
   }
 
   /* Substitute the service worker's CACHE_VERSION with the current
