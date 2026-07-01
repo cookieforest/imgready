@@ -375,6 +375,23 @@ async function shrinkToUnder(blob, ctx, w, h, fmt, maxBytes, startQ100) {
   return bestUnder || smallest;
 }
 
+/* R121 — single-frame GIF encode via gifenc. canvas.convertToBlob does NOT
+   support GIF (browsers silently return PNG bytes), which made every
+   static-image -> GIF conversion produce a mislabeled PNG. Quantize to a
+   256-colour palette and write one frame, matching the animated path. */
+async function encodeStaticGif(ctx, w, h){
+  const mod = await ensureGifenc();
+  const GIFEncoder = mod.GIFEncoder, quantize = mod.quantize, applyPalette = mod.applyPalette;
+  if (!GIFEncoder || !quantize || !applyPalette) throw new Error('gifenc exports not found');
+  const rgba = ctx.getImageData(0, 0, w, h).data;
+  const palette = quantize(rgba, 256);
+  const index = applyPalette(rgba, palette);
+  const enc = GIFEncoder();
+  enc.writeFrame(index, w, h, { palette });
+  enc.finish();
+  return new Blob([enc.bytes()], { type: 'image/gif' });
+}
+
 /* ---------- quality → color count for PNG-8 ---------- */
 function qualityToColors(q){
   if (q >= 1.0) return 0;
@@ -810,7 +827,14 @@ async function processOne(file, fmt, settings){
   }
 
   if (fmt === 'gif') {
-    return await c.convertToBlob({ type: 'image/gif' });
+    /* R121 — real GIF via gifenc; canvas can't encode GIF. */
+    try {
+      return await encodeStaticGif(ctx, w, h);
+    } catch (e) {
+      /* Last resort only if gifenc fails to load — better a valid PNG
+         than a mislabeled/empty file; surfaced to the user as PNG. */
+      return await c.convertToBlob({ type: 'image/png' });
+    }
   }
 
   if (fmt === 'ico') {
