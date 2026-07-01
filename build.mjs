@@ -67,6 +67,7 @@ const TAIL_SENTINELS = {
   'src/app.css':                 '/* CSS_EOF_MARKER */',
   'imgready-worker.js':          '/* WORKER_EOF */',
   'sw.js':                       '/* SW_EOF */',
+  'src/home-app.js':             '/* HOME_APP_EOF */',
 };
 
 function validateTailSentinels() {
@@ -180,6 +181,25 @@ async function buildOnce() {
 
   copyFileSync(CSS_ENTRY, 'dist/app.css');
   mirrorDir('.', 'dist');
+
+  /* R128 — Stage 1: the homepage app now lives in src/home-app.js (version
+     controlled, no longer a hand-edited blob inside index.html). Re-inline it
+     into dist/index.html so the deployed page is byte-identical (single
+     request, no new render-blocking JS). */
+  {
+    const HOME_MARKER = '/*__HOME_APP_BUNDLE__*/';
+    const distIndex = 'dist/index.html';
+    if (existsSync(distIndex) && existsSync('src/home-app.js')) {
+      const bundle = readFileSync('src/home-app.js', 'utf8').replace(/\n\/\* HOME_APP_EOF \*\/\s*$/, '');
+      const html = readFileSync(distIndex, 'utf8');
+      if (html.indexOf(HOME_MARKER) === -1) {
+        console.warn('[imgready build] WARN: home-app marker not found in index.html');
+      } else {
+        writeFileSync(distIndex, html.replace(HOME_MARKER, () => bundle));
+        console.log('[imgready build] inlined src/home-app.js into dist/index.html (' + bundle.length + 'B)');
+      }
+    }
+  }
 
   /* Substitute the service worker's CACHE_VERSION with the current
      deployment SHA so users always pull a fresh worker on each deploy.
