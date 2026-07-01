@@ -332,6 +332,29 @@ async function encodeCanvasAtQ(ctx, w, h, fmt, q100) {
   return null; // PNG, GIF, ICO — no quality dial
 }
 
+/* R119 — Always-smaller guarantee. This tool exists to REDUCE size, so a
+   lossy encode must never come back larger than the source. If the encode
+   at the chosen quality is already under the original, return it unchanged
+   (respects the user's Smart/slider choice). Otherwise step quality down
+   (binary search — encoded size is monotonic in quality) and return the
+   highest quality that lands under the original size. If even the floor
+   can't beat it (e.g. a tiny source), return the smallest we can make. */
+async function shrinkToUnder(blob, ctx, w, h, fmt, maxBytes, startQ100) {
+  if (!maxBytes || blob.size < maxBytes) return blob;
+  let lo = 5, hi = Math.max(5, Math.min(95, (startQ100 || 95) - 1));
+  let bestUnder = null, smallest = blob;
+  for (let iter = 0; iter < 8; iter++) {
+    const q = Math.round((lo + hi) / 2);
+    const b = await encodeCanvasAtQ(ctx, w, h, fmt, q);
+    if (!b) break;
+    if (b.size < smallest.size) smallest = b;
+    if (b.size < maxBytes) { if (!bestUnder || b.size > bestUnder.size) bestUnder = b; lo = q + 1; }
+    else { hi = q - 1; }
+    if (lo > hi) break;
+  }
+  return bestUnder || smallest;
+}
+
 /* ---------- quality → color count for PNG-8 ---------- */
 function qualityToColors(q){
   if (q >= 1.0) return 0;
@@ -562,6 +585,7 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
 
 /* ---------- the main encode pipeline ---------- */
 async function processOne(file, fmt, settings){
+  const originalSize = (file && typeof file.size === 'number') ? file.size : 0; /* R119: never exceed this */
   /* Animated GIF → GIF: preserve frames + apply quality-driven palette
      / frame-skip reduction. Bails on any error to the single-frame path
      so we never block on browser quirks. */
@@ -662,7 +686,8 @@ async function processOne(file, fmt, settings){
       lossless: !!advA.lossless,
     };
     const buf = await enc(id, avifOpts);
-    return new Blob([buf], { type: 'image/avif' });
+    const outBlob = new Blob([buf], { type: 'image/avif' });
+    return avifOpts.lossless ? outBlob : await shrinkToUnder(outBlob, ctx, w, h, 'avif', originalSize, avifOpts.quality); /* R119 */
   }
 
   if (fmt === 'webp') {
@@ -678,7 +703,8 @@ async function processOne(file, fmt, settings){
       lossless: advW.lossless ? 1 : 0,
     };
     const buf = await enc(id, webpOpts);
-    return new Blob([buf], { type: 'image/webp' });
+    const outBlob = new Blob([buf], { type: 'image/webp' });
+    return webpOpts.lossless ? outBlob : await shrinkToUnder(outBlob, ctx, w, h, 'webp', originalSize, webpOpts.quality); /* R119 */
   }
 
   if (fmt === 'png') {
@@ -754,7 +780,8 @@ async function processOne(file, fmt, settings){
                                   : (advJ.subsample === '422') ? 2 : 3;
       }
       const buf = await enc(id, _jpgOpts);
-      return new Blob([buf], { type: 'image/jpeg' });
+      const outBlob = new Blob([buf], { type: 'image/jpeg' });
+      return await shrinkToUnder(outBlob, ctx, w, h, 'jpg', originalSize, _jpgOpts.quality); /* R119 */
     } catch (e) {
       /* Fallback path — canvas.toBlob is universally supported */
       return await c.convertToBlob({ type: 'image/jpeg', quality: q });

@@ -5805,11 +5805,9 @@
                 <!-- BY QUALITY body (default) -->
                 <div class="quality-by-quality-body">
                   <button type="button" data-quality-preset="smart" data-q="auto" class="active">Smart</button>
-                  <button type="button" data-quality-preset="lossless" data-q="100">Lossless</button>
-                  <button type="button" data-quality-preset="best" data-q="95">Best</button>
-                  <button type="button" data-quality-preset="high" data-q="85">High</button>
-                  <button type="button" data-quality-preset="medium" data-q="75">Standard</button>
-                  <button type="button" data-quality-preset="low" data-q="60">Compact</button>
+                  <!-- R119: named presets (Lossless/Best/High/Standard/Compact) removed —
+                       Smart + the slider cover the range, and the always-smaller guarantee
+                       makes fixed high-quality presets (which could inflate size) unnecessary. -->
                   <div class="quality-custom-row quality-row">
                     <input type="range" min="10" max="100" value="85" aria-label="Custom quality (10 to 100)">
                     <span class="q-val">85</span>
