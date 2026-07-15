@@ -8589,9 +8589,14 @@ if (!window._navMenuOutsideClick) {
   /* Drag-and-drop: card sets a custom MIME ("application/imgready-sample")
      that the dropzone\'s drop handler intercepts. Real File objects can\'t
      be put on a synthetic dragstart, so we pass the URL and load on drop. */
+  /* R131 — track the sample being dragged so dragend can load it even when
+     the user releases OUTSIDE the dropzone (previously that gave no feedback). */
+  let _draggedSample = null, _sampleDragLoaded = false;
   document.addEventListener('dragstart', e => {
     const card = e.target.closest && e.target.closest('.dz-float-card[data-sample]');
     if (!card) return;
+    _draggedSample = { url: card.dataset.sample, name: card.dataset.sampleName || 'sample.jpg', type: card.dataset.sampleType || 'image/jpeg' };
+    _sampleDragLoaded = false;
     card.classList.add('dragging');
     /* Light up the main dropzone so the user sees the drop target glow
        while dragging a sample card. Same .drag class the dropzone uses
@@ -8614,6 +8619,13 @@ if (!window._navMenuOutsideClick) {
     /* Clear the dropzone highlight whether the drop succeeded or not. */
     const dz = document.getElementById('dropzone');
     if (dz) dz.classList.remove('drag');
+    /* R131 — if the drag didn't land in the dropzone, still honor the intent:
+       load the sample (which switches to the tool view) rather than doing
+       nothing. Guarded so an in-dropzone drop doesn't double-load. */
+    if (_draggedSample && !_sampleDragLoaded) {
+      loadSample(_draggedSample.url, _draggedSample.name, _draggedSample.type);
+    }
+    _draggedSample = null; _sampleDragLoaded = false;
   });
   /* Dropzone listens for the custom MIME and routes to loadSample.
      Scoped to drops INSIDE the dropzone — if the user drags a card
@@ -8634,6 +8646,7 @@ if (!window._navMenuOutsideClick) {
     e.preventDefault();
     try {
       const { url, name, type } = JSON.parse(payload);
+      _sampleDragLoaded = true; /* R131 — tell dragend the drop already loaded it */
       loadSample(url, name, type);
     } catch(_){}
   }, true);
