@@ -2643,6 +2643,15 @@ if (!window._navMenuOutsideClick) {
      Called from addFilesFromList on every drop. */
   function presetFormatFromInput(file){
     if (!file) return;
+    /* R146 — never override an EXPLICIT choice. This auto-preset ("drop a
+       HEIC, get JPG") is a good default for a visitor with no stated intent,
+       but it was running on every drop and silently discarding both the
+       ?fmt= URL intent and the user's own format click.
+       Measured on production: /?fmt=png showed PNG, then dropping a JPG
+       flipped PREFS to ["jpg"] within a second and produced photo-1.jpg.
+       Since every landing-page CTA is /?fmt=xxx#dropzone, someone arriving
+       from /jpg-to-png/ and dropping a JPG received a JPG. */
+    if (window.PREFS && window.PREFS.explicitFormat) return;
     const matched = pickAutoFormat(file);  /* resolves heic/svg/etc */
     if (!matched) return;
     const current = (window.PREFS.outFormats || ['webp']).slice();
@@ -2765,7 +2774,11 @@ if (!window._navMenuOutsideClick) {
     const fmts = qsOut.toLowerCase().split(',')
       .map(f => f === 'jpeg' ? 'jpg' : f)
       .filter(f => VALID.includes(f));
-    if (fmts.length) setOutFormats(fmts, { silent: true });
+    if (fmts.length) {
+      setOutFormats(fmts, { silent: true });
+      /* R146 — explicit URL intent; the drop-time auto-preset must not undo it. */
+      window.PREFS.explicitFormat = true;
+    }
   }
 
   /* R133 — ?kb= (alias ?size=) presets By-size mode with a KB ceiling, so
@@ -2943,6 +2956,10 @@ if (!window._navMenuOutsideClick) {
       next = [...current, clicked];
     }
     setOutFormats(next);
+    /* R146 — a click is explicit intent, so the drop-time auto-preset must
+       not overwrite it. Unpicking everything is the documented way to ask
+       for "match the input", so that clears the flag again. */
+    window.PREFS.explicitFormat = next.length > 0;
     /* Sync multi mode with selection count: 2+ → on, ≤1 → off.
        Previously only set ON, leaving multi stuck after user
        deselected back to a single format. */
@@ -3031,6 +3048,8 @@ if (!window._navMenuOutsideClick) {
       b.addEventListener('click', e => {
         e.stopPropagation();
         const fmt = b.dataset.fmt;
+        /* R146 — explicit user choice; auto-preset must not override it. */
+        if (window.PREFS) window.PREFS.explicitFormat = true;
         if (typeof MULTI_OUT !== 'undefined' && MULTI_OUT.enabled) {
           /* Multi mode: simple toggle in the outFormats array. No
              Original mutex — Original (auto) composes coherently with
