@@ -123,6 +123,10 @@ const COPY_EXCLUDE = new Set([
   'app.js', 'app.css',                /* Phase 3: removed; mirrorDir won't see them */
   'index.html.bak', 'index.html.broken_truncated',
   'archive',                          /* R117: archived old versions + dev logs, not deployed */
+  /* R132 — unreferenced legacy demo assets (~1.9 MB). Verified zero code
+     references: demo-original.png is only named in a code comment.
+     Kept in the repo, excluded from the deploy. */
+  'demo-original.png', 'demo-original.jpg', 'demo-webp.webp', 'demo.jpg',
 ]);
 
 function shouldCopy(entry) {

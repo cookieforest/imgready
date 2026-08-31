@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready</title>
+<title>Free Image Converter — HEIC, TIFF, WebP, PNG, JPG | imgready</title>
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device — private, fast, unlimited.">
 <meta property="og:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
@@ -99,9 +99,11 @@
 <link rel="prefetch" href="/vendor/UPNG.min.js">
 <link rel="prefetch" href="/vendor/pako.min.js">
 <!-- R127: warm the sample sources at idle/low priority so clicking a sample loads instantly. Non-blocking (prefetch), respects browser idle scheduling. -->
-<link rel="prefetch" href="/samples/demo_1.png">
+<!-- R132: only the small sample is prefetched. Prefetching all three cost
+     ~9.3 MB per visit (demo_1 is 7.3 MB, demo_3 1.6 MB) even for users who
+     never click a sample — that starved real requests and burned mobile data.
+     The heavy two load on demand. -->
 <link rel="prefetch" href="/samples/demo_2.jpg">
-<link rel="prefetch" href="/samples/demo_3.heic">
 <link rel="prefetch" href="/home-editor.js">
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -5258,6 +5260,7 @@
 
 
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Are my images uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file — no requests carry image data."}}, {"@type": "Question", "name": "What's the difference between WebP and AVIF?", "acceptedAnswer": {"@type": "Answer", "text": "Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly. imgready uses WebAssembly encoders for both so every device gets identical output regardless of browser."}}, {"@type": "Question", "name": "How big a batch can I drop in?", "acceptedAnswer": {"@type": "Answer", "text": "The soft cap is 200 files, with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop."}}, {"@type": "Question", "name": "Is there a file-size cap?", "acceptedAnswer": {"@type": "Answer", "text": "No. Drop a 100 MB TIFF if you have one. imgready has no caps because there's no server to bill for storage."}}, {"@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass — no double-encoding."}}, {"@type": "Question", "name": "What if the file fails to convert?", "acceptedAnswer": {"@type": "Answer", "text": "Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level \"Couldn't read this file\" error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue."}}, {"@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30–50 files at a time)."}}, {"@type": "Question", "name": "Is imgready really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — completely, no caps. Supported by voluntary Ko-fi tips. No ads, no tracking, no accounts."}}]}</script>
 </head>
 <body data-state="empty" data-adjust="closed" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
 <!-- R25 — skip link, visible on focus, WCAG 2.4.1 Bypass Blocks -->
