@@ -246,7 +246,9 @@ async function decodeICO(file){
   throw new Error('This .ico uses an older BMP-based format that we don\'t decode yet. Try re-exporting from a modern tool, or save the source image as PNG instead.');
 }
 function isExotic(f){return isHeic(f)||isTiff(f)||isSvg(f)||isIco(f);}
-function isAccepted(f){if(f.type&&f.type.startsWith('image/'))return true;return['heic','heif','tif','tiff','bmp','svg'].indexOf(getFileExt(f.name))!==-1;}
+/* R140 — see home-app: .jfif (Windows' JPEG extension quirk), .jpe/.jif and
+   .ico were rejected outright when the OS reported no MIME type. */
+function isAccepted(f){if(f.type&&f.type.startsWith('image/'))return true;return['heic','heif','tif','tiff','bmp','svg','jfif','jpe','jif','ico'].indexOf(getFileExt(f.name))!==-1;}
 /* Friendly canonical name for the file's input format. Used by the result
    row's "Converted to X" label so we can compare apples-to-apples against
    the output format string. Returns 'jpg' (not 'jpeg'), 'tiff' (not 'tif'),

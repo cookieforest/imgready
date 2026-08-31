@@ -71,4 +71,8 @@
   <url><loc>https://imgready.app/gif-to-jpg/</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority><image:image><image:loc>https://imgready.app/og/gif-to-jpg.png</image:loc></image:image></url>
   <url><loc>https://imgready.app/svg-to-webp/</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority><image:image><image:loc>https://imgready.app/og/svg-to-webp.png</image:loc></image:image></url>
   <url><loc>https://imgready.app/svg-to-jpg/</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority><image:image><image:loc>https://imgready.app/og/svg-to-jpg.png</image:loc></image:image></url>
+  <url><loc>https://imgready.app/jfif-to-jpg/</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.8</priority><image:image><image:loc>https://imgready.app/og/jfif-to-jpg.png</image:loc></image:image></url>
+  <url><loc>https://imgready.app/compress-webp/</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority><image:image><image:loc>https://imgready.app/og/compress-webp.png</image:loc></image:image></url>
+  <url><loc>https://imgready.app/compress-image-to-500kb/</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority><image:image><image:loc>https://imgready.app/og/compress-image-to-500kb.png</image:loc></image:image></url>
+  <url><loc>https://imgready.app/compress-image-to-1mb/</loc><lastmod>2026-08-31</lastmod><changefreq>monthly</changefreq><priority>0.6</priority><image:image><image:loc>https://imgready.app/og/compress-image-to-1mb.png</image:loc></image:image></url>
 </urlset>

@@ -358,8 +358,11 @@ window.toggleTheme=function(){
     var p=new URLSearchParams(location.search);
     kb=parseInt(p.get('kb')||p.get('size')||'',10)||0;
     if(!kb){
-      var m=(location.pathname||'').toLowerCase().match(/compress-image-to-(\d+)kb/);
+      var path0=(location.pathname||'').toLowerCase();
+      var m=path0.match(/compress-image-to-(\d+)kb/);
       if(m) kb=parseInt(m[1],10)||0;
+      /* R140 — also honour an MB-named slug (…-1mb) */
+      if(!kb){ var mm=path0.match(/compress-image-to-(\d+)mb/); if(mm) kb=(parseInt(mm[1],10)||0)*1024; }
     }
   }catch(e){}
   if(kb>0&&kb<=99999) window.__IMGREADY_TARGET_KB=kb;
@@ -383,7 +386,10 @@ window.toggleTheme=function(){
     'gif-to-png':'png','gif-to-jpg':'jpg','svg-to-webp':'webp','svg-to-jpg':'jpg',
     'png-to-ico':'ico',
     'compress-image-to-100kb':'jpg','compress-image-to-50kb':'jpg',
-    'compress-image-to-200kb':'webp'
+    'compress-image-to-200kb':'webp',
+    /* R140 */
+    'jfif-to-jpg':'jpg','compress-webp':'webp',
+    'compress-image-to-500kb':'webp','compress-image-to-1mb':'webp'
   };
   try{
     /* 1. URL param wins. */

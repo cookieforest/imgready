@@ -290,7 +290,12 @@ async function addFilesFromList(fileList){
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList[i];
     totalSeen++;
-    if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name)) continue;
+    /* R140 — extension fallback for files the OS reports with no MIME type.
+       .jfif is the big one: Windows saves downloaded JPEGs as .jfif (a
+       registry mapping quirk), and those files are byte-identical JPEG.
+       When file.type came back empty they were SILENTLY skipped here.
+       Also covers .jpe/.jif (older JPEG extensions) and .ico. */
+    if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg|jfif|jpe|jif|ico)$/i.test(file.name)) continue;
     /* Exotic formats — browsers can't render the raw blob, so
        URL.createObjectURL(file) gives us a URL that paints nothing.
        For HEIC/HEIF we run an inline libheif decode and use the

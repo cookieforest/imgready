@@ -5357,7 +5357,7 @@
       </div>
     </nav>
     <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
-    <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose image files to compress (or take a photo on mobile)">
+    <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif" multiple aria-label="Choose image files to compress (or take a photo on mobile)">
     <span class="dz-icon" aria-hidden="true">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
@@ -5893,7 +5893,7 @@
   <!-- Empty-batch dropzone — shown by CSS when body[data-empty-batch="true"].
        Drop or click loads the next batch; same flow as main dropzone. -->
   <div class="empty-batch-dropzone" id="emptyBatchDropzone" role="region" aria-label="Drop more images">
-    <input type="file" id="emptyBatchInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico" multiple aria-label="Choose more image files">
+    <input type="file" id="emptyBatchInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif" multiple aria-label="Choose more image files">
     <span class="ebd-icon" aria-hidden="true">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
@@ -6207,7 +6207,12 @@ async function addFilesFromList(fileList){
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList[i];
     totalSeen++;
-    if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg)$/i.test(file.name)) continue;
+    /* R140 — extension fallback for files the OS reports with no MIME type.
+       .jfif is the big one: Windows saves downloaded JPEGs as .jfif (a
+       registry mapping quirk), and those files are byte-identical JPEG.
+       When file.type came back empty they were SILENTLY skipped here.
+       Also covers .jpe/.jif (older JPEG extensions) and .ico. */
+    if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg|jfif|jpe|jif|ico)$/i.test(file.name)) continue;
     /* Exotic formats — browsers can't render the raw blob, so
        URL.createObjectURL(file) gives us a URL that paints nothing.
        For HEIC/HEIF we run an inline libheif decode and use the
