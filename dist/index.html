@@ -6201,6 +6201,29 @@ async function _decodeHeicInline(file){
   return { blob, w, h };
 }
 
+/* R145 — lazy loader for the shared exotic decoders (TIFF/SVG/ICO). Only
+   fetched when a file of those types is actually dropped, so the common
+   JPG/PNG path pays nothing. */
+let _exoticDecoderPromise = null;
+function _ensureExoticDecoders(){
+  if (window.IMGREADY_DECODE) return Promise.resolve(window.IMGREADY_DECODE);
+  if (!_exoticDecoderPromise) {
+    _exoticDecoderPromise = new Promise((resolve, reject) => {
+      const sc = document.createElement('script');
+      sc.src = '/decoders-exotic.js';
+      sc.onload = () => resolve(window.IMGREADY_DECODE);
+      sc.onerror = () => { _exoticDecoderPromise = null; reject(new Error('decoder load failed')); };
+      document.head.appendChild(sc);
+    });
+  }
+  return _exoticDecoderPromise;
+}
+function _isExoticName(file){
+  return /\.(tiff?|svg|ico)$/i.test(file.name) ||
+         file.type === 'image/tiff' || file.type === 'image/svg+xml' ||
+         file.type === 'image/x-icon' || file.type === 'image/vnd.microsoft.icon';
+}
+
 async function addFilesFromList(fileList){
   const fresh = [];
   let totalSeen = 0;
@@ -6215,11 +6238,14 @@ async function addFilesFromList(fileList){
     if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg|jfif|jpe|jif|ico)$/i.test(file.name)) continue;
     /* Exotic formats — browsers can't render the raw blob, so
        URL.createObjectURL(file) gives us a URL that paints nothing.
-       For HEIC/HEIF we run an inline libheif decode and use the
-       decoded JPEG blob URL. The bundled decoders in src/02-decoders.js
-       aren't reachable here because app.js isn't loaded on this page —
-       only inline scripts run. TIFF/SVG/BMP fall through to a raw URL
-       (broken paint, but the queue entry still registers). */
+       HEIC/HEIF use an inline libheif decode.
+       R145: TIFF/SVG/ICO used to "fall through to a raw URL (broken paint)",
+       which meant dropping a TIFF on the HOMEPAGE showed a blank thumbnail
+       with no error — while every landing page decoded it correctly, because
+       only they load app.js. Measured: homepage preview naturalWidth 0 vs 24
+       on /tiff-to-jpg/ for the same file. Now the homepage lazy-loads
+       /decoders-exotic.js (generated from src/02-decoders.js at build time,
+       so there is one source of truth) the first time such a file appears. */
     const isHeicEntry = /\.(heic|heif)$/i.test(file.name) ||
                         file.type === 'image/heic' || file.type === 'image/heif';
     /* For HEIC keep f.file as the ORIGINAL so the Before meta still reads
@@ -6239,6 +6265,28 @@ async function addFilesFromList(fileList){
         decodedBlob = blob;   /* Round 11: stash for Edit-mode createImageBitmap */
       } catch (err) {
         console.warn('[heic-decode] failed for', file.name, err);
+        entryUrl = URL.createObjectURL(file);
+      }
+    } else if (_isExoticName(file)) {
+      /* R145 — decode TIFF/SVG/ICO to a PNG blob purely for the PREVIEW.
+         f.file stays the original so the Before meta still reads the true
+         input format/size and the worker still receives what it expects. */
+      try {
+        const dec = await _ensureExoticDecoders();
+        const png = dec && await dec.preDecodeExotic(file, 2048);
+        if (png) {
+          entryUrl = URL.createObjectURL(png);
+          decodedBlob = png;
+          try {
+            const bm = await createImageBitmap(png);
+            entryDims = { w: bm.width, h: bm.height };
+            bm.close && bm.close();
+          } catch(_) {}
+        } else {
+          entryUrl = URL.createObjectURL(file);
+        }
+      } catch (err) {
+        console.warn('[exotic-decode] failed for', file.name, err);
         entryUrl = URL.createObjectURL(file);
       }
     } else {
