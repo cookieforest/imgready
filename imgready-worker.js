@@ -513,7 +513,21 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
     else                   { sh = Math.round(srcW/ratio); sy = Math.round((srcH-sh)/2); }
   }
   let outW = sw, outH = sh;
-  if (settings.maxDim) {
+  /* R143 — exact W x H for the animated path too, so dimensions stay
+     consistent whichever output format is chosen. */
+  const _gExW = parseInt(settings.exactW, 10) || 0;
+  const _gExH = parseInt(settings.exactH, 10) || 0;
+  if (_gExW > 0 && _gExH > 0) {
+    const tAsp = _gExW / _gExH;
+    if (sw / sh > tAsp) {
+      const nsw = Math.max(1, Math.round(sh * tAsp));
+      sx += Math.round((sw - nsw) / 2); sw = nsw;
+    } else {
+      const nsh = Math.max(1, Math.round(sw / tAsp));
+      sy += Math.round((sh - nsh) / 2); sh = nsh;
+    }
+    outW = _gExW; outH = _gExH;
+  } else if (settings.maxDim) {
     const longest = Math.max(outW, outH);
     if (longest > settings.maxDim) {
       const scale = settings.maxDim / longest;
@@ -669,6 +683,25 @@ async function processOne(file, fmt, settings){
     w = sw; h = sh;
   }
 
+  /* R143 — EXACT width x height output. The engine previously offered only
+     longest-side or percent scaling with the aspect ratio always preserved,
+     so an exact 1920x1080 (or any social banner size) was impossible. This
+     scales to COVER the target box and center-crops the overflow, which is
+     what "resize to 1920x1080" is universally taken to mean. Overrides
+     maxDim/resizePct when both dimensions are given. */
+  const _exW = parseInt(settings.exactW, 10) || 0;
+  const _exH = parseInt(settings.exactH, 10) || 0;
+  if (_exW > 0 && _exH > 0) {
+    const tAsp = _exW / _exH;
+    if (sw / sh > tAsp) {
+      const nsw = Math.max(1, Math.round(sh * tAsp));
+      sx += Math.round((sw - nsw) / 2); sw = nsw;
+    } else {
+      const nsh = Math.max(1, Math.round(sw / tAsp));
+      sy += Math.round((sh - nsh) / 2); sh = nsh;
+    }
+    w = _exW; h = _exH;
+  } else
   // Resize longest side OR percent — only one of maxDim/resizePct will
   // be non-zero (getSettings on the main thread enforces that).
   if (settings.maxDim) {

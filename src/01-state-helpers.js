@@ -606,6 +606,10 @@ function getSettings(fmt){
   var tkb=parseInt(window.__IMGREADY_TARGET_KB||0,10)||0;
   var out={mime:mimeMap[fmt]||'image/webp',quality:fmt==='gif'?undefined:q,maxDim:maxDim,resizePct:resizePct,stripExif:stripExif};
   if(tkb>0&&(fmt==='webp'||fmt==='avif'||fmt==='jpg')) out.targetKb=tkb;
+  /* R143 — exact output dimensions when the page/URL asked for them. */
+  var exW=parseInt((window.__IMGREADY_EXACT||{}).w||0,10)||0;
+  var exH=parseInt((window.__IMGREADY_EXACT||{}).h||0,10)||0;
+  if(exW>0&&exH>0){ out.exactW=exW; out.exactH=exH; }
   return out;
 }
 

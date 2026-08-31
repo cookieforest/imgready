@@ -367,6 +367,21 @@ window.toggleTheme=function(){
   }catch(e){}
   if(kb>0&&kb<=99999) window.__IMGREADY_TARGET_KB=kb;
 })();
+/* R143 — prime exact output dimensions from ?w=&h= or a
+   resize-image-to-1920x1080 style slug, so a landing page can deep-link
+   into a tool already set to the size the visitor searched for. */
+(function primeExactDimsFromIntent(){
+  var w=0,h=0;
+  try{
+    var p=new URLSearchParams(location.search);
+    w=parseInt(p.get('w')||'',10)||0; h=parseInt(p.get('h')||'',10)||0;
+    if(!(w&&h)){
+      var m=(location.pathname||'').toLowerCase().match(/(\d{2,5})\s*x\s*(\d{2,5})/);
+      if(m){ w=parseInt(m[1],10)||0; h=parseInt(m[2],10)||0; }
+    }
+  }catch(e){}
+  if(w>0&&h>0&&w<=20000&&h<=20000) window.__IMGREADY_EXACT={w:w,h:h};
+})();
 (function primeFormatFromIntent(){
   var fmt=null;
   var slugMap={

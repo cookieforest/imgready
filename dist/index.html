@@ -6870,6 +6870,9 @@ function getActiveSettings(){
       stripExif,
       crop,
       targetKb: _targetKbForWorker, /* R48 — worker binary-searches quality when > 0 */
+      /* R143 — exact output dimensions (?w=&h=), overrides maxDim/resizePct */
+      exactW: (window.__IMGREADY_EXACT && window.__IMGREADY_EXACT.w) || 0,
+      exactH: (window.__IMGREADY_EXACT && window.__IMGREADY_EXACT.h) || 0,
     },
   };
 }
@@ -8639,6 +8642,11 @@ if (!window._navMenuOutsideClick) {
      configured tool: /?kb=100#dropzone. Pairs with the R118 guarantee that
      output lands at or under the target. Retried briefly because the
      quality dropdown lives in the workspace bar. */
+  /* R143 — exact dimensions from ?w=&h= */
+  const _qw = parseInt(qs.get('w') || '', 10) || 0;
+  const _qh = parseInt(qs.get('h') || '', 10) || 0;
+  if (_qw > 0 && _qh > 0 && _qw <= 20000 && _qh <= 20000) window.__IMGREADY_EXACT = { w: _qw, h: _qh };
+
   const qsKb = parseInt(qs.get('kb') || qs.get('size') || '', 10);
   if (qsKb > 0 && qsKb <= 99999) {
     let _kbTries = 0;
