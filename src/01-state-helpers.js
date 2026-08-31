@@ -600,7 +600,13 @@ function getSettings(fmt){
   var stripExifEl=G('stripExif');
   var stripExif=stripExifEl?!!stripExifEl.checked:true;
   var mimeMap={webp:'image/webp',avif:'image/avif',png:'image/png',jpg:'image/jpeg',gif:'image/gif'};
-  return{mime:mimeMap[fmt]||'image/webp',quality:fmt==='gif'?undefined:q,maxDim:maxDim,resizePct:resizePct,stripExif:stripExif};
+  /* R136 — pass a size ceiling through when the page/URL asked for one.
+     The worker binary-searches quality and returns the best result at or
+     under targetKb (WebP/AVIF/JPG only; PNG and GIF have no quality dial). */
+  var tkb=parseInt(window.__IMGREADY_TARGET_KB||0,10)||0;
+  var out={mime:mimeMap[fmt]||'image/webp',quality:fmt==='gif'?undefined:q,maxDim:maxDim,resizePct:resizePct,stripExif:stripExif};
+  if(tkb>0&&(fmt==='webp'||fmt==='avif'||fmt==='jpg')) out.targetKb=tkb;
+  return out;
 }
 
 /* ========================================

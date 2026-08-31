@@ -347,6 +347,23 @@ window.toggleTheme=function(){
         missed this entirely).
      3. document.referrer matches a slug (covers the legacy case of
         clicking through from a non-lifted page back to homepage). */
+/* R136 — carry a size ceiling onto the landing pages too. The shared worker
+   already honours settings.targetKb; previously only the homepage could set
+   it, so the tool embedded on /compress-image-to-100kb/ had no way to cap
+   size. Reads ?kb= (alias ?size=) or infers from a compress-image-to-NNkb
+   slug, and getSettings() passes it through. */
+(function primeTargetKbFromIntent(){
+  var kb=0;
+  try{
+    var p=new URLSearchParams(location.search);
+    kb=parseInt(p.get('kb')||p.get('size')||'',10)||0;
+    if(!kb){
+      var m=(location.pathname||'').toLowerCase().match(/compress-image-to-(\d+)kb/);
+      if(m) kb=parseInt(m[1],10)||0;
+    }
+  }catch(e){}
+  if(kb>0&&kb<=99999) window.__IMGREADY_TARGET_KB=kb;
+})();
 (function primeFormatFromIntent(){
   var fmt=null;
   var slugMap={
@@ -358,13 +375,21 @@ window.toggleTheme=function(){
     'avif-to-jpg':'jpg','avif-to-png':'png',
     'bmp-to-jpg':'jpg','gif-to-webp':'webp','svg-to-png':'png',
     'compress-jpg':'jpg','compress-png':'png',
-    'webp-converter':'webp','avif-converter':'avif'
+    'webp-converter':'webp','avif-converter':'avif',
+    /* R136 — the pages added in R134/R135 were missing here, so their
+       embedded tool fell back to Auto (keep input format). A visitor on
+       /bmp-to-png/ dropping a BMP therefore got a BMP back, not a PNG. */
+    'avif-to-webp':'webp','ico-to-png':'png','bmp-to-png':'png','bmp-to-webp':'webp',
+    'gif-to-png':'png','gif-to-jpg':'jpg','svg-to-webp':'webp','svg-to-jpg':'jpg',
+    'png-to-ico':'ico',
+    'compress-image-to-100kb':'jpg','compress-image-to-50kb':'jpg',
+    'compress-image-to-200kb':'webp'
   };
   try{
     /* 1. URL param wins. */
     var p=new URLSearchParams(location.search);
     var q=(p.get('fmt')||'').toLowerCase();
-    if(['webp','avif','png','jpg','jpeg','gif'].indexOf(q)!==-1)fmt=q==='jpeg'?'jpg':q;
+    if(['webp','avif','png','jpg','jpeg','gif','ico'].indexOf(q)!==-1)fmt=q==='jpeg'?'jpg':q;
     /* 2. Pathname slug match. Walk the slugMap, look for /{slug}/ in the path. */
     if(!fmt){
       var path=(location.pathname||'').toLowerCase();
@@ -382,7 +407,7 @@ window.toggleTheme=function(){
       }
     }
   }catch(e){}
-  if(fmt&&['webp','avif','png','jpg','gif'].indexOf(fmt)!==-1){
+  if(fmt&&['webp','avif','png','jpg','gif','ico'].indexOf(fmt)!==-1){
     selectedFormat=fmt;
     selectedFormats=[fmt];
   }
