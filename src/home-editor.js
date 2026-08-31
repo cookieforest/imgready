@@ -1573,14 +1573,34 @@ const _bgPipes = { std: null, hq: null };
 const _bgPipePromises = { std: null, hq: null };
 let _bgPipeCb = null;   // always points to the most recent progress callback
 
+/* R142 — MEASURED: the BEN2 'std' path has never worked. Verified in a real
+   browser against pinned library versions:
+     transformers.js 3.1.0 -> "Unsupported pipeline: background-removal"
+                              (the task did not exist yet)
+     transformers.js 3.7.5 -> "Unsupported model type: ben"
+                              (task exists; BEN2's model_type is not in the
+                               library's model registry)
+   onnx-community/BEN2-ONNX declares model_type "ben", which @huggingface/
+   transformers has no implementation for, so pipeline('background-removal',
+   'onnx-community/BEN2-ONNX') can only ever throw. This is why the tab is
+   hidden (see _editTabsForType, R76/R86) — the note there was accurate.
+
+   Until the engine is validated on real hardware, both modes resolve to
+   BiRefNet_lite-ONNX (MIT, and actually supported via AutoModel) so there is
+   no silently-broken default. The import is now version-pinned; the previous
+   floating @3 meant the dependency could change under us without a deploy.
+
+   STILL TO VALIDATE before this feature is exposed: cutout quality on real
+   photos, peak memory (a WASM fp32 run attempted a ~140 MB allocation and
+   failed in a constrained browser), and first-run download time. */
 async function _getBgPipeline(progressCb, mode) {
-  mode = (mode === 'hq') ? 'hq' : 'std';
+  mode = 'hq';
   _bgPipeCb = progressCb || null;
   if (_bgPipes[mode]) return _bgPipes[mode];
   if (!_bgPipePromises[mode]) {
     _bgPipePromises[mode] = (async () => {
       const cbw = (info) => _bgPipeCb && _bgPipeCb(info);
-      const mod = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3');
+      const mod = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.5');
       const useGPU = !!navigator.gpu;
       let pipe;
       if (mode === 'hq') {
