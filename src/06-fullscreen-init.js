@@ -394,7 +394,16 @@ window.toggleTheme=function(){
     if(!fmt){
       var path=(location.pathname||'').toLowerCase();
       for(var slug in slugMap){
-        if(path.indexOf('/'+slug+'/')!==-1 || path.indexOf('/'+slug)===path.length-1-slug.length){
+        /* R137 — the trailing-slug check used to be
+             path.indexOf('/'+slug) === path.length-1-slug.length
+           which FALSELY MATCHED whenever the slug was absent: indexOf
+           returns -1, and for any path where slug.length === path.length
+           the right-hand side is also -1. '/png-to-jpg/' (12 chars) thus
+           matched 'heic-to-webp' (12 chars) and served WebP instead of JPG.
+           Require a real hit before comparing the position. */
+        var i1=path.indexOf('/'+slug+'/');
+        var i2=path.indexOf('/'+slug);
+        if(i1!==-1 || (i2!==-1 && i2===path.length-1-slug.length)){
           fmt=slugMap[slug]; break;
         }
       }
