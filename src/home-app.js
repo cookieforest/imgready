@@ -2681,6 +2681,32 @@ if (!window._navMenuOutsideClick) {
       console.warn('[samples] failed to load', url, err);
     }
   }
+  /* R138 — warm the sample on INTENT rather than on page load. R132 removed
+     the blanket prefetch because pulling all three samples (~9.3 MB; demo_1
+     alone is 7.3 MB) on every visit starved real requests and burned mobile
+     data. But that left the first click waiting on the full download.
+     Hovering, focusing or pressing a card is a reliable intent signal, so we
+     start the fetch then — the browser HTTP cache serves the subsequent
+     loadSample() fetch, which makes the click feel instant while costing
+     nothing to visitors who never touch a sample. Same idea as
+     instant.page / Next.js Link prefetch-on-hover. */
+  const _warmed = new Set();
+  function warmSample(url){
+    if (!url || _warmed.has(url)) return;
+    _warmed.add(url);
+    try {
+      fetch(url, { cache: 'force-cache', priority: 'low' }).catch(() => {});
+    } catch(_) {
+      try { fetch(url).catch(() => {}); } catch(__){}
+    }
+  }
+  ['pointerenter','focusin','touchstart'].forEach(function(evt){
+    document.addEventListener(evt, function(e){
+      const card = e.target && e.target.closest && e.target.closest('.dz-float-card[data-sample]');
+      if (card) warmSample(card.dataset.sample);
+    }, { capture: true, passive: true });
+  });
+
   /* Click → load. Selector matches floating cards. */
   document.addEventListener('click', async e => {
     const sampleBtn = e.target.closest && e.target.closest('.dz-float-card[data-sample]');
