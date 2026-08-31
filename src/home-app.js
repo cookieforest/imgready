@@ -2638,6 +2638,25 @@ if (!window._navMenuOutsideClick) {
     if (fmts.length) setOutFormats(fmts, { silent: true });
   }
 
+  /* R133 — ?kb= (alias ?size=) presets By-size mode with a KB ceiling, so
+     "compress to 100 KB" landing pages can deep-link straight into a
+     configured tool: /?kb=100#dropzone. Pairs with the R118 guarantee that
+     output lands at or under the target. Retried briefly because the
+     quality dropdown lives in the workspace bar. */
+  const qsKb = parseInt(qs.get('kb') || qs.get('size') || '', 10);
+  if (qsKb > 0 && qsKb <= 99999) {
+    let _kbTries = 0;
+    const applyKb = () => {
+      if (typeof setQualityTarget === 'function' &&
+          document.querySelector('.quality-dropdown')) {
+        setQualityTarget(qsKb, { silent: true });
+        return;
+      }
+      if (++_kbTries < 20) setTimeout(applyKb, 100);
+    };
+    applyKb();
+  }
+
   /* 2. Empty-state pill clicks — plain toggle behavior:
      - Click any format: toggle in the array
      - Keep at least one active (can't deselect the last)
