@@ -451,7 +451,7 @@ async function saveEdit(){
     newBlob = (workingBlob !== f.file) ? workingBlob : null;
   } catch (err) {
     console.warn('[edit] save failed', err);
-    alert('Edit failed: ' + (err.message || err));
+    (window.imgreadyToast||alert)('Edit failed: ' + (err.message || err));
     if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
     return;
   }
@@ -2639,7 +2639,7 @@ function _renderAdjustTab(body){
         _reRenderEditTab();
       } catch (err) {
         console.warn('[auto-enhance]', err);
-        alert('Auto enhance failed: ' + (err.message || err));
+        (window.imgreadyToast||alert)('Auto enhance failed: ' + (err.message || err));
         aeBtn.disabled = false;
         aeBtn.classList.remove('busy');
       }
@@ -4433,7 +4433,7 @@ async function _renderTextTab(body){
         rebuild();
         _updateEditHistoryUI();
       };
-      im.onerror = () => alert('Could not load logo image.');
+      im.onerror = () => (window.imgreadyToast||alert)('Could not load that logo image.');
       im.src = dataUrl;
     };
     reader.readAsDataURL(fl);

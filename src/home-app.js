@@ -1033,6 +1033,36 @@ function showRejectedToast(count){
   }, 3000);
 }
 
+/* R139 — non-blocking error toast, replacing the blocking alert() dialogs.
+   alert() freezes the tab, cannot be styled, reads poorly on mobile and (per
+   the project's own UI audit) was the last modern-pattern gap in error
+   handling. Reuses the accessible .reject-toast treatment: role="alert" +
+   aria-atomic so screen readers announce it (WCAG 4.1.3 Status Messages),
+   auto-dismiss, and a longer dwell for errors than for the file-rejection
+   notice. Exposed on window so the lazily-loaded editor chunk can use it. */
+let _errToastEl = null;
+function showErrorToast(msg, ms){
+  try {
+    if (!_errToastEl) {
+      _errToastEl = document.createElement('div');
+      _errToastEl.className = 'reject-toast';
+      _errToastEl.setAttribute('role', 'alert');
+      _errToastEl.setAttribute('aria-atomic', 'true');
+      document.body.appendChild(_errToastEl);
+    }
+    _errToastEl.textContent = String(msg || 'Something went wrong.');
+    _errToastEl.classList.add('show');
+    if (_errToastEl._t) clearTimeout(_errToastEl._t);
+    _errToastEl._t = setTimeout(function(){
+      _errToastEl && _errToastEl.classList.remove('show');
+    }, ms || 5000);
+  } catch(_) {
+    /* Last resort only if the DOM is unavailable. */
+    try { alert(msg); } catch(__){}
+  }
+}
+window.imgreadyToast = showErrorToast;
+
 function fmtSize(n){ return n < 1024 ? n + ' B' : n < 1024*1024 ? (n/1024).toFixed(1)+' KB' : (n/1024/1024).toFixed(2)+' MB'; }
 function setMetaCorners(beforeFile, encoded){
   /* Pull cached dimensions from the FILES entry if available — populated
@@ -1991,7 +2021,7 @@ async function piShare(){
       const url = URL.createObjectURL(blob);
       enc = { blob, url, size: blob.size, format: mimeToFmt(blob.type) };
       ENCODE.encoded.set(idx, enc);
-    } catch(e){ alert('Encode failed: '+e.message); return; }
+    } catch(e){ showErrorToast('Encode failed: '+(e && e.message ? e.message : e)); return; }
   }
   const base = f.file.name.replace(/\.[^.]+$/, '');
   const ext = enc.format || 'jpg';
@@ -2060,7 +2090,7 @@ async function piDownload(){
       const url = URL.createObjectURL(blob);
       enc = { blob, url, size: blob.size, format: mimeToFmt(blob.type) };
       ENCODE.encoded.set(idx, enc);
-    } catch(e){ alert('Encode failed: '+e.message); return; }
+    } catch(e){ showErrorToast('Encode failed: '+(e && e.message ? e.message : e)); return; }
   }
   const ext = enc.format || 'jpg';
   triggerDownload(enc.url, `${base}_imgready.${ext}`);
@@ -2106,7 +2136,7 @@ function ensureEditor(){
 function piEdit(){
   ensureEditor().then(function(){
     if (typeof _openEditFromPi === 'function') _openEditFromPi();
-  }).catch(function(){ try { alert('Could not load the editor — please retry.'); } catch(_){} });
+  }).catch(function(){ showErrorToast('Could not load the editor — please check your connection and retry.'); });
 }
 /* ===== Clear all (with confirm) ===== */
 function _setConfirmText(title, body, btnLabel){
@@ -2246,6 +2276,50 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     moveFrom(e);
     try { canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId); } catch(_){}
   });
+  /* R139 — keyboard control for the before/after compare (WCAG 2.5.7
+     Dragging Movements AA, and 2.1.1 Keyboard). Previously the handle was
+     aria-hidden and dragging was the ONLY way to move the split, so keyboard
+     and switch-access users could not compare at all. The handle is now a
+     focusable role="slider"; arrows nudge, Shift/PageUp-Down jump, Home/End
+     snap. We drive the same canonical window.SLIDER.screenPct the pointer
+     path uses, so zoom/pan math stays identical. */
+  function nudgeSplit(canvas, delta, absolute){
+    if (!canvas || !canvas.classList.contains('has-after')) return;
+    window.SLIDER = window.SLIDER || { screenPct: 50 };
+    var cur = (typeof window.SLIDER.screenPct === 'number') ? window.SLIDER.screenPct : 50;
+    var next = (absolute != null) ? absolute : cur + delta;
+    next = Math.max(0, Math.min(100, next));
+    window.SLIDER.screenPct = next;
+    if (typeof window.refreshSliderFromZoom === 'function') window.refreshSliderFromZoom();
+    var h = canvas.querySelector('.compare-handle');
+    if (h) {
+      var r = Math.round(next);
+      h.setAttribute('aria-valuenow', String(r));
+      h.setAttribute('aria-valuetext', r + '% — ' + (r <= 2 ? 'showing the result' :
+        r >= 98 ? 'showing the original' : r + '% original, ' + (100 - r) + '% result'));
+    }
+  }
+  document.addEventListener('keydown', function(e){
+    var h = e.target && e.target.closest && e.target.closest('.compare-handle');
+    if (!h) return;
+    var canvas = h.closest('.image-canvas');
+    if (!canvas) return;
+    var big = e.shiftKey ? 10 : 2;
+    var handled = true;
+    switch (e.key) {
+      case 'ArrowLeft':  case 'Left':  nudgeSplit(canvas, -big); break;
+      case 'ArrowRight': case 'Right': nudgeSplit(canvas,  big); break;
+      case 'ArrowDown':  nudgeSplit(canvas, -big); break;
+      case 'ArrowUp':    nudgeSplit(canvas,  big); break;
+      case 'PageDown':   nudgeSplit(canvas, -10); break;
+      case 'PageUp':     nudgeSplit(canvas,  10); break;
+      case 'Home':       nudgeSplit(canvas, 0, 0); break;
+      case 'End':        nudgeSplit(canvas, 0, 100); break;
+      default: handled = false;
+    }
+    if (handled) { e.preventDefault(); e.stopPropagation(); }
+  });
+
   function moveFrom(e){
     if (!dragging) return;
     const rect = dragging.getBoundingClientRect();

@@ -466,7 +466,7 @@ document.addEventListener('click',function(e){
 /* CMP open settings stub — replaced at runtime by Funding Choices when loaded */
 window.openCmpSettings=function(){
   if(window.googlefc&&window.googlefc.showRevocationMessage){window.googlefc.showRevocationMessage();return;}
-  alert('Cookie & ad consent settings will appear here when the CMP is active. For now, see /privacy/ to manage your choices.');
+  (window.imgreadyToast||alert)('Consent settings will appear here when the CMP is active. See /privacy/ to manage your choices.');
 };
 
 /* ========================================
