@@ -376,8 +376,11 @@ window.toggleTheme=function(){
     var p=new URLSearchParams(location.search);
     w=parseInt(p.get('w')||'',10)||0; h=parseInt(p.get('h')||'',10)||0;
     if(!(w&&h)){
-      var m=(location.pathname||'').toLowerCase().match(/(\d{2,5})\s*x\s*(\d{2,5})/);
+      var pth=(location.pathname||'').toLowerCase();
+      var m=pth.match(/(\d{2,5})\s*x\s*(\d{2,5})/);
       if(m){ w=parseInt(m[1],10)||0; h=parseInt(m[2],10)||0; }
+      /* named sizes whose slug carries no digits */
+      if(!(w&&h) && pth.indexOf('youtube-thumbnail')!==-1){ w=1280; h=720; }
     }
   }catch(e){}
   if(w>0&&h>0&&w<=20000&&h<=20000) window.__IMGREADY_EXACT={w:w,h:h};
@@ -405,7 +408,10 @@ window.toggleTheme=function(){
     /* R140 */
     'jfif-to-jpg':'jpg','compress-webp':'webp',
     'compress-image-to-500kb':'webp','compress-image-to-1mb':'webp',
-    'compress-image-to-20kb':'jpg'
+    'compress-image-to-20kb':'jpg',
+    /* R143 */
+    'resize-image-to-1920x1080':'jpg','resize-image-to-1080x1080':'jpg',
+    'youtube-thumbnail-size':'jpg','social-media-image-sizes':'jpg'
   };
   try{
     /* 1. URL param wins. */
