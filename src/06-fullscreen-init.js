@@ -389,7 +389,8 @@ window.toggleTheme=function(){
     'compress-image-to-200kb':'webp',
     /* R140 */
     'jfif-to-jpg':'jpg','compress-webp':'webp',
-    'compress-image-to-500kb':'webp','compress-image-to-1mb':'webp'
+    'compress-image-to-500kb':'webp','compress-image-to-1mb':'webp',
+    'compress-image-to-20kb':'jpg'
   };
   try{
     /* 1. URL param wins. */
