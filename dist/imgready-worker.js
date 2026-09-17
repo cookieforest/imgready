@@ -576,42 +576,52 @@ async function encodeAnimatedGif(file, settings, prereadBuffer, decodeType){
   r0.image.close && r0.image.close();
 
   const q = (settings.quality !== undefined) ? settings.quality : 0.85;
-  const { paletteSize, frameSkip } = gifQualityParams(q);
 
-  /* Pass 1: decode every kept frame's RGBA. Sum skipped-frame
-     durations into the kept frame's delay so playback timing stays
-     roughly accurate. */
+  /* Pass 1: decode EVERY frame's RGBA, without applying frame-skip yet.
+
+     Frame-skip used to be applied here, which tied the decode to one
+     particular quality setting. Target-size mode needs to try several
+     settings, and re-decoding the whole animation per attempt would be
+     far more expensive than holding the frames — decoding dominates,
+     re-quantising does not. Skipping is now done in assemble(), which
+     subsamples this array and folds the dropped frames' durations into
+     the frame it keeps, exactly as the old loop did. */
   const canvas = new OffscreenCanvas(outW, outH);
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  const frames = [];
-  for (let i = 0; i < frameCount; i += frameSkip) {
+  const allFrames = [];
+  for (let i = 0; i < frameCount; i++) {
     const result = await decoder.decode({ frameIndex: i });
     const frame = result.image;
     ctx.clearRect(0, 0, outW, outH);
     ctx.drawImage(frame, sx, sy, sw, sh, 0, 0, outW, outH);
     const id = ctx.getImageData(0, 0, outW, outH);
-    let durationUs = frame.duration || 100000;
-    for (let k = 1; k < frameSkip && i+k < frameCount; k++) {
-      try {
-        const pk = await decoder.decode({ frameIndex: i+k });
-        durationUs += pk.image.duration || 100000;
-        pk.image.close && pk.image.close();
-      } catch (_) {}
-    }
-    frames.push({
+    allFrames.push({
       rgba: new Uint8ClampedArray(id.data),
-      delayMs: Math.max(20, Math.round(durationUs / 1000))
+      durationUs: frame.duration || 100000
     });
     frame.close && frame.close();
   }
   try { decoder.close(); } catch(_){}
+  const pixelCount = outW * outH;
+
+  /* Build a GIF at one (paletteSize, frameSkip) setting. Pure function of
+     allFrames, so target-size mode can call it repeatedly. */
+  function assemble(paletteSize, frameSkip){
+    /* Subsample, rolling skipped frames' time into the kept frame. */
+    const frames = [];
+    for (let i = 0; i < allFrames.length; i += frameSkip) {
+      let durationUs = allFrames[i].durationUs;
+      for (let k = 1; k < frameSkip && i + k < allFrames.length; k++) {
+        durationUs += allFrames[i + k].durationUs;
+      }
+      frames.push({ rgba: allFrames[i].rgba, delayMs: Math.max(20, Math.round(durationUs / 1000)) });
+    }
 
   /* Pass 2: compute global palette across all frames combined. We
      quantize to paletteSize-1 colors so the highest index in
      applyPalette's output is paletteSize-2 — the last index is
      reserved as the transparency sentinel. */
   const usableColors = Math.max(8, paletteSize - 1);
-  const pixelCount = outW * outH;
   const combined = new Uint8ClampedArray(frames.length * pixelCount * 4);
   for (let i = 0; i < frames.length; i++) {
     combined.set(frames[i].rgba, i * pixelCount * 4);
@@ -669,22 +679,101 @@ async function encodeAnimatedGif(file, settings, prereadBuffer, decodeType){
     _framesWritten++;
   }
   enc.finish();
-  const blob = new Blob([enc.bytes()], { type: 'image/gif' });
+    return {
+      bytes: enc.bytes(),
+      framesWritten: _framesWritten,
+      paletteLen: globalPalette.length,
+      changedPixelsTotal: _changedPixelsTotal,
+      totalPixels: frames.length * pixelCount,
+      paletteSize, frameSkip
+    };
+  }
+
+  /* Target-size mode. GIF has no quality dial the way JPEG does, but it
+     has two levers the encoder already exposes — palette size and frame
+     skip — and gifQualityParams maps a single 0..1 knob onto sensible
+     pairs of them. So walk that ladder from best to worst and take the
+     first result that fits.
+
+     A ladder rather than a binary search: there are only seven rungs, the
+     mapping is monotonic in size, and each rung is a visibly different
+     trade (fewer colours, then fewer frames). Bisecting would land on the
+     same answer with no fewer encodes in the common case.
+
+     ezgif shipped the equivalent in Aug 2026 for Discord/Slack/email
+     limits, which is the same reason people want it here: GIF is often
+     the only format those places accept. */
+  /* Ordered worst-last, and deliberately NOT gifQualityParams' curve.
+     That curve drops a frame every time it drops colours, so a target
+     search walking it falls off a cliff: on a 708 KB clip a 500 KB target
+     landed at 293 KB — 59% of the budget spent, half the frames gone, for
+     a 30% reduction that palette alone could have covered.
+
+     Here palette is exhausted at each frame rate before any frames are
+     dropped, because choppy motion is far more noticeable than a smaller
+     colour count. Sizes fall roughly monotonically down the list, so the
+     first rung that fits is also the best-looking one that fits. */
+  const LADDER = [
+    [255,1],[200,1],[160,1],[128,1],[96,1],[64,1],[48,1],[32,1],
+    [128,2],[96,2],[64,2],[48,2],[32,2],
+    [96,3],[64,3],[48,3],[32,3],
+    [64,4],[48,4],[32,4],
+  ];
+  let built;
+  if (settings.targetKb && settings.targetKb > 0) {
+    const budget = settings.targetKb * 1024;
+    /* Binary search for the LOWEST index that fits — lowest index means
+       best quality, since the ladder is ordered best-first. Size falls
+       monotonically enough down the list for this to hold, and it costs
+       ~5 encodes against 20 for a linear walk.
+
+       A linear walk with an attempt cap was the first attempt here and it
+       was worse than no search at all for small targets: it ran out of
+       attempts partway down and returned something over budget. Bisecting
+       always reaches the bottom of the ladder, so a reachable target is
+       always found. */
+    let lo = 0, hi = LADDER.length - 1, smallest = null;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      const attempt = assemble(LADDER[mid][0], LADDER[mid][1]);
+      if (!smallest || attempt.bytes.length < smallest.bytes.length) smallest = attempt;
+      if (attempt.bytes.length <= budget) { built = attempt; hi = mid - 1; }
+      else { lo = mid + 1; }
+    }
+    /* Nothing on the ladder fits. Make sure the floor was actually tried
+       before giving up — bisection may have stopped short of it — then
+       hand back the smallest we managed. The UI shows the real size, so
+       the user can see it missed and resize instead. */
+    if (!built) {
+      const floor = LADDER[LADDER.length - 1];
+      const last = assemble(floor[0], floor[1]);
+      if (!smallest || last.bytes.length < smallest.bytes.length) smallest = last;
+      if (last.bytes.length <= budget) built = last;
+    }
+    if (!built) built = smallest;
+  } else {
+    const p = gifQualityParams(q);
+    built = assemble(p.paletteSize, p.frameSkip);
+  }
+
+  const blob = new Blob([built.bytes], { type: 'image/gif' });
   /* Diagnostic: surface frame counts + delta stats so we can verify
      encoding worked AND measure how much delta saved. changedPct = %
      of pixels written as opaque (lower = more pixels became
      transparent = better delta compression). */
   try {
-    const totalPixels = frames.length * pixelCount;
     self.postMessage({
       type: 'gif-diag',
       sourceFrames: frameCount,
-      framesWritten: _framesWritten,
-      paletteSize: globalPalette.length,
-      frameSkip,
+      framesWritten: built.framesWritten,
+      paletteSize: built.paletteLen,
+      frameSkip: built.frameSkip,
       outW, outH,
       bytes: blob.size,
-      changedPct: totalPixels ? Math.round(_changedPixelsTotal / totalPixels * 100) : null
+      targetKb: settings.targetKb || null,
+      hitTarget: settings.targetKb ? (blob.size <= settings.targetKb * 1024) : null,
+      changedPct: built.totalPixels
+        ? Math.round(built.changedPixelsTotal / built.totalPixels * 100) : null
     });
   } catch(_){}
   return blob;
