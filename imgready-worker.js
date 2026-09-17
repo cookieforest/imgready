@@ -519,9 +519,9 @@ async function encodeAnimatedGif(file, settings, prereadBuffer, decodeType){
   if (typeof ImageDecoder !== 'function') {
     throw new Error('ImageDecoder unsupported');
   }
+  /* Loads gifenc into the module-level gifencMod that gifFromFrames reads. */
   const mod = await ensureGifenc();
-  const GIFEncoder = mod.GIFEncoder, quantize = mod.quantize, applyPalette = mod.applyPalette;
-  if (!GIFEncoder || !quantize || !applyPalette) {
+  if (!mod.GIFEncoder || !mod.quantize || !mod.applyPalette) {
     throw new Error('gifenc exports not found at ' + GIFENC_ESM);
   }
 
@@ -575,8 +575,6 @@ async function encodeAnimatedGif(file, settings, prereadBuffer, decodeType){
   }
   r0.image.close && r0.image.close();
 
-  const q = (settings.quality !== undefined) ? settings.quality : 0.85;
-
   /* Pass 1: decode EVERY frame's RGBA, without applying frame-skip yet.
 
      Frame-skip used to be applied here, which tied the decode to one
@@ -602,6 +600,24 @@ async function encodeAnimatedGif(file, settings, prereadBuffer, decodeType){
     frame.close && frame.close();
   }
   try { decoder.close(); } catch(_){}
+  return gifFromFrames(allFrames, outW, outH, settings, frameCount);
+}
+
+/* Everything from decoded frames to a finished GIF blob — the palette
+   search, the delta encoding and the target-size ladder.
+
+   Split out of encodeAnimatedGif so the video path can reuse it. Video
+   frames arrive from a <video> element on the main thread rather than
+   from ImageDecoder, but from here down the two are identical, and this
+   is where the work that matters lives.
+
+   allFrames: [{ rgba: Uint8ClampedArray, durationUs }]
+   sourceFrameCount is only used for the diagnostic message. */
+function gifFromFrames(allFrames, outW, outH, settings, sourceFrameCount){
+  const mod = gifencMod;
+  const GIFEncoder = mod.GIFEncoder, quantize = mod.quantize, applyPalette = mod.applyPalette;
+  const q = (settings.quality !== undefined) ? settings.quality : 0.85;
+  const frameCount = sourceFrameCount || allFrames.length;
   const pixelCount = outW * outH;
 
   /* Build a GIF at one (paletteSize, frameSkip) setting. Pure function of
@@ -861,6 +877,45 @@ function buildAnimatedWebp(frames, W, H, loop){
   let o = 12;
   for (const p of parts) { out.set(p, o); o += p.length; }
   return out;
+}
+
+/* Animated WebP from frames already in memory — the video path.
+
+   Deliberately NOT a refactor of encodeAnimatedWebp below. That one
+   interleaves decode and encode so a long GIF never holds more than one
+   frame's pixels at a time, which is worth keeping. Video frames arrive
+   as a complete array from the main thread, so streaming buys nothing
+   here and the straight loop is clearer.
+
+   allFrames: [{ rgba: Uint8ClampedArray, durationUs }] */
+async function webpFromFrames(allFrames, outW, outH, settings, loop){
+  const encodeWebp = await ensureWebp();
+  if (outW > 16383 || outH > 16383) {
+    throw new Error(
+      `WebP can't go past 16383 px on a side, and this is ${outW} x ${outH}. ` +
+      `Resize it below that, or pick AVIF, PNG or JPG — none of them have that limit.`);
+  }
+  const q = (settings.quality !== undefined) ? settings.quality : 0.85;
+  const quality = Math.round(Math.max(1, Math.min(100, q * 100)));
+  const frameSkip = q >= 0.35 ? 1 : (q >= 0.20 ? 2 : 3);
+
+  const canvas = new OffscreenCanvas(outW, outH);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const frames = [];
+  for (let i = 0; i < allFrames.length; i += frameSkip) {
+    let durationUs = allFrames[i].durationUs;
+    for (let k = 1; k < frameSkip && i + k < allFrames.length; k++) {
+      durationUs += allFrames[i + k].durationUs;
+    }
+    const id = new ImageData(new Uint8ClampedArray(allFrames[i].rgba), outW, outH);
+    ctx.putImageData(id, 0, 0);
+    const encoded = await encodeWebp(ctx.getImageData(0, 0, outW, outH), { quality });
+    const { bytes, hasAlpha } = webpImageChunks(encoded);
+    frames.push({ bytes, hasAlpha, delayMs: Math.max(10, Math.round(durationUs / 1000)) });
+  }
+  if (!frames.length) throw new Error('NoFramesEncoded');
+  _lastW = outW; _lastH = outH;
+  return new Blob([buildAnimatedWebp(frames, outW, outH, loop || 0)], { type: 'image/webp' });
 }
 
 async function encodeAnimatedWebp(file, settings, prereadBuffer, decodeType){
@@ -1353,6 +1408,40 @@ self.onmessage = async (e) => {
         else if (f === 'jpg' || f === 'jpeg') await ensureJpeg();
         else if (f === 'oxipng') await ensureOxipng();
       } catch (_) { /* swallow — best-effort */ }
+    }
+    return;
+  }
+  /* Frames handed straight in, already decoded and sized. Used by the
+     video path: <video> decoding needs a DOM element, so extraction has
+     to happen on the main thread, but everything after it — palette
+     search, delta encoding, the target-size ladder, animated WebP
+     packing — is the same code the GIF path uses.
+
+     e.data.frames is an array of transferred ArrayBuffers (RGBA, outW x
+     outH each) so the pixels move without a copy. */
+  if (action === 'process-frames') {
+    try {
+      const { frames, outW, outH, delaysUs, loop } = e.data;
+      if (!frames || !frames.length) throw new Error('No frames to encode');
+      const allFrames = frames.map((buf, i) => ({
+        rgba: new Uint8ClampedArray(buf),
+        durationUs: (delaysUs && delaysUs[i]) || 100000,
+      }));
+      const s = settings || {};
+      let blob;
+      if (fmt === 'webp') {
+        blob = await webpFromFrames(allFrames, outW, outH, s, loop);
+      } else {
+        /* GIF is the default for video: it is the format people convert
+           video to, and the one every chat app accepts. */
+        const mod = await ensureGifenc();
+        if (!mod.GIFEncoder) throw new Error('gifenc exports not found at ' + GIFENC_ESM);
+        blob = gifFromFrames(allFrames, outW, outH, s, allFrames.length);
+        _lastW = outW; _lastH = outH;
+      }
+      self.postMessage({ id, type: 'result', blob, outW: _lastW, outH: _lastH });
+    } catch (err) {
+      self.postMessage({ id, type: 'error', message: String(err && err.message || err) });
     }
     return;
   }
