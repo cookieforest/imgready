@@ -728,6 +728,24 @@ async function processOne(file, fmt, settings){
   bmp.close();
   _lastW = w; _lastH = h; /* R46: record final output dims */
 
+  /* WebP is capped at 16383 px per side by the bitstream format itself —
+     libwebp simply refuses anything larger. Without this check the user
+     dropped a panorama or a long scan, picked WebP, and got the raw
+     encoder string "Encoding error.", which says nothing about what went
+     wrong or what to do instead. Every other output format here handles
+     these dimensions fine, so the fix is to say so.
+
+     Checked before the target-size search below, because that path
+     encodes too and would otherwise fail first with the same opaque
+     message. Note this also catches 'auto', which resolves to webp for
+     webp input on the main thread. */
+  if (fmt === 'webp' && (w > 16383 || h > 16383)) {
+    throw new Error(
+      `WebP can't go past 16383 px on a side, and this is ${w} x ${h}. ` +
+      `Resize it below that, or pick AVIF, PNG or JPG — none of them have that limit.`
+    );
+  }
+
   /* R118 — Target-size ("by size") mode: return the HIGHEST quality whose
      encoded output is still <= the requested byte budget, so the result
      always MATCHES or comes in UNDER the user's selection (never over).
