@@ -314,6 +314,20 @@ function _isSvgFile(file){
 }
 
 async function addFilesFromList(fileList){
+  /* The >200-file confirm used to sit on the two call sites that happened
+     to be written last — clipboard paste and the full-window drop overlay.
+     The paths people actually use, the dropzone's own drop handler and both
+     file pickers, went straight past it, so selecting a whole folder gave no
+     warning at all. Guarding here instead means every entry point is covered,
+     including any added later and the OS share target.
+
+     maybeBigBatchConfirm is a hoisted function declaration, so calling it
+     from up here is fine even though it is defined much further down, and
+     it resolves immediately for 200 files or fewer. */
+  if (fileList && fileList.length > 200 && typeof maybeBigBatchConfirm === 'function') {
+    fileList = await maybeBigBatchConfirm(Array.from(fileList));
+    if (!fileList.length) return;
+  }
   const fresh = [];
   let totalSeen = 0;
   for (let i = 0; i < fileList.length; i++) {
@@ -3936,8 +3950,7 @@ document.addEventListener('paste', async e => {
   }
   if (files.length && typeof addFilesFromList === 'function') {
     e.preventDefault();
-    const accepted = await maybeBigBatchConfirm(files);
-    if (accepted.length) addFilesFromList(accepted);
+    addFilesFromList(files);   /* addFilesFromList runs the big-batch confirm itself */
   }
 });
 
@@ -3989,9 +4002,8 @@ document.addEventListener('drop', async e => {
   const dt = e.dataTransfer;
   const list = dt && dt.files;
   if (!list || !list.length) return;
-  const accepted = await maybeBigBatchConfirm(Array.from(list));
-  if (accepted.length && typeof addFilesFromList === 'function') {
-    addFilesFromList(accepted);
+  if (typeof addFilesFromList === 'function') {
+    addFilesFromList(Array.from(list));   /* confirm handled inside */
   }
 });
 
