@@ -1018,7 +1018,18 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
      proper touch sizes (~40 px) without crowding. Format pills get more
      breathing room, the quality slider stays touch-grippable, and the
      Download button stays solid + brand green from its desktop rule. */
-  .fs-editor-inner{flex-wrap:wrap;gap:8px;padding:10px 12px;border-radius:12px;justify-content:center;}
+  /* .fs-editor-inner is display:grid (1fr auto), so the flex-wrap and
+     justify-content this rule used to carry did nothing — they were
+     written for a flex layout it no longer has. The effect was that
+     .fe-tuning stayed pinned in the 1fr column next to Copy/Download
+     and measured 162px on a 375px screen, while its pills needed 239.
+     They sit in an overflow-x scroller so they were reachable, but the
+     active pill could be parked off-screen with no hint it was there —
+     on /png-to-ico/ the ICO pill sat at x=215 in a 162px window.
+     One column on a phone: tuning gets the full width, actions drop
+     underneath. */
+  .fs-editor-inner{grid-template-columns:1fr;gap:8px;padding:10px 12px;border-radius:12px;}
+  .fs-editor .fe-actions{justify-self:stretch;justify-content:center;}
   .fs-editor .fe-fmt{width:100%;justify-content:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
   .fs-editor .fe-fmt::-webkit-scrollbar{display:none;}
   .fs-editor .fe-fmt button{padding:8px 14px;font-size:.82rem;min-height:38px;border-radius:8px;flex-shrink:0;}
