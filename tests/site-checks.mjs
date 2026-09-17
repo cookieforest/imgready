@@ -133,7 +133,30 @@ for (const p of sitemapPaths) {
   }
 }
 
-/* ---------- 8. no page is orphaned ---------- */
+/* ---------- 8. the homepage shows its controls ---------- */
+{
+  const f = join(ROOT, 'index.html');
+  if (existsSync(f)) {
+    const html = read(f);
+    /* Format, Quality, Resize and Crop all live in .bb-drawer. It used to
+       start closed on every load, so the result view opened with nothing
+       but a gear — the primary control of a format converter hidden
+       behind an undiscoverable click. */
+    if (!/<body[^>]*data-adjust="open"/.test(html)) {
+      fail('homepage controls', 'body does not default data-adjust="open" — the tools start hidden again');
+    }
+    if (/class="bb-drawer"[^>]*aria-hidden="true"/.test(html)) {
+      fail('homepage controls', '.bb-drawer is hardcoded aria-hidden="true" — invisible to screen readers when open');
+    }
+    const labels = [...html.matchAll(/bb-section-label">([^<]*)</g)].map((m) => m[1].trim());
+    for (const want of ['Format', 'Quality']) {
+      if (!labels.includes(want)) fail('homepage controls', `no ${want} control found in the action bar`);
+    }
+    notes.push(`homepage action bar: ${labels.join(', ')} — drawer defaults open`);
+  }
+}
+
+/* ---------- 9. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {

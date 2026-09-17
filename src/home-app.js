@@ -5,9 +5,53 @@ function setState(s){
   document.body.dataset.piActions = 'closed';
   if(s==='multi') requestAnimationFrame(layoutCoverFlow);
 }
-function toggleAdjust(){
-  document.body.dataset.adjust = document.body.dataset.adjust==='open' ? 'closed' : 'open';
+/* The settings drawer holds Format, Quality, Resize and Crop — every
+   control that changes the output. It used to start closed on every load,
+   so the result view opened with nothing but a gear, Share and Download:
+   the primary control of a format converter was one undiscoverable click
+   away, on every visit, while the landing pages showed the same controls
+   inline the whole time.
+
+   The drawer's own comment says it was meant for "secondary controls
+   (Resize + Privacy) that the user visits less often than format/quality"
+   — Format and Quality ended up inside it anyway. That is drift, not a
+   decision, so the default is now open.
+
+   The choice persists. Someone who wants the image uncluttered closes it
+   once and it stays closed; someone who has never seen the app gets shown
+   what the app can do. */
+const ADJUST_KEY = 'imgready_adjust';
+
+/* The drawer carried a hardcoded aria-hidden="true" that nothing ever
+   updated, so once it was open its controls were visible to sighted users
+   and absent for screen readers. Keep both it and the toggle's
+   aria-expanded in step with the actual state. */
+function _syncAdjustA11y(state){
+  const open = state === 'open';
+  const drawer = document.getElementById('bbDrawer');
+  if (drawer) drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+  document.querySelectorAll('.settings-toggle').forEach((b) => {
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (!b.hasAttribute('aria-controls') && drawer) b.setAttribute('aria-controls', 'bbDrawer');
+  });
 }
+
+function toggleAdjust(){
+  const next = document.body.dataset.adjust === 'open' ? 'closed' : 'open';
+  document.body.dataset.adjust = next;
+  _syncAdjustA11y(next);
+  try { localStorage.setItem(ADJUST_KEY, next); } catch(_){}
+}
+
+(function restoreAdjustPreference(){
+  let saved = null;
+  try { saved = localStorage.getItem(ADJUST_KEY); } catch(_){}
+  /* Only an explicit "closed" overrides the default — anything else,
+     including storage being unavailable, opens. */
+  const state = saved === 'closed' ? 'closed' : 'open';
+  document.body.dataset.adjust = state;
+  _syncAdjustA11y(state);
+})();
 
 /* ===== beta: file-based thumb data ===== */
 const FILES = [];  // array of { file, url, name, w, h }
