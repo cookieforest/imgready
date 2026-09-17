@@ -236,7 +236,36 @@ for (const p of sitemapPaths) {
   notes.push('classes: .hide-mobile is styled where it is used');
 }
 
-/* ---------- 12. no page is orphaned ---------- */
+/* ---------- 12. video extraction can't wait forever ---------- */
+{
+  const f = join(ROOT, 'src', 'home-app.js');
+  if (existsSync(f)) {
+    const js = read(f);
+    const fn = js.slice(js.indexOf('async function extractVideoFrames'));
+    const body = fn.slice(0, fn.indexOf('\nasync function addFilesFromList'));
+    /* The loadedmetadata await has always had a 30s deadline. The seek
+       loop had none, so a file that opened but could not be scrubbed
+       (unseekable stream, damaged index) left the await pending for
+       good: the page kept painting and the "Reading video…" toast sat
+       at its 60s timeout, so it read as slow rather than stuck.
+       Verified by stubbing a video element that fires loadedmetadata
+       and never fires seeked — it now throws in ~10s. */
+    const seekBlock = body.slice(body.indexOf("addEventListener('seeked'") - 800,
+                                 body.indexOf("addEventListener('seeked'") + 400);
+    if (!/setTimeout\(/.test(seekBlock)) {
+      fail('video', 'the seek loop in extractVideoFrames has no timeout — an unseekable file hangs it forever');
+    }
+    /* duration is Infinity for MediaRecorder output and NaN for some
+       damaged files. NaN made the frame count NaN, the loop ran zero
+       times, and the caller threw on bufs[0] of an empty array. */
+    if (!/Number\.isFinite\(dur\)/.test(body)) {
+      fail('video', 'extractVideoFrames does not guard a non-finite duration');
+    }
+    notes.push('video: seek loop is bounded and non-finite durations are handled');
+  }
+}
+
+/* ---------- 13. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {

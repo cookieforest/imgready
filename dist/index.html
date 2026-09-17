@@ -6339,8 +6339,16 @@ async function extractVideoFrames(file, onProgress){
       v.onerror = () => rej(new Error('That video could not be read. Try MP4, WebM or MOV.'));
       setTimeout(() => rej(new Error('That video took too long to open.')), 30000);
     });
-    const dur = v.duration, vw = v.videoWidth, vh = v.videoHeight;
+    let dur = v.duration, vw = v.videoWidth, vh = v.videoHeight;
     if (!vw || !vh) throw new Error('That file has no video track.');
+    /* duration can be Infinity (MediaRecorder output and other streamed
+       files carry no duration) or NaN. Infinity happens to survive the
+       maths below because n is capped, but NaN makes `wanted` NaN, which
+       makes n NaN, which makes the loop run zero times and hand the
+       caller an empty bufs — it then reads bufs[0] and throws something
+       unreadable. Treat both as "unknown length" and let the frame cap
+       decide how much we take. */
+    if (!Number.isFinite(dur) || dur <= 0) dur = VIDEO_MAX_FRAMES / VIDEO_FPS;
     const step = 1 / VIDEO_FPS;
     const wanted = Math.max(1, Math.floor(dur / step));
     const n = Math.min(VIDEO_MAX_FRAMES, wanted);
@@ -6350,11 +6358,31 @@ async function extractVideoFrames(file, onProgress){
     const x = c.getContext('2d', { willReadFrequently: true });
     const bufs = [], delaysUs = [];
     for (let i = 0; i < n; i++) {
-      await new Promise((res) => {
-        const on = () => { v.removeEventListener('seeked', on); res(); };
+      /* Every seek needs its own deadline. The 30s guard above only
+         covers loadedmetadata; nothing covered the seeks, so a file that
+         opens fine but can't seek — an unseekable stream, a missing or
+         damaged index — left this promise pending forever. The page kept
+         painting, so it didn't look crashed: the "Reading video…" toast
+         just sat there at its 60s timeout with no error and no way out.
+         Bail with a readable message instead, and keep whatever frames
+         we already have if it's enough to be worth something. */
+      const seekOk = await new Promise((res) => {
+        let settled = false;
+        const done = (ok) => { if (settled) return; settled = true; clearTimeout(t); v.removeEventListener('seeked', on); res(ok); };
+        const on = () => done(true);
+        /* Generous on purpose. A seek into a large 4K source can take a
+           second or two on a slow machine, and a false timeout here
+           would truncate a clip that was going to work. This only has
+           to beat "never", not be tight. */
+        const t = setTimeout(() => done(false), 10000);
         v.addEventListener('seeked', on);
-        v.currentTime = Math.min(dur - 0.001, i * step);
+        try { v.currentTime = Math.min(dur - 0.001, i * step); }
+        catch (_) { done(false); }
       });
+      if (!seekOk) {
+        if (bufs.length) break;
+        throw new Error('That video could not be scrubbed — try re-saving it as MP4.');
+      }
       x.drawImage(v, 0, 0, w, h);
       bufs.push(x.getImageData(0, 0, w, h).data.buffer);
       delaysUs.push(Math.round(step * 1e6));
@@ -6364,8 +6392,11 @@ async function extractVideoFrames(file, onProgress){
       bufs, delaysUs, w, h,
       sourceW: vw, sourceH: vh,
       duration: dur,
-      usedSeconds: n * step,
-      truncated: wanted > n,
+      /* bufs.length, not n — a seek that times out breaks out early, and
+         reporting the frames we meant to take would overstate the clip
+         the user is actually getting. */
+      usedSeconds: bufs.length * step,
+      truncated: wanted > bufs.length,
     };
   } finally {
     URL.revokeObjectURL(url);
