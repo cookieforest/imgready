@@ -1707,6 +1707,19 @@
      so only one set of controls is reachable at a time. The workspace
      runs on the dark palette (body[data-state=solo|multi]), so these use
      the tokens rather than the light-state literals. */
+  /* The workspace is a deliberately locked viewport — body and .stage are
+     overflow:hidden with height:100vh so the image canvas can own the
+     screen. The list is a document, not a canvas, and inherited that
+     lock: at 40 files it was 2921px of rows inside a 720px box with no
+     scrollbar and no wheel scrolling, so thirty of them were simply
+     unreachable. Found by dropping 40 files as a estate-agent persona
+     rather than the three I had been testing with.
+     Scrolling is restored for the list view only; compare keeps the
+     lock, which is correct for a full-bleed image. */
+  body[data-state="multi"][data-view="list"]{overflow-y:auto;}
+  body[data-state="multi"][data-view="list"] .stage.multi{
+    overflow-y:auto;-webkit-overflow-scrolling:touch;height:100vh;
+  }
   .file-list-wrap{display:none;}
   body[data-state="multi"][data-view="list"] .file-list-wrap{
     display:flex;flex-direction:column;gap:10px;
@@ -1818,10 +1831,35 @@
   /* …and the compare view hides the list. */
   body[data-view="compare"] .file-list-wrap{display:none;}
 
+  /* Sticky, because on a 40-file batch the total and Download all
+     scrolled away after about ten rows and there was no way back to
+     them without returning to the top. */
   .fl-head{
+    position:sticky;top:0;z-index:5;
     display:flex;align-items:center;justify-content:space-between;gap:12px;
     flex-wrap:wrap;
+    padding:10px 0;margin-bottom:2px;
+    background:linear-gradient(to bottom,var(--bg) 78%,transparent);
   }
+  .fl-sort select{
+    font:inherit;font-size:.78rem;font-weight:600;
+    padding:8px 10px;min-height:38px;border-radius:9px;
+    border:1px solid var(--border);background:transparent;color:var(--text);
+    cursor:pointer;
+  }
+  /* Remove-one. Quiet until the row is hovered or it is focused, so
+     forty of them don't shout, but always in the DOM for the keyboard. */
+  .fl-rm{
+    font:inherit;font-size:1rem;line-height:1;
+    width:30px;height:30px;border-radius:8px;cursor:pointer;
+    border:1px solid transparent;background:transparent;
+    color:var(--muted);opacity:0;transition:opacity .14s ease,background .14s ease;
+  }
+  .fl-row:hover .fl-rm{opacity:.75;}
+  .fl-rm:hover{background:color-mix(in srgb,var(--danger) 22%,transparent);color:var(--text);opacity:1;}
+  .fl-rm:focus-visible{opacity:1;outline:2px solid var(--accent);outline-offset:2px;}
+  /* No hover on touch, so it has to be visible there. */
+  @media (hover:none){ .fl-rm{opacity:.6;} }
   .fl-summary{font-size:.92rem;font-weight:700;color:var(--text);}
   .fl-head-actions{display:flex;gap:8px;align-items:center;}
   .fl-btn{
@@ -1839,7 +1877,7 @@
   .fl-rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
   .fl-row{
     display:grid;
-    grid-template-columns:44px minmax(0,1fr) auto auto;
+    grid-template-columns:44px minmax(0,1fr) auto auto auto;
     align-items:center;gap:12px;
     padding:8px 10px;border-radius:10px;
     background:color-mix(in srgb,var(--text) 6%,transparent);
@@ -1904,7 +1942,10 @@
   body:not([data-state="multi"]) .fl-back{display:none;}
 
   @media (max-width:560px){
-    .fl-row{grid-template-columns:38px minmax(0,1fr) auto;gap:10px;padding:8px;}
+    .fl-row{grid-template-columns:38px minmax(0,1fr) auto auto;gap:8px;padding:8px;}
+    /* Drop the input half rather than truncating away the result. */
+    .fl-before{display:none;}
+    .fl-after{font-weight:600;color:var(--text);}
     .fl-thumb{width:38px;height:38px;}
     /* The saving moves under the name; the download button keeps its
        own column so it stays a real 34px target. */
@@ -5955,10 +5996,20 @@
     <div class="fl-head">
       <span class="fl-summary" id="flSummary">Optimising…</span>
       <span class="fl-head-actions">
+        <!-- Only shown once a batch is big enough to need it. On 40 files
+             you cannot find the ones that are still too big by reading. -->
+        <label class="fl-sort" id="flSortWrap" hidden>
+          <span class="sr-only">Sort files</span>
+          <select id="flSort" onchange="flSetSort(this.value)">
+            <option value="added">Added order</option>
+            <option value="largest">Largest first</option>
+            <option value="leastsaved">Least saved first</option>
+          </select>
+        </label>
         <button type="button" class="fl-btn fl-btn-ghost" id="flEditBtn" onclick="flOpenSettings()">
           Edit settings
         </button>
-        <button type="button" class="fl-btn fl-btn-primary" onclick="downloadAll()">
+        <button type="button" class="fl-btn fl-btn-primary" id="flDlAll" onclick="downloadAll()">
           Download all
         </button>
       </span>

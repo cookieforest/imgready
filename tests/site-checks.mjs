@@ -470,7 +470,22 @@ for (const p of sitemapPaths) {
     if (rawAdds !== 1) {
       fail('batch list', `${rawAdds} sites call ENCODE.failed.add directly — failures must go through markEncodeFailed or the list never learns about them`);
     }
-    notes.push('batch list: list is the default view, action bar gated behind Edit, Auto for mixed batches, failures surface with retry');
+    /* The workspace is a locked viewport — body and .stage are
+       overflow:hidden at height:100vh so the image canvas owns the
+       screen. The list inherited that and became 2900px of rows inside
+       a 720px box with no scrollbar: on a 40-file batch thirty files
+       were simply unreachable. List view has to restore scrolling. */
+    if (!/body\[data-state="multi"\]\[data-view="list"\] \.stage\.multi\{[^}]*overflow-y:auto/.test(home)) {
+      fail('batch list', 'list view does not restore scrolling — rows past the fold are unreachable in the locked workspace');
+    }
+    /* Removing one file has to remap the index-keyed ENCODE maps, or a
+       file's results end up displayed against another file's name. */
+    if (!/function flRemove/.test(app)) {
+      fail('batch list', 'no way to remove a single file — the only exit from a wrong file is Clear all');
+    } else if (!/shift\(ENCODE\.encoded\)/.test(app)) {
+      fail('batch list', 'flRemove does not remap ENCODE.encoded — results will attach to the wrong rows');
+    }
+    notes.push('batch list: default view, scrollable, sortable, per-row remove, Auto for mixed batches, failures retry');
   }
 }
 

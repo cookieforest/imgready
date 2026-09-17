@@ -656,11 +656,40 @@ async function addFilesFromList(fileList){
    files and each row is a handful of nodes, so the rebuild is cheap, and
    it keeps this in step with ENCODE.encoded without a second source of
    truth to drift out of sync. */
-function flRowMeta(f, enc){
+/* Split into before/after spans so narrow screens can drop the BEFORE
+   half instead of ellipsing the line. Truncating the string kept the
+   input size the visitor already knew and cut off the result — the same
+   mistake the compare bar made, repeated here before I noticed. */
+function flFillMeta(el, f, enc){
   const inFmt = (f.file.type.split('/')[1] || (f.name.split('.').pop() || '')).toUpperCase();
-  if (!enc) return `${fmtSize(f.file.size)} · ${inFmt} → encoding…`;
-  return `${fmtSize(f.file.size)} · ${inFmt} → ${fmtSize(enc.size)} · ${(enc.format || '').toUpperCase()}`;
+  el.textContent = '';
+  const before = document.createElement('span');
+  before.className = 'fl-before';
+  before.textContent = `${fmtSize(f.file.size)} · ${inFmt} → `;
+  const after = document.createElement('span');
+  after.className = 'fl-after';
+  after.textContent = enc ? `${fmtSize(enc.size)} · ${(enc.format || '').toUpperCase()}` : 'encoding…';
+  el.append(before, after);
 }
+/* Display order only — FILES keeps its original indexing, because
+   ENCODE.encoded and friends are keyed by index and reordering the
+   array would invalidate every one of them. */
+let FL_SORT = 'added';
+window.flSetSort = function(mode){ FL_SORT = mode; renderFileList(); };
+function flOrder(){
+  const idx = FILES.map((_, i) => i);
+  if (FL_SORT === 'added') return idx;
+  const sizeOf = (i) => { const e = ENCODE.encoded.get(i); return e ? e.size : -1; };
+  const savingOf = (i) => {
+    const e = ENCODE.encoded.get(i); if (!e) return 999;
+    return Math.round((1 - e.size / FILES[i].file.size) * 100);
+  };
+  /* Unencoded rows sink rather than jumping around as results land. */
+  if (FL_SORT === 'largest') return idx.sort((a, b) => sizeOf(b) - sizeOf(a));
+  if (FL_SORT === 'leastsaved') return idx.sort((a, b) => savingOf(a) - savingOf(b));
+  return idx;
+}
+
 function renderFileList(){
   const wrap = document.getElementById('flRows');
   if (!wrap) return;
@@ -668,7 +697,9 @@ function renderFileList(){
   let done = 0, totalBefore = 0, totalAfter = 0;
 
   let failedCount = 0;
-  FILES.forEach((f, i) => {
+  flOrder().forEach((i) => {
+    const f = FILES[i];
+    if (!f) return;
     const enc = ENCODE.encoded.get(i);
     /* Failures are keyed by generation, so a stale record from before
        the last settings change must not mark this row dead. */
@@ -696,7 +727,7 @@ function renderFileList(){
       mt.textContent = `${fmtSize(f.file.size)} · ${why}`;
       mt.classList.add('fl-meta-bad');
     } else {
-      mt.textContent = flRowMeta(f, enc);
+      flFillMeta(mt, f, enc);
     }
     mid.append(nm, mt);
 
@@ -727,9 +758,20 @@ function renderFileList(){
       dl.disabled = !enc;
       dl.setAttribute('aria-label', `Download ${f.name}`);
       dl.addEventListener('click', (e) => { e.stopPropagation(); flDownloadOne(i, dl); });
+      /* With one file the header button and this one do exactly the same
+         thing side by side. Keep the header's — it is the primary. */
+      if (FILES.length === 1) dl.hidden = true;
     }
 
-    li.append(img, mid, sav, dl);
+    /* Remove one file. Before this the only way out of a wrong file in a
+       batch was Clear all and start the whole drop again. */
+    const rm = document.createElement('button');
+    rm.type = 'button'; rm.className = 'fl-rm';
+    rm.innerHTML = '&#215;';
+    rm.setAttribute('aria-label', `Remove ${f.name} from the batch`);
+    rm.addEventListener('click', (e) => { e.stopPropagation(); flRemove(i); });
+
+    li.append(img, mid, sav, dl, rm);
     /* A failed row has nothing to compare, so it is not a button. */
     if (!isFailed) {
       li.addEventListener('click', () => showCompareView(i));
@@ -757,6 +799,12 @@ function renderFileList(){
     else if (totalBefore > totalAfter) sum.textContent = `${word} · ${fmtSize(totalBefore - totalAfter)} saved${failWord}`;
     else sum.textContent = word + failWord;
   }
+  /* Sort only earns its space once reading the list stops working. */
+  const sortWrap = document.getElementById('flSortWrap');
+  if (sortWrap) sortWrap.hidden = FILES.length < 5;
+  /* "Download all" is a strange thing to call a button next to one file. */
+  const dlAll = document.getElementById('flDlAll');
+  if (dlAll) dlAll.textContent = FILES.length === 1 ? 'Download' : 'Download all';
 }
 /* Download a single row. Reuses the encoded blob when it exists and
    encodes on demand when the background queue hasn't reached it yet, so
@@ -780,6 +828,69 @@ async function flDownloadOne(idx, btn){
   triggerDownload(enc.url, `${base}_imgready.${enc.format || 'jpg'}`);
   if (btn && typeof piConfirm === 'function') piConfirm(btn, 'Saved');
 }
+/* Remove one file from the batch.
+
+   The fiddly part is that ENCODE.encoded, .allEncoded, .outDims and
+   .failed are all keyed by the file's INDEX, so splicing FILES shifts
+   every entry above the removed one. Each map is rebuilt with shifted
+   keys rather than cleared, so the other files keep their results and
+   nothing is re-encoded. Getting this wrong would silently show one
+   file's numbers against another file's name. */
+function flRemove(idx){
+  const f = FILES[idx];
+  if (!f) return;
+  try { URL.revokeObjectURL(f.url); } catch(_){}
+  const gone = ENCODE.encoded.get(idx);
+  if (gone && gone.url) { try { URL.revokeObjectURL(gone.url); } catch(_){} }
+
+  FILES.splice(idx, 1);
+
+  const shift = (map) => {
+    const next = new Map();
+    map.forEach((v, k) => {
+      if (k === idx) return;
+      next.set(k > idx ? k - 1 : k, v);
+    });
+    map.clear();
+    next.forEach((v, k) => map.set(k, v));
+  };
+  /* .encoded's set is wrapped to repaint the list, so rebuild it via a
+     plain Map and copy back through the wrapper once at the end. */
+  shift(ENCODE.encoded);
+  shift(ENCODE.allEncoded);
+  shift(ENCODE.outDims);
+  if (ENCODE.failReason) shift(ENCODE.failReason);
+  if (ENCODE.failed) {
+    const kept = [];
+    ENCODE.failed.forEach((key) => {
+      const [g, i] = String(key).split(':').map(Number);
+      if (i === idx) return;
+      kept.push(`${g}:${i > idx ? i - 1 : i}`);
+    });
+    /* Replace the Set rather than clear-and-add. Re-adding here would be
+       a second direct ENCODE.failed.add in the file, and the invariant
+       that every failure is RECORDED through markEncodeFailed is worth
+       keeping crisp enough to check — this is a re-key, not a new
+       failure. The check caught this. */
+    ENCODE.failed = new Set(kept);
+  }
+  /* Anything queued or in flight refers to the old indices. */
+  ENCODE.queue = [];
+  ENCODE.inflight.clear();
+
+  if (!FILES.length) { if (typeof doClear === 'function') doClear(); return; }
+
+  CFLOW.selected = Math.max(0, Math.min(FILES.length - 1, CFLOW.selected > idx ? CFLOW.selected - 1 : CFLOW.selected));
+  if (typeof buildThumbs === 'function') buildThumbs();
+  if (typeof layoutCoverFlow === 'function') layoutCoverFlow();
+  if (typeof syncMainImage === 'function') syncMainImage(true);
+  if (typeof syncCompareBar === 'function') syncCompareBar();
+  renderFileList();
+  /* Pick up anything that had not been encoded yet under its new index. */
+  if (typeof enqueueAll === 'function') setTimeout(enqueueAll, 30);
+}
+window.flRemove = flRemove;
+
 /* Clear the failure record for one row and encode it again. */
 async function flRetry(idx){
   const f = FILES[idx];
