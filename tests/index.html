@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>imgready engine tests</title>
+<style>
+  :root{
+    --bg:#f5f0e8; --panel:#faf7f2; --line:#d6cebb;
+    --ink:#2e2a22; --muted:#8a8070; --accent:#5a7a5a; --bad:#a04040;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);
+       font-family:'Inter','Segoe UI',system-ui,sans-serif;line-height:1.6;}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 24px 80px;}
+  h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.7rem;letter-spacing:-.5px;margin-bottom:6px;}
+  p.lede{color:var(--muted);font-size:.92rem;margin-bottom:22px;}
+  .bar{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+  button{padding:10px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;
+         font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  button:hover{background:#7a9a7a;}
+  button:disabled{opacity:.5;cursor:not-allowed;}
+  button.ghost{background:transparent;color:var(--accent);border:1px solid var(--line);}
+  .summary{font-size:.9rem;color:var(--muted);}
+  .summary strong{color:var(--ink);}
+  .summary .ok{color:var(--accent);}
+  .summary .no{color:var(--bad);}
+  ol{list-style:none;}
+  li{background:var(--panel);border:1px solid var(--line);border-left-width:3px;
+     border-radius:8px;padding:11px 14px;margin-bottom:8px;font-size:.88rem;}
+  li.pass{border-left-color:var(--accent);}
+  li.FAIL{border-left-color:var(--bad);}
+  li.skipped{border-left-color:var(--line);opacity:.6;}
+  li.running{border-left-color:var(--muted);opacity:.7;}
+  .name{font-weight:600;}
+  .ms{float:right;color:var(--muted);font-size:.76rem;font-variant-numeric:tabular-nums;}
+  .err{margin-top:6px;color:var(--bad);font-family:ui-monospace,monospace;font-size:.8rem;
+       white-space:pre-wrap;word-break:break-word;}
+  .note{margin-top:26px;padding:14px 16px;background:#e8f0e8;border-left:3px solid var(--accent);
+        border-radius:0 8px 8px 0;font-size:.86rem;color:#5a5448;}
+  code{font-family:ui-monospace,monospace;font-size:.85em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>imgready engine tests</h1>
+  <p class="lede">
+    Every case here is a behaviour that was wrong at some point. The engine's
+    recurring failure mode is producing a file of the wrong kind and reporting
+    success, so the assertions read actual bytes — magic numbers, ICO directory
+    entries, decoded frame counts — rather than trusting a label.
+  </p>
+
+  <div class="bar">
+    <button id="run">Run all</button>
+    <button id="runFast" class="ghost">Skip video (faster)</button>
+    <span class="summary" id="summary"></span>
+  </div>
+
+  <ol id="out"></ol>
+
+  <div class="note">
+    Runs against the real worker over HTTP, so it must be served rather than
+    opened from disk. Fixtures are generated in the browser — no binary files
+    to keep in sync. Headless:
+    <code>await window.IMGREADY_TESTS.run()</code>
+  </div>
+</div>
+
+<script src="/tests/engine.js"></script>
+<script>
+  const out = document.getElementById('out');
+  const summary = document.getElementById('summary');
+  const runBtn = document.getElementById('run');
+  const fastBtn = document.getElementById('runFast');
+
+  function render(r) {
+    const li = document.createElement('li');
+    li.className = r.status;
+    li.innerHTML = '<span class="ms">' + (r.ms != null ? r.ms + ' ms' : '') + '</span>' +
+                   '<span class="name">' + (r.status === 'FAIL' ? '✕ ' : r.status === 'pass' ? '✓ ' : '· ') +
+                   r.name + '</span>';
+    if (r.error) {
+      const e = document.createElement('div');
+      e.className = 'err'; e.textContent = r.error;
+      li.appendChild(e);
+    }
+    out.appendChild(li);
+  }
+
+  async function go(slow) {
+    runBtn.disabled = fastBtn.disabled = true;
+    out.innerHTML = '';
+    summary.textContent = 'running ' + window.IMGREADY_TESTS.count + ' cases…';
+    const t0 = performance.now();
+    const res = await window.IMGREADY_TESTS.run({ slow, onResult: render });
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    summary.innerHTML =
+      '<strong>' + res.passed + '</strong> <span class="ok">passed</span>, ' +
+      '<strong>' + res.failed + '</strong> <span class="' + (res.failed ? 'no' : '') + '">failed</span>' +
+      (res.skipped ? ', ' + res.skipped + ' skipped' : '') + ' — ' + secs + 's';
+    document.title = (res.failed ? '✕ ' : '✓ ') + res.passed + '/' +
+                     (res.passed + res.failed) + ' imgready tests';
+    runBtn.disabled = fastBtn.disabled = false;
+    window.__TEST_RESULT = res;
+  }
+
+  runBtn.addEventListener('click', () => go(true));
+  fastBtn.addEventListener('click', () => go(false));
+</script>
+</body>
+</html>

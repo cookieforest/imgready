@@ -7,7 +7,8 @@
     "build": "node build.mjs",
     "build:watch": "node build.mjs --watch",
     "check": "node --check app.js && node --check imgready-worker.js && node --check sw.js",
-    "verify": "npm run check && npm run build && node --check dist/app.js",
+    "check:site": "node tests/site-checks.mjs .",
+    "verify": "npm run check && npm run build && node --check dist/app.js && npm run check:site",
     "dev": "node build.mjs --watch"
   },
   "devDependencies": {

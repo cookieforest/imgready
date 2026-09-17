@@ -24,6 +24,13 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Site invariants
+        # Static checks that need no browser: internal links, canonicals,
+        # sitemap/llms.txt coverage, JSON-LD validity, both slash forms on
+        # every redirect, and a banned-phrase list for claims the engine
+        # does not actually honour. Each one is a regression that shipped.
+        run: npm run check:site
+
       - name: Source size sanity (catches truncation)
         # Each ordered source chunk should be reasonable. If something
         # truncates them later, the next CI run flags the missing bytes.
