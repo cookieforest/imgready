@@ -655,6 +655,194 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
   return blob;
 }
 
+/* ---------- animated WebP ----------------------------------------------
+   Animated GIF -> WebP used to drop every frame but the first, which made
+   /gif-to-webp/ a worse tool than the format allows: WebP has supported
+   animation since 2013, and an animated WebP of the same clip is typically
+   well under half the GIF.
+
+   @jsquash/webp only encodes single still frames, so we assemble the
+   animation container ourselves. That turns out to be straightforward,
+   because a simple WebP file is just a RIFF wrapper around the frame's
+   bitstream — so encoding each frame normally and re-packing the payloads
+   into ANMF chunks gives a spec-correct animation with no extra WASM.
+
+   Container layout (all sizes little-endian, chunks padded to even length):
+     RIFF <size> WEBP
+       VP8X  flags + canvas (w-1, h-1) as 24-bit
+       ANIM  background BGRA + loop count
+       ANMF  x, y, (w-1), (h-1), duration, flags   per frame
+             followed by that frame's own ALPH/VP8/VP8L chunks verbatim
+------------------------------------------------------------------------ */
+
+/* Pull the image payload out of an encoded still WebP: everything after the
+   12-byte RIFF/WEBP header except VP8X, which the animation supplies itself.
+   @jsquash emits a bare "VP8 " chunk when opaque, and VP8X + ALPH + VP8 when
+   the frame carries alpha. */
+function webpImageChunks(buf){
+  const u = new Uint8Array(buf);
+  const dv = new DataView(u.buffer, u.byteOffset, u.byteLength);
+  const keep = [];
+  let p = 12, hasAlpha = false, total = 0;
+  while (p + 8 <= u.length) {
+    const id = String.fromCharCode(u[p], u[p+1], u[p+2], u[p+3]);
+    const size = dv.getUint32(p + 4, true);
+    const padded = 8 + size + (size & 1);
+    if (id === 'ALPH') hasAlpha = true;
+    if (id !== 'VP8X') { keep.push(u.subarray(p, p + padded)); total += padded; }
+    p += padded;
+  }
+  const bytes = new Uint8Array(total);
+  let o = 0;
+  for (const c of keep) { bytes.set(c, o); o += c.length; }
+  return { bytes, hasAlpha };
+}
+
+function _riffChunk(id, payload){
+  const size = payload.length, pad = size & 1;
+  const out = new Uint8Array(8 + size + pad);
+  out[0] = id.charCodeAt(0); out[1] = id.charCodeAt(1);
+  out[2] = id.charCodeAt(2); out[3] = id.charCodeAt(3);
+  new DataView(out.buffer).setUint32(4, size, true);
+  out.set(payload, 8);
+  return out;
+}
+function _u24(v){ return [v & 0xFF, (v >> 8) & 0xFF, (v >> 16) & 0xFF]; }
+
+/* frames: [{ bytes, hasAlpha, delayMs }]. loop 0 = forever. */
+function buildAnimatedWebp(frames, W, H, loop){
+  const anyAlpha = frames.some(f => f.hasAlpha);
+  /* VP8X flags: bit1 = animation, bit4 = alpha. */
+  const vp8x = new Uint8Array([(anyAlpha ? 0x10 : 0x00) | 0x02, 0, 0, 0,
+                               ..._u24(W - 1), ..._u24(H - 1)]);
+  const anim = new Uint8Array([0, 0, 0, 0, loop & 0xFF, (loop >> 8) & 0xFF]);
+  const parts = [_riffChunk('VP8X', vp8x), _riffChunk('ANIM', anim)];
+  for (const f of frames) {
+    /* Full-canvas frames at 0,0 with alpha-blend + no dispose. GIF frames
+       are already composited by ImageDecoder, so per-frame offsets and
+       disposal would only duplicate work the decoder has done. */
+    const hdr = new Uint8Array([..._u24(0), ..._u24(0),
+                                ..._u24(W - 1), ..._u24(H - 1),
+                                ..._u24(Math.max(0, f.delayMs)), 0x00]);
+    const payload = new Uint8Array(hdr.length + f.bytes.length);
+    payload.set(hdr, 0);
+    payload.set(f.bytes, hdr.length);
+    parts.push(_riffChunk('ANMF', payload));
+  }
+  const bodyLen = parts.reduce((n, p) => n + p.length, 0);
+  const out = new Uint8Array(12 + bodyLen);
+  out.set([0x52, 0x49, 0x46, 0x46], 0);                  /* "RIFF" */
+  new DataView(out.buffer).setUint32(4, 4 + bodyLen, true);
+  out.set([0x57, 0x45, 0x42, 0x50], 8);                  /* "WEBP" */
+  let o = 12;
+  for (const p of parts) { out.set(p, o); o += p.length; }
+  return out;
+}
+
+async function encodeAnimatedWebp(file, settings, prereadBuffer){
+  if (typeof ImageDecoder !== 'function') throw new Error('ImageDecoder unsupported');
+  const encodeWebp = await ensureWebp();
+
+  const buffer = prereadBuffer || await file.arrayBuffer();
+  const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
+  await decoder.tracks.ready;
+  await decoder.completed;
+  const track = decoder.tracks.selectedTrack;
+  const frameCount = track.frameCount;
+  if (!frameCount || frameCount < 2) {
+    try { decoder.close(); } catch(_){}
+    throw new Error('NotAnimated');
+  }
+
+  /* Geometry from frame 0, matching encodeAnimatedGif exactly so the two
+     animated paths can't drift apart on crop/resize behaviour. */
+  const r0 = await decoder.decode({ frameIndex: 0 });
+  const srcW = r0.image.displayWidth, srcH = r0.image.displayHeight;
+  let sx = 0, sy = 0, sw = srcW, sh = srcH;
+  const ratio = CROP_RATIOS[settings.crop || 'none'];
+  if (ratio) {
+    if (srcW/srcH > ratio) { sw = Math.round(srcH*ratio); sx = Math.round((srcW-sw)/2); }
+    else                   { sh = Math.round(srcW/ratio); sy = Math.round((srcH-sh)/2); }
+  }
+  let outW = sw, outH = sh;
+  const exW = parseInt(settings.exactW, 10) || 0;
+  const exH = parseInt(settings.exactH, 10) || 0;
+  if (exW > 0 && exH > 0) {
+    const tAsp = exW / exH;
+    if (sw / sh > tAsp) { const nsw = Math.max(1, Math.round(sh * tAsp)); sx += Math.round((sw - nsw) / 2); sw = nsw; }
+    else                { const nsh = Math.max(1, Math.round(sw / tAsp)); sy += Math.round((sh - nsh) / 2); sh = nsh; }
+    outW = exW; outH = exH;
+  } else if (settings.maxDim) {
+    const longest = Math.max(outW, outH);
+    if (longest > settings.maxDim) {
+      const scale = settings.maxDim / longest;
+      outW = Math.round(outW*scale); outH = Math.round(outH*scale);
+    }
+  } else if (settings.resizePct && settings.resizePct > 0 && settings.resizePct < 100) {
+    const scale = settings.resizePct / 100;
+    outW = Math.max(1, Math.round(outW*scale));
+    outH = Math.max(1, Math.round(outH*scale));
+  }
+  r0.image.close && r0.image.close();
+
+  if (outW > 16383 || outH > 16383) {
+    try { decoder.close(); } catch(_){}
+    throw new Error(`WebP can't go past 16383 px on a side, and this is ${outW} x ${outH}. ` +
+                    `Resize it below that, or pick AVIF, PNG or JPG — none of them have that limit.`);
+  }
+
+  const q = (settings.quality !== undefined) ? settings.quality : 0.85;
+  const quality = Math.round(Math.max(1, Math.min(100, q * 100)));
+  /* Deliberately NOT gifQualityParams' curve, which starts dropping frames
+     at q 0.65. That curve exists because GIF is so bulky that shedding
+     frames is often the only way to hit a size; WebP is already several
+     times smaller at the same quality, so the same trade would cost
+     smoothness for a saving it doesn't need. Choppy motion also reads as
+     broken in a way that slightly softer pixels don't. Skip frames only
+     when the slider is low enough that the user is clearly asking for a
+     small file above all else. */
+  const frameSkip = q >= 0.35 ? 1 : (q >= 0.20 ? 2 : 3);
+
+  /* Encode frame-by-frame and discard each frame's pixels immediately —
+     only the compressed payload is retained, so a long clip costs little
+     more memory than a single frame. */
+  const canvas = new OffscreenCanvas(outW, outH);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const frames = [];
+  for (let i = 0; i < frameCount; i += frameSkip) {
+    const result = await decoder.decode({ frameIndex: i });
+    const frame = result.image;
+    ctx.clearRect(0, 0, outW, outH);
+    ctx.drawImage(frame, sx, sy, sw, sh, 0, 0, outW, outH);
+    let durationUs = frame.duration || 100000;
+    /* Roll skipped frames' time into the frame we keep, so the clip still
+       runs for the right length. */
+    for (let k = 1; k < frameSkip && i + k < frameCount; k++) {
+      try {
+        const pk = await decoder.decode({ frameIndex: i + k });
+        durationUs += pk.image.duration || 100000;
+        pk.image.close && pk.image.close();
+      } catch(_){}
+    }
+    frame.close && frame.close();
+    const encoded = await encodeWebp(ctx.getImageData(0, 0, outW, outH), { quality });
+    const { bytes, hasAlpha } = webpImageChunks(encoded);
+    frames.push({ bytes, hasAlpha, delayMs: Math.max(10, Math.round(durationUs / 1000)) });
+  }
+  try { decoder.close(); } catch(_){}
+  if (!frames.length) throw new Error('NoFramesEncoded');
+
+  /* repetitionCount is Infinity for the usual "loop forever" GIF; WebP
+     spells that 0. Anything finite passes through, clamped to the 16 bits
+     the ANIM chunk gives us. */
+  let loop = 0;
+  const rc = track.repetitionCount;
+  if (typeof rc === 'number' && isFinite(rc) && rc > 0) loop = Math.min(65535, Math.round(rc));
+
+  _lastW = outW; _lastH = outH;
+  return new Blob([buildAnimatedWebp(frames, outW, outH, loop)], { type: 'image/webp' });
+}
+
 /* ---------- the main encode pipeline ---------- */
 async function processOne(file, fmt, settings){
   const originalSize = (file && typeof file.size === 'number') ? file.size : 0; /* R119: never exceed this */
@@ -670,6 +858,22 @@ async function processOne(file, fmt, settings){
       }
     } catch (e) {
       /* fall through to single-frame canvas path below */
+    }
+  }
+  /* Animated GIF → animated WebP. Same bail-out discipline as the GIF
+     path: any failure drops through to the single-frame canvas encode,
+     so a browser quirk costs the animation but never the conversion.
+     A genuine dimension error is rethrown, because silently producing a
+     still from a 20000 px panorama would be the confusing outcome. */
+  if (fmt === 'webp' && file && file.type === 'image/gif') {
+    try {
+      const probe = await getGifFrameCount(file);
+      if (probe.frameCount > 1) {
+        return await encodeAnimatedWebp(file, settings, probe.buffer);
+      }
+    } catch (e) {
+      if (e && /16383/.test(e.message || '')) throw e;
+      /* else fall through to single-frame canvas path below */
     }
   }
   const bmp = await decodeToBitmap(file);
