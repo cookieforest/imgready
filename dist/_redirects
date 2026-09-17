@@ -1,12 +1,54 @@
+# imgready redirects
+#
+# IMPORTANT: every rule needs BOTH the slash-less and trailing-slash form.
+#
+# Cloudflare's automatic trailing-slash normalisation only fires for paths
+# that correspond to a real asset directory — it sees dist/compress/ and so
+# sends /compress -> /compress/. The paths below are shorthands with no
+# directory behind them, so nothing normalises them, and a rule written only
+# as "/heic/" never matches a request for "/heic". That was returning a hard
+# 404 for the slash-less form of all seven rules — which is the form people
+# actually type and link. Google had already found three of them.
+#
+# First match wins, so keep the slash-less line next to its partner.
+
 # PNG to JPEG spelling variant
+/png-to-jpeg    /png-to-jpg/    301
 /png-to-jpeg/   /png-to-jpg/    301
 
-# RAW to JPG — imgready doesn't support RAW files in-browser, send to TIFF converter (closest professional format)
+# RAW to JPG — imgready doesn't support RAW files in-browser, send to TIFF
+# converter (closest professional format)
+/raw-to-jpg     /tiff-to-jpg/   301
 /raw-to-jpg/    /tiff-to-jpg/   301
 
-# Ensure no trailing-slash double redirects for common typos
+# Common shorthand for the compressor
+/compress-image         /compress/      301
 /compress-image/        /compress/      301
+/image-compressor       /compress/      301
 /image-compressor/      /compress/      301
+
+# HEIC shorthands
+/convert-heic           /heic-to-jpg/   301
 /convert-heic/          /heic-to-jpg/   301
+/heic                   /heic-to-jpg/   301
 /heic/                  /heic-to-jpg/   301
+/heic-converter         /heic-to-jpg/   301
+/heic-converter/        /heic-to-jpg/   301
+
+# WebP shorthands
+/webp                   /webp-converter/    301
 /webp/                  /webp-converter/    301
+
+# AVIF shorthand — mirrors the WebP pair above
+/avif                   /avif-converter/    301
+/avif/                  /avif-converter/    301
+
+# Favicon intent lands on the ICO builder
+/favicon-generator      /png-to-ico/    301
+/favicon-generator/     /png-to-ico/    301
+
+# Generic "I want a converter" intent lands on the tool index
+/image-converter        /tools/         301
+/image-converter/       /tools/         301
+/convert                /tools/         301
+/convert/               /tools/         301
