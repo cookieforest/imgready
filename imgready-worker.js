@@ -1429,15 +1429,29 @@ self.onmessage = async (e) => {
       }));
       const s = settings || {};
       let blob;
-      if (fmt === 'webp') {
-        blob = await webpFromFrames(allFrames, outW, outH, s, loop);
-      } else {
-        /* GIF is the default for video: it is the format people convert
-           video to, and the one every chat app accepts. */
+      if (fmt === 'gif') {
         const mod = await ensureGifenc();
         if (!mod.GIFEncoder) throw new Error('gifenc exports not found at ' + GIFENC_ESM);
         blob = gifFromFrames(allFrames, outW, outH, s, allFrames.length);
         _lastW = outW; _lastH = outH;
+      } else if (fmt === 'webp') {
+        blob = await webpFromFrames(allFrames, outW, outH, s, loop);
+      } else {
+        /* PNG, JPG, AVIF and ICO cannot hold an animation. Return the
+           first frame as a still in the format actually asked for.
+
+           The first cut of this returned a GIF for anything that wasn't
+           WebP, which would have handed someone who picked JPG a GIF with
+           a .jpg name — the same silent-format-substitution bug fixed in
+           the ICO encoder earlier. Round-tripping frame 0 through
+           processOne costs one extra PNG encode and in exchange the still
+           formats get quality, resize, crop and target-size behaving
+           exactly as they do everywhere else. */
+        const c = new OffscreenCanvas(outW, outH);
+        c.getContext('2d').putImageData(
+          new ImageData(new Uint8ClampedArray(allFrames[0].rgba), outW, outH), 0, 0);
+        const png = await c.convertToBlob({ type: 'image/png' });
+        blob = await processOne(new File([png], 'frame.png', { type: 'image/png' }), fmt, s);
       }
       self.postMessage({ id, type: 'result', blob, outW: _lastW, outH: _lastH });
     } catch (err) {

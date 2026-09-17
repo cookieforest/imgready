@@ -313,6 +313,75 @@ function _isSvgFile(file){
   return /\.svg$/i.test(file.name || '') || file.type === 'image/svg+xml';
 }
 
+/* ---- video → animation ------------------------------------------------
+   Video decoding needs a <video> element, so frames are pulled here on the
+   main thread and handed to the worker's process-frames action.
+
+   Seeking a <video> and drawing to canvas, rather than WebCodecs: no
+   demuxer, no new dependency, works with any container the browser plays,
+   and it measures ~11 ms a frame. VideoDecoder plus an MP4 demuxer would
+   be faster per frame and much more to go wrong.
+
+   The caps matter more than the speed. A two-minute 4K clip at 10 fps is
+   1200 frames of 8 MP RGBA — enough to kill the tab. So: bounded frames,
+   bounded width, and if the clip is longer than the cap we convert the
+   opening seconds and SAY SO rather than silently returning a truncated
+   animation. */
+const VIDEO_FPS = 10;
+const VIDEO_MAX_FRAMES = 150;   /* 15 s at 10 fps */
+const VIDEO_MAX_WIDTH = 480;    /* GIF at 480 px is already a chunky file */
+
+function _isVideoFile(file){
+  const t = (file && file.type || '').toLowerCase();
+  if (t.startsWith('video/')) return true;
+  return /\.(mp4|m4v|mov|webm|ogv|avi|mkv|3gp)$/i.test(file && file.name || '');
+}
+
+async function extractVideoFrames(file, onProgress){
+  const url = URL.createObjectURL(file);
+  const v = document.createElement('video');
+  v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+  try {
+    await new Promise((res, rej) => {
+      v.onloadedmetadata = res;
+      v.onerror = () => rej(new Error('That video could not be read. Try MP4, WebM or MOV.'));
+      setTimeout(() => rej(new Error('That video took too long to open.')), 30000);
+    });
+    const dur = v.duration, vw = v.videoWidth, vh = v.videoHeight;
+    if (!vw || !vh) throw new Error('That file has no video track.');
+    const step = 1 / VIDEO_FPS;
+    const wanted = Math.max(1, Math.floor(dur / step));
+    const n = Math.min(VIDEO_MAX_FRAMES, wanted);
+    const scale = vw > VIDEO_MAX_WIDTH ? VIDEO_MAX_WIDTH / vw : 1;
+    const w = Math.max(1, Math.round(vw * scale)), h = Math.max(1, Math.round(vh * scale));
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    const bufs = [], delaysUs = [];
+    for (let i = 0; i < n; i++) {
+      await new Promise((res) => {
+        const on = () => { v.removeEventListener('seeked', on); res(); };
+        v.addEventListener('seeked', on);
+        v.currentTime = Math.min(dur - 0.001, i * step);
+      });
+      x.drawImage(v, 0, 0, w, h);
+      bufs.push(x.getImageData(0, 0, w, h).data.buffer);
+      delaysUs.push(Math.round(step * 1e6));
+      if (onProgress) onProgress(i + 1, n);
+    }
+    return {
+      bufs, delaysUs, w, h,
+      sourceW: vw, sourceH: vh,
+      duration: dur,
+      usedSeconds: n * step,
+      truncated: wanted > n,
+    };
+  } finally {
+    URL.revokeObjectURL(url);
+    v.removeAttribute('src');
+    try { v.load(); } catch(_){}
+  }
+}
+
 async function addFilesFromList(fileList){
   /* The >200-file confirm used to sit on the two call sites that happened
      to be written last — clipboard paste and the full-window drop overlay.
@@ -338,7 +407,9 @@ async function addFilesFromList(fileList){
        registry mapping quirk), and those files are byte-identical JPEG.
        When file.type came back empty they were SILENTLY skipped here.
        Also covers .jpe/.jif (older JPEG extensions) and .ico. */
-    if (!file.type.startsWith('image/') && !/\.(heic|heif|tiff?|bmp|svg|jfif|jpe|jif|ico)$/i.test(file.name)) continue;
+    if (!file.type.startsWith('image/')
+        && !/\.(heic|heif|tiff?|bmp|svg|jfif|jpe|jif|ico)$/i.test(file.name)
+        && !_isVideoFile(file)) continue;
     /* Exotic formats — browsers can't render the raw blob, so
        URL.createObjectURL(file) gives us a URL that paints nothing.
        HEIC/HEIF use an inline libheif decode.
@@ -360,6 +431,7 @@ async function addFilesFromList(fileList){
        (which most browsers can't do). */
     let entryUrl, entryDims = null;
     let decodedBlob = null;
+    let videoFrames = null;
     if (isHeicEntry) {
       try {
         const { blob, w, h } = await _decodeHeicInline(file);
@@ -369,6 +441,34 @@ async function addFilesFromList(fileList){
       } catch (err) {
         console.warn('[heic-decode] failed for', file.name, err);
         entryUrl = URL.createObjectURL(file);
+      }
+    } else if (_isVideoFile(file)) {
+      /* Pull the frames up front. Extraction is the slow part (roughly
+         11 ms a frame), so it gets its own status line — a silent 1.5 s
+         pause after dropping a file reads as a broken page. */
+      try {
+        showErrorToast('Reading video…', 60000);
+        videoFrames = await extractVideoFrames(file, (done, total) => {
+          if (done % 10 === 0 || done === total) {
+            showErrorToast(`Reading video… frame ${done} of ${total}`, 60000);
+          }
+        });
+        /* Preview still: first frame, so the card shows something real. */
+        const pc = document.createElement('canvas');
+        pc.width = videoFrames.w; pc.height = videoFrames.h;
+        pc.getContext('2d').putImageData(
+          new ImageData(new Uint8ClampedArray(videoFrames.bufs[0].slice(0)), videoFrames.w, videoFrames.h), 0, 0);
+        const still = await new Promise(r => pc.toBlob(r, 'image/png'));
+        entryUrl = URL.createObjectURL(still);
+        entryDims = { w: videoFrames.w, h: videoFrames.h };
+        showErrorToast(
+          videoFrames.truncated
+            ? `Using the first ${Math.round(videoFrames.usedSeconds)}s of ${Math.round(videoFrames.duration)}s — ${videoFrames.bufs.length} frames at ${VIDEO_FPS} fps.`
+            : `${videoFrames.bufs.length} frames at ${VIDEO_FPS} fps.`,
+          videoFrames.truncated ? 7000 : 3000);
+      } catch (err) {
+        showErrorToast(err && err.message ? err.message : 'That video could not be read.');
+        continue;
       }
     } else if (_isExoticName(file)) {
       /* R145 — decode TIFF/SVG/ICO to a PNG blob purely for the PREVIEW.
@@ -398,6 +498,7 @@ async function addFilesFromList(fileList){
     const entry = { file, url: entryUrl, name: file.name };
     if (entryDims) entry.dims = entryDims;
     if (decodedBlob) entry.decodedBlob = decodedBlob;
+    if (videoFrames) entry.videoFrames = videoFrames;
     fresh.push(entry);
   }
   /* Feedback when ALL files were rejected (user dropped non-images).
@@ -936,6 +1037,10 @@ function getActiveFormats(){
 function pickAutoFormat(file){
   const t = (file.type || '').toLowerCase();
   const e = (file.name.split('.').pop() || '').toLowerCase();
+  /* Video has no "preserve the input format" answer — we are not writing
+     video back out. GIF is what people convert clips to and what every
+     chat app accepts, so that is the sensible default under Auto. */
+  if (typeof _isVideoFile === 'function' && _isVideoFile(file)) return 'gif';
   if (t.includes('jpeg') || e === 'jpg' || e === 'jpeg') return 'jpg';
   if (t.includes('png')  || e === 'png')  return 'png';
   if (t.includes('webp') || e === 'webp') return 'webp';
@@ -1082,6 +1187,24 @@ async function encodeFile(idx, overrideFmt){
        f.file stays the original everywhere else, so the Before meta still
        reports the true SVG size and type. */
     const payloadFile = (_isSvgFile(f.file) && f.decodedBlob) ? f.decodedBlob : f.file;
+    /* Video: frames were pulled on the main thread at add time, so send
+       those instead of the file the worker cannot decode. Copy the
+       buffers rather than transferring — the frames have to survive being
+       re-encoded every time the user changes format or quality, and a
+       transfer would empty them after the first pass. */
+    if (f.videoFrames) {
+      const vf = f.videoFrames;
+      const copies = vf.bufs.map(b => b.slice(0));
+      try {
+        getWorker().postMessage({
+          id, action: 'process-frames', fmt: realFmt, settings,
+          frames: copies, outW: vf.w, outH: vf.h, delaysUs: vf.delaysUs, loop: 0,
+        }, copies);
+      } catch(e) {
+        clearTimeout(entry.timer); delete ENCODE.pending[id]; reject(e);
+      }
+      return;
+    }
     try { getWorker().postMessage({ id, action: 'process', file: payloadFile, fmt: realFmt, settings }); }
     catch(e){
       clearTimeout(entry.timer);
