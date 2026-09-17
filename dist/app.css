@@ -171,7 +171,26 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 /* Mobile nav was previously a horizontal scroll-strip with .hide-mobile
    classes — replaced by the hamburger menu (see the rules in the larger
    responsive block below). Old block removed; the hamburger version is
-   the canonical mobile nav. */
+   the canonical mobile nav.
+
+   That removal only finished half the job. The hamburger lives on the
+   homepage, which has the .nav-links wrapper it needs; the 69 landing
+   pages still ship bare .topnav markup with .hide-mobile on Compress,
+   Resize, Convert and HEIC. Deleting the rule without touching those
+   pages left the class inert, so all seven links rendered and wrapped
+   into two ragged rows — 116px of nav above the fold at 375px, on the
+   pages where getting to the dropzone matters most. Restoring the rule
+   at the hamburger's own breakpoint honours what that markup asks for;
+   the hidden links all remain reachable from the footer.
+
+   Selector note: each landing page's inline <style> carries
+   `.topnav a.nav-link{...display:inline-block}` — specificity (0,2,1),
+   no media query, and it comes after this file's <link>. A plain
+   `.topnav .hide-mobile` (0,2,0) loses to it at every width, which is
+   why this one names the tag and both classes. */
+@media(max-width:600px){
+  .topnav a.nav-link.hide-mobile{display:none;}
+}
 
 /* HEADER */
 header{display:flex;flex-direction:column;align-items:center;gap:14px;margin:8px 0 40px;text-align:center;}
@@ -189,6 +208,22 @@ header.hero-below{margin:36px 0 0;display:block;align-items:flex-start;text-alig
 header.hero-below h1.brand-h1{margin:0;max-width:none;}
 header.hero-below p{margin:12px 0 0;max-width:none;font-size:.94rem;line-height:1.55;color:var(--muted-strong);}
 @media(max-width:760px){header.hero-below h1.brand-h1{font-size:32px;}}
+/* Phone layout: put the tool above the lede.
+   Measured on /heic-to-jpg/ at 375x812 — the dropzone started 504px down
+   and ended at 906, entirely below the fold. Someone who searched "heic
+   to jpg" landed on a page whose whole job is that conversion and had to
+   scroll past a two-row nav, a breadcrumb, an H1 and a six-line lede
+   (166px on its own) to reach the thing they came for.
+   Only the visual order changes — the HTML still reads H1, lede, tool,
+   so crawlers and the a11y tree see the page in its authored order and
+   the lede stays fully visible, just below the dropzone. Desktop has
+   the room and is left alone. */
+@media(max-width:760px){
+  section.hero{display:flex;flex-direction:column;}
+  section.hero > h1{order:0;}
+  section.hero > .app{order:1;}
+  section.hero > .lede{order:2;margin-top:18px;}
+}
 body.has-images header.hero-below{display:none;}
 header p{font-size:.92rem;color:var(--muted);margin:0;max-width:520px;line-height:1.6;}
 header h1.brand-h1{font-family:var(--font-display);font-size:38px;font-weight:700;letter-spacing:-1.2px;line-height:1.12;margin:0;max-width:600px;}

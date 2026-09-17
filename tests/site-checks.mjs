@@ -212,7 +212,31 @@ for (const p of sitemapPaths) {
   notes.push('file inputs: all entry points on a page agree, and video is named in the copy');
 }
 
-/* ---------- 11. no page is orphaned ---------- */
+/* ---------- 11. behavioural classes in markup still have a rule ---------- */
+{
+  /* Comments stripped first — this file documents the classes it styles,
+     so a plain substring search matches the prose explaining a rule's
+     removal just as happily as the rule itself. */
+  const css = (existsSync(join(ROOT, 'src', 'app.css')) ? read(join(ROOT, 'src', 'app.css')) : '')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  /* .hide-mobile went inert: the rule was deleted in favour of the
+     hamburger nav, but the hamburger only ever shipped on the homepage,
+     and 69 landing pages kept the class. The class is not decorative —
+     a page using it is asserting those links are hidden on a phone — so
+     markup and stylesheet have to agree. Pure-presentation classes are
+     not listed here; these are the ones with behaviour attached. */
+  const BEHAVIOURAL = ['hide-mobile'];
+  for (const cls of BEHAVIOURAL) {
+    const users = pages.filter(([, f]) => read(f).includes(`${cls}"`) || read(f).includes(`${cls} `));
+    if (!users.length) continue;
+    if (!css.includes(cls)) {
+      fail('dead class', `${users.length} page(s) use .${cls} but src/app.css has no rule for it — the class does nothing`);
+    }
+  }
+  notes.push('classes: .hide-mobile is styled where it is used');
+}
+
+/* ---------- 12. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {

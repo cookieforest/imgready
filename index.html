@@ -1581,6 +1581,17 @@
     border-color:var(--accent);
     color:#fff;
   }
+  /* Six pills in a centered wrap break 5 + 1 on a phone, leaving ICO
+     alone on its own row under a full line — reads like a mistake
+     rather than a choice. A 3-column grid splits them 3 + 3 and gives
+     every pill the same width, so the block stays a block. */
+  @media (max-width:560px){
+    .dz-format-pre .dz-pills{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;width:100%;max-width:19rem;margin-inline:auto;
+    }
+    .dz-format-pre .dz-pills button{padding:0 8px;}
+  }
   .dz-format-hint{
     margin:8px 0 0;
     font-size:.72rem;
