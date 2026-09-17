@@ -265,7 +265,35 @@ for (const p of sitemapPaths) {
   }
 }
 
-/* ---------- 13. no page is orphaned ---------- */
+/* ---------- 13. a focusable dropzone can be operated from the keyboard ---------- */
+{
+  /* Both engines render the dropzone as role="region" tabindex="0", so
+     it takes a tab stop. The real control is the file input on the very
+     next stop, and Enter/Space on the region did nothing — a keyboard
+     user landed on the biggest target on the page, got a focus ring and
+     found it inert. If a page makes the region focusable, the engine
+     that drives it has to handle the activation keys. */
+  const engines = [
+    ['homepage', join(ROOT, 'src', 'home-app.js')],
+    ['landing pages', join(ROOT, 'src', '02-decoders.js')],
+  ];
+  const focusableDropzone = pages.some(([, f]) =>
+    /id="dropzone"[^>]*tabindex="0"|tabindex="0"[^>]*id="dropzone"/.test(read(f)));
+  if (focusableDropzone) {
+    for (const [label, f] of engines) {
+      if (!existsSync(f)) continue;
+      const js = read(f);
+      const hasKeyHandler = /dz[A-Za-z]*\.addEventListener\('keydown'/.test(js)
+        || /addEventListener\('keydown'[\s\S]{0,400}?fi\.click\(\)/.test(js);
+      if (!hasKeyHandler) {
+        fail('keyboard', `${label}: the dropzone is focusable but nothing handles Enter/Space on it`);
+      }
+    }
+    notes.push('keyboard: the focusable dropzone responds to Enter and Space in both engines');
+  }
+}
+
+/* ---------- 14. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {

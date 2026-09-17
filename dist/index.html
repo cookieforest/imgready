@@ -6029,6 +6029,23 @@ function init(){
   /* Wire the dropzone's file input (#fileInput from production HTML) */
   const fi = document.getElementById('fileInput') || document.getElementById('dzFileInput');
   if (fi) fi.addEventListener('change', onFiles);
+  /* The dropzone is role="region" tabindex="0", so a keyboard user tabs
+     onto the biggest target on the page, gets a focus ring, and finds
+     that Enter and Space do nothing — the real control is the file
+     input on the very next stop. That made the region a dead stop
+     immediately before the thing it looks like it should trigger.
+     Forward the two activation keys to the input. Only when the region
+     itself has focus: once focus moves to the input, the browser's own
+     handling takes over and we must not double-fire. */
+  const dzKeyTarget = document.getElementById('dropzone');
+  if (dzKeyTarget && fi) {
+    dzKeyTarget.addEventListener('keydown', (e) => {
+      if (e.target !== dzKeyTarget) return;
+      if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+      e.preventDefault();
+      fi.click();
+    });
+  }
   document.getElementById('moreInput').addEventListener('change', onFiles);
   /* Note: paste/drop/dragover listeners + MutationObserver for menu-h are
      wired by the PROD blocks further down (they handle big-batch confirm,

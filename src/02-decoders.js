@@ -576,6 +576,21 @@ document.addEventListener('drop',async function(e){
 });
 var fi=G('fileInput');
 if(fi){fi.addEventListener('change',function(){addFiles(fi.files);fi.value='';});}
+/* The dropzone carries role="region" tabindex="0" here too, so a
+   keyboard user lands on the page's biggest target and finds Enter and
+   Space inert — the actual control is the file input on the next tab
+   stop. Forward the activation keys, and only while the region itself
+   holds focus so we never double-fire once focus is on the input. */
+(function wireDropzoneKeys(){
+  var dz=G('dropzone');
+  if(!dz||!fi)return;
+  dz.addEventListener('keydown',function(e){
+    if(e.target!==dz)return;
+    if(e.key!=='Enter'&&e.key!==' '&&e.key!=='Spacebar')return;
+    e.preventDefault();
+    fi.click();
+  });
+})();
 
 var BATCH_SOFT_LIMIT=200;
 /* Styled in-page confirm dialog. Replaces native confirm() — that
