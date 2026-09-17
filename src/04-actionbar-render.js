@@ -893,12 +893,29 @@ function processImg(file, s, fmt){
   }
   var pool = getWorkerPool();
   if(pool){
+    /* Forward the intent fields too. This object is a hand-written
+       whitelist of what crosses to the worker, and it was missing the two
+       things getSettings() derives from the page the visitor landed on:
+
+         targetKb       from ?kb= or a compress-image-to-NNkb slug
+         exactW/exactH  from ?w=&h= or a resize-image-to-1920x1080 slug
+
+       The worker implements both, and getSettings() sets both, but they
+       were dropped in transit — so /compress-image-to-100kb/ quietly
+       encoded at whatever the quality slider happened to be (412 KB in,
+       265 KB out, on a page whose headline promises "guaranteed under the
+       limit"), and the resize-to-exact-size pages ignored their dimensions.
+       Only undefined when the page had no such intent, so nothing changes
+       for the plain converter pages. */
     var settings = {
       quality: s.quality,
       maxDim: s.maxDim,
       resizePct: s.resizePct||0,
       crop: currentCropRatio,
-      stripExif: s.stripExif !== false
+      stripExif: s.stripExif !== false,
+      targetKb: s.targetKb,
+      exactW: s.exactW,
+      exactH: s.exactH
     };
     return pool.process(file, fmt, settings).catch(function(err){
       /* User-cancellation case: pool.cancelAll() rejected this with the
