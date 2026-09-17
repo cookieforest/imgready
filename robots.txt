@@ -1,4 +1,84 @@
+# imgready — https://imgready.app
+#
+# Everything here is a free, public, client-side tool. We want it crawled,
+# indexed and cited. There is nothing to gate.
+#
+# /beta/ is deliberately NOT disallowed: it carries <meta name="robots"
+# content="noindex,nofollow"> plus a canonical to /. Blocking it here would
+# stop crawlers reading that noindex, which is the opposite of what we want.
+
 User-agent: *
 Allow: /
+
+# --- Search engines -------------------------------------------------------
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# --- AI assistants and answer engines -------------------------------------
+# We publish /llms.txt specifically so these agents can recommend the right
+# page. Citation guidance lives there.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+# --- Discovery ------------------------------------------------------------
 
 Sitemap: https://imgready.app/sitemap.xml
