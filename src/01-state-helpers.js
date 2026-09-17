@@ -456,11 +456,17 @@ function updateFormatUI(){
   var anyLossy=false;
   var onlyGif=true;
   var af=getActiveFormats();
-  for(var j=0;j<af.length;j++){if(LOSSY_FORMATS[af[j]]||af[j]==='png'){anyLossy=true;}if(af[j]!=='gif')onlyGif=false;}
+  /* ICO belongs here alongside GIF: processIco never reads s.quality — it
+     packs lossless PNGs at the selected icon sizes. Leaving the group
+     live on /png-to-ico/ meant a slider that looked authoritative and did
+     nothing to the output. */
+  var onlyIco=af.length>0;
+  for(var j=0;j<af.length;j++){if(LOSSY_FORMATS[af[j]]||af[j]==='png'){anyLossy=true;}if(af[j]!=='gif')onlyGif=false;if(af[j]!=='ico')onlyIco=false;}
   var qg=G('qualityGroup'),qh=G('qualityHint');
-  if(qg)qg.classList.toggle('disabled-group',onlyGif);
+  if(qg)qg.classList.toggle('disabled-group',onlyGif||onlyIco);
   if(qh){
-    if(onlyGif){qh.textContent='GIF uses a fixed 256-color palette — quality slider has no effect.';}
+    if(onlyIco){qh.textContent='ICO packs lossless PNGs at each icon size — the quality slider has no effect. Use "Icon size set" to control the file.';}
+    else if(onlyGif){qh.textContent='GIF uses a fixed 256-color palette — quality slider has no effect.';}
     else{qh.textContent=getQualityHint(parseInt((G('qualitySlider')||{value:82}).value),isJpgOnly(),isPngOnly(),isAvifOnly());}
   }
   updateChargePreview();
@@ -533,6 +539,41 @@ window.setResizeMode=function(mode){
     if(saved==='dim'||saved==='pct')window.setResizeMode(saved);
   }catch(_){}
 })();
+
+/* The Output settings panel stays closed on first paint — opening it by
+   default pushed the dropzone below the fold on mobile, which is why the
+   restore policy below keeps it shut. But closed used to mean invisible:
+   a landing page primes its own format from the slug, so /png-to-ico/
+   silently set ICO and the visitor had no way to see that without
+   expanding a panel they had no reason to expand. Worse, after the first
+   conversion the result overlay showed a format row, so the tool looked
+   like it gained controls it had all along.
+
+   So the trigger carries the state instead of hiding it: the label reads
+   "Output settings · ICO · Q82 · 1600px" and stays one line. Visibility
+   without the layout cost of expanding. */
+function updateSettingsSummary(){
+  var el=G('advSummary');
+  if(!el)return;
+  var bits=[];
+  var af=(typeof getActiveFormats==='function')?getActiveFormats():[];
+  if(af.length>1)bits.push(af.length+' formats');
+  else if(af.length===1)bits.push(af[0]==='auto'?'Auto':af[0].toUpperCase());
+  /* Don't advertise a quality number for formats that have no quality
+     dial: GIF is palette-quantised and ICO packs lossless PNGs. Showing
+     "ICO · Q82" would promise a control that changes nothing — the same
+     reason the live editor disables its slider for both. */
+  var noQuality=af.length>0&&af.every(function(f){return f==='gif'||f==='ico';});
+  if(!noQuality&&af.indexOf('auto')===-1){
+    var q=parseInt((G('qualitySlider')||{value:82}).value);
+    if(q)bits.push('Q'+q);
+  }
+  var rMode=(G('resizeMode')||{}).value||'dim';
+  var rVal=parseInt((G('resizeMax')||{}).value)||0;
+  if(rVal>0)bits.push(rMode==='pct'?rVal+'%':rVal+'px');
+  el.textContent=bits.length?' · '+bits.join(' · '):'';
+}
+window.updateSettingsSummary=updateSettingsSummary;
 
 window.toggleAdvanced=function(){
   var t=G('advToggle'),p=G('advPanel');

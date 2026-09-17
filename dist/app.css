@@ -93,6 +93,13 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 .settings-trigger{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px 18px;margin:0 0 12px;background:transparent;border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:12px;color:var(--accent);font-size:.88rem;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s,border-color .15s;}
 .settings-trigger:hover{background:color-mix(in srgb,var(--accent) 6%,transparent);border-color:color-mix(in srgb,var(--accent) 50%,transparent);}
 .settings-trigger-arrow{font-size:.65rem;line-height:1;display:inline-block;transition:transform .15s;}
+/* State summary on the collapsed trigger — "Output settings · ICO · Q82".
+   Lighter than the label so it reads as status, not a second heading, and
+   ellipsises rather than wrapping the pill to two lines on narrow screens.
+   Hidden once the panel is open: the real controls are then on screen and
+   the summary would just restate them. */
+.settings-trigger-summary{font-weight:500;opacity:.72;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.settings-trigger[aria-expanded="true"] .settings-trigger-summary{display:none;}
 .settings-trigger[aria-expanded="true"] .settings-trigger-arrow{transform:rotate(90deg);}
 .settings-trigger[aria-expanded="true"]{background:color-mix(in srgb,var(--accent) 4%,transparent);}
 /* First-visit pulse: a soft outward halo on the Settings button so new

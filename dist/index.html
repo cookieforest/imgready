@@ -1659,6 +1659,19 @@
     font-size:.88rem;font-weight:700;
     margin-top:14px;
   }
+  /* Input-format line. Deliberately quieter than the trust line above
+     it — this is reference detail the eye should find on a second pass,
+     not compete with the privacy claim or the drop instruction. Only
+     shown in the empty state; once files are in, the user has already
+     answered the question it exists to answer. */
+  .dz-formats{
+    display:none;
+    max-width:34rem;margin:8px auto 0;
+    font-size:.76rem;line-height:1.5;
+    color:var(--muted);opacity:.78;
+    text-wrap:balance;
+  }
+  body[data-state="empty"] .dz-formats{display:block;}
   /* Floating sample cards — drag onto the dropzone, or click. 3 cards
      row-aligned below the dropzone with subtle bobbing animation. */
   .dz-floats{
@@ -5343,8 +5356,8 @@
         </span>
       </div>
     </nav>
-    <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
-    <input type="file" id="fileInput" accept="image/*,video/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif,.mp4,.m4v,.mov,.webm" multiple aria-label="Choose image files to compress (or take a photo on mobile)">
+    <div class="dropzone" id="dropzone" role="region" aria-label="Image and video upload area" tabindex="0">
+    <input type="file" id="fileInput" accept="image/*,video/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif,.mp4,.m4v,.mov,.webm" multiple aria-label="Choose images or video to convert (or take a photo on mobile)">
     <span class="dz-icon" aria-hidden="true">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
@@ -5353,6 +5366,17 @@
       <span class="sr-only">Your image, compressed, converted, resized, optimized, or ready.</span>
     </h2>
     <p>Drop, click, or paste &middot; up to 200 files</p>
+    <!-- Input formats. The dropzone was the largest empty region on the
+         page and named none of them — a visitor with a .heic off their
+         phone, an .svg logo or an .mp4 had no way to know any of it was
+         accepted. Video is the sharpest case: the whole feature was
+         undiscoverable, since nothing outside the file picker's own
+         filter mentioned it. The landing pages already carried a format
+         line ("JPG, PNG, HEIC, TIFF, WebP, AVIF and more"), so the
+         homepage was the weaker of the two despite accepting strictly
+         more. Kept to one dim line, and it must stay in sync with the
+         accept attribute above. -->
+    <p class="dz-formats">JPG, PNG, WebP, AVIF, HEIC, TIFF, SVG, GIF, ICO &mdash; and MP4 or MOV into an animated GIF</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
@@ -5889,7 +5913,7 @@
   <!-- Empty-batch dropzone — shown by CSS when body[data-empty-batch="true"].
        Drop or click loads the next batch; same flow as main dropzone. -->
   <div class="empty-batch-dropzone" id="emptyBatchDropzone" role="region" aria-label="Drop more images">
-    <input type="file" id="emptyBatchInput" accept="image/*,video/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif,.mp4,.m4v,.mov,.webm" multiple aria-label="Choose more image files">
+    <input type="file" id="emptyBatchInput" accept="image/*,video/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif,.mp4,.m4v,.mov,.webm" multiple aria-label="Choose more images or video">
     <span class="ebd-icon" aria-hidden="true">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
@@ -5898,7 +5922,7 @@
   </div>
 </section>
 
-<input type="file" id="moreInput" accept="image/*" multiple style="display:none;">
+<input type="file" id="moreInput" accept="image/*,video/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif,.mp4,.m4v,.mov,.webm" multiple aria-label="Add more images or video" style="display:none;">
 
 <div class="confirm-overlay" onclick="if(event.target===this)cancelConfirm()">
   <div class="confirm-modal">

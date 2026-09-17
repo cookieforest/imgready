@@ -49,6 +49,10 @@ function _settingsEqual(a, b){
 }
 
 function updateChargePreview(){
+  /* Single choke point for the collapsed-trigger summary: format changes
+     reach here via updateFormatUI, quality via onQualityInput, resize via
+     the input's own oninput. Hooking the three separately would drift. */
+  if(typeof updateSettingsSummary==='function')updateSettingsSummary();
   var pb=G('processBtn');
   var dlBtn=G('dlAllBtn');
   var pending=0,done=0,errored=0;

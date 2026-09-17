@@ -184,7 +184,35 @@ for (const p of sitemapPaths) {
   }
 }
 
-/* ---------- 10. no page is orphaned ---------- */
+/* ---------- 10. every entry point on a page accepts the same things ---------- */
+{
+  for (const [slug, file] of pages) {
+    const html = read(file);
+    const accepts = [...html.matchAll(/<input[^>]*type="file"[^>]*>/g)]
+      .map((m) => ({ tag: m[0], id: (m[0].match(/id="([^"]*)"/) || [])[1] || '?',
+                     accept: (m[0].match(/accept="([^"]*)"/) || [])[1] }))
+      .filter((i) => i.accept !== undefined);
+    if (accepts.length < 2) continue;
+    /* The dropzone, the empty-batch input and the "Add more" button are
+       three doors into the same pipeline. #moreInput shipped as plain
+       image/*, so after a first batch the OS picker silently filtered
+       out HEIC, SVG, TIFF, ICO and video — all of which the very same
+       page accepted on the initial drop. */
+    const sets = new Set(accepts.map((a) => a.accept.split(',').map((s) => s.trim()).sort().join(',')));
+    if (sets.size > 1) {
+      fail('file inputs', `${slug}: ${accepts.map((a) => '#' + a.id).join(' and ')} disagree on accept — one entry point takes files the others reject`);
+    }
+  }
+  /* If the homepage takes video, it has to say so somewhere a visitor
+     can read. The feature is otherwise discoverable only by guessing. */
+  const home = existsSync(join(ROOT, 'index.html')) ? read(join(ROOT, 'index.html')) : '';
+  if (/<input[^>]*type="file"[^>]*accept="[^"]*video\//.test(home) && !/MP4/i.test(home.replace(/\.mp4/gi, ''))) {
+    fail('file inputs', 'homepage accepts video but never mentions it in visible copy');
+  }
+  notes.push('file inputs: all entry points on a page agree, and video is named in the copy');
+}
+
+/* ---------- 11. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {
