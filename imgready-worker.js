@@ -899,30 +899,91 @@ async function processOne(file, fmt, settings){
        legacy BMP-in-ICO format is much larger and less browser-friendly).
        Layout:
          6-byte ICONDIR header
-         16-byte ICONDIRENTRY (one image)
-         <png data>
-       For larger-than-256 dimensions, the byte fields wrap to 0 (= "256+"
-       per the ICO spec). Most users want small favicons; if they really
-       want a 1024×1024 ICO, our Resize section already lets them set it. */
-    const pngBlob = await c.convertToBlob({ type: 'image/png' });
-    const pngBuf = new Uint8Array(await pngBlob.arrayBuffer());
-    const totalLen = 6 + 16 + pngBuf.length;
-    const out = new Uint8Array(totalLen);
+         16-byte ICONDIRENTRY per image
+         <png data> ...
+
+       Two hard constraints the previous single-entry version violated:
+
+       1. The ICONDIRENTRY width/height fields are ONE BYTE each, where 0
+          means exactly 256 — not "256 or more". Writing 0 for a 2400x1600
+          source produced a directory entry claiming 256x256 in front of a
+          2400x1600 payload, so every parser that trusts the directory
+          (Windows Explorer among them) mis-rendered the file.
+       2. ICO entries are square. A 3:2 photo packed verbatim came out
+          distorted wherever it did render.
+
+       So: center-crop to a square, then emit the standard favicon set.
+       This matches encodeICO() in src/02-decoders.js, which is what the
+       /png-to-ico/ landing page already ships and advertises ("16, 32 and
+       48 px packaged in one file"). The two paths agree now. */
+    const DEFAULT_ICO_SIZES = [16, 32, 48];
+    const requested = (Array.isArray(settings.icoSizes) && settings.icoSizes.length)
+      ? settings.icoSizes : DEFAULT_ICO_SIZES;
+
+    /* Clamp to the 1..256 the container can describe, dedupe, ascending. */
+    const wanted = [...new Set(requested
+      .map(n => Math.round(Number(n)))
+      .filter(n => Number.isFinite(n) && n >= 1)
+      .map(n => Math.min(256, n)))].sort((a, b) => a - b);
+
+    const minDim = Math.min(w, h);
+    /* Don't upscale — a blurry 48px icon from a 32px source looks worse
+       than simply not offering that size. If the source is smaller than
+       every requested size, emit the source size as the sole entry. */
+    let sizes = wanted.filter(s => s <= minDim);
+    if (!sizes.length) sizes = [Math.min(256, minDim)];
+
+    /* Center-crop the rendered canvas to a square once, then downscale
+       from that for each entry. */
+    const sq = new OffscreenCanvas(minDim, minDim);
+    const sqCtx = sq.getContext('2d');
+    sqCtx.drawImage(c,
+      Math.floor((w - minDim) / 2), Math.floor((h - minDim) / 2), minDim, minDim,
+      0, 0, minDim, minDim);
+
+    const entries = [];
+    for (const size of sizes) {
+      const ic = new OffscreenCanvas(size, size);
+      const ictx = ic.getContext('2d');
+      ictx.imageSmoothingEnabled = true;
+      ictx.imageSmoothingQuality = 'high';
+      ictx.drawImage(sq, 0, 0, size, size);
+      const pngBlob = await ic.convertToBlob({ type: 'image/png' });
+      entries.push({ size, bytes: new Uint8Array(await pngBlob.arrayBuffer()) });
+    }
+
+    const headerSize = 6, entrySize = 16;
+    const dirSize = entries.length * entrySize;
+    const dataTotal = entries.reduce((n, e) => n + e.bytes.length, 0);
+    const out = new Uint8Array(headerSize + dirSize + dataTotal);
     const dv = new DataView(out.buffer);
+
     /* ICONDIR */
-    dv.setUint16(0, 0, true);   // reserved
-    dv.setUint16(2, 1, true);   // type 1 = icon
-    dv.setUint16(4, 1, true);   // 1 image
-    /* ICONDIRENTRY */
-    out[6] = w >= 256 ? 0 : w;  // width (0 byte = 256)
-    out[7] = h >= 256 ? 0 : h;  // height
-    out[8] = 0;                 // colors in palette (0 for true-color)
-    out[9] = 0;                 // reserved
-    dv.setUint16(10, 1, true);  // color planes
-    dv.setUint16(12, 32, true); // bits per pixel
-    dv.setUint32(14, pngBuf.length, true);  // image size
-    dv.setUint32(18, 22, true); // offset to image (6+16)
-    out.set(pngBuf, 22);
+    dv.setUint16(0, 0, true);               // reserved
+    dv.setUint16(2, 1, true);               // type 1 = icon
+    dv.setUint16(4, entries.length, true);  // image count
+
+    let dataOffset = headerSize + dirSize;
+    let entryOffset = headerSize;
+    for (const e of entries) {
+      out[entryOffset]     = e.size >= 256 ? 0 : e.size;  // width (0 = 256)
+      out[entryOffset + 1] = e.size >= 256 ? 0 : e.size;  // height
+      out[entryOffset + 2] = 0;                           // palette colors
+      out[entryOffset + 3] = 0;                           // reserved
+      dv.setUint16(entryOffset + 4, 1, true);             // color planes
+      dv.setUint16(entryOffset + 6, 32, true);            // bits per pixel
+      dv.setUint32(entryOffset + 8, e.bytes.length, true);
+      dv.setUint32(entryOffset + 12, dataOffset, true);
+      out.set(e.bytes, dataOffset);
+      dataOffset += e.bytes.length;
+      entryOffset += entrySize;
+    }
+
+    /* Report the largest entry as the output dimensions so the UI stops
+       showing the source size for what is now a downscaled icon set. */
+    const largest = sizes[sizes.length - 1];
+    _lastW = largest; _lastH = largest;
+
     return new Blob([out], { type: 'image/x-icon' });
   }
 
