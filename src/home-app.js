@@ -2717,11 +2717,23 @@ document.addEventListener('keydown', e => {
    Beta doesn't load app.js, so wire minimal versions so the footer links
    don't error out on click. Theme-toggle flips a class on body that the
    landing CSS can use to swap to dark; CMP settings shows a brief notice. */
-window.toggleTheme = window.toggleTheme || function(){
-  document.body.classList.toggle('dark-mode');
-  const btn = document.getElementById('themeBtn');
-  if (btn) btn.textContent = document.body.classList.contains('dark-mode') ? 'Day mode' : 'Night mode';
-};
+/* This used to toggle `dark-mode` on <body> and update the label. No
+   stylesheet ever defined a .dark-mode rule — the counterpart the
+   comment above anticipated was never written — so the button changed
+   its own text and nothing else. Because the label flipped, it looked
+   like it worked.
+
+   The real mechanism is data-theme on <html>, which app.css has had a
+   complete dark palette for all along; the homepage just never opted
+   in. Now that the palette tokens are shared (see app.css :root), that
+   mechanism reaches this page too. */
+/* toggleTheme stays as a no-op stub only because other footer wiring
+   may still reference it; the visible control is gone (see the note in
+   index.html's footer). It used to toggle a .dark-mode class that no
+   stylesheet defined. Don't re-expose a control until the hardcoded
+   colours on this page and on the landing pages are tokenised —
+   measured, the palette swaps but the backgrounds don't follow. */
+window.toggleTheme = window.toggleTheme || function(){};
 window.openCmpSettings = window.openCmpSettings || function(){};
 
 /* Homepage before/after demo. Uses two REAL committed files and reports

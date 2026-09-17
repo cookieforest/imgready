@@ -225,6 +225,20 @@ for (const p of sitemapPaths) {
      a page using it is asserting those links are hidden on a phone — so
      markup and stylesheet have to agree. Pure-presentation classes are
      not listed here; these are the ones with behaviour attached. */
+  /* A theme control must come with a theme. The footer shipped a
+     "Night mode" link that toggled .dark-mode, which no stylesheet
+     defined — it flipped its own label and changed nothing else, so it
+     read as working. If a page puts the control back, the mechanism it
+     drives has to exist. */
+  for (const [slug, f] of pages) {
+    const html = read(f);
+    if (!/id="themeBtn"/.test(html)) continue;
+    const drivesDataTheme = /data-theme/.test(html) || /data-theme/.test(css);
+    const drivesClass = /\.dark-mode/.test(css) || /\.dark-mode\s*\{/.test(html);
+    if (!drivesDataTheme && !drivesClass) {
+      fail('dead control', `${slug} has a theme button but nothing styles the theme it toggles`);
+    }
+  }
   const BEHAVIOURAL = ['hide-mobile'];
   for (const cls of BEHAVIOURAL) {
     const users = pages.filter(([, f]) => read(f).includes(`${cls}"`) || read(f).includes(`${cls} `));

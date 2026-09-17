@@ -89,7 +89,7 @@
      to body[data-state]. -->
 <!-- PWA + theme parity with stable: manifest enables install-to-homescreen,
      theme-color tints the mobile address bar, apple-touch-icon for iOS. -->
-<meta name="theme-color" content="#5a7a5a">
+<meta name="theme-color" content="#4f6f4f">
 <link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -148,22 +148,35 @@
   /* R25 — skip link visible on focus, hidden otherwise. WCAG 2.4.1. */
   .r25-skip-link{
     position:absolute;top:-100px;left:8px;z-index:9999;
-    background:var(--accent-strong);color:#fff;
+    /* Inverting the text tokens guarantees contrast in either theme. It
+       was #fff on --accent-strong, fine on the light palette but white
+       on a pale green once dark applies (2.22:1). */
+    background:var(--text);color:var(--bg);
     padding:8px 16px;border-radius:6px;
-    text-decoration:none;font-weight:600;font-size:.9rem;
+    text-decoration:none;font-weight:600;font-size:.92rem;
     transition:top .15s ease;
   }
   .r25-skip-link:focus-visible{top:8px;outline:3px solid #fff;outline-offset:2px;}
 
   :root{
-    --bg:#f5f0e8;--text:#2a2a26;--muted:#5e5c54;
+    /* Palette tokens (--bg, --text, --muted, --accent*, --border, --card,
+       --surface, --radius, --card-shadow) now come from /app.css, which
+       defines them on bare :root. They used to be redeclared here with
+       different values, and because this <style> comes after that
+       <link>, these won won every time — so the homepage and the landing
+       pages rendered two different palettes from one codebase, and the
+       app.css rules referencing tokens this block never defined
+       (--surface, --radius, --card-shadow) resolved to nothing.
+       Only homepage-specific tokens belong here now.
+
+       The dark workspace palette below (body[data-state=solo|multi])
+       still overrides them deliberately — that inversion is the design,
+       not an accident, and it measures 6.2:1 to 16.4:1. */
     /* R24 — type tokens. Body via Inter; display via Fraunces (warm serif
        with opsz + wght axes); mono via JetBrains Mono for byte-count strings. */
     --font-display:"Fraunces",ui-serif,Georgia,"Times New Roman",serif;
     --font-body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
     --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --accent:#7a9a7a;--accent-strong:#5a7a5a;--accent-ink:#3f5a3f;--accent-light:rgba(90,122,90,.10);
-    --card:#fffefb;--border:rgba(0,0,0,.10);
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
     --thumb-big:86px;--thumb-small:45px;--stride:70px;  /* active thumb +15% (75->86); unselected +28% (35->45) for easier clicking; stride bumped to preserve gap */
@@ -226,18 +239,18 @@
 
   .brand-bar{height:var(--brand-h);display:flex;align-items:center;gap:14px;
     padding:0 16px;background:var(--bg);position:relative;z-index:10;}
-  .brand{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
+  .brand{font-weight:700;font-size:.96rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
   .brand .g,.footer-brand .g{color:var(--accent);}
   .brand-spacer{flex:1;}
   .exit-link{
-    color:var(--muted);font-size:.74rem;text-decoration:none;
+    color:var(--muted);font-size:.76rem;text-decoration:none;
     padding:4px 8px;border-radius:5px;
   }
   .exit-link:hover{color:var(--text);background:rgba(255,255,255,.06);}
   .state-toggle{margin-left:auto;display:flex;gap:6px;align-items:center;}
-  .state-toggle small{color:var(--muted);font-size:.66rem;}
+  .state-toggle small{color:var(--muted);font-size:.68rem;}
   .state-toggle button{border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);
-    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;}
+    font-size:.72rem;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;}
   body[data-state="empty"] .state-toggle button{border-color:var(--border);}
   .state-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
@@ -338,19 +351,19 @@
   .compare-meta{position:absolute;top:var(--s-3);background:var(--card-bg);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     color:#fff;padding:8px 12px;border-radius:8px;
-    font-size:.74rem;font-weight:600;line-height:1.35;
+    font-size:.76rem;font-weight:600;line-height:1.35;
     pointer-events:none;z-index:5;display:flex;flex-direction:column;gap:2px;
     border:1px solid var(--card-border);}
   .compare-meta.l{left:var(--s-3);align-items:flex-start;}
   .compare-meta.r{right:var(--s-3);align-items:flex-end;text-align:right;}
   .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
-  .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.78rem;}
+  .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.8rem;}
   .compare-meta .gif-meta{
     font-size:.68rem;color:rgba(255,255,255,.65);
     margin-top:2px;font-style:italic;
   }
   .compare-meta .batch-row{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.18);
-    font-size:.7rem;font-weight:500;color:rgba(255,255,255,.85);}
+    font-size:.72rem;font-weight:500;color:rgba(255,255,255,.85);}
   body[data-state="solo"] .compare-meta .batch-row{display:none;}
 
   /* ---------- UX pass 2: pre-encode states + zoom + per-thumb progress ----------
@@ -394,7 +407,7 @@
     margin-bottom:6px;letter-spacing:-.3px;
   }
   .window-drop-overlay .wd-sub{
-    color:rgba(255,255,255,.85) !important;font-size:.9rem;
+    color:rgba(255,255,255,.85) !important;font-size:.92rem;
   }
   @media(max-width:600px){
     .window-drop-overlay::before{inset:14px;}
@@ -406,7 +419,7 @@
     position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(8px);
     background:rgba(20,20,20,.95);color:#fff;
     padding:10px 16px;border-radius:8px;
-    font-size:.82rem;font-weight:500;
+    font-size:.84rem;font-weight:500;
     box-shadow:0 4px 16px rgba(0,0,0,.4);
     pointer-events:none;z-index:1100;
     opacity:0;transition:opacity .2s ease,transform .2s ease;
@@ -427,7 +440,7 @@
     color:#fff;
   }
   .bigbatch-modal h3{margin:0 0 8px;font-size:1.1rem;}
-  .bigbatch-modal p{margin:0 0 16px;color:rgba(255,255,255,.75);font-size:.85rem;line-height:1.5;}
+  .bigbatch-modal p{margin:0 0 16px;color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.5;}
   .bigbatch-actions{display:flex;gap:8px;justify-content:flex-end;}
   .bigbatch-actions .btn{padding:8px 16px;}
 
@@ -444,7 +457,7 @@
     left:50%;transform:translateX(-50%);
     background:transparent;border:none;
     color:rgba(255,255,255,.7);
-    font-size:.7rem;font-weight:500;letter-spacing:.01em;
+    font-size:.72rem;font-weight:500;letter-spacing:.01em;
     padding:0 12px;
     /* min(60vw, 480px) ensures very wide screens still cap, and
        box-sizing:border-box stops padding from blowing past the cap. */
@@ -561,7 +574,7 @@
     position:absolute;top:14px;left:50%;transform:translateX(-50%);
     background:var(--card-bg);border:1px solid var(--card-border);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-    color:#fff;font-size:.78rem;font-weight:700;letter-spacing:.02em;
+    color:#fff;font-size:.8rem;font-weight:700;letter-spacing:.02em;
     padding:5px 12px;border-radius:8px;
     pointer-events:none;z-index:7;
     opacity:0;transition:opacity .18s ease;
@@ -582,7 +595,7 @@
      "did anything just happen?" gap during re-encodes. The spinner
      replaces the size text while encoding, so the eye-line is the same. */
   .quality-row .qr-size{
-    font-size:.7rem;color:var(--muted);font-weight:600;
+    font-size:.72rem;color:var(--muted);font-weight:600;
     text-align:right;font-variant-numeric:tabular-nums;
     /* Empty span collapses to 0 — only takes width when there's a size to
        show. Otherwise it leaves a phantom gap on the right of the slider. */
@@ -667,7 +680,7 @@
     max-width:100%;max-height:100%;width:auto;height:auto;
     object-fit:contain;display:block;
   }
-  .cflow-thumb .thumb-num{font-size:.78rem;line-height:1;}
+  .cflow-thumb .thumb-num{font-size:.8rem;line-height:1;}
   .cflow-thumb.active .thumb-num{font-size:1rem;}
   /* Add-more tile — frosted-glass card, thin dashed border, large "+".
      Pattern researched against Google Photos, Figma, Linear, and macOS
@@ -802,7 +815,7 @@
   .cflow-thumb.add-more .add-more-label{
     /* Drop the all-caps tracked-out style — too formal for a small chip */
     text-transform:none;font-weight:500;letter-spacing:0;
-    font-size:.66rem;color:rgba(255,255,255,.55);
+    font-size:.68rem;color:rgba(255,255,255,.55);
   }
   /* Old uppercase add-more-label rule removed — superseded by the soft
      style further down. */
@@ -860,7 +873,7 @@
   /* Tooltip — supplements the button-state change with the explicit verb. */
   .pi-icon .pi-toast{
     position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);
-    background:#fff;color:#111;font-size:.7rem;font-weight:700;letter-spacing:.02em;
+    background:#fff;color:#111;font-size:.72rem;font-weight:700;letter-spacing:.02em;
     padding:4px 9px;border-radius:6px;white-space:nowrap;
     opacity:0;pointer-events:none;
     transition:opacity .14s ease,transform .14s ease;
@@ -977,7 +990,7 @@
     display:flex;align-items:center;gap:8px;
   }
   .bb-section-label{
-    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    font-size:.64rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);
     flex:none;white-space:nowrap;
   }
@@ -1115,7 +1128,7 @@
   .adjust-panel{display:contents;}
   .adjust-section{margin-bottom:12px;}
   .adjust-section:last-child{margin-bottom:0;}
-  .adjust-label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;
+  .adjust-label{display:block;font-size:.64rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:6px;}
   .adjust-pills{
     display:flex;flex-wrap:nowrap;gap:4px;align-items:center;
@@ -1131,7 +1144,7 @@
     height:var(--bb-btn-h);padding:0 10px;
     border:1px solid rgba(255,255,255,.18);background:transparent;
     border-radius:6px;color:rgba(255,255,255,.7);
-    font-family:inherit;font-size:.7rem;font-weight:600;
+    font-family:inherit;font-size:.72rem;font-weight:600;
     cursor:pointer;text-transform:uppercase;letter-spacing:.02em;
     display:inline-flex;align-items:center;
     transition:background .14s ease,border-color .14s ease,color .14s ease;
@@ -1206,7 +1219,7 @@
     cursor:pointer;
     box-shadow:0 1px 2px rgba(0,0,0,.4);
   }
-  .q-val{color:#fff;font-weight:700;font-size:.7rem;min-width:24px;text-align:center;}
+  .q-val{color:#fff;font-weight:700;font-size:.72rem;min-width:24px;text-align:center;}
   /* Resize control — segmented [Pixels | Percent] + numeric input with
      right-aligned unit suffix. Pattern from Apple Photos export, Lightroom
      custom size, and Affinity Photo's resize dialog. The native <select>
@@ -1226,7 +1239,7 @@
     background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.18);
     color:#fff;border-radius:6px;
-    font:inherit;font-size:.78rem;
+    font:inherit;font-size:.8rem;
     outline:none;
     -moz-appearance:textfield;
   }
@@ -1237,7 +1250,7 @@
   .resize-input-wrap input:focus{border-color:var(--accent);}
   .resize-input-wrap .resize-unit{
     position:absolute;right:10px;top:50%;transform:translateY(-50%);
-    color:rgba(255,255,255,.45);font-size:.74rem;font-weight:600;
+    color:rgba(255,255,255,.45);font-size:.76rem;font-weight:600;
     pointer-events:none;
   }
   /* Toggle switch — replaces the native checkbox for "Strip metadata".
@@ -1247,7 +1260,7 @@
      pseudo-elements so we get a single click target. */
   .switch{
     display:inline-flex;align-items:center;gap:8px;cursor:pointer;
-    font-size:.78rem;color:rgba(255,255,255,.85);
+    font-size:.8rem;color:rgba(255,255,255,.85);
   }
   .switch input{
     /* Keep the checkbox in the layout for accessibility but visually
@@ -1382,7 +1395,7 @@
     background:transparent;
     border:1px solid rgba(255,255,255,.18);
     color:rgba(255,255,255,.85);
-    font:inherit;font-size:.7rem;font-weight:600;
+    font:inherit;font-size:.72rem;font-weight:600;
     border-radius:5px;cursor:pointer;
     transition:background .12s ease,color .12s ease,border-color .12s ease;
   }
@@ -1393,14 +1406,14 @@
   }
 
   .adjust-input,.adjust-select{padding:5px 7px;border:1px solid rgba(255,255,255,.18);
-    background:rgba(255,255,255,.04);color:#fff;border-radius:5px;font-family:inherit;font-size:.7rem;width:100%;}
-  .adjust-checkbox{display:flex;align-items:center;gap:6px;font-size:.7rem;color:rgba(255,255,255,.85);cursor:pointer;}
+    background:rgba(255,255,255,.04);color:#fff;border-radius:5px;font-family:inherit;font-size:.72rem;width:100%;}
+  .adjust-checkbox{display:flex;align-items:center;gap:6px;font-size:.72rem;color:rgba(255,255,255,.85);cursor:pointer;}
 
   /* Action area: stacked vertical buttons in narrow card */
   .actions{display:flex;flex-direction:column;gap:6px;
     padding:12px 14px max(14px,env(safe-area-inset-bottom,14px));}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;
-    padding:9px 12px;border-radius:7px;font-family:inherit;font-size:.78rem;font-weight:600;
+    padding:9px 12px;border-radius:7px;font-family:inherit;font-size:.8rem;font-weight:600;
     border:1px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.92);
     cursor:pointer;white-space:nowrap;width:100%;}
   .btn:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4);}
@@ -1421,7 +1434,7 @@
     color:#fff;padding:24px;max-width:380px;width:100%;
     box-shadow:0 12px 40px rgba(0,0,0,.5);}
   .confirm-modal h3{margin:0 0 8px;font-size:1.05rem;}
-  .confirm-modal p{margin:0 0 18px;font-size:.86rem;color:rgba(255,255,255,.78);line-height:1.45;}
+  .confirm-modal p{margin:0 0 18px;font-size:.88rem;color:rgba(255,255,255,.78);line-height:1.45;}
   .confirm-actions{display:flex;gap:10px;justify-content:flex-end;}
   .confirm-actions .btn{width:auto;}
 
@@ -1473,7 +1486,7 @@
     line-height:1;
   }
   .top-chrome .tc-pct{
-    font-size:.7rem;color:#bfe6bf;font-weight:700;
+    font-size:.72rem;color:#bfe6bf;font-weight:700;
     line-height:1;margin-left:6px;
   }
   .top-chrome .tc-pct.bad{color:#ff8b8b;}
@@ -1488,12 +1501,12 @@
     display:inline-flex;align-items:baseline;gap:6px;
   }
   .top-chrome .tc-brand-name{
-    font-size:.94rem;font-weight:700;font-style:italic;color:rgba(255,255,255,.95);
+    font-size:.92rem;font-weight:700;font-style:italic;color:rgba(255,255,255,.95);
     letter-spacing:-.01em;text-decoration:none;line-height:1;
   }
   .top-chrome .tc-brand-name .g{color:var(--accent);}
   .top-chrome .tc-stats{
-    font-size:.66rem;color:rgba(255,255,255,.55);
+    font-size:.68rem;color:rgba(255,255,255,.55);
     font-variant-numeric:tabular-nums;line-height:1;
   }
   /* Body reset — kill the default 8px margin that produces the gap above
@@ -1545,7 +1558,7 @@
     box-sizing:border-box;
   }
   .dz-format-label{
-    font-size:.62rem;font-weight:700;letter-spacing:.1em;
+    font-size:.64rem;font-weight:700;letter-spacing:.1em;
     text-transform:uppercase;color:var(--muted);
   }
   /* Inline hint inside the OUTPUT FORMAT label — clarifies that
@@ -1564,10 +1577,13 @@
   }
   .dz-format-pre .dz-pills button{
     height:30px;padding:0 14px;
-    border:1px solid rgba(0,0,0,.14);
-    background:#fff;
+    border:1px solid var(--border);
+    /* Was a hardcoded #fff. --text follows the theme but the background
+       didn't, so in dark these became near-white text on white: 1.27:1,
+       six invisible buttons. */
+    background:var(--surface);
     color:var(--text);
-    font:inherit;font-size:.74rem;font-weight:600;
+    font:inherit;font-size:.76rem;font-weight:600;
     border-radius:6px;cursor:pointer;
     transition:background .12s ease,border-color .12s ease,color .12s ease;
   }
@@ -1604,7 +1620,7 @@
   }
   /* Microcopy inside the dropzone — closing line of the card. */
   .dz-microcopy{
-    font-size:.74rem;color:var(--muted);
+    font-size:.76rem;color:var(--muted);
     text-align:center;
     margin-top:6px;
     min-height:1em;
@@ -1619,7 +1635,7 @@
   }
   .hero-proofs .proof{
     display:inline-flex;align-items:center;gap:8px;
-    font-size:.82rem;font-weight:600;
+    font-size:.84rem;font-weight:600;
     color:var(--muted-strong,var(--muted));
     line-height:1.3;
   }
@@ -1648,7 +1664,7 @@
      the FAQ. Slightly smaller and muted vs the primary subtitle. */
   body[data-state="empty"] .dropzone .dz-capabilities{
     margin-top:4px;
-    font-size:.78rem;
+    font-size:.8rem;
     color:var(--muted-strong,var(--muted));
     opacity:.85;
   }
@@ -1772,7 +1788,7 @@
   @media (max-width:520px){
     .dz-floats{gap:10px;margin-top:12px;}
     .dz-float-card{padding:6px;}
-    .dz-float-label{font-size:.66rem;}
+    .dz-float-label{font-size:.68rem;}
   }
   /* Custom tooltip — instant show on hover, properly styled.
      Better than native [title] which has a slow OS-level delay
@@ -2004,18 +2020,18 @@
   .quality-target-row input[type=number]{
     flex:1;min-width:0;padding:6px 8px;border-radius:6px;
     background:rgba(255,255,255,.06);color:#fff;
-    border:1px solid rgba(255,255,255,.12);font-size:.86rem;
+    border:1px solid rgba(255,255,255,.12);font-size:.88rem;
   }
   .quality-target-row input[type=number]:focus{
     outline:none;border-color:rgba(255,255,255,.32);
   }
   .quality-target-row .qtr-unit{
-    color:rgba(255,255,255,.55);font-size:.78rem;
+    color:rgba(255,255,255,.55);font-size:.8rem;
   }
   .quality-target-row .qtr-apply{
     padding:6px 12px;border-radius:6px;
     background:rgba(255,255,255,.10);color:#fff;
-    border:1px solid rgba(255,255,255,.16);font-size:.78rem;cursor:pointer;
+    border:1px solid rgba(255,255,255,.16);font-size:.8rem;cursor:pointer;
   }
   .quality-target-row .qtr-apply:hover{background:rgba(255,255,255,.15);}
     .quality-menu button[data-quality-preset]{
@@ -2080,7 +2096,7 @@
       /* Same anchor-aware formula as desktop. 28px above toolbar so
          it clears the scrubber (at +16) plus the scrubber's height. */
       bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + 28px);
-      font-size:.66rem;max-width:80vw;
+      font-size:.68rem;max-width:80vw;
     }
     /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
        instead of collapsing into overflow chaos. The horizontal "film
@@ -2264,7 +2280,7 @@
       font-size:.68rem;padding:5px 8px;max-width:42vw;
       pointer-events:auto;cursor:pointer;
     }
-    .compare-meta .lbl-title{font-size:.78rem;}
+    .compare-meta .lbl-title{font-size:.8rem;}
     body[data-state="solo"] .top-chrome,body[data-state="multi"] .top-chrome{
       top:0;left:0;right:0;transform:none;
       width:100%;min-width:auto;max-width:none;
@@ -2275,13 +2291,13 @@
     .top-chrome .tc-label{font-size:.52rem;}
     .top-chrome .tc-value{font-size:.64rem;}
     .top-chrome .tc-brand-name{font-size:.84rem;}
-    .top-chrome .tc-stats{font-size:.58rem;}
+    .top-chrome .tc-stats{font-size:.56rem;}
     .top-chrome .tc-pct{font-size:.6rem;}
     .top-chrome .tc-brand-name{font-size:.84rem;}
-    .top-chrome .tc-stats{font-size:.58rem;}
-    .top-chrome .tc-label{font-size:.54rem;}
-    .top-chrome .tc-value{font-size:.62rem;}
-    .top-chrome .tc-pct{font-size:.58rem;}
+    .top-chrome .tc-stats{font-size:.56rem;}
+    .top-chrome .tc-label{font-size:.56rem;}
+    .top-chrome .tc-value{font-size:.64rem;}
+    .top-chrome .tc-pct{font-size:.56rem;}
     .top-chrome .tc-section{gap:6px;}
     body[data-state="multi"] .menu-wrap{left:8px;right:8px;bottom:8px;}
     body[data-state="multi"] .menu-card{border-radius:14px;}
@@ -2294,7 +2310,7 @@
       content:" \203A";opacity:.5;font-weight:600;
     }
     .compare-meta.expanded .lbl-title::after{
-      content:" \2715";opacity:.5;font-weight:600;font-size:.7rem;
+      content:" \2715";opacity:.5;font-weight:600;font-size:.72rem;
     }
     .state-toggle small{display:none;}
     .brand-bar{padding:0 12px;}
@@ -2411,7 +2427,7 @@
     flex:1;min-width:0;
     text-align:left;
     font-family:var(--font-mono);
-    font-size:.7rem;
+    font-size:.72rem;
     color:rgba(255,255,255,.82);
     font-variant-numeric:tabular-nums;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
@@ -2422,7 +2438,7 @@
     flex:0 0 auto;
     font-family:var(--font-display);
     font-style:italic;font-weight:700;
-    font-size:.95rem;
+    font-size:.96rem;
     letter-spacing:-.01em;
     color:rgba(255,255,255,.95);
     text-decoration:none;
@@ -2437,7 +2453,7 @@
     display:flex;align-items:center;justify-content:flex-end;
     flex:1;min-width:0;text-align:right;
     font-family:var(--font-mono);
-    font-size:.66rem;
+    font-size:.68rem;
     color:rgba(255,255,255,.55);
     font-variant-numeric:tabular-nums;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -2524,7 +2540,7 @@
   .edit-blur-controls .edit-preset-btn,
   .bg-refine-section .edit-preset-btn{
     height:36px;padding:0 14px;
-    font-size:.78rem;border-radius:8px;flex:1;
+    font-size:.8rem;border-radius:8px;flex:1;
   }
   /* R43 — Larger, more readable help text (was .62rem) */
   .edit-pixelate-help,
@@ -2537,7 +2553,7 @@
   /* R43 — Action buttons: taller touch target (was 28px) */
   .edit-frames-action-btn{
     height:36px;padding:0 14px;
-    font-size:.78rem;font-weight:600;border-radius:8px;
+    font-size:.8rem;font-weight:600;border-radius:8px;
     background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.12);
     color:rgba(255,255,255,.85);cursor:pointer;
@@ -2556,7 +2572,7 @@
   }
   .edit-options-strip h4,
   .bg-refine-section h4{
-    font-size:.7rem;font-weight:700;letter-spacing:.06em;
+    font-size:.72rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);
     margin:0;
   }
@@ -2598,7 +2614,7 @@
   .edit-action-pill .btn-ghost{
     background:transparent;border-color:transparent;
     color:rgba(255,255,255,.5);
-    font-size:.7rem;font-weight:600;padding:0 9px;border-radius:20px;
+    font-size:.72rem;font-weight:600;padding:0 9px;border-radius:20px;
   }
   .edit-action-pill .btn-ghost:hover{color:#fff;background:rgba(255,255,255,.07);}
   .edit-action-pill .btn-primary{
@@ -2729,7 +2745,7 @@
   .edit-modal .edit-actions-cluster .btn-ghost{
     background:transparent;border-color:transparent;
     color:rgba(255,255,255,.55);
-    font-size:.7rem;font-weight:600;
+    font-size:.72rem;font-weight:600;
     padding:0 8px;
   }
   .edit-modal .edit-actions-cluster .btn-ghost:hover{
@@ -2790,7 +2806,7 @@
   .edit-modal .edit-subtab{
     flex:0 0 auto;padding:5px 10px;border-radius:5px;
     background:transparent;color:rgba(255,255,255,.55);
-    border:none;cursor:pointer;font-size:.7rem;font-weight:600;
+    border:none;cursor:pointer;font-size:.72rem;font-weight:600;
     display:inline-flex;align-items:center;justify-content:center;gap:5px;
     transition:background .12s,color .12s;line-height:1;
   }
@@ -2820,7 +2836,7 @@
     padding:8px 16px;border-radius:8px;
     background:rgba(255,255,255,.08);color:#fff;
     border:1px solid rgba(255,255,255,.14);
-    font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;
+    font-size:.84rem;font-weight:600;cursor:pointer;white-space:nowrap;
   }
   .edit-modal .btn:hover{background:rgba(255,255,255,.14);}
   .edit-modal .btn-primary{
@@ -2836,13 +2852,13 @@
   .edit-modal .btn-icon{
     width:32px;height:32px;padding:0;border-radius:8px;flex-shrink:0;
     background:transparent;border:1px solid rgba(255,255,255,.12);
-    color:rgba(255,255,255,.55);font-size:.85rem;line-height:1;cursor:pointer;
+    color:rgba(255,255,255,.55);font-size:.84rem;line-height:1;cursor:pointer;
     display:inline-flex;align-items:center;justify-content:center;
   }
   .edit-modal .btn-icon:hover{background:rgba(255,255,255,.08);color:#fff;}
   .edit-modal .btn-icon:disabled{opacity:.25;cursor:default;pointer-events:none;}
   .edit-modal .edit-compare-btn{
-    padding:4px 9px;border-radius:6px;font-size:.74rem;font-weight:500;
+    padding:4px 9px;border-radius:6px;font-size:.76rem;font-weight:500;
     background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
     color:rgba(255,255,255,.6);cursor:pointer;flex-shrink:0;
     transition:background .12s;white-space:nowrap;
@@ -2852,7 +2868,7 @@
   }
   .edit-modal .edit-history-btns{display:flex;gap:4px;flex-shrink:0;}
   .edit-modal .edit-size-info{
-    font-size:.7rem;color:rgba(255,255,255,.35);
+    font-size:.72rem;color:rgba(255,255,255,.35);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     flex:1 1 auto;min-width:0;text-align:left;
   }
@@ -2900,7 +2916,7 @@
   .edit-split-label{
     position:absolute;top:10px;
     padding:3px 9px;
-    font-size:.66rem;font-weight:700;letter-spacing:.06em;
+    font-size:.68rem;font-weight:700;letter-spacing:.06em;
     color:#fff;background:rgba(0,0,0,.6);
     border-radius:12px;pointer-events:none;
     z-index:17;
@@ -2978,7 +2994,7 @@
     overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
   }
   .edit-rotate-btn.rot-text{
-    padding:0 14px;font-size:.78rem;font-weight:600;
+    padding:0 14px;font-size:.8rem;font-weight:600;
     letter-spacing:.01em;
   }
   /* R46 — Adjust + Rotate dropdown chips become content-width inside
@@ -3064,7 +3080,7 @@
   }
   .adj-scrubber-value{
     font-family:var(--font-mono, ui-monospace, monospace);
-    font-size:.78rem;color:rgba(255,255,255,.65);
+    font-size:.8rem;color:rgba(255,255,255,.65);
     font-variant-numeric:tabular-nums;
   }
   .adj-scrubber input[type=range]{
@@ -3085,7 +3101,7 @@
     background:rgba(255,255,255,.04);
     border:1px solid transparent;border-radius:10px;
     color:rgba(255,255,255,.75);
-    font-family:inherit;font-size:.62rem;font-weight:600;letter-spacing:.02em;
+    font-family:inherit;font-size:.64rem;font-weight:600;letter-spacing:.02em;
     text-transform:uppercase;
     cursor:pointer;position:relative;
     transition:background .12s ease,color .12s ease,border-color .12s ease;
@@ -3160,7 +3176,7 @@
     position:absolute;bottom:5px;left:0;right:0;
     text-align:center;
     font-family:var(--font-mono, ui-monospace, monospace);
-    font-size:.62rem;font-weight:700;color:#fff;
+    font-size:.64rem;font-weight:700;color:#fff;
     letter-spacing:.02em;line-height:1;
     pointer-events:none;font-variant-numeric:tabular-nums;
   }
@@ -3282,7 +3298,7 @@
   /* Save/Done button stays as a small accent/neutral pill on the right. */
   .edit-modal .edit-top-btn{
     padding:5px 14px !important;
-    font-size:.78rem !important;
+    font-size:.8rem !important;
     border-radius:999px !important;
   }
   .edit-modal .edit-top-save{
@@ -3306,7 +3322,7 @@
     margin-left:8px;
   }
   .edit-modal .edit-top-history-btn{
-    font-family:inherit;font-size:.78rem;font-weight:600;
+    font-family:inherit;font-size:.8rem;font-weight:600;
     padding:6px 12px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.14);
@@ -3363,7 +3379,7 @@
     display:flex;align-items:center;gap:6px;
   }
   .edit-modal .edit-top-btn{
-    font-family:inherit;font-size:.82rem;font-weight:600;letter-spacing:.01em;
+    font-family:inherit;font-size:.84rem;font-weight:600;letter-spacing:.01em;
     padding:7px 14px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.16);
@@ -3679,7 +3695,7 @@
   .edit-modal .ed-circle-btn .ed-circle-cap{
     position:absolute;
     top:calc(100% + 4px);left:50%;transform:translateX(-50%);
-    font-family:inherit;font-size:.55rem;font-weight:700;letter-spacing:.06em;
+    font-family:inherit;font-size:.56rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.62);
     white-space:nowrap;pointer-events:none;
   }
@@ -3721,7 +3737,7 @@
     backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);
     color:#fff;
-    font-family:inherit;font-size:.66rem;font-weight:700;letter-spacing:.08em;
+    font-family:inherit;font-size:.68rem;font-weight:700;letter-spacing:.08em;
     text-transform:uppercase;
     padding:5px 11px;
     border-radius:999px;
@@ -3986,7 +4002,7 @@
     box-shadow:0 0 0 1px var(--accent, #7a9a7a);
   }
   .edit-modal .filter-thumb-name{
-    font-size:.62rem;font-weight:700;letter-spacing:.05em;
+    font-size:.64rem;font-weight:700;letter-spacing:.05em;
     text-transform:uppercase;line-height:1;
     white-space:nowrap;
   }
@@ -4009,7 +4025,7 @@
   .edit-compare-label{
     position:absolute;top:12px;left:50%;transform:translateX(-50%);
     background:rgba(0,0,0,.65);color:rgba(255,255,255,.85);
-    font-size:.74rem;font-weight:600;letter-spacing:.04em;
+    font-size:.76rem;font-weight:600;letter-spacing:.04em;
     padding:3px 10px;border-radius:20px;pointer-events:none;
   }
   .edit-compare-dismiss{
@@ -4056,7 +4072,7 @@
     padding:10px 12px;border-radius:7px;
     background:rgba(255,255,255,.06);color:#fff;
     border:1px solid rgba(255,255,255,.1);cursor:pointer;
-    font-size:.82rem;display:flex;align-items:center;gap:7px;
+    font-size:.84rem;display:flex;align-items:center;gap:7px;
     transition:background .1s;
   }
   .edit-rotate-btn:hover{background:rgba(255,255,255,.12);}
@@ -4081,7 +4097,7 @@
   }
   .adj-val{
     font-family:var(--font-mono);
-    font-size:.75rem;color:rgba(255,255,255,.85);
+    font-size:.76rem;color:rgba(255,255,255,.85);
     text-align:right;font-variant-numeric:tabular-nums;
     min-width:32px;flex:0 0 auto;
   }
@@ -4125,7 +4141,7 @@
     background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.18);
     color:rgba(255,255,255,.75);
-    font-family:inherit;font-size:.78rem;font-weight:600;
+    font-family:inherit;font-size:.8rem;font-weight:600;
     padding:0 12px;border-radius:8px;cursor:pointer;
     display:flex;align-items:center;gap:6px;
     flex:1;
@@ -4221,7 +4237,7 @@
   }
   .edit-vignette-dd-menu .vig-reset-row button{
     background:transparent;border:0;color:rgba(255,255,255,.55);
-    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;
+    font-size:.72rem;padding:4px 8px;border-radius:5px;cursor:pointer;
   }
   .edit-vignette-dd-menu .vig-reset-row button:hover{
     color:#fff;background:rgba(255,255,255,.06);
@@ -4237,7 +4253,7 @@
     min-width:280px;padding:10px 12px;gap:6px;
   }
   .edit-adjust-dd-menu .dd-section-label{
-    font-size:.58rem;font-weight:700;letter-spacing:.12em;
+    font-size:.56rem;font-weight:700;letter-spacing:.12em;
     text-transform:uppercase;color:rgba(255,255,255,.45);
     margin:0 0 4px;
   }
@@ -4261,7 +4277,7 @@
   }
   .edit-adjust-dd-menu .adj-reset-row button{
     background:transparent;border:0;color:rgba(255,255,255,.55);
-    font-size:.7rem;padding:4px 8px;border-radius:5px;cursor:pointer;
+    font-size:.72rem;padding:4px 8px;border-radius:5px;cursor:pointer;
   }
   .edit-adjust-dd-menu .adj-reset-row button:hover{
     color:#fff;background:rgba(255,255,255,.06);
@@ -4277,7 +4293,7 @@
     min-width:260px;padding:10px 12px;gap:6px;
   }
   .edit-tool-dd-menu .dd-section-label{
-    font-size:.58rem;font-weight:700;letter-spacing:.12em;
+    font-size:.56rem;font-weight:700;letter-spacing:.12em;
     text-transform:uppercase;color:rgba(255,255,255,.45);
     margin:0 0 4px;
   }
@@ -4304,12 +4320,12 @@
     display:flex;align-items:center;justify-content:space-between;gap:8px;
   }
   .edit-vignette-title{
-    font-size:.74rem;color:rgba(255,255,255,.78);letter-spacing:.02em;
+    font-size:.76rem;color:rgba(255,255,255,.78);letter-spacing:.02em;
     display:flex;align-items:center;gap:5px;
   }
   .edit-vignette-reset{
     background:transparent;border:0;color:rgba(255,255,255,.55);
-    font-size:.7rem;padding:2px 6px;border-radius:5px;cursor:pointer;
+    font-size:.72rem;padding:2px 6px;border-radius:5px;cursor:pointer;
   }
   .edit-vignette-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
   .edit-vignette-reset:disabled{opacity:.35;cursor:not-allowed;}
@@ -4320,7 +4336,7 @@
     flex:0 0 auto;
   }
   .edit-vignette-section h4{
-    font-size:.62rem;font-weight:700;letter-spacing:.06em;
+    font-size:.64rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:rgba(255,255,255,.55);
     margin:0;white-space:nowrap;
   }
@@ -4378,14 +4394,14 @@
   .edit-frame-thumb.drop-after .frame-canvas-wrap::after{right:-4px;}
   .edit-frame-thumb .frame-dup{
     position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
-    background:rgba(60,60,60,.85);color:#fff;border:none;cursor:pointer;font-size:.62rem;
+    background:rgba(60,60,60,.85);color:#fff;border:none;cursor:pointer;font-size:.64rem;
     display:none;align-items:center;justify-content:center;
   }
   .edit-frame-thumb:hover .frame-dup{display:flex;}
   .edit-frame-thumb .frame-dup:hover{background:rgba(80,160,80,.85);}
   .edit-frame-thumb .frame-del{
     position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;
-    background:rgba(160,60,60,.85);color:#fff;border:none;cursor:pointer;font-size:.62rem;
+    background:rgba(160,60,60,.85);color:#fff;border:none;cursor:pointer;font-size:.64rem;
     display:none;align-items:center;justify-content:center;
   }
   .edit-frame-thumb:hover .frame-del{display:flex;}
@@ -4400,7 +4416,7 @@
   .edit-frames-optimize h4{margin:0 0 7px;font-size:.76rem;color:rgba(255,255,255,.72);font-weight:600;}
   .edit-frames-optimize .opt-row{
     display:grid;grid-template-columns:84px 1fr 42px;gap:5px;
-    align-items:center;margin-bottom:5px;font-size:.7rem;color:rgba(255,255,255,.6);
+    align-items:center;margin-bottom:5px;font-size:.72rem;color:rgba(255,255,255,.6);
   }
   .edit-frames-optimize input[type=range]{width:100%;}
   .edit-frames-optimize select{
@@ -4415,7 +4431,7 @@
   .edit-frames-controls input[type=number],.edit-frames-controls input[type=range]{
     padding:4px 6px;border-radius:5px;
     background:rgba(255,255,255,.06);color:#fff;
-    border:1px solid rgba(255,255,255,.12);font-size:.82rem;
+    border:1px solid rgba(255,255,255,.12);font-size:.84rem;
   }
   /* Round 6: Auto Enhance row inside Adjust tab */
   /* R29 — auto-enhance compact pill in the strip row, not a hero band. */
@@ -4429,7 +4445,7 @@
     flex:1;height:36px;padding:0 14px;border-radius:8px;
     background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);
     border:1px solid rgba(255,255,255,.14);cursor:pointer;
-    font-size:.78rem;font-weight:600;
+    font-size:.8rem;font-weight:600;
     display:flex;align-items:center;justify-content:center;gap:6px;
     white-space:nowrap;
   }
@@ -4437,7 +4453,7 @@
   .edit-auto-enhance-btn:disabled{opacity:.5;cursor:default;}
   .edit-auto-enhance-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
   .edit-auto-enhance-undo{
-    padding:3px 6px;border-radius:4px;font-size:.65rem;
+    padding:3px 6px;border-radius:4px;font-size:.64rem;
     background:transparent;color:rgba(255,255,255,.55);
     border:none;cursor:pointer;
   }
@@ -4456,9 +4472,9 @@
   }
   .edit-pixelate-controls{display:flex;flex-direction:column;gap:10px;}
   .px-tool-strip{display:flex;gap:4px;}
-  .px-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.78rem;border-radius:8px;}
+  .px-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.8rem;border-radius:8px;}
   .edit-pixelate-help{
-    margin:0;font-size:.7rem;color:rgba(255,255,255,.5);line-height:1.4;
+    margin:0;font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.4;
   }
   /* Round 13: Blur tab — brush + full-image blur
      ctx.filter='blur(Npx)' is browser-native (no new deps).
@@ -4476,11 +4492,11 @@
   }
   .edit-blur-controls{display:flex;flex-direction:column;gap:10px;}
   .blur-tool-strip{display:flex;gap:4px;}
-  .blur-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.78rem;border-radius:8px;}
+  .blur-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.8rem;border-radius:8px;}
   .edit-blur-actions{display:flex;gap:6px;}
   .edit-blur-actions .edit-frames-action-btn{flex:1;}
   .edit-blur-help{
-    margin:0;font-size:.7rem;color:rgba(255,255,255,.5);line-height:1.4;
+    margin:0;font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.4;
   }
   /* Round 7: Text overlay + Watermark */
   .edit-preview-col .edit-text-wrap{
@@ -4499,7 +4515,7 @@
   .tx-add-row{display:flex;gap:6px;}
   .tx-add-row .edit-frames-action-btn{
     flex:1 1 0;min-width:0;
-    padding:7px 8px;font-size:.78rem;
+    padding:7px 8px;font-size:.8rem;
     /* R44 — keep single-line so "+ Watermark" stops wrapping inside
        the 36px height. flex:1 1 0 + min-width:0 lets buttons shrink
        equally; nowrap + ellipsis handle the longest label gracefully. */
@@ -4513,7 +4529,7 @@
     display:flex;align-items:center;gap:6px;
     padding:5px 7px;border-radius:5px;cursor:pointer;
     border:1px solid transparent;
-    font-size:.74rem;color:rgba(255,255,255,.78);
+    font-size:.76rem;color:rgba(255,255,255,.78);
   }
   .tx-item-row:hover{background:rgba(255,255,255,.06);}
   .tx-item-row.active{
@@ -4530,7 +4546,7 @@
   }
   .tx-item-row .tx-item-del{
     background:none;border:none;color:rgba(255,255,255,.4);
-    cursor:pointer;font-size:.86rem;padding:0 3px;line-height:1;
+    cursor:pointer;font-size:.88rem;padding:0 3px;line-height:1;
   }
   .tx-item-row .tx-item-del:hover{color:#ff7070;}
   /* R71 — text-tab empty state cleaned up: centered subtle copy below icons. */
@@ -4554,7 +4570,7 @@
     width:100%;box-sizing:border-box;
     background:rgba(0,0,0,.32);color:#fff;
     border:1px solid rgba(255,255,255,.12);
-    border-radius:5px;padding:6px 8px;font-size:.78rem;
+    border-radius:5px;padding:6px 8px;font-size:.8rem;
     font-family:inherit;
   }
   .tx-color-row{
@@ -4600,7 +4616,7 @@
   .edit-bg-card h3{
     display:block;margin:0 0 4px;
     font-family:var(--font-display, inherit);
-    font-size:.95rem;font-weight:600;color:#fff;
+    font-size:.96rem;font-weight:600;color:#fff;
     letter-spacing:-.005em;
   }
   .edit-bg-card p{
@@ -4616,7 +4632,7 @@
     margin:0 auto;padding:10px 22px;
     background:var(--accent-strong, var(--accent));color:#fff;
     border:1px solid var(--accent-strong, var(--accent));border-radius:8px;
-    font-size:.82rem;font-weight:600;cursor:pointer;
+    font-size:.84rem;font-weight:600;cursor:pointer;
     display:flex;align-items:center;justify-content:center;gap:6px;
     transition:background .15s,color .15s,filter .15s;
   }
@@ -4625,7 +4641,7 @@
   .edit-bg-progress-wrap{margin-bottom:8px;}
   .edit-bg-progress-bar{width:100%;height:4px;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden;margin-bottom:3px;}
   .edit-bg-progress-fill{height:100%;background:var(--accent);transition:width .25s ease;}
-  .edit-bg-progress-label{font-size:.7rem;color:rgba(255,255,255,.4);}
+  .edit-bg-progress-label{font-size:.72rem;color:rgba(255,255,255,.4);}
   .edit-bg-success-msg{margin:4px 0;font-size:.76rem;color:#6fcf97;}
   /* R44 — disclaimer made readable. R43 had it at 28% opacity / .72rem
      which made the important "60 MB one-time download" warning visually
@@ -4634,7 +4650,7 @@
   .edit-bg-hint{
     margin:8px auto 0;
     max-width:520px;
-    font-size:.78rem;color:rgba(255,255,255,.70);
+    font-size:.8rem;color:rgba(255,255,255,.70);
     line-height:1.45;text-align:center;
   }
   .bg-mode-toggle{
@@ -4645,7 +4661,7 @@
   /* R43 — bg mode buttons: 36px touch target */
   .bg-mode-btn{
     flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
-    padding:8px 8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.62);
+    padding:8px 8px;font-size:.8rem;font-weight:600;color:rgba(255,255,255,.62);
     background:transparent;border:1px solid transparent;border-radius:5px;
     cursor:pointer;transition:background .15s ease,color .15s ease;
     font-family:inherit;letter-spacing:.01em;
@@ -4659,7 +4675,7 @@
   /* R44 — HQ "~110 MB" inline badge: slightly smaller + brighter and
      shifted left so it reads as auxiliary metadata, not a label peer. */
   .bg-mode-pill{
-    font-size:.62rem;font-weight:500;
+    font-size:.64rem;font-weight:500;
     padding:1px 6px;margin-left:4px;border-radius:8px;
     color:rgba(255,255,255,.68);
     background:rgba(255,255,255,.10);
@@ -4677,11 +4693,11 @@
     display:flex;flex-direction:column;gap:9px;
   }
   .bg-refine-section h4{
-    margin:0;font-size:.78rem;font-weight:600;
+    margin:0;font-size:.8rem;font-weight:600;
     color:rgba(255,255,255,.86);letter-spacing:.01em;
   }
   .bg-refine-tool-strip{display:flex;gap:4px;}
-  .bg-refine-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.78rem;border-radius:8px;}
+  .bg-refine-tool-strip .edit-preset-btn{flex:1;text-align:center;height:36px;font-size:.8rem;border-radius:8px;}
   .bg-refine-help{
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
@@ -4691,8 +4707,8 @@
        own line below the tabs so all 6 action buttons fit. */
     .edit-modal .edit-top-chrome{top:10px;left:10px;right:10px;gap:6px;}
     .edit-modal .edit-top-chrome > *{padding:6px 12px;}
-    .edit-modal .edit-brand-link{font-size:.9rem;}
-    .edit-modal .edit-filename-chip{font-size:.7rem;max-width:140px;}
+    .edit-modal .edit-brand-link{font-size:.92rem;}
+    .edit-modal .edit-filename-chip{font-size:.72rem;max-width:140px;}
     .edit-modal .edit-menu-wrap{
       left:8px;right:8px;
       bottom:max(8px, env(safe-area-inset-bottom, 8px));
@@ -4713,10 +4729,10 @@
     .edit-modal .edit-preset-btn{padding:5px 9px;font-size:.72rem;}
     .edit-modal .edit-actions{padding:8px 12px;gap:8px;}
     .edit-modal .edit-actions-row{gap:8px;}
-    .edit-modal .btn{padding:8px 14px;font-size:.78rem;}
+    .edit-modal .btn{padding:8px 14px;font-size:.8rem;}
     .edit-modal .btn-icon{width:32px;height:32px;}
     .edit-modal .edit-actions .btn-primary{min-width:80px;padding:8px 16px;}
-    .edit-modal .edit-size-info{font-size:.66rem;}
+    .edit-modal .edit-size-info{font-size:.68rem;}
   }
 
 
@@ -4798,7 +4814,7 @@
     cursor:pointer;list-style:none;
     padding:10px 12px;
     display:flex;align-items:center;justify-content:space-between;gap:8px;
-    font-size:.82rem;font-weight:600;color:rgba(255,255,255,.85);
+    font-size:.84rem;font-weight:600;color:rgba(255,255,255,.85);
     user-select:none;
     transition:background .12s ease;
   }
@@ -4813,7 +4829,7 @@
   }
   .r23-adv-details[open] .r23-adv-summary::after{transform:rotate(-135deg);}
   .r23-adv-hint{
-    font-size:.7rem;font-weight:500;color:rgba(255,255,255,.45);
+    font-size:.72rem;font-weight:500;color:rgba(255,255,255,.45);
     margin-right:auto;
   }
   .r23-adv-body{
@@ -4828,7 +4844,7 @@
   .r23-adv-tab{
     flex:1 1 0;padding:6px 10px;border-radius:6px;
     background:transparent;border:none;color:rgba(255,255,255,.55);
-    font-size:.74rem;font-weight:600;cursor:pointer;
+    font-size:.76rem;font-weight:600;cursor:pointer;
     transition:background .12s,color .12s;
   }
   .r23-adv-tab:hover{color:rgba(255,255,255,.9);}
@@ -4838,7 +4854,7 @@
   .r23-adv-panel[hidden]{display:none !important;}
   .r23-adv-row{
     display:flex;align-items:center;gap:10px;
-    font-size:.78rem;color:rgba(255,255,255,.85);
+    font-size:.8rem;color:rgba(255,255,255,.85);
   }
   .r23-adv-name{flex:0 0 90px;color:rgba(255,255,255,.65);}
   .r23-adv-row input[type="range"]{flex:1 1 auto;min-width:0;accent-color:var(--accent);}
@@ -4846,12 +4862,12 @@
     flex:1 1 auto;min-width:0;
     background:rgba(0,0,0,.3);color:#fff;
     border:1px solid rgba(255,255,255,.14);border-radius:6px;
-    padding:5px 8px;font-size:.78rem;font-family:inherit;
+    padding:5px 8px;font-size:.8rem;font-family:inherit;
   }
   .r23-adv-row select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .r23-adv-val{
     flex:0 0 34px;text-align:right;
-    font-size:.74rem;font-variant-numeric:tabular-nums;
+    font-size:.76rem;font-variant-numeric:tabular-nums;
     color:rgba(255,255,255,.7);
   }
   .r23-adv-check{flex-wrap:nowrap;gap:8px;}
@@ -5012,7 +5028,7 @@
     color:#fff;
     padding:9px 14px;
     border-radius:9px;
-    font-size:.78rem;font-weight:600;
+    font-size:.8rem;font-weight:600;
     display:flex;align-items:center;gap:10px;
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     box-shadow:0 4px 12px rgba(0,0,0,.2);
@@ -5108,7 +5124,7 @@
     margin:0 0 4px;color:#fafafa;
   }
   .empty-batch-dropzone p{
-    font-size:.74rem;color:rgba(255,255,255,.55);margin:0;
+    font-size:.76rem;color:rgba(255,255,255,.55);margin:0;
   }
   @media (max-width:520px){
     .empty-batch-dropzone{padding:40px 20px;}
@@ -5130,7 +5146,7 @@
     position:absolute;inset:0;
     display:grid;place-items:center;
     font-family:var(--font-mono, ui-monospace, monospace);
-    font-size:.7rem;font-weight:700;
+    font-size:.72rem;font-weight:700;
     font-variant-numeric:tabular-nums;
     color:#fff;letter-spacing:.01em;
     pointer-events:none;
@@ -5148,7 +5164,7 @@
   .edit-modal .edit-tool-surface .edit-crop-presets > span:first-child{
     /* "Ratio" label */
     color:rgba(255,255,255,.6);
-    font-size:.66rem;font-weight:700;letter-spacing:.06em;
+    font-size:.68rem;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;
     margin-right:2px;
   }
@@ -5160,7 +5176,7 @@
     -webkit-backdrop-filter:blur(8px);
     border:1px solid rgba(255,255,255,.18);
     color:#fff;
-    font-family:inherit;font-size:.78rem;font-weight:600;
+    font-family:inherit;font-size:.8rem;font-weight:600;
     cursor:pointer;
     transition:background .12s, border-color .12s;
   }
@@ -5175,7 +5191,7 @@
   .edit-modal .edit-tool-surface #editBody > div + p {
     text-align:center;
     color:rgba(255,255,255,.45);
-    font-size:.7rem;
+    font-size:.72rem;
     margin:6px 0;
   }
   /* Crop "Apply" button as accent pill */
@@ -5185,7 +5201,7 @@
     width:auto !important;min-width:120px;
     height:36px;padding:0 22px;
     background:var(--accent, #7a9a7a);
-    color:#fff;font-weight:700;font-size:.82rem;
+    color:#fff;font-weight:700;font-size:.84rem;
     border:none;border-radius:999px;
     cursor:pointer;
     box-shadow:0 1px 4px rgba(0,0,0,.3);
@@ -5231,7 +5247,7 @@
     padding:4px 14px;
     background:transparent;
     color:rgba(255,255,255,.62);
-    font-size:.78rem;font-weight:600;
+    font-size:.8rem;font-weight:600;
     letter-spacing:.01em;
     display:inline-flex;align-items:center;gap:6px;
     border-radius:8px;
@@ -5563,9 +5579,16 @@
     <div style="margin-top:4px;">
       <a href="/png-to-jpg/">PNG&rarr;JPG</a><a href="/jpg-to-png/">JPG&rarr;PNG</a><a href="/webp-to-jpg/">WebP&rarr;JPG</a><a href="/compress-image-to-100kb/">Compress to 100&nbsp;KB</a><a href="/compress-image-to-20kb/">Compress to 20&nbsp;KB</a><a href="/png-to-ico/">Favicon (ICO)</a><a href="/jfif-to-jpg/">JFIF&rarr;JPG</a><a href="/youtube-thumbnail-size/">YouTube thumbnail</a><a href="/social-media-image-sizes/">Social image sizes</a><a href="/pattern-generator/">Pattern generator</a>
     </div>
-    <div style="margin-top:8px;">
-      <a href="#" id="themeBtn" onclick="event.preventDefault();toggleTheme()">Night mode</a>
-    </div>
+    <!-- The "Night mode" link lived here and did nothing: it toggled a
+         .dark-mode class that no stylesheet defined, while flipping its
+         own label so it looked like it had worked. Wiring it to the real
+         data-theme mechanism was tried and measured — the palette swaps
+         but this page hardcodes ~260 colours outside the tokens, so the
+         long-form content lands at 1.1-2.9:1, and landing pages hardcode
+         body{background} so they go light-on-light. A working dark mode
+         needs those tokenised first; a control that produces an
+         unreadable page is worse than no control. The dark palette in
+         app.css is kept and its contrast fixed, ready for that work. -->
     <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
   </footer>
 </div>
@@ -5711,7 +5734,7 @@
          clips correctly because clip-path applies to the inner element. -->
     <div class="compare-zoom" id="compareZoom">
       <div class="mock-image large compare-before" id="cbBefore" style="background:linear-gradient(135deg,#446644,#8aba8a)">photo-1.jpg</div>
-      <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#5a7a5a,#a8d5a8)">photo-1.jpg</div></div>
+      <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#4f6f4f,#a8d5a8)">photo-1.jpg</div></div>
       <!-- Divider lives INSIDE compare-zoom because it must align with
            the clip-path edge of compare-after, which IS scaled/translated
            by the zoom transform. -->
@@ -8665,11 +8688,23 @@ document.addEventListener('keydown', e => {
    Beta doesn't load app.js, so wire minimal versions so the footer links
    don't error out on click. Theme-toggle flips a class on body that the
    landing CSS can use to swap to dark; CMP settings shows a brief notice. */
-window.toggleTheme = window.toggleTheme || function(){
-  document.body.classList.toggle('dark-mode');
-  const btn = document.getElementById('themeBtn');
-  if (btn) btn.textContent = document.body.classList.contains('dark-mode') ? 'Day mode' : 'Night mode';
-};
+/* This used to toggle `dark-mode` on <body> and update the label. No
+   stylesheet ever defined a .dark-mode rule — the counterpart the
+   comment above anticipated was never written — so the button changed
+   its own text and nothing else. Because the label flipped, it looked
+   like it worked.
+
+   The real mechanism is data-theme on <html>, which app.css has had a
+   complete dark palette for all along; the homepage just never opted
+   in. Now that the palette tokens are shared (see app.css :root), that
+   mechanism reaches this page too. */
+/* toggleTheme stays as a no-op stub only because other footer wiring
+   may still reference it; the visible control is gone (see the note in
+   index.html's footer). It used to toggle a .dark-mode class that no
+   stylesheet defined. Don't re-expose a control until the hardcoded
+   colours on this page and on the landing pages are tokenised —
+   measured, the palette swaps but the backgrounds don't follow. */
+window.toggleTheme = window.toggleTheme || function(){};
 window.openCmpSettings = window.openCmpSettings || function(){};
 
 /* Homepage before/after demo. Uses two REAL committed files and reports

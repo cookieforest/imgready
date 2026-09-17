@@ -2,6 +2,13 @@
 "use strict";
 function G(id){return document.getElementById(id);}
 
+/* No theme restore here on purpose. Setting data-theme="dark" on these
+   pages swaps the token-driven TEXT colours but not the background —
+   each landing page hardcodes body{background:#f5f0e8} in its inline
+   <style> rather than using var(--bg) — so you get light-on-light at
+   2.73:1. Dark needs the hardcoded colours tokenised first; until then
+   honouring a stored preference here would just break the page. */
+
 /* ========================================
    QUALITY HINT TEXT
    ======================================== */
