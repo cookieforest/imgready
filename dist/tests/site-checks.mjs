@@ -398,7 +398,39 @@ for (const p of sitemapPaths) {
   notes.push('icons: favicon.ico validates, apple-touch-icon is PNG, manifest matches theme-color');
 }
 
-/* ---------- 15. no page is orphaned ---------- */
+/* ---------- 15. the batch lands in the list, and mixed batches stay sane ---------- */
+{
+  const home = existsSync(join(ROOT, 'index.html')) ? read(join(ROOT, 'index.html')) : '';
+  const app = existsSync(join(ROOT, 'src', 'home-app.js')) ? read(join(ROOT, 'src', 'home-app.js')) : '';
+  if (home && app) {
+    /* A finished batch used to be presented only through the cover-flow,
+       which shows one image with the rest as thumbnails. The list is the
+       default now; the comparison is a drill-down. */
+    if (!/id="fileListWrap"/.test(home)) fail('batch list', 'the file list markup is gone from index.html');
+    if (!/dataset\.view = 'list'/.test(app)) fail('batch list', 'dropping files no longer defaults to the list view');
+    /* The bottom action bar carries Format/Quality/Resize/Crop and a
+       second Download all — the surface "Edit settings" exists to gate.
+       If it shows in list view, the list has not simplified anything. */
+    const hidesBar = /body\[data-view="list"\][^{]*\.menu-wrap/.test(home.replace(/\s*,\s*/g, ','))
+      || /\.menu-wrap[^{]*\{display:none/.test(home.split('data-view="list"').slice(1).join(''));
+    if (!hidesBar) fail('batch list', 'the action bar is not hidden in list view');
+    /* Auto must stay reachable. Without it the first dropped file sets
+       the format for the whole batch: a 412 KB JPEG behind a PNG came
+       back as a 930 KB PNG, i.e. the default path made files bigger. */
+    /* Match the element, not the string: `data-fmt="auto"` also appears
+       in a CSS comment, which made the first version of this check pass
+       against a menu that had no Auto button in it at all. */
+    if (!/<button[^>]*data-fmt="auto"/.test(home)) {
+      fail('batch list', 'the workspace format menu has no Auto option — mixed batches get forced onto one format');
+    }
+    if (!/presetFormatFromInput\(fresh\.map/.test(app)) {
+      fail('batch list', 'format is preset from the first file only, not the batch');
+    }
+    notes.push('batch list: list is the default view, action bar gated behind Edit, Auto available for mixed batches');
+  }
+}
+
+/* ---------- 16. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {

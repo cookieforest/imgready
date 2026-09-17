@@ -604,7 +604,11 @@ async function addFilesFromList(fileList){
   /* Auto-select the format that matches the dropped file's input MIME.
      Single mode: replaces selection. Multi mode: adds to existing. */
   if (typeof window._presetFormatFromInput === 'function') {
-    window._presetFormatFromInput(fresh[0].file);
+    /* Pass the whole batch, not just the first file. Presetting from
+       fresh[0] applied one format to everything, which is how a JPEG
+       dropped behind a PNG came back as a 930 KB PNG from a 412 KB
+       original. */
+    window._presetFormatFromInput(fresh.map(x => x.file));
   }
   buildThumbs();
   /* Always use multi state — the cover flow handles 1 image cleanly
@@ -612,6 +616,12 @@ async function addFilesFromList(fileList){
      rendering. Solo state had its own separate IDs that never got
      wired to syncMainImage. */
   document.body.dataset.state = 'multi';
+  /* Land in the list, not the canvas. Dropping files used to put you
+     straight into a single-image comparison with the rest of the batch
+     reduced to thumbnails; the list is what most people actually want
+     to see — did it work, how much did it save, give me the files. The
+     comparison is still one click away per row. */
+  if (!document.body.dataset.view) document.body.dataset.view = 'list';
   /* Clear empty-batch flag if it was set by a previous doClear. */
   delete document.body.dataset.emptyBatch;
   /* wireZoom is idempotent (data-zoomWired guard) so calling on every drop is safe */
@@ -624,7 +634,128 @@ async function addFilesFromList(fileList){
   layoutCoverFlow();
   CFLOW.prevSelected = -1;
   syncMainImage(true);
+  renderFileList();
 }
+
+/* ============================ BATCH LIST VIEW ============================
+   A row per file: thumbnail, name, before -> after, saving, download. The
+   row itself opens the compare canvas for that file; the download button
+   stops propagation so it doesn't also drill in.
+
+   Rows are rebuilt wholesale rather than diffed. A batch is capped at 200
+   files and each row is a handful of nodes, so the rebuild is cheap, and
+   it keeps this in step with ENCODE.encoded without a second source of
+   truth to drift out of sync. */
+function flRowMeta(f, enc){
+  const inFmt = (f.file.type.split('/')[1] || (f.name.split('.').pop() || '')).toUpperCase();
+  if (!enc) return `${fmtSize(f.file.size)} · ${inFmt} → encoding…`;
+  return `${fmtSize(f.file.size)} · ${inFmt} → ${fmtSize(enc.size)} · ${(enc.format || '').toUpperCase()}`;
+}
+function renderFileList(){
+  const wrap = document.getElementById('flRows');
+  if (!wrap) return;
+  const frag = document.createDocumentFragment();
+  let done = 0, totalBefore = 0, totalAfter = 0;
+
+  FILES.forEach((f, i) => {
+    const enc = ENCODE.encoded.get(i);
+    if (enc) { done++; totalBefore += f.file.size; totalAfter += enc.size; }
+
+    const li = document.createElement('li');
+    li.className = 'fl-row';
+    li.tabIndex = 0;
+    li.setAttribute('role', 'button');
+    li.setAttribute('aria-label', `${f.name} — open comparison`);
+
+    const img = document.createElement('img');
+    img.className = 'fl-thumb'; img.src = f.url; img.alt = ''; img.loading = 'lazy';
+
+    const mid = document.createElement('div');
+    mid.style.minWidth = '0';
+    const nm = document.createElement('div');
+    nm.className = 'fl-name'; nm.textContent = f.name;
+    const mt = document.createElement('div');
+    mt.className = 'fl-meta'; mt.textContent = flRowMeta(f, enc);
+    mid.append(nm, mt);
+
+    const sav = document.createElement('span');
+    if (!enc) {
+      sav.className = 'fl-saving pending'; sav.textContent = '···';
+    } else {
+      const pct = Math.round((1 - enc.size / f.file.size) * 100);
+      if (Math.abs(pct) < 1) { sav.className = 'fl-saving pending'; sav.textContent = '—'; }
+      else {
+        sav.className = 'fl-saving' + (pct < 0 ? ' bad' : '');
+        sav.textContent = `${Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
+      }
+    }
+
+    const dl = document.createElement('button');
+    dl.type = 'button'; dl.className = 'fl-dl'; dl.textContent = 'Download';
+    dl.disabled = !enc;
+    dl.setAttribute('aria-label', `Download ${f.name}`);
+    dl.addEventListener('click', (e) => { e.stopPropagation(); flDownloadOne(i, dl); });
+
+    li.append(img, mid, sav, dl);
+    li.addEventListener('click', () => showCompareView(i));
+    li.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showCompareView(i); }
+    });
+    frag.appendChild(li);
+  });
+
+  wrap.replaceChildren(frag);
+
+  const sum = document.getElementById('flSummary');
+  if (sum) {
+    const n = FILES.length;
+    const word = n === 1 ? '1 file' : `${n} files`;
+    if (done < n) sum.textContent = `Optimising… ${done} of ${n}`;
+    else if (totalBefore > totalAfter) sum.textContent = `${word} · ${fmtSize(totalBefore - totalAfter)} saved`;
+    else sum.textContent = word;
+  }
+}
+/* Download a single row. Reuses the encoded blob when it exists and
+   encodes on demand when the background queue hasn't reached it yet, so
+   the button works before the whole batch has finished. */
+async function flDownloadOne(idx, btn){
+  const f = FILES[idx];
+  if (!f) return;
+  let enc = ENCODE.encoded.get(idx);
+  if (!enc) {
+    try {
+      const blob = await encodeFile(idx);
+      enc = { blob, url: URL.createObjectURL(blob), size: blob.size, format: mimeToFmt(blob.type) };
+      ENCODE.encoded.set(idx, enc);
+      renderFileList();
+    } catch (e) {
+      showErrorToast('Encode failed: ' + (e && e.message ? e.message : e));
+      return;
+    }
+  }
+  const base = f.file.name.replace(/\.[^.]+$/, '');
+  triggerDownload(enc.url, `${base}_imgready.${enc.format || 'jpg'}`);
+  if (btn && typeof piConfirm === 'function') piConfirm(btn, 'Saved');
+}
+window.showCompareView = function(idx){
+  document.body.dataset.view = 'compare';
+  if (typeof selectIndex === 'function' && typeof idx === 'number') selectIndex(idx);
+  if (typeof layoutCoverFlow === 'function') layoutCoverFlow();
+  if (typeof syncMainImage === 'function') syncMainImage(true);
+};
+window.showListView = function(){
+  document.body.dataset.view = 'list';
+  renderFileList();
+};
+/* The high-intent route into the full control set. Everything beyond
+   "optimise these and give them back" lives behind this. */
+window.flOpenSettings = function(){
+  document.body.dataset.view = 'compare';
+  if (typeof layoutCoverFlow === 'function') layoutCoverFlow();
+  if (typeof syncMainImage === 'function') syncMainImage(true);
+  if (document.body.dataset.adjust !== 'open' && typeof toggleAdjust === 'function') toggleAdjust();
+};
+window.renderFileList = renderFileList;
 /* Recompute --menu-h whenever drawer toggles or transitions, so the
    cover-flow + canvas shift up while settings open. Without this the
    cover-flow stayed pinned at the closed-state position and the drawer
@@ -908,6 +1039,32 @@ const ENCODE = {
   outDims:    new Map(),        // idx -> {outW, outH} — post-resize dims from worker (R46)
 };
 const MULTI_OUT = { enabled: false };
+
+/* Single choke point for repainting the batch list.
+
+   ENCODE.encoded is written from four places: the foreground encode for
+   the selected file, the background queue, and two download paths that
+   encode on demand. Hooking only the one I happened to find left rows
+   reading "encoding..." for files that had already finished -- measured
+   all three encoded while the header still said 1 of 3. Rather than add
+   the same call at four sites and let them drift apart the way the
+   accept lists and the design tokens did, the Map's own set is wrapped
+   once, so anything that records a result repaints no matter who wrote it.
+
+   Guarded on the list being on screen, so the compare view does not
+   rebuild rows nobody is looking at; showListView renders on the way in. */
+(function hookEncodedWrites(){
+  const origSet = ENCODE.encoded.set.bind(ENCODE.encoded);
+  ENCODE.encoded.set = function(k, v){
+    const r = origSet(k, v);
+    try {
+      if (document.body.dataset.view === 'list' && typeof renderFileList === 'function') {
+        renderFileList();
+      }
+    } catch(_){}
+    return r;
+  };
+})();
 function getWorker(){
   if (!ENCODE.worker) {
     ENCODE.worker = new Worker('/imgready-worker.js');
@@ -1822,6 +1979,9 @@ function bumpToFront(idx){
    single stale result that mismatches every other thumb. */
 function invalidateEncoded(){
   ENCODE.gen++;
+  /* Repaint so rows fall back to pending rather than showing sizes
+     from the settings the user just changed away from. */
+  if (typeof renderFileList === 'function') setTimeout(renderFileList, 0);
   /* Failure records are keyed by generation, so bumping gen already makes
      them irrelevant — clear them too so the set doesn't accumulate an
      entry per failed file per slider nudge. Anything that failed gets one
@@ -2918,8 +3078,23 @@ if (!window._navMenuOutsideClick) {
      - Single mode: replaces current selection with the matched format
      - Multi mode: adds the matched format if not already selected
      Called from addFilesFromList on every drop. */
-  function presetFormatFromInput(file){
-    if (!file) return;
+  function presetFormatFromInput(input){
+    if (!input) return;
+    /* Accepts one file or a batch. When every file resolves to the same
+       auto format the dropdown shows it outright, which keeps the "drop
+       a HEIC, see JPG" affordance. When they disagree we select Auto, so
+       encodeFile resolves per file instead of forcing the batch onto
+       whichever format happened to arrive first. */
+    const batch = Array.isArray(input) ? input.filter(Boolean) : [input];
+    if (!batch.length) return;
+    if (batch.length > 1 && !(window.PREFS && window.PREFS.explicitFormat)) {
+      const kinds = new Set(batch.map(f => pickAutoFormat(f)).filter(Boolean));
+      if (kinds.size > 1) {
+        const multi = (typeof MULTI_OUT !== 'undefined' && MULTI_OUT.enabled);
+        if (!multi) { setOutFormats(['auto']); return; }
+      }
+    }
+    const file = batch[0];
     /* R146 — never override an EXPLICIT choice. This auto-preset ("drop a
        HEIC, get JPG") is a good default for a visitor with no stated intent,
        but it was running on every drop and silently discarding both the
@@ -4266,6 +4441,10 @@ document.addEventListener('drop', async e => {
 
 function doClear(){
   document.body.dataset.confirm = 'closed';
+  /* Drop the view flag with the batch. Without this a visitor who had
+     drilled into the comparison would land back in it on their next
+     drop instead of the list. */
+  delete document.body.dataset.view;
   /* Revoke all blob URLs across BOTH the primary encoded map and the
      multi-output sidecar. Without the sidecar revoke, Clear-All in
      multi-output mode leaked encoded blobs across cycles. Also flush

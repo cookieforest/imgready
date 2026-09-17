@@ -1701,6 +1701,122 @@
     text-wrap:balance;
   }
   body[data-state="empty"] .dz-formats{display:block;}
+  /* ---- Batch list view -------------------------------------------------
+     The default presentation of a finished batch. body[data-view] picks
+     between this and the compare canvas; the two are mutually exclusive
+     so only one set of controls is reachable at a time. The workspace
+     runs on the dark palette (body[data-state=solo|multi]), so these use
+     the tokens rather than the light-state literals. */
+  .file-list-wrap{display:none;}
+  body[data-state="multi"][data-view="list"] .file-list-wrap{
+    display:flex;flex-direction:column;gap:10px;
+    width:min(860px,calc(100% - 32px));
+    margin:0 auto;padding:18px 0 96px;
+  }
+  /* In list view the canvas, cover-flow and their chrome step aside.
+     The bottom action bar goes too: it carries Format/Quality/Resize/Crop
+     and a second Download all, which is exactly the surface "Edit
+     settings" is supposed to gate. Leaving it visible would mean the
+     list had changed nothing about how much is on screen. */
+  body[data-view="list"] .image-canvas,
+  body[data-view="list"] .cover-flow,
+  body[data-view="list"] .canvas-fade,
+  body[data-view="list"] .top-chrome,
+  body[data-view="list"] .filename-ribbon,
+  body[data-view="list"] .menu-wrap,
+  body[data-view="list"] .fl-back{display:none !important;}
+  /* …and the compare view hides the list. */
+  body[data-view="compare"] .file-list-wrap{display:none;}
+
+  .fl-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    flex-wrap:wrap;
+  }
+  .fl-summary{font-size:.92rem;font-weight:700;color:var(--text);}
+  .fl-head-actions{display:flex;gap:8px;align-items:center;}
+  .fl-btn{
+    font:inherit;font-size:.82rem;font-weight:600;
+    padding:9px 16px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--border);background:transparent;color:var(--text);
+    transition:background .14s ease,border-color .14s ease;
+    min-height:38px;
+  }
+  .fl-btn:hover{background:color-mix(in srgb,var(--text) 10%,transparent);}
+  .fl-btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .fl-btn-primary:hover{background:var(--accent);filter:brightness(1.1);}
+  .fl-btn-quiet{opacity:.72;}
+
+  .fl-rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .fl-row{
+    display:grid;
+    grid-template-columns:44px minmax(0,1fr) auto auto;
+    align-items:center;gap:12px;
+    padding:8px 10px;border-radius:10px;
+    background:color-mix(in srgb,var(--text) 6%,transparent);
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:background .14s ease,border-color .14s ease;
+  }
+  .fl-row:hover{
+    background:color-mix(in srgb,var(--text) 11%,transparent);
+    border-color:var(--border);
+  }
+  .fl-row:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .fl-thumb{
+    width:44px;height:44px;border-radius:7px;object-fit:cover;display:block;
+    background:color-mix(in srgb,var(--text) 12%,transparent);
+  }
+  .fl-name{
+    font-size:.86rem;font-weight:600;color:var(--text);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .fl-meta{
+    font-size:.76rem;color:var(--muted);
+    font-variant-numeric:tabular-nums;margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .fl-saving{
+    font-size:.78rem;font-weight:700;white-space:nowrap;
+    font-variant-numeric:tabular-nums;color:var(--success);
+  }
+  .fl-saving.bad{color:var(--warn);}
+  .fl-saving.pending{color:var(--muted);font-weight:600;}
+  /* Per-row download. Not the whole row, because the row itself opens the
+     comparison — the button stops propagation. */
+  .fl-dl{
+    font:inherit;font-size:.76rem;font-weight:600;
+    padding:7px 12px;min-height:34px;
+    border-radius:8px;cursor:pointer;
+    border:1px solid var(--border);background:transparent;color:var(--text);
+  }
+  .fl-dl:hover{background:color-mix(in srgb,var(--text) 14%,transparent);}
+  .fl-dl[disabled]{opacity:.4;cursor:default;}
+  .fl-foot{display:flex;gap:8px;padding-top:2px;}
+
+  /* Back control, compare view only */
+  .fl-back{
+    position:fixed;left:16px;top:14px;z-index:40;
+    font:inherit;font-size:.8rem;font-weight:600;
+    padding:8px 14px;min-height:36px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--border);
+    background:color-mix(in srgb,var(--bg) 85%,transparent);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:var(--text);
+  }
+  .fl-back:hover{background:var(--bg);}
+  body:not([data-state="multi"]) .fl-back{display:none;}
+
+  @media (max-width:560px){
+    .fl-row{grid-template-columns:38px minmax(0,1fr) auto;gap:10px;padding:8px;}
+    .fl-thumb{width:38px;height:38px;}
+    /* The saving moves under the name; the download button keeps its
+       own column so it stays a real 34px target. */
+    .fl-saving{grid-column:2;grid-row:2;justify-self:start;}
+    .fl-head{gap:8px;}
+    .fl-head-actions{width:100%;}
+    .fl-head-actions .fl-btn{flex:1;}
+  }
+
   /* Floating sample cards — drag onto the dropzone, or click. 3 cards
      row-aligned below the dropzone with subtle bobbing animation. */
   .dz-floats{
@@ -5726,10 +5842,43 @@
 </section>
 
 <!-- ============================ MULTI STATE ============================ -->
+<!-- The workspace has two views, switched by body[data-view]:
+
+       list    (default) — a row per file, the TinyPNG shape
+       compare           — the existing canvas + cover-flow, as a drill-down
+
+     Before this the batch was only ever presented through the cover-flow,
+     which is a single-image view with thumbnails underneath: drop twelve
+     files and you looked at one picture. Most people arrive wanting one
+     operation on a handful of files and just need to see that it worked
+     and grab them, so the list is the default and the big comparison is
+     one click away. -->
 <section class="stage multi">
+  <div class="file-list-wrap" id="fileListWrap">
+    <div class="fl-head">
+      <span class="fl-summary" id="flSummary">Optimising…</span>
+      <span class="fl-head-actions">
+        <button type="button" class="fl-btn fl-btn-ghost" id="flEditBtn" onclick="flOpenSettings()">
+          Edit settings
+        </button>
+        <button type="button" class="fl-btn fl-btn-primary" onclick="downloadAll()">
+          Download all
+        </button>
+      </span>
+    </div>
+    <ul class="fl-rows" id="flRows"></ul>
+    <div class="fl-foot">
+      <button type="button" class="fl-btn fl-btn-ghost" onclick="document.getElementById('moreInput').click()">Add more</button>
+      <button type="button" class="fl-btn fl-btn-ghost fl-btn-quiet" onclick="askClear()">Clear all</button>
+    </div>
+  </div>
   <!-- Bottom-fade overlay improves readability of cover-flow thumbnails over
        busy backgrounds. CSS-driven (.canvas-fade); zero runtime cost. -->
   <div class="canvas-fade" aria-hidden="true"></div>
+  <!-- Back out of the drill-down. Only rendered in compare view. -->
+  <button type="button" class="fl-back" id="flBack" onclick="showListView()" aria-label="Back to the file list">
+    <span aria-hidden="true">&#8592;</span> All files
+  </button>
   <div class="image-canvas" id="centerImage">
     <!-- Zoom wrapper: cbBefore + cbAfter live inside this so a single transform
          scales/pans the whole compare composition. The compare-after still
@@ -5829,6 +5978,13 @@
                   <span class="switch-track" aria-hidden="true"></span>
                   <span>Multiple formats</span>
                 </label>
+                <!-- Auto resolves per FILE at encode time, not once for the
+                     batch. Without it there was no way to say "just
+                     optimise each of these sensibly": the first dropped
+                     file set the format for everything, so a JPEG landing
+                     in a batch behind a PNG came out as a 930 KB PNG from
+                     a 412 KB original. -->
+                <button data-fmt="auto" data-tt="Auto — keep each file's own format, converting only what has to change (HEIC and SVG).">Auto</button>
                 <button data-fmt="webp" data-tt="WebP — modern web format, broadly supported.">WebP</button>
                 <button data-fmt="avif" data-tt="AVIF — best compression. Modern browsers only.">AVIF</button>
                 <button data-fmt="jpg" data-tt="JPG — universal compatibility. Always lossy.">JPG</button>
