@@ -426,7 +426,25 @@ for (const p of sitemapPaths) {
     if (!/presetFormatFromInput\(fresh\.map/.test(app)) {
       fail('batch list', 'format is preset from the first file only, not the batch');
     }
-    notes.push('batch list: list is the default view, action bar gated behind Edit, Auto available for mixed batches');
+    /* A file that fails to encode never touches ENCODE.encoded, so the
+       success-side repaint hook never fires for it. Without an explicit
+       failure path the row sat on "encoding…" forever and the header
+       read "Optimising… 1 of 2" permanently — found by dropping a text
+       file renamed .png, after the happy path had been the only thing
+       tested. Both queue failure sites must route through the helper. */
+    if (!/function markEncodeFailed/.test(app)) {
+      fail('batch list', 'no markEncodeFailed — a failed file will sit on "encoding…" forever');
+    }
+    /* The invariant is that nothing records a failure without going
+       through the helper, so there should be exactly one
+       ENCODE.failed.add in the file — the one inside it. Counting call
+       sites instead was too weak: there are three, and the first version
+       of this check allowed two, so unhooking a queue site still passed. */
+    const rawAdds = (app.match(/ENCODE\.failed\.add\(/g) || []).length;
+    if (rawAdds !== 1) {
+      fail('batch list', `${rawAdds} sites call ENCODE.failed.add directly — failures must go through markEncodeFailed or the list never learns about them`);
+    }
+    notes.push('batch list: list is the default view, action bar gated behind Edit, Auto for mixed batches, failures surface with retry');
   }
 }
 

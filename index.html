@@ -1724,6 +1724,13 @@
   body[data-view="list"] .top-chrome,
   body[data-view="list"] .filename-ribbon,
   body[data-view="list"] .menu-wrap,
+  /* Both belong to the cover-flow: the scrubber is its scroll position,
+     and batch-progress is the "Encoding 1 of 2" chip that floats over
+     the canvas. In list view the scrubber steers something invisible and
+     the chip lands on top of the rows, duplicating a count the list
+     header already gives more precisely. */
+  body[data-view="list"] .cflow-scrubber,
+  body[data-view="list"] .batch-progress,
   body[data-view="list"] .fl-back{display:none !important;}
   /* …and the compare view hides the list. */
   body[data-view="compare"] .file-list-wrap{display:none;}
@@ -1781,6 +1788,13 @@
   }
   .fl-saving.bad{color:var(--warn);}
   .fl-saving.pending{color:var(--muted);font-weight:600;}
+  .fl-saving.failed{color:var(--danger);}
+  .fl-meta-bad{color:var(--danger);}
+  /* A failed row isn't a button — there's nothing to compare — so it
+     drops the affordances rather than looking clickable and doing
+     nothing. */
+  .fl-row-failed{cursor:default;background:color-mix(in srgb,var(--danger) 12%,transparent);}
+  .fl-row-failed:hover{background:color-mix(in srgb,var(--danger) 12%,transparent);border-color:transparent;}
   /* Per-row download. Not the whole row, because the row itself opens the
      comparison — the button stops propagation. */
   .fl-dl{

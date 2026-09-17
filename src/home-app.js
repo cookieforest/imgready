@@ -657,9 +657,14 @@ function renderFileList(){
   const frag = document.createDocumentFragment();
   let done = 0, totalBefore = 0, totalAfter = 0;
 
+  let failedCount = 0;
   FILES.forEach((f, i) => {
     const enc = ENCODE.encoded.get(i);
+    /* Failures are keyed by generation, so a stale record from before
+       the last settings change must not mark this row dead. */
+    const isFailed = !enc && ENCODE.failed && ENCODE.failed.has(`${ENCODE.gen}:${i}`);
     if (enc) { done++; totalBefore += f.file.size; totalAfter += enc.size; }
+    else if (isFailed) failedCount++;
 
     const li = document.createElement('li');
     li.className = 'fl-row';
@@ -675,11 +680,20 @@ function renderFileList(){
     const nm = document.createElement('div');
     nm.className = 'fl-name'; nm.textContent = f.name;
     const mt = document.createElement('div');
-    mt.className = 'fl-meta'; mt.textContent = flRowMeta(f, enc);
+    mt.className = 'fl-meta';
+    if (isFailed) {
+      const why = (ENCODE.failReason && ENCODE.failReason.get(i)) || 'Could not be read';
+      mt.textContent = `${fmtSize(f.file.size)} · ${why}`;
+      mt.classList.add('fl-meta-bad');
+    } else {
+      mt.textContent = flRowMeta(f, enc);
+    }
     mid.append(nm, mt);
 
     const sav = document.createElement('span');
-    if (!enc) {
+    if (isFailed) {
+      sav.className = 'fl-saving failed'; sav.textContent = 'Failed';
+    } else if (!enc) {
       sav.className = 'fl-saving pending'; sav.textContent = '···';
     } else {
       const pct = Math.round((1 - enc.size / f.file.size) * 100);
@@ -691,16 +705,32 @@ function renderFileList(){
     }
 
     const dl = document.createElement('button');
-    dl.type = 'button'; dl.className = 'fl-dl'; dl.textContent = 'Download';
-    dl.disabled = !enc;
-    dl.setAttribute('aria-label', `Download ${f.name}`);
-    dl.addEventListener('click', (e) => { e.stopPropagation(); flDownloadOne(i, dl); });
+    dl.type = 'button'; dl.className = 'fl-dl';
+    if (isFailed) {
+      /* A dead Download button is a dead end. Most failures here are
+         transient or settings-dependent, so offer the retry. */
+      dl.textContent = 'Retry';
+      dl.setAttribute('aria-label', `Retry ${f.name}`);
+      dl.addEventListener('click', (e) => { e.stopPropagation(); flRetry(i); });
+    } else {
+      dl.textContent = 'Download';
+      dl.disabled = !enc;
+      dl.setAttribute('aria-label', `Download ${f.name}`);
+      dl.addEventListener('click', (e) => { e.stopPropagation(); flDownloadOne(i, dl); });
+    }
 
     li.append(img, mid, sav, dl);
-    li.addEventListener('click', () => showCompareView(i));
-    li.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showCompareView(i); }
-    });
+    /* A failed row has nothing to compare, so it is not a button. */
+    if (!isFailed) {
+      li.addEventListener('click', () => showCompareView(i));
+      li.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showCompareView(i); }
+      });
+    } else {
+      li.classList.add('fl-row-failed');
+      li.removeAttribute('role'); li.removeAttribute('tabindex');
+      li.setAttribute('aria-label', `${f.name} — could not be converted`);
+    }
     frag.appendChild(li);
   });
 
@@ -710,9 +740,12 @@ function renderFileList(){
   if (sum) {
     const n = FILES.length;
     const word = n === 1 ? '1 file' : `${n} files`;
-    if (done < n) sum.textContent = `Optimising… ${done} of ${n}`;
-    else if (totalBefore > totalAfter) sum.textContent = `${word} · ${fmtSize(totalBefore - totalAfter)} saved`;
-    else sum.textContent = word;
+    /* Count failures as settled. Treating them as outstanding left the
+       header reading "Optimising… 1 of 2" forever. */
+    const failWord = failedCount ? ` · ${failedCount} failed` : '';
+    if (done + failedCount < n) sum.textContent = `Optimising… ${done} of ${n}`;
+    else if (totalBefore > totalAfter) sum.textContent = `${word} · ${fmtSize(totalBefore - totalAfter)} saved${failWord}`;
+    else sum.textContent = word + failWord;
   }
 }
 /* Download a single row. Reuses the encoded blob when it exists and
@@ -737,6 +770,23 @@ async function flDownloadOne(idx, btn){
   triggerDownload(enc.url, `${base}_imgready.${enc.format || 'jpg'}`);
   if (btn && typeof piConfirm === 'function') piConfirm(btn, 'Saved');
 }
+/* Clear the failure record for one row and encode it again. */
+async function flRetry(idx){
+  const f = FILES[idx];
+  if (!f) return;
+  try { ENCODE.failed.delete(`${ENCODE.gen}:${idx}`); } catch(_){}
+  try { ENCODE.failReason && ENCODE.failReason.delete(idx); } catch(_){}
+  renderFileList();
+  try {
+    const blob = await encodeFile(idx);
+    ENCODE.encoded.set(idx, { blob, url: URL.createObjectURL(blob), size: blob.size, format: mimeToFmt(blob.type) });
+    renderFileList();
+  } catch (e) {
+    markEncodeFailed(idx, e);
+  }
+}
+window.flRetry = flRetry;
+
 window.showCompareView = function(idx){
   document.body.dataset.view = 'compare';
   if (typeof selectIndex === 'function' && typeof idx === 'number') selectIndex(idx);
@@ -1039,6 +1089,22 @@ const ENCODE = {
   outDims:    new Map(),        // idx -> {outW, outH} — post-resize dims from worker (R46)
 };
 const MULTI_OUT = { enabled: false };
+
+/* Record a failed encode AND repaint, so the list can show it. Failures
+   never touch ENCODE.encoded, so the success-side hook below never fired
+   for them: a file that could not be read sat on "encoding..." forever
+   and the header read "Optimising... 1 of 2" permanently. Found by
+   dropping a text file renamed .png — the happy path had been the only
+   thing tested. */
+function markEncodeFailed(idx, err){
+  try {
+    if (ENCODE.failed) ENCODE.failed.add(`${ENCODE.gen}:${idx}`);
+    ENCODE.failReason = ENCODE.failReason || new Map();
+    ENCODE.failReason.set(idx, (err && err.message) ? err.message : 'Could not be read');
+    if (document.body.dataset.view === 'list' && typeof renderFileList === 'function') renderFileList();
+  } catch(_){}
+}
+window.markEncodeFailed = markEncodeFailed;
 
 /* Single choke point for repainting the batch list.
 
@@ -1922,7 +1988,7 @@ async function processQueue(){
           let blob;
           try { blob = await encodeFile(idx, f); }
           catch(e){
-            if (ENCODE.failed) ENCODE.failed.add(failKey);
+            markEncodeFailed(idx, e);
             console.warn('[queue encode failed]', idx, f, e && e.message || e);
             continue;
           }
@@ -1949,7 +2015,7 @@ async function processQueue(){
         }
       } catch (e) {
         markThumbEncoding(idx, false);
-        if (ENCODE.failed) ENCODE.failed.add(failKey);
+        markEncodeFailed(idx, e);
         if (myGen === ENCODE.gen) console.warn('[queue encode failed]', idx, e && e.message || e);
       }
     }
@@ -1988,6 +2054,7 @@ function invalidateEncoded(){
      fresh attempt under the new settings, which is what the user asking
      for different settings implies. */
   if (ENCODE.failed) ENCODE.failed.clear();
+  if (ENCODE.failReason) ENCODE.failReason.clear();
   /* Defer URL revocation: holding the old blob URLs alive keeps the
      previously-rendered After image visible on the canvas while the new
      encode runs. They're revoked lazily once syncMainImage paints the
