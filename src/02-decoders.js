@@ -750,6 +750,21 @@ async function addFiles(list){
         },tick);
       }
     },50);
+  } else if(acceptedDrops>1){
+    /* Multi-file drops used to stop here and wait for a "Process N images"
+       click, while a single file converted on its own and the homepage
+       processed any number automatically. Three behaviours for one action,
+       and the extra click landed on the batch case where it is least
+       welcome. Start encoding instead.
+
+       No modal — that is the solo flow's takeover and makes no sense for a
+       queue; results fill into the grid the way they do after clicking
+       Process. The button hides itself once nothing is pending, so there is
+       nothing to tidy up. The BATCH_SOFT_LIMIT confirm has already run
+       above, so an enormous drop is still gated. */
+    setTimeout(function(){
+      try { window.processAll(); } catch(_) { /* button remains as fallback */ }
+    },50);
   }
 }
 /* CHUNK_END:02-decoders v1 */

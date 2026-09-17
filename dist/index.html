@@ -1937,42 +1937,34 @@
     opacity:.55;cursor:not-allowed;pointer-events:none;
   }
   .quality-menu{min-width:160px;}
-  /* Quality menu segmented tabs — radio-style axis picker. */
-  .quality-menu .quality-by-tabs{
-    display:flex;gap:4px;
-    padding:6px;margin-bottom:4px;
-    background:rgba(255,255,255,.05);
-    border-radius:7px;
-  }
-  .quality-menu .quality-by-tab{
-    flex:1;padding:6px 8px;
-    background:transparent;color:rgba(255,255,255,.55);
-    border:none;border-radius:5px;
-    font-size:.74rem;font-weight:600;
-    cursor:pointer;
-    transition:background .12s ease, color .12s ease;
-  }
-  .quality-menu .quality-by-tab:hover{color:rgba(255,255,255,.85);}
-  .quality-menu .quality-by-tab.active{
-    background:rgba(255,255,255,.14);
-    color:#fff;
-  }
   /* Body swap via a BODY-level attribute. The menu portals to
      document.body on open, so an ancestor selector on .quality-dropdown
      drops out of scope. body[data-quality-by] is always reachable. */
-  body[data-quality-by="quality"] .quality-by-size-body{display:none;}
-  body[data-quality-by="size"] .quality-by-quality-body{display:none;}
-  /* "By size" is meaningless in multi-output: a single quality lands
-     each format at a different file size, so a single KB target can't
-     apply. Gray the tab and intercept clicks via JS. The aria-disabled
-     attribute + reduced opacity reads as "this is off right now". */
-  body[data-multiout="on"] .quality-by-tab[data-quality-by-pick="size"]{
-    opacity:.4;cursor:not-allowed;pointer-events:none;
+  /* Both bodies are always visible — see the note where the tabs used to
+     be. The inactive one is dimmed rather than hidden so it reads as
+     "available, not currently driving the encode", and one click on it
+     both selects it and applies. */
+  body[data-quality-by="quality"] .quality-by-size-body,
+  body[data-quality-by="size"] .quality-by-quality-body{opacity:.55;}
+  body[data-quality-by="quality"] .quality-by-size-body:hover,
+  body[data-quality-by="size"] .quality-by-quality-body:hover{opacity:1;}
+  .quality-menu .quality-size-caption{
+    margin:8px 2px 4px;
+    font-size:.68rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:rgba(255,255,255,.4);
+    border-top:1px solid rgba(255,255,255,.1);padding-top:8px;
   }
-  body[data-multiout="on"] .quality-by-tab[data-quality-by-pick="size"]::after{
+  body[data-quality-by="size"] .quality-size-caption{color:rgba(255,255,255,.62);}
+  /* "By size" is meaningless in multi-output (one quality lands each format
+     at a different size), so dim the whole size body there instead of the
+     tab that no longer exists. setMultiOut already flips the mode back. */
+  body[data-multiout="on"] .quality-by-size-body,
+  body[data-multiout="on"] .quality-size-caption{
+    opacity:.3;pointer-events:none;
+  }
+  body[data-multiout="on"] .quality-size-caption::after{
     content:' \2014 single format only';
-    font-size:.65rem;font-weight:400;color:rgba(255,255,255,.45);
-    margin-left:4px;
+    text-transform:none;letter-spacing:0;font-weight:400;
   }
   /* Size-target buttons reuse the same look as quality preset buttons. */
   .quality-menu button[data-size-target]{
@@ -5808,11 +5800,15 @@
                      (quality bands vs KB ceiling), then the value
                      under it. Active state on body[data-quality-by]
                      so the portalled menu can resolve which body. -->
-                <div class="quality-by-tabs" role="tablist">
-                  <button type="button" class="quality-by-tab active" data-quality-by-pick="quality" role="tab" aria-selected="true">By quality</button>
-                  <button type="button" class="quality-by-tab" data-quality-by-pick="size" role="tab" aria-selected="false">By size</button>
-                </div>
-                <!-- BY QUALITY body (default) -->
+                <!-- The "By quality / By size" tabs used to live here. They
+                     existed only to reveal whichever body was hidden, because
+                     setQuality() and setQualityTarget() already flip the mode
+                     themselves — touching the slider selects quality, clicking
+                     a KB target selects size. So the tabs cost a click to reach
+                     the size presets and told the user nothing the highlighted
+                     control doesn't. Both bodies are shown now and the mode is
+                     implied by what you touch. -->
+                <!-- BY QUALITY body -->
                 <div class="quality-by-quality-body">
                   <button type="button" data-quality-preset="smart" data-q="auto" class="active">Smart</button>
                   <!-- R119: named presets (Lossless/Best/High/Standard/Compact) removed —
@@ -5823,7 +5819,9 @@
                     <span class="q-val">85</span>
                   </div>
                 </div>
-                <!-- BY SIZE body (visible when toggle is ON) -->
+                <!-- BY SIZE body — always visible now; clicking any target
+                     switches the mode via setQualityTarget(). -->
+                <div class="quality-size-caption">or target a size</div>
                 <div class="quality-by-size-body">
                   <button type="button" data-size-target="100">100 KB</button>
                   <button type="button" data-size-target="500">500 KB</button>
