@@ -306,6 +306,12 @@ function _isExoticName(file){
          file.type === 'image/tiff' || file.type === 'image/svg+xml' ||
          file.type === 'image/x-icon' || file.type === 'image/vnd.microsoft.icon';
 }
+/* SVG is the one input the worker refuses outright — it has no DOM, so it
+   cannot rasterise vectors. TIFF, HEIC and ICO all have real decoders in
+   there and must keep going to the worker as their original bytes. */
+function _isSvgFile(file){
+  return /\.svg$/i.test(file.name || '') || file.type === 'image/svg+xml';
+}
 
 async function addFilesFromList(fileList){
   const fresh = [];
@@ -686,6 +692,7 @@ const ENCODE = {
   queue: [],                    // background queue of indices to encode
   queueRunning: false,          // single-flight guard for processQueue()
   gen: 0,                       // bumps every invalidateEncoded — stale results dropped
+  failed: new Set(),            // `${gen}:${idx}` that threw — stops permanent failures being retried forever
   /* Sidecar for multi-output mode. Each idx holds a Map of format → encoded.
      Single-output mode populates it with one entry; multi-output mode
      populates it with all selected formats. The PRIMARY (in .encoded) is
@@ -1053,7 +1060,15 @@ async function encodeFile(idx, overrideFmt){
       }
     }, 60000);
     ENCODE.pending[id] = entry;
-    try { getWorker().postMessage({ id, action: 'process', file: f.file, fmt: realFmt, settings }); }
+    /* Send the rasterised PNG for SVG rather than the SVG itself. The
+       worker throws "SVG decoding stays on main thread" on vector input —
+       it has no DOM to render with — so posting f.file meant every SVG
+       drop failed. addFilesFromList has already rendered the SVG to a
+       2048px PNG for the preview, so the pixels are sitting right there.
+       f.file stays the original everywhere else, so the Before meta still
+       reports the true SVG size and type. */
+    const payloadFile = (_isSvgFile(f.file) && f.decodedBlob) ? f.decodedBlob : f.file;
+    try { getWorker().postMessage({ id, action: 'process', file: payloadFile, fmt: realFmt, settings }); }
     catch(e){
       clearTimeout(entry.timer);
       delete ENCODE.pending[id];
@@ -1497,6 +1512,16 @@ async function processQueue(){
       const t = CFLOW.thumbs[idx];
       if (t) t.classList.remove('queued');
       if (ENCODE.encoded.has(idx)) continue;
+      /* A failed encode records nothing in ENCODE.encoded, so without this
+         the queue re-reaches the same index every time it is driven and
+         retries a permanent failure forever. An SVG drop did exactly that:
+         the worker rejected it, the queue re-ran, and the tab spun through
+         three quarters of a million console warnings burning a core until
+         it was closed. Remember failures per generation — settings changes
+         bump ENCODE.gen and clear it, so a retry still happens when
+         something has actually changed. */
+      const failKey = `${ENCODE.gen}:${idx}`;
+      if (ENCODE.failed && ENCODE.failed.has(failKey)) continue;
       const myGen = ENCODE.gen;
       try {
         /* Multi-output mode: encode every active format for this idx and
@@ -1510,7 +1535,11 @@ async function processQueue(){
           if (myGen !== ENCODE.gen) break;
           let blob;
           try { blob = await encodeFile(idx, f); }
-          catch(e){ console.warn('[queue encode failed]', idx, f, e && e.message || e); continue; }
+          catch(e){
+            if (ENCODE.failed) ENCODE.failed.add(failKey);
+            console.warn('[queue encode failed]', idx, f, e && e.message || e);
+            continue;
+          }
           if (myGen !== ENCODE.gen) break;
           const url = URL.createObjectURL(blob);
           const fmt = mimeToFmt(blob.type);
@@ -1534,6 +1563,7 @@ async function processQueue(){
         }
       } catch (e) {
         markThumbEncoding(idx, false);
+        if (ENCODE.failed) ENCODE.failed.add(failKey);
         if (myGen === ENCODE.gen) console.warn('[queue encode failed]', idx, e && e.message || e);
       }
     }
@@ -1563,6 +1593,12 @@ function bumpToFront(idx){
    single stale result that mismatches every other thumb. */
 function invalidateEncoded(){
   ENCODE.gen++;
+  /* Failure records are keyed by generation, so bumping gen already makes
+     them irrelevant — clear them too so the set doesn't accumulate an
+     entry per failed file per slider nudge. Anything that failed gets one
+     fresh attempt under the new settings, which is what the user asking
+     for different settings implies. */
+  if (ENCODE.failed) ENCODE.failed.clear();
   /* Defer URL revocation: holding the old blob URLs alive keeps the
      previously-rendered After image visible on the canvas while the new
      encode runs. They're revoked lazily once syncMainImage paints the
