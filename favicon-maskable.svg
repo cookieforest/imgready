@@ -1,0 +1,7 @@
+<!-- Maskable source. Full-bleed square on purpose: Android applies its own
+     mask (circle, squircle, rounded square), so baking our own rounded
+     corners in would show a rounded rect floating inside another rounded
+     shape. The glyph is kept inside the 80% safe-zone circle so no mask
+     can clip it. Separate from favicon.svg, which keeps its corners for
+     contexts that draw the icon as-is. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#4f6f4f"/><text x="32" y="43" text-anchor="middle" font-family="system-ui,Arial,sans-serif" font-size="32" font-weight="700" fill="#fff">i</text></svg>

@@ -307,7 +307,81 @@ for (const p of sitemapPaths) {
   }
 }
 
-/* ---------- 14. no page is orphaned ---------- */
+/* ---------- 14. the icon set is real and self-consistent ---------- */
+{
+  const ico = join(ROOT, 'favicon.ico');
+  /* /favicon.ico is requested by default by browsers and crawlers whether
+     or not a page links it. The site shipped only a 256-byte SVG, so
+     every one of those requests 404'd. */
+  if (!existsSync(ico)) {
+    fail('icons', 'no /favicon.ico — browsers and crawlers request it by default');
+  } else {
+    /* Validate the directory against its payloads. This is the same bug
+       the app's own ICO encoder once had: a header claiming sizes the
+       image data doesn't have. */
+    const b = readFileSync(ico);
+    if (b.readUInt16LE(0) !== 0 || b.readUInt16LE(2) !== 1) {
+      fail('icons', 'favicon.ico is not a valid ICO (bad ICONDIR)');
+    } else {
+      const n = b.readUInt16LE(4);
+      if (n < 2) fail('icons', `favicon.ico has ${n} entry — ship at least 16 and 32`);
+      for (let i = 0; i < n; i++) {
+        const o = 6 + i * 16;
+        const w = b.readUInt8(o) || 256, h = b.readUInt8(o + 1) || 256;
+        const len = b.readUInt32LE(o + 8), off = b.readUInt32LE(o + 12);
+        if (off + len > b.length) { fail('icons', `favicon.ico entry ${i} points past EOF`); continue; }
+        const pay = b.subarray(off, off + len);
+        if (pay.subarray(1, 4).toString('ascii') !== 'PNG') continue;  /* BMP payloads are legal too */
+        const rw = pay.readUInt32BE(16), rh = pay.readUInt32BE(20);
+        if (rw !== w || rh !== h) {
+          fail('icons', `favicon.ico entry ${i} declares ${w}x${h} but its PNG is ${rw}x${rh}`);
+        }
+      }
+    }
+  }
+  /* iOS does not render SVG for apple-touch-icon — it silently falls back
+     to a screenshot of the page. It shipped pointing at favicon.svg. */
+  for (const [slug, file] of pages) {
+    const m = read(file).match(/<link rel="apple-touch-icon"[^>]*href="([^"]+)"/);
+    if (m && !/\.png$/i.test(m[1])) {
+      fail('icons', `${slug}: apple-touch-icon is ${m[1]} — iOS only accepts PNG`);
+    }
+  }
+  /* theme-color lives in two places and they drifted: the HTML said the
+     new accent while the manifest still held the old one. */
+  const mfPath = join(ROOT, 'manifest.webmanifest');
+  if (existsSync(mfPath)) {
+    let mf;
+    try { mf = JSON.parse(read(mfPath)); }
+    catch (e) { fail('icons', `manifest.webmanifest does not parse: ${String(e.message).slice(0, 60)}`); }
+    if (mf) {
+      const home = existsSync(join(ROOT, 'index.html')) ? read(join(ROOT, 'index.html')) : '';
+      const metaTheme = (home.match(/<meta name="theme-color" content="([^"]+)"/) || [])[1];
+      if (metaTheme && mf.theme_color && metaTheme.toLowerCase() !== String(mf.theme_color).toLowerCase()) {
+        fail('icons', `theme-color disagrees: HTML ${metaTheme} vs manifest ${mf.theme_color}`);
+      }
+      /* Chrome needs a raster icon of at least 192px to treat the app as
+         installable; SVG manifest icons are not enough on their own. */
+      const pngs = (mf.icons || []).filter((i) => /png$/i.test(i.type || '') || /\.png$/i.test(i.src || ''));
+      for (const want of ['192x192', '512x512']) {
+        if (!pngs.some((i) => (i.sizes || '').split(/\s+/).includes(want))) {
+          fail('icons', `manifest has no ${want} PNG icon — Chrome will not treat it as installable`);
+        }
+      }
+      if (!(mf.icons || []).some((i) => /maskable/.test(i.purpose || ''))) {
+        fail('icons', 'manifest declares no maskable icon');
+      }
+      /* Nothing may reference an icon that isn't on disk. */
+      for (const i of mf.icons || []) {
+        const p = String(i.src || '').replace(/^\//, '');
+        if (p && !existsSync(join(ROOT, p))) fail('icons', `manifest references missing ${i.src}`);
+      }
+    }
+  }
+  notes.push('icons: favicon.ico validates, apple-touch-icon is PNG, manifest matches theme-color');
+}
+
+/* ---------- 15. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {
