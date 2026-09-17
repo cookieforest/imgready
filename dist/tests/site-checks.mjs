@@ -138,12 +138,19 @@ for (const p of sitemapPaths) {
   const f = join(ROOT, 'index.html');
   if (existsSync(f)) {
     const html = read(f);
-    /* Format, Quality, Resize and Crop all live in .bb-drawer. It used to
-       start closed on every load, so the result view opened with nothing
-       but a gear — the primary control of a format converter hidden
-       behind an undiscoverable click. */
-    if (!/<body[^>]*data-adjust="open"/.test(html)) {
-      fail('homepage controls', 'body does not default data-adjust="open" — the tools start hidden again');
+    /* Format, Quality, Resize and Crop live in .bb-drawer. The failure
+       this guards against is the result view offering nothing but an
+       unlabelled gear — the primary controls of a converter behind an
+       undiscoverable click.
+
+       It used to assert data-adjust="open" on <body>. That became a
+       stale guarantee once the batch list landed: the list is the result
+       view now and it deliberately collapses the strip on a fresh batch,
+       so the attribute was immediately overridden and the check was
+       protecting nothing. What actually has to hold is that the result
+       view carries a LABELLED route to those controls. */
+    if (!/id="flEditBtn"[^>]*>|>\s*Edit settings/.test(html)) {
+      fail('homepage controls', 'the result view has no labelled route to Format/Quality/Resize/Crop');
     }
     if (/class="bb-drawer"[^>]*aria-hidden="true"/.test(html)) {
       fail('homepage controls', '.bb-drawer is hardcoded aria-hidden="true" — invisible to screen readers when open');
@@ -152,7 +159,7 @@ for (const p of sitemapPaths) {
     for (const want of ['Format', 'Quality']) {
       if (!labels.includes(want)) fail('homepage controls', `no ${want} control found in the action bar`);
     }
-    notes.push(`homepage action bar: ${labels.join(', ')} — drawer defaults open`);
+    notes.push(`homepage action bar: ${labels.join(', ')} — reachable via a labelled Edit settings button`);
   }
 }
 
@@ -408,12 +415,31 @@ for (const p of sitemapPaths) {
        default now; the comparison is a drill-down. */
     if (!/id="fileListWrap"/.test(home)) fail('batch list', 'the file list markup is gone from index.html');
     if (!/dataset\.view = 'list'/.test(app)) fail('batch list', 'dropping files no longer defaults to the list view');
-    /* The bottom action bar carries Format/Quality/Resize/Crop and a
-       second Download all — the surface "Edit settings" exists to gate.
-       If it shows in list view, the list has not simplified anything. */
-    const hidesBar = /body\[data-view="list"\][^{]*\.menu-wrap/.test(home.replace(/\s*,\s*/g, ','))
-      || /\.menu-wrap[^{]*\{display:none/.test(home.split('data-view="list"').slice(1).join(''));
-    if (!hidesBar) fail('batch list', 'the action bar is not hidden in list view');
+    /* Ownership split: batch-level controls belong to the list, file-level
+       ones to the compare view. Neither may duplicate the other.
+
+       The first version of this asserted the whole action bar was hidden
+       in list view. That was the wrong invariant — the settings inside it
+       are global and belong with the batch; only its Share all /
+       Download all cluster duplicates the list header. */
+    if (!/body\[data-view="list"\] \.menu-card > \.actions\{display:none/.test(home)) {
+      fail('batch list', 'the bar’s batch actions are not hidden in list view — Download all appears twice');
+    }
+    /* Compare is one file. A second batch navigator (the cover-flow), a
+       second set of batch actions, and the old top-chrome all stacked
+       into the same strip as the compare bar and made it unreadable. */
+    for (const sel of ['.cover-flow', '.menu-card > .actions', '.top-chrome', '.filename-ribbon']) {
+      const esc = sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(`body\\[data-view="compare"\\][^{}]*${esc}`);
+      if (!re.test(home)) fail('batch list', `${sel} is not hidden in compare view — it duplicates what the list owns`);
+    }
+    /* A fresh batch collapses the settings strip, so "Edit settings" is
+       a real high-intent button and not a label for something already
+       on screen. */
+    if (!/dataset\.adjust = 'closed'/.test(app)) {
+      fail('batch list', 'a fresh batch no longer collapses the settings strip');
+    }
+    if (!/id="flEditBtn"/.test(home)) fail('batch list', 'no Edit settings button in the list header');
     /* Auto must stay reachable. Without it the first dropped file sets
        the format for the whole batch: a 412 KB JPEG behind a PNG came
        back as a 930 KB PNG, i.e. the default path made files bigger. */

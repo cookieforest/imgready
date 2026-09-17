@@ -1714,16 +1714,15 @@
     margin:0 auto;padding:18px 0 96px;
   }
   /* In list view the canvas, cover-flow and their chrome step aside.
-     The bottom action bar goes too: it carries Format/Quality/Resize/Crop
-     and a second Download all, which is exactly the surface "Edit
-     settings" is supposed to gate. Leaving it visible would mean the
-     list had changed nothing about how much is on screen. */
+     The settings bar stays, because the settings are global and belong
+     with the batch — only its Share all / Download all cluster is hidden
+     here, since the list header already owns batch actions. It sits
+     collapsed until "Edit settings" pulls it open in place. */
   body[data-view="list"] .image-canvas,
   body[data-view="list"] .cover-flow,
   body[data-view="list"] .canvas-fade,
   body[data-view="list"] .top-chrome,
   body[data-view="list"] .filename-ribbon,
-  body[data-view="list"] .menu-wrap,
   /* Both belong to the cover-flow: the scrubber is its scroll position,
      and batch-progress is the "Encoding 1 of 2" chip that floats over
      the canvas. In list view the scrubber steers something invisible and
@@ -1731,7 +1730,91 @@
      header already gives more precisely. */
   body[data-view="list"] .cflow-scrubber,
   body[data-view="list"] .batch-progress,
-  body[data-view="list"] .fl-back{display:none !important;}
+  body[data-view="list"] .cmp-bar{display:none !important;}
+
+  /* The list owns the batch; compare owns one file.
+     - cover-flow and its scrubber were a second way to navigate the
+       batch, which is the list's job now, so compare gets a plain
+       prev/next instead of a carousel of thumbnails
+     - .actions is Share all / Download all — batch actions that made no
+       sense floating over a single image
+     - the filename ribbon and batch-progress chip duplicate what the
+       compare bar and the list header already say */
+  body[data-view="compare"] .cover-flow,
+  body[data-view="compare"] .cflow-scrubber,
+  body[data-view="compare"] .filename-ribbon,
+  body[data-view="compare"] .batch-progress,
+  body[data-view="compare"] .menu-card > .actions,
+  /* The old top-chrome sat in the same strip as the compare bar and was
+     unreadable stacked against it. Its before/after numbers are
+     file-level and have moved into .cmp-stats; its "1.65 MB saved ·
+     3 files" is batch-level and belongs to the list header. */
+  body[data-view="compare"] .top-chrome{display:none !important;}
+  /* The settings bar itself stays in BOTH views: the settings are
+     global, and they are judged by eye on one image. Only its batch
+     actions move out. */
+  body[data-view="list"] .menu-card > .actions{display:none !important;}
+
+  .cmp-bar{
+    position:fixed;top:0;left:0;right:0;z-index:40;
+    display:flex;align-items:center;gap:12px;
+    padding:10px 14px;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  body:not([data-state="multi"]) .cmp-bar{display:none;}
+  .cmp-title{
+    flex:1;min-width:0;font-size:.86rem;font-weight:600;color:var(--text);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .cmp-stats{
+    font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums;
+    white-space:nowrap;flex-shrink:0;
+  }
+  .cmp-stats .cmp-save{color:var(--success);font-weight:700;margin-left:6px;}
+  .cmp-stats .cmp-save:first-child{margin-left:0;}
+  .cmp-stats .cmp-save.bad{color:var(--warn);}
+  .cmp-nav{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .cmp-pos{
+    font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums;
+    margin-right:2px;white-space:nowrap;
+  }
+  .cmp-btn{
+    font:inherit;font-size:.8rem;font-weight:600;white-space:nowrap;
+    padding:7px 13px;min-height:36px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--border);background:transparent;color:var(--text);
+    transition:background .14s ease;
+  }
+  .cmp-btn:hover{background:color-mix(in srgb,var(--text) 12%,transparent);}
+  .cmp-btn[disabled]{opacity:.35;cursor:default;}
+  .cmp-btn[disabled]:hover{background:transparent;}
+  .cmp-icon{padding:7px 12px;min-width:36px;line-height:1;font-size:1rem;}
+  .cmp-dl{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .cmp-dl:hover{background:var(--accent);filter:brightness(1.1);}
+  @media (max-width:860px){
+    /* The name goes before the numbers do — you just picked the file,
+       so you know which one it is; the sizes are why you drilled in. */
+    .cmp-title{display:none;}
+  }
+  @media (max-width:560px){
+    .cmp-bar{gap:6px;padding:8px 10px;}
+    .cmp-pos{display:none;}
+    /* Back collapses to the arrow, and the stats become the only thing
+       allowed to shrink — everything else is a tap target. Without this
+       the bar could not fit and pushed Download off the screen edge
+       while "All files" wrapped onto a second line. */
+    .cmp-back-label{display:none;}
+    /* At 375px there is room for the back arrow, prev/next, Download
+       and about 150px between them. "167.4 KB · PNG 80% smaller" needs
+       165 and ran under the prev button. The saving is the headline
+       here and the byte counts are on the row you came from, so only
+       the saving survives. */
+    .cmp-stats{font-size:.78rem;flex:0 1 auto;min-width:0;overflow:hidden;}
+    .cmp-before,.cmp-after{display:none;}
+    .cmp-nav{gap:4px;}
+    .cmp-icon{padding:7px 9px;min-width:32px;}
+  }
   /* …and the compare view hides the list. */
   body[data-view="compare"] .file-list-wrap{display:none;}
 
@@ -5889,10 +5972,25 @@
   <!-- Bottom-fade overlay improves readability of cover-flow thumbnails over
        busy backgrounds. CSS-driven (.canvas-fade); zero runtime cost. -->
   <div class="canvas-fade" aria-hidden="true"></div>
-  <!-- Back out of the drill-down. Only rendered in compare view. -->
-  <button type="button" class="fl-back" id="flBack" onclick="showListView()" aria-label="Back to the file list">
-    <span aria-hidden="true">&#8592;</span> All files
-  </button>
+  <!-- Compare bar: everything that is about THIS file.
+       The drill-down first shipped as a back button bolted onto the old
+       canvas, which left the cover-flow duplicating the list's job and
+       a "Download all · 3 files" button sitting over a single image.
+       Batch-level controls belong to the list; this bar carries only
+       what is true of the one image on screen. -->
+  <div class="cmp-bar" id="cmpBar">
+    <button type="button" class="cmp-btn" onclick="showListView()" aria-label="Back to the file list">
+      <span aria-hidden="true">&#8592;</span><span class="cmp-back-label"> All files</span>
+    </button>
+    <span class="cmp-title" id="cmpTitle"></span>
+    <span class="cmp-stats" id="cmpStats"></span>
+    <span class="cmp-nav">
+      <span class="cmp-pos" id="cmpPos"></span>
+      <button type="button" class="cmp-btn cmp-icon" id="cmpPrev" onclick="cmpStep(-1)" aria-label="Previous image">&#8249;</button>
+      <button type="button" class="cmp-btn cmp-icon" id="cmpNext" onclick="cmpStep(1)" aria-label="Next image">&#8250;</button>
+      <button type="button" class="cmp-btn cmp-dl" id="cmpDl" onclick="cmpDownload(this)">Download</button>
+    </span>
+  </div>
   <div class="image-canvas" id="centerImage">
     <!-- Zoom wrapper: cbBefore + cbAfter live inside this so a single transform
          scales/pans the whole compare composition. The compare-after still

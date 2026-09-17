@@ -629,7 +629,17 @@ async function addFilesFromList(fileList){
   /* Kick off the background encode queue. The selected file is encoded
      first (via syncMainImage's call path) and the rest queue behind it. */
   if (typeof enqueueAll === 'function') setTimeout(enqueueAll, 60);
-  if (FILES.length === fresh.length) CFLOW.selected = 0;
+  if (FILES.length === fresh.length) {
+    CFLOW.selected = 0;
+    /* A fresh batch lands with the settings strip collapsed, so the list
+       is just results and "Edit settings" is a real high-intent button
+       rather than a label for something already on screen. Only on the
+       first drop — adding more files must not slam the drawer shut on
+       someone who deliberately opened it. The strip itself stays
+       visible, so the controls remain discoverable. */
+    document.body.dataset.adjust = 'closed';
+    if (typeof _syncAdjustA11y === 'function') _syncAdjustA11y('closed');
+  }
   CFLOW.drift = 0;
   layoutCoverFlow();
   CFLOW.prevSelected = -1;
@@ -787,23 +797,84 @@ async function flRetry(idx){
 }
 window.flRetry = flRetry;
 
+/* Keep the compare bar in step with whatever is on the canvas. Driven
+   from selectIndex rather than only from the row click, so arrow keys
+   and the scrubber update it too. */
+function syncCompareBar(){
+  if (document.body.dataset.view !== 'compare') return;
+  const i = CFLOW.selected, n = FILES.length, f = FILES[i];
+  const title = document.getElementById('cmpTitle');
+  const pos   = document.getElementById('cmpPos');
+  const prev  = document.getElementById('cmpPrev');
+  const next  = document.getElementById('cmpNext');
+  const dl    = document.getElementById('cmpDl');
+  if (title) title.textContent = f ? f.name : '';
+  if (pos)   pos.textContent = n > 1 ? `${i + 1} of ${n}` : '';
+  /* A one-file batch has nothing to step through. */
+  const solo = n <= 1;
+  if (prev) { prev.disabled = solo || i <= 0;      prev.hidden = solo; }
+  if (next) { next.disabled = solo || i >= n - 1;  next.hidden = solo; }
+  if (dl)   dl.disabled = !ENCODE.encoded.get(i);
+  /* File-level numbers live here now that the top-chrome is gone in
+     this view. Batch totals stay in the list header — mixing the two
+     in one strip is what made the old chrome unreadable. */
+  const stats = document.getElementById('cmpStats');
+  if (stats) {
+    const enc = ENCODE.encoded.get(i);
+    if (!f) { stats.textContent = ''; }
+    else if (!enc) { stats.textContent = `${fmtSize(f.file.size)} · encoding…`; }
+    else {
+      const inFmt = (f.file.type.split('/')[1] || '').toUpperCase();
+      const pct = Math.round((1 - enc.size / f.file.size) * 100);
+      /* Split into parts so the phone can drop the BEFORE half rather
+         than ellipsing the line. Truncating the string kept the input
+         size the visitor already knew and cut off the result, which is
+         the only reason they opened this view. */
+      stats.textContent = '';
+      const before = document.createElement('span');
+      before.className = 'cmp-before';
+      before.textContent = `${fmtSize(f.file.size)} · ${inFmt} → `;
+      const after = document.createElement('span');
+      after.className = 'cmp-after';
+      after.textContent = `${fmtSize(enc.size)} · ${(enc.format || '').toUpperCase()}`;
+      stats.append(before, after);
+      if (Math.abs(pct) >= 1) {
+        const b = document.createElement('span');
+        b.className = 'cmp-save' + (pct < 0 ? ' bad' : '');
+        b.textContent = `${Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
+        stats.appendChild(b);
+      }
+    }
+  }
+}
+window.syncCompareBar = syncCompareBar;
+window.cmpStep = function(delta){
+  const target = CFLOW.selected + delta;
+  if (target < 0 || target >= FILES.length) return;
+  if (typeof selectIndex === 'function') selectIndex(target);
+};
+window.cmpDownload = function(btn){ flDownloadOne(CFLOW.selected, btn); };
+
 window.showCompareView = function(idx){
   document.body.dataset.view = 'compare';
   if (typeof selectIndex === 'function' && typeof idx === 'number') selectIndex(idx);
   if (typeof layoutCoverFlow === 'function') layoutCoverFlow();
   if (typeof syncMainImage === 'function') syncMainImage(true);
+  syncCompareBar();
 };
 window.showListView = function(){
   document.body.dataset.view = 'list';
   renderFileList();
 };
-/* The high-intent route into the full control set. Everything beyond
-   "optimise these and give them back" lives behind this. */
+/* Settings are global, so they do NOT belong to one file. This opens
+   the settings bar in place rather than dragging the visitor into the
+   compare view to reach it — which is what it used to do, and which
+   made a batch-wide control look like a property of whichever image
+   happened to be selected. */
 window.flOpenSettings = function(){
-  document.body.dataset.view = 'compare';
-  if (typeof layoutCoverFlow === 'function') layoutCoverFlow();
-  if (typeof syncMainImage === 'function') syncMainImage(true);
   if (document.body.dataset.adjust !== 'open' && typeof toggleAdjust === 'function') toggleAdjust();
+  const bar = document.getElementById('menuWrap');
+  if (bar && bar.scrollIntoView) { try { bar.scrollIntoView({ block: 'nearest' }); } catch(_){} }
 };
 window.renderFileList = renderFileList;
 /* Recompute --menu-h whenever drawer toggles or transitions, so the
@@ -2279,6 +2350,7 @@ function onThumbClick(i, e){
 function selectIndex(i){
   i = Math.max(0, Math.min(CFLOW.thumbs.length - 1, i));
   CFLOW.selected = i; CFLOW.drift = 0; CFLOW.vel = 0;
+  if (typeof syncCompareBar === 'function') syncCompareBar();
   document.body.dataset.piActions = 'closed';
   layoutCoverFlow();
   syncMainImage();
