@@ -1,0 +1,16 @@
+<!-- imgready mark, LARGE-SIZE cut. Source for apple-touch-icon (180) and
+     the 192/512 PWA icons, where the artwork is shown big enough to hold
+     detail: two peaks with a real notch between them, and a slightly
+     smaller sun than the small cut uses.
+
+     Optical sizing on purpose — the same reason type has display and
+     text cuts. favicon.svg carries the simplified version for the tab
+     strip. Both read as "sun over a mountain range in a green rounded
+     square", so the brand impression matches across sizes even though
+     the paths differ. Keep the palette in step with the other three
+     icon SVGs. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="imgready">
+  <rect width="64" height="64" rx="14" fill="#4f6f4f"/>
+  <circle cx="19" cy="19" r="5" fill="#ffffff"/>
+  <path d="M6 48 L21 31 L29 40 L40 23 L58 48 Z" fill="#ffffff"/>
+</svg>

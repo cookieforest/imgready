@@ -1,0 +1,11 @@
+<!-- Safari pinned-tab mask. Safari wants a single-layer, 100% black
+     silhouette on transparent and tints it itself with the colour on
+     <link rel="mask-icon">, so the green square is dropped and only the
+     scene remains. Built from the SMALL cut: pinned tabs are tab-sized,
+     so the simplified single peak is the right one. Two solid shapes,
+     no even-odd knockout — Safari's handling of compound paths and
+     masks here is not worth relying on. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <circle cx="16" cy="16" r="6" fill="#000000"/>
+  <path d="M4 50 L32 20 L60 50 Z" fill="#000000"/>
+</svg>

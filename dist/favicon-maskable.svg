@@ -1,7 +1,16 @@
-<!-- Maskable source. Full-bleed square on purpose: Android applies its own
-     mask (circle, squircle, rounded square), so baking our own rounded
-     corners in would show a rounded rect floating inside another rounded
-     shape. The glyph is kept inside the 80% safe-zone circle so no mask
-     can clip it. Separate from favicon.svg, which keeps its corners for
-     contexts that draw the icon as-is. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#4f6f4f"/><text x="32" y="43" text-anchor="middle" font-family="system-ui,Arial,sans-serif" font-size="32" font-weight="700" fill="#fff">i</text></svg>
+<!-- Maskable variant, built from the LARGE cut since Android home-screen
+     icons are shown big. Full-bleed square on purpose: Android applies
+     its own mask (circle, squircle, rounded square), so baking our own
+     corners in would show a rounded rect inside another one.
+
+     Scaled to 0.78 about the centre to clear the 80% safe-zone circle.
+     At full size the range's bottom-left corner is 27.8 units from
+     centre, past the 25.6 a circular mask can clip; at 0.78 it is 21.7.
+     Verified by rendering with clip-path:circle(50%). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="imgready">
+  <rect width="64" height="64" fill="#4f6f4f"/>
+  <g transform="translate(32 32) scale(0.78) translate(-32 -32)">
+    <circle cx="19" cy="19" r="5" fill="#ffffff"/>
+    <path d="M6 48 L21 31 L29 40 L40 23 L58 48 Z" fill="#ffffff"/>
+  </g>
+</svg>

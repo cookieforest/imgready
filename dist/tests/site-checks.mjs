@@ -347,6 +347,23 @@ for (const p of sitemapPaths) {
       fail('icons', `${slug}: apple-touch-icon is ${m[1]} — iOS only accepts PNG`);
     }
   }
+  /* Safari tints the pinned-tab mask itself, so a mask-icon that points
+     at a coloured or missing file is worse than none. */
+  for (const [slug, file] of pages) {
+    const m = read(file).match(/<link rel="mask-icon"[^>]*href="([^"]+)"[^>]*>/);
+    if (!m) continue;
+    const p = m[1].replace(/^\//, '');
+    if (!/\.svg$/i.test(m[1])) { fail('icons', `${slug}: mask-icon must be an SVG`); continue; }
+    if (!existsSync(join(ROOT, p))) { fail('icons', `${slug}: mask-icon ${m[1]} does not exist`); continue; }
+    const svg = read(join(ROOT, p));
+    /* Must be a flat black silhouette — any other fill defeats the tint. */
+    const fills = [...svg.matchAll(/fill="([^"]+)"/g)].map((x) => x[1].toLowerCase());
+    const bad = fills.filter((f) => f !== '#000000' && f !== '#000' && f !== 'black' && f !== 'none');
+    if (bad.length) fail('icons', `${slug}: mask-icon is not a black silhouette (${bad[0]})`);
+    if (!/<link rel="mask-icon"[^>]*color="/.test(m[0])) {
+      fail('icons', `${slug}: mask-icon has no color attribute for Safari to tint with`);
+    }
+  }
   /* theme-color lives in two places and they drifted: the HTML said the
      new accent while the manifest still held the old one. */
   const mfPath = join(ROOT, 'manifest.webmanifest');
