@@ -3471,6 +3471,26 @@ async function ensureAllEncoded(){
     }
   }
 }
+/* JSZip keys entries by name: calling zip.file() twice with the same name
+   REPLACES the first entry rather than adding a second. Basename collisions
+   are routine here — logo.png and logo.jpg both converting to WebP land on
+   logo_imgready.webp, and IMG_1234.jpg dragged in from two folders collides
+   with itself. The result was silent data loss: drop three files, get one
+   back, no warning anywhere.
+
+   Suffix duplicates the way desktop file managers do, so the mapping stays
+   obvious to the user. Also used for the individual-download path, where
+   the browser would otherwise apply its own inconsistent numbering. */
+function uniqueEntryName(name, taken){
+  if (!taken.has(name)) { taken.add(name); return name; }
+  const dot  = name.lastIndexOf('.');
+  const stem = dot > 0 ? name.slice(0, dot) : name;
+  const ext  = dot > 0 ? name.slice(dot)    : '';
+  let n = 2, candidate = `${stem} (${n})${ext}`;
+  while (taken.has(candidate)) { n++; candidate = `${stem} (${n})${ext}`; }
+  taken.add(candidate);
+  return candidate;
+}
 async function downloadAll(){
   await ensureAllEncoded();
   /* Multi-output: bundle every (file × format) combination into a single
@@ -3481,6 +3501,7 @@ async function downloadAll(){
     const JSZipMod = window.JSZip || (await loadJSZip());
     if (JSZipMod) {
       const zip = new JSZipMod();
+      const taken = new Set();
       let added = 0;
       for (let i = 0; i < FILES.length; i++) {
         const f = FILES[i];
@@ -3488,7 +3509,10 @@ async function downloadAll(){
         if (!f || !bundle || !bundle.size) continue;
         const base = f.file.name.replace(/\.[^.]+$/, '');
         bundle.forEach(e => {
-          if (e && e.blob) { zip.file(`${base}_imgready.${e.format}`, e.blob); added++; }
+          if (e && e.blob) {
+            zip.file(uniqueEntryName(`${base}_imgready.${e.format}`, taken), e.blob);
+            added++;
+          }
         });
       }
       if (added > 0) {
@@ -3513,12 +3537,13 @@ async function downloadAll(){
     const JSZipMod = window.JSZip || (await loadJSZip());
     if (JSZipMod) {
       const zip = new JSZipMod();
+      const taken = new Set();
       let added = 0;
       for (let i = 0; i < FILES.length; i++) {
         const f = FILES[i]; const enc = ENCODE.encoded.get(i);
         if (!f || !enc) continue;
         const base = f.file.name.replace(/\.[^.]+$/, '');
-        zip.file(`${base}_imgready.${enc.format}`, enc.blob);
+        zip.file(uniqueEntryName(`${base}_imgready.${enc.format}`, taken), enc.blob);
         added++;
       }
       if (added > 0) {
@@ -3533,11 +3558,12 @@ async function downloadAll(){
     /* JSZip unavailable — fall through to per-file individual downloads. */
   }
   /* Single file (or zip path unavailable): individual download(s). */
+  const takenSingle = new Set();
   for (let i = 0; i < FILES.length; i++) {
     const f = FILES[i]; const enc = ENCODE.encoded.get(i);
     if (!f || !enc) continue;
     const base = f.file.name.replace(/\.[^.]+$/, '');
-    triggerDownload(enc.url, `${base}_imgready.${enc.format}`);
+    triggerDownload(enc.url, uniqueEntryName(`${base}_imgready.${enc.format}`, takenSingle));
     /* Stagger so browsers don't throttle simultaneous downloads */
     await new Promise(r => setTimeout(r, 80));
   }
