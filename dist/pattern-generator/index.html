@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5a7a5a">
+<title>Free Seamless Pattern Generator — SVG & 300 DPI Textures | imgready</title>
+<meta name="description" content="Generate mathematical seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Copy CSS background code or export crisp vector patterns. 100% free.">
+<meta property="og:title" content="Free Seamless Pattern Generator — SVG & 300 DPI Textures | imgready">
+<meta property="og:description" content="Generate mathematical seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Copy CSS background code or export crisp vector patterns. 100% free.">
+<meta property="og:image" content="https://imgready.app/og/home.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://imgready.app/pattern-generator/">
+<meta property="og:site_name" content="imgready">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free Seamless Pattern Generator — SVG & 300 DPI Textures | imgready">
+<meta name="twitter:description" content="Generate mathematical seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Copy CSS background code or export crisp vector patterns. 100% free.">
+<meta property="twitter:image" content="https://imgready.app/og/home.png">
+<link rel="canonical" href="https://imgready.app/pattern-generator/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/app.css">
+<!-- Google AdSense loader -->
+<script>
+(function(){
+  if(window._adsenseLoading)return;
+  function loadAdsense(){
+    if(window._adsenseLoading)return;
+    window._adsenseLoading=true;
+    var s=document.createElement('script');
+    s.async=true;
+    s.crossOrigin='anonymous';
+    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
+    document.head.appendChild(s);
+  }
+  var triggers=['pointerdown','keydown','touchstart','scroll'];
+  function onInteract(){
+    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
+    loadAdsense();
+  }
+  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
+  function scheduleAfterIdle(){
+    setTimeout(function(){
+      if('requestIdleCallback' in window){
+        requestIdleCallback(loadAdsense,{timeout:3000});
+      } else {
+        setTimeout(loadAdsense,1500);
+      }
+    },1500);
+  }
+  if(document.readyState==='complete'){
+    scheduleAfterIdle();
+  } else {
+    window.addEventListener('load',scheduleAfterIdle,{once:true});
+  }
+})();
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+.wrap{max-width:880px;margin:0 auto;padding:0 24px 80px;}
+.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
+.nav-brand .g{color:var(--accent,#5a7a5a);}
+.nav-sep{color:#d6cebb;}
+.topnav a.nav-link{font-size:.85rem;color:#5a7a5a;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
+.topnav a.nav-link:hover{text-decoration:underline;}
+.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
+@media(max-width:600px){.topnav .hide-mobile{display:none;}}
+.crumbs{font-size:.78rem;color:#8a8070;margin:6px 0 4px;}
+.crumbs a{color:#5a7a5a;text-decoration:none;padding:4px 2px;display:inline-block;}
+.crumbs a:hover{text-decoration:underline;}
+.hero{padding:24px 0 24px;}
+.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:#2e2a22;}
+.hero h1 em{font-style:normal;color:#5a7a5a;}
+.hero p.lede{font-size:1.02rem;color:#5a5448;line-height:1.7;margin-bottom:22px;}
+
+/* Pattern Studio Interactive Container */
+.pattern-app{background:#faf7f2;border:1px solid #d6cebb;border-radius:14px;padding:20px;box-shadow:0 4px 24px rgba(90,80,60,.08);margin-bottom:32px;}
+.studio-grid{display:grid;grid-template-columns:260px 1fr;gap:20px;}
+@media(max-width:768px){.studio-grid{grid-template-columns:1fr;}}
+.controls-col{display:flex;flex-col;flex-direction:column;gap:14px;}
+.c-group label{display:block;font-size:.78rem;font-weight:700;color:#5a7a5a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.c-group select, .c-group input[type="range"]{width:100%;}
+.c-group select{background:#fff;border:1px solid #d6cebb;border-radius:8px;padding:8px 10px;font-size:.88rem;color:#2e2a22;outline:none;}
+.color-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.color-pick{background:#fff;border:1px solid #d6cebb;border-radius:8px;padding:6px;display:flex;align-items:center;gap:8px;font-size:.78rem;}
+.color-pick input[type="color"]{border:none;background:transparent;width:26px;height:26px;cursor:pointer;}
+.preview-canvas-box{min-height:340px;border-radius:10px;border:1px solid #d6cebb;position:relative;overflow:hidden;box-shadow:inset 0 0 20px rgba(0,0,0,.03);}
+.preview-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.btn-act{padding:10px 16px;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:all .15s;}
+.btn-green{background:#5a7a5a;color:#fff;}
+.btn-green:hover{background:#486348;}
+.btn-outline{background:#fff;color:#2e2a22;border:1px solid #d6cebb;}
+.btn-outline:hover{border-color:#5a7a5a;color:#5a7a5a;}
+
+.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin:22px 0 30px;}
+.feat{background:#faf7f2;border:1px solid #d6cebb;border-radius:10px;padding:16px;text-align:center;}
+.feat h3{font-size:.9rem;font-weight:700;color:#2e2a22;margin-bottom:6px;}
+.feat p{font-size:.78rem;color:#8a8070;line-height:1.5;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:#2e2a22;margin:36px 0 12px;}
+.sub{font-size:1.05rem;font-weight:700;color:#5a7a5a;margin:22px 0 8px;}
+p{font-size:.94rem;line-height:1.78;color:#5a5448;margin-bottom:14px;}
+.faq-item{margin-bottom:18px;border-bottom:1px solid #ede7d9;}
+.faq-item summary{font-size:.97rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:12px 0;list-style:none;}
+.faq-item summary::after{content:'+';float:right;color:#5a7a5a;font-weight:700;}
+.faq-item[open] summary::after{content:'\2212';}
+.faq-item p{font-size:.9rem;color:#5a5448;line-height:1.75;padding:0 0 14px;}
+.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
+.related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
+.related a:hover{border-color:#5a7a5a;}
+.related a small{display:block;color:#8a8070;font-weight:400;font-size:.76rem;margin-top:2px;}
+.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.75rem;color:#8a8070;line-height:1.8;}
+.site-footer a{color:#5a7a5a;text-decoration:none;margin:0 8px;}
+.site-footer a:hover{text-decoration:underline;}
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready — seamless pattern generator", "applicationCategory": "DesignApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/pattern-generator/", "description": "Generate mathematical seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Free.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Pattern Generator", "item": "https://imgready.app/pattern-generator/"}]}</script>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav" aria-label="Primary">
+    <a class="nav-brand" href="/">img<span class="g">ready</span></a>
+    <span class="nav-sep" aria-hidden="true">|</span>
+    <a class="nav-link" href="/">Home</a>
+    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
+    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
+    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
+    <a class="nav-link" href="/pattern-generator/">Patterns</a>
+    <span class="nav-grow">
+      <a class="nav-link" href="/about/">About</a>
+      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+    </span>
+  </nav>
+  <div class="crumbs"><a href="/">Home</a> &raquo; Pattern Generator</div>
+
+  <section class="hero">
+    <h1>Seamless SVG pattern generator,<br><em>in your browser</em></h1>
+    <p class="lede">Generate mathematical repeating vector textures, copy ready-to-paste CSS code, and export 300 DPI print-ready tiles. 100% in-browser, infinite resolution, free forever.</p>
+  </section>
+
+  <!-- Interactive Studio -->
+  <div class="pattern-app">
+    <div class="studio-grid">
+      <!-- Controls -->
+      <div class="controls-col">
+        <div class="c-group">
+          <label for="patternSelect">Pattern Style</label>
+          <select id="patternSelect">
+            <option value="seigaiha">Seigaiha Waves</option>
+            <option value="topographic">Topographic Contours</option>
+            <option value="isometricCubes">Isometric 3D Cubes</option>
+            <option value="moroccanTrellis">Moroccan Trellis</option>
+            <option value="bauhaus">Bauhaus Modern</option>
+            <option value="honeycomb">Hex Honeycomb</option>
+            <option value="halftoneDots">Halftone Dots</option>
+            <option value="sineWaves">Fluid Sine Waves</option>
+            <option value="crosshatch">Crosshatch Grid</option>
+            <option value="memphisConfetti">Memphis Confetti</option>
+          </select>
+        </div>
+
+        <div class="c-group">
+          <label>Scale (<span id="scaleNum">80</span>px)</label>
+          <input type="range" id="scaleInput" min="30" max="200" value="80">
+        </div>
+
+        <div class="c-group">
+          <label>Stroke Width (<span id="strokeNum">15</span>)</label>
+          <input type="range" id="strokeInput" min="5" max="40" value="15">
+        </div>
+
+        <div class="c-group">
+          <label>Colors</label>
+          <div class="color-row">
+            <div class="color-pick">
+              <input type="color" id="bgColor" value="#f5f0e8">
+              <span>Background</span>
+            </div>
+            <div class="color-pick">
+              <input type="color" id="fgColor" value="#5a7a5a">
+              <span>Foreground</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-act btn-outline" id="btnShuffle" style="width:100%;">🎲 Randomize</button>
+      </div>
+
+      <!-- Preview Canvas -->
+      <div>
+        <div class="preview-canvas-box" id="previewCanvas"></div>
+        <div class="preview-actions">
+          <button class="btn-act btn-green" id="btnCopyCss">📋 Copy CSS</button>
+          <button class="btn-act btn-outline" id="btnDownloadSvg">⚡ Download SVG</button>
+          <button class="btn-act btn-outline" id="btnExport4k">🖼️ 4K 300 DPI PNG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feat"><h3>Pure Vector</h3><p>Mathematical SVG repeat. Zero pixel distortion at any zoom.</p></div>
+    <div class="feat"><h3>Print Ready</h3><p>Export 4096&times;4096 300 DPI seamless tiles for print-on-demand.</p></div>
+    <div class="feat"><h3>Instant CSS</h3><p>One-click data-URI copy for websites and web applications.</p></div>
+    <div class="feat"><h3>100% In-Browser</h3><p>Runs on your device with no uploads or external servers.</p></div>
+  </div>
+
+  <h2>Why use SVG patterns?</h2>
+  <p>Raster backgrounds (like large JPG or PNG wallpapers) take hundreds of kilobytes or even megabytes of bandwidth. In contrast, an SVG pattern definition is typically under 1 kilobyte. The browser tiles the mathematical formula across any viewport size instantly, with crisp lines that never blur on high-density Retina or 4K displays.</p>
+
+  <h2>Frequently asked questions</h2>
+  <details class="faq-item"><summary>Can I use these patterns commercially?</summary><p>Yes, all patterns generated on imgready are 100% free for personal and commercial use without attribution.</p></details>
+  <details class="faq-item"><summary>How do I use the CSS in my website?</summary><p>Click "Copy CSS" to get the background-image snippet with embedded data-URI, then paste it directly into your stylesheet or inline styles.</p></details>
+  <details class="faq-item"><summary>Is the 4K PNG print-ready?</summary><p>Yes! The 4K export renders a 4096&times;4096 pixel canvas tile, which is suitable for high-density 300 DPI physical printing (apparel, fabrics, wallpapers, stationery).</p></details>
+
+  <h2>Related tools and guides</h2>
+  <div class="related">
+    <a href="/compress/">Compress images<small>Drop file size without losing quality</small></a>
+    <a href="/svg-to-png/">SVG to PNG converter<small>Render any vector at custom resolution</small></a>
+    <a href="/resize/">Resize images<small>Scale photos to exact dimensions</small></a>
+    <a href="/webp-converter/">WebP converter<small>Fast, modern web formats</small></a>
+    <a href="/social-media-image-sizes/">Social media image sizes<small>Exact pixels for every platform</small></a>
+    <a href="/tools/">All image tools<small>Explore 70+ in-browser utilities</small></a>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#5a7a5a">ready</span></div>
+    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/pattern-generator/">Patterns</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a>
+    </div>
+    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
+</div>
+
+<script>
+// Lightweight standalone pattern engine for /pattern-generator/
+const PATTERNS = {
+  seigaiha(s, st, bg, fg) {
+    const w = s * 2, h = s, r = s / 2, strokeW = Math.max(1, (st / 10) * (s / 40));
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+      <rect width="${w}" height="${h}" fill="${bg}"/>
+      <g fill="none" stroke="${fg}" stroke-width="${strokeW}">
+        <circle cx="0" cy="0" r="${r*1.6}"/><circle cx="0" cy="0" r="${r*1.2}"/><circle cx="0" cy="0" r="${r*0.8}"/><circle cx="0" cy="0" r="${r*0.4}"/>
+        <circle cx="${w}" cy="0" r="${r*1.6}"/><circle cx="${w}" cy="0" r="${r*1.2}"/><circle cx="${w}" cy="0" r="${r*0.8}"/><circle cx="${w}" cy="0" r="${r*0.4}"/>
+        <circle cx="${w/2}" cy="${h}" r="${r*1.6}"/><circle cx="${w/2}" cy="${h}" r="${r*1.2}"/><circle cx="${w/2}" cy="${h}" r="${r*0.8}"/><circle cx="${w/2}" cy="${h}" r="${r*0.4}"/>
+      </g></svg>`;
+  },
+  topographic(s, st, bg, fg) {
+    const strokeW = Math.max(1, (st / 10) * (s / 50));
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
+      <rect width="${s}" height="${s}" fill="${bg}"/>
+      <g fill="none" stroke="${fg}" stroke-width="${strokeW}" stroke-linecap="round">
+        <path d="M 0,${s*0.2} C ${s*0.3},${s*0.15} ${s*0.7},${s*0.25} ${s},${s*0.2}"/>
+        <path d="M 0,${s*0.4} C ${s*0.25},${s*0.5} ${s*0.75},${s*0.3} ${s},${s*0.4}"/>
+        <path d="M 0,${s*0.6} C ${s*0.35},${s*0.75} ${s*0.65},${s*0.5} ${s},${s*0.6}"/>
+        <path d="M 0,${s*0.8} C ${s*0.2},${s*0.95} ${s*0.8},${s*0.75} ${s},${s*0.8}"/>
+        <ellipse cx="${s*0.5}" cy="${s*0.5}" rx="${s*0.2}" ry="${s*0.12}"/>
+      </g></svg>`;
+  },
+  isometricCubes(s, st, bg, fg) {
+    const h = s * 0.866;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${h*2}" viewBox="0 0 ${s} ${h*2}">
+      <rect width="${s}" height="${h*2}" fill="${bg}"/>
+      <g>
+        <polygon points="${s/2},0 ${s},${h/2} ${s/2},${h} 0,${h/2}" fill="${fg}" opacity="0.4"/>
+        <polygon points="0,${h/2} ${s/2},${h} ${s/2},${h*2} 0,${h*1.5}" fill="${fg}" opacity="0.8"/>
+        <polygon points="${s/2},${h} ${s},${h/2} ${s},${h*1.5} ${s/2},${h*2}" fill="${fg}" opacity="0.6"/>
+      </g></svg>`;
+  },
+  moroccanTrellis(s, st, bg, fg) {
+    const strokeW = Math.max(1, (st / 10) * (s / 40));
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
+      <rect width="${s}" height="${s}" fill="${bg}"/>
+      <g fill="none" stroke="${fg}" stroke-width="${strokeW}">
+        <path d="M 0,${s*0.5} C 0,${s*0.25} ${s*0.25},0 ${s*0.5},0 C ${s*0.75},0 ${s},${s*0.25} ${s},${s*0.5} C ${s},${s*0.75} ${s*0.75},${s} ${s*0.5},${s} C ${s*0.25},${s} 0,${s*0.75} 0,${s*0.5} Z"/>
+      </g></svg>`;
+  },
+  bauhaus(s, st, bg, fg) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
+      <rect width="${s}" height="${s}" fill="${bg}"/>
+      <path d="M 0,0 L ${s*0.6},0 A ${s*0.6} ${s*0.6} 0 0 1 0,${s*0.6} Z" fill="${fg}" opacity="0.8"/>
+      <rect x="${s*0.5}" y="${s*0.5}" width="${s*0.5}" height="${s*0.5}" fill="${fg}" opacity="0.5"/>
+      <circle cx="${s*0.25}" cy="${s*0.75}" r="${s*0.12}" fill="${fg}"/>
+    </svg>`;
+  },
+  honeycomb(s, st, bg, fg) {
+    const h = s * 0.866, strokeW = Math.max(1, (st / 10) * (s / 40));
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s*1.5}" height="${h*2}" viewBox="0 0 ${s*1.5} ${h*2}">
+      <rect width="${s*1.5}" height="${h*2}" fill="${bg}"/>
+      <path d="M ${s*0.5},0 L ${s},0 L ${s*1.25},${h*0.5} L ${s},${h} L ${s*0.5},${h} L ${s*0.25},${h*0.5} Z" fill="none" stroke="${fg}" stroke-width="${strokeW}"/>
+    </svg>`;
+  },
+  halftoneDots(s, st, bg, fg) {
+    const r1 = s * 0.2, r2 = s * 0.1;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
+      <rect width="${s}" height="${s}" fill="${bg}"/>
+      <g fill="${fg}" opacity="0.85">
+        <circle cx="0" cy="0" r="${r1}"/><circle cx="${s}" cy="0" r="${r1}"/><circle cx="0" cy="${s}" r="${r1}"/><circle cx="${s}" cy="${s}" r="${r1}"/><circle cx="${s/2}" cy="${s/2}" r="${r2}"/>
+      </g></svg>`;
+  },
+  sineWaves(s, st, bg, fg) {
+    const strokeW = Math.max(1, (st / 10) * (s / 30));
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
+      <rect width="${s}" height="${s}" fill="${bg}"/>
+      <g fill="none" stroke="${fg}" stroke-width="${strokeW}">
+        <path d="M 0,${s*0.25} Q ${s*0.25},0 ${s*0.5},${s*0.25} T ${s},${s*0.25}"/>
+        <path d="M 0,${s*0.5} Q ${s*0.25},${s*0.25} ${s*0.5},${s*0.5} T ${s},${s*0.5}"/>
+        <path d="M 0,${s*0.75} Q ${s*0.25},${s*0.5} ${s*0.5},${s*0.75} T ${s},${s*0.75}"/>
+      </g></svg>`;
+  },
+  crosshatch(s, st, bg, fg) {
+    const strokeW = Math.max(1, (st / 10) * (s / 40));
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
+      <rect width="${s}" height="${s}" fill="${bg}"/>
+      <g stroke="${fg}" stroke-width="${strokeW}">
+        <line x1="0" y1="0" x2="${s}" y2="${s}"/><line x1="0" y1="${s}" x2="${s}" y2="0"/>
+      </g></svg>`;
+  },
+  memphisConfetti(s, st, bg, fg) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
+      <rect width="${s}" height="${s}" fill="${bg}"/>
+      <rect x="${s*0.15}" y="${s*0.15}" width="${s*0.28}" height="${s*0.1}" rx="${s*0.05}" fill="${fg}" transform="rotate(35 ${s*0.29} ${s*0.2})"/>
+      <polygon points="${s*0.7},${s*0.15} ${s*0.85},${s*0.4} ${s*0.55},${s*0.4}" fill="${fg}" opacity="0.6"/>
+      <circle cx="${s*0.75}" cy="${s*0.75}" r="${s*0.12}" fill="none" stroke="${fg}" stroke-width="${Math.max(2, s*0.04)}"/>
+      <circle cx="${s*0.5}" cy="${s*0.5}" r="${s*0.04}" fill="${fg}"/>
+    </svg>`;
+  }
+};
+
+let currentSvg = "";
+function renderPattern() {
+  const pat = document.getElementById("patternSelect").value;
+  const s = parseInt(document.getElementById("scaleInput").value, 10);
+  const st = parseInt(document.getElementById("strokeInput").value, 10);
+  const bg = document.getElementById("bgColor").value;
+  const fg = document.getElementById("fgColor").value;
+
+  document.getElementById("scaleNum").textContent = s;
+  document.getElementById("strokeNum").textContent = st;
+
+  currentSvg = PATTERNS[pat](s, st, bg, fg);
+  const dataUri = 'data:image/svg+xml;utf8,' + encodeURIComponent(currentSvg);
+  const canvas = document.getElementById("previewCanvas");
+  canvas.style.backgroundImage = 'url("' + dataUri + '")';
+  canvas.style.backgroundColor = bg;
+}
+
+document.getElementById("patternSelect").onchange = renderPattern;
+document.getElementById("scaleInput").oninput = renderPattern;
+document.getElementById("strokeInput").oninput = renderPattern;
+document.getElementById("bgColor").oninput = renderPattern;
+document.getElementById("fgColor").oninput = renderPattern;
+
+document.getElementById("btnShuffle").onclick = () => {
+  const keys = Object.keys(PATTERNS);
+  document.getElementById("patternSelect").value = keys[Math.floor(Math.random() * keys.length)];
+  document.getElementById("scaleInput").value = Math.floor(Math.random() * 120) + 40;
+  document.getElementById("strokeInput").value = Math.floor(Math.random() * 25) + 10;
+  const palettes = [
+    {bg: '#f5f0e8', fg: '#5a7a5a'},
+    {bg: '#0f172a', fg: '#38bdf8'},
+    {bg: '#faf7f2', fg: '#c86d51'},
+    {bg: '#18181b', fg: '#f43f5e'},
+    {bg: '#ffffff', fg: '#1e293b'}
+  ];
+  const p = palettes[Math.floor(Math.random() * palettes.length)];
+  document.getElementById("bgColor").value = p.bg;
+  document.getElementById("fgColor").value = p.fg;
+  renderPattern();
+};
+
+document.getElementById("btnCopyCss").onclick = () => {
+  const cleaned = currentSvg.replace(/\n/g, '').replace(/\s+/g, ' ').replace(/</g, '%3C').replace(/>/g, '%3E').replace(/#/g, '%23').replace(/"/g, "'");
+  const css = 'background-color: transparent;\nbackground-image: url("data:image/svg+xml,' + cleaned + '");\nbackground-repeat: repeat;';
+  navigator.clipboard.writeText(css).then(() => alert("CSS copied to clipboard!"));
+};
+
+document.getElementById("btnDownloadSvg").onclick = () => {
+  const blob = new Blob([currentSvg], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "seamless_pattern.svg";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById("btnExport4k").onclick = () => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 4096;
+  canvas.height = 4096;
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  const blob = new Blob([currentSvg], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  img.onload = () => {
+    const pattern = ctx.createPattern(img, 'repeat');
+    ctx.fillStyle = pattern;
+    ctx.fillRect(0, 0, 4096, 4096);
+    canvas.toBlob((pngBlob) => {
+      const pngUrl = URL.createObjectURL(pngBlob);
+      const a = document.createElement("a");
+      a.href = pngUrl;
+      a.download = "seamless_pattern_4k_300dpi.png";
+      a.click();
+      URL.revokeObjectURL(pngUrl);
+      URL.revokeObjectURL(url);
+    });
+  };
+  img.src = url;
+};
+
+renderPattern();
+</script>
+</body>
+</html>

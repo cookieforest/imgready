@@ -134,16 +134,19 @@
   <p>You can review and change your ad personalisation choices at any time via the "Cookie &amp; ad settings" link in the footer of every page, or directly at <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google Ads Settings</a>.</p>
 
   <h3>2.4 Compression libraries (CDN)</h3>
-  <p>To keep imgready fast, certain compression libraries are loaded on demand from public CDNs. These CDNs receive your IP address and user agent as part of fetching the file, the same way any web request does. We pin specific versions, do not pass any image content to these CDNs, and only load each library when you use a feature that needs it.</p>
+  <p>Some of the WebAssembly codecs that do the actual encoding are loaded from public CDNs rather than bundled into the page. These CDNs receive your IP address and user agent as part of fetching the file, the same way any web request does. We pin specific versions, and <strong>no image content is ever sent to them</strong> — they serve code to your browser, and the encoding then happens locally.</p>
   <table>
-    <thead><tr><th>Library</th><th>CDN</th><th>Loaded when</th></tr></thead>
+    <thead><tr><th>Library</th><th>Served from</th><th>Fetched when</th></tr></thead>
     <tbody>
-      <tr><td>jszip</td><td>cdnjs.cloudflare.com</td><td>You click "Download All"</td></tr>
-      <tr><td>pako, UPNG.js</td><td>cdnjs.cloudflare.com</td><td>You output a PNG below quality 100</td></tr>
-      <tr><td>@jsquash/webp, @jsquash/avif</td><td>esm.sh</td><td>You output AVIF, or WebP on iOS</td></tr>
-      <tr><td>libheif-js</td><td>cdn.jsdelivr.net</td><td>You add a HEIC/HEIF file</td></tr>
+      <tr><td>@jsquash/webp</td><td>esm.sh</td><td>You output WebP</td></tr>
+      <tr><td>@jsquash/avif</td><td>esm.sh</td><td>You output AVIF</td></tr>
+      <tr><td>@jsquash/jpeg (MozJPEG)</td><td>esm.sh</td><td>You output JPG</td></tr>
+      <tr><td>@jsquash/oxipng</td><td>esm.sh</td><td>You output an optimised PNG</td></tr>
+      <tr><td>gifenc</td><td>cdn.jsdelivr.net</td><td>You output GIF</td></tr>
     </tbody>
   </table>
+  <p>Two clarifications so this is not misleading. First, shortly after the page finishes loading we <em>pre-fetch</em> the codec for the output format you are most likely to use, so your first conversion is not slowed by a cold start. That means a request to esm.sh can happen before you convert anything. Second, once fetched, a codec is cached by our service worker, so repeat visits and offline use do not re-contact the CDN.</p>
+  <p>The remaining libraries are <strong>served from imgready's own origin</strong> and involve no third party at all: <code>libheif</code> (reading HEIC/HEIF), <code>UPNG.js</code> and <code>pako</code> (PNG encoding), and <code>jszip</code> (the "Download All" zip).</p>
 
   <h2>3. Cookies and similar technologies</h2>
   <p>imgready itself sets only one technical "cookie-like" mechanism: a small <code>localStorage</code> entry that remembers your night-mode preference, last-used output format and quality slider position. This data stays on your device and is never transmitted to us.</p>
