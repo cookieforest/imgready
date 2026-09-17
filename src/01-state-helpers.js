@@ -289,8 +289,8 @@ window.clearAllClick=function(){
 /* ========================================
    TIP NUDGE — dynamic messaging
    ======================================== */
-var NUDGE_MB_THRESHOLD=5*1048576;
-var NUDGE_COUNT_THRESHOLD=20;
+var NUDGE_MB_THRESHOLD=500*1024; // 500 KB (lowered from 5MB so single-photo converters see it)
+var NUDGE_COUNT_THRESHOLD=3;      // 3 files (lowered from 20)
 
 function maybeShowNudge(){
   try{if(localStorage.getItem('imgready_nudge_shown')==='true')return;}catch(e){}
