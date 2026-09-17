@@ -431,11 +431,46 @@ function qualityToColors(q){
    it too early returns 1 even for animated GIFs.
    Returns { frameCount, buffer } so encodeAnimatedGif can reuse the
    same buffer instead of reading the file twice. */
-async function getGifFrameCount(file){
+/* Which inputs can carry animation, and therefore need the frame probe.
+   Both GIF and WebP do; ImageDecoder handles either. Anything else is a
+   still and skips the probe entirely. */
+function animatedInputType(file){
+  const t = (file && file.type || '').toLowerCase();
+  if (t === 'image/gif')  return 'image/gif';
+  if (t === 'image/webp') return 'image/webp';
+  const n = (file && file.name || '').toLowerCase();
+  if (n.endsWith('.gif'))  return 'image/gif';
+  if (n.endsWith('.webp')) return 'image/webp';
+  return null;
+}
+
+/* Cheap pre-check so ordinary still WebPs don't pay for a full decode.
+   An animated WebP always carries a VP8X chunk with the animation bit set,
+   and VP8X is always first — so 32 bytes settle it. Plain WebPs (the common
+   case) start straight into VP8/VP8L and bail out here. Returns true when
+   unsure, so anything unexpected still gets the real probe. */
+async function webpMayBeAnimated(file){
+  try {
+    const head = new Uint8Array(await file.slice(0, 32).arrayBuffer());
+    if (head.length < 21) return false;
+    const tag = (o) => String.fromCharCode(head[o], head[o+1], head[o+2], head[o+3]);
+    if (tag(0) !== 'RIFF' || tag(8) !== 'WEBP') return true;  /* not what we expected — let the probe decide */
+    if (tag(12) !== 'VP8X') return false;                      /* simple WebP: single frame, always */
+    return (head[20] & 0x02) !== 0;                            /* VP8X flags: bit 1 = animation */
+  } catch (_) {
+    return true;
+  }
+}
+
+async function getGifFrameCount(file, decodeType){
   if (typeof ImageDecoder !== 'function') return { frameCount: 1, buffer: null };
+  const type = decodeType || animatedInputType(file) || 'image/gif';
+  if (type === 'image/webp' && !(await webpMayBeAnimated(file))) {
+    return { frameCount: 1, buffer: null };
+  }
   try {
     const buffer = await file.arrayBuffer();
-    const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
+    const decoder = new ImageDecoder({ data: buffer, type });
     /* Per MDN: frameCount isn't stable until decoder.complete === true.
        Even with ArrayBuffer input, parsing happens asynchronously.
        Await both tracks.ready (metadata) AND completed (full parse). */
@@ -480,7 +515,7 @@ function gifQualityParams(q){
    LZW compresses long runs of the transparent index very efficiently,
    so frames with mostly-static regions become tiny.
    Returns a Blob (image/gif) on success, throws on unsupported. */
-async function encodeAnimatedGif(file, settings, prereadBuffer){
+async function encodeAnimatedGif(file, settings, prereadBuffer, decodeType){
   if (typeof ImageDecoder !== 'function') {
     throw new Error('ImageDecoder unsupported');
   }
@@ -491,7 +526,7 @@ async function encodeAnimatedGif(file, settings, prereadBuffer){
   }
 
   const buffer = prereadBuffer || await file.arrayBuffer();
-  const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
+  const decoder = new ImageDecoder({ data: buffer, type: decodeType || animatedInputType(file) || 'image/gif' });
   /* MDN: frameCount isn't final until decoder.complete is true even
      with ArrayBuffer input. Await both. */
   await decoder.tracks.ready;
@@ -739,12 +774,12 @@ function buildAnimatedWebp(frames, W, H, loop){
   return out;
 }
 
-async function encodeAnimatedWebp(file, settings, prereadBuffer){
+async function encodeAnimatedWebp(file, settings, prereadBuffer, decodeType){
   if (typeof ImageDecoder !== 'function') throw new Error('ImageDecoder unsupported');
   const encodeWebp = await ensureWebp();
 
   const buffer = prereadBuffer || await file.arrayBuffer();
-  const decoder = new ImageDecoder({ data: buffer, type: 'image/gif' });
+  const decoder = new ImageDecoder({ data: buffer, type: decodeType || animatedInputType(file) || 'image/gif' });
   await decoder.tracks.ready;
   await decoder.completed;
   const track = decoder.tracks.selectedTrack;
@@ -847,29 +882,30 @@ async function encodeAnimatedWebp(file, settings, prereadBuffer){
 async function processOne(file, fmt, settings){
   const originalSize = (file && typeof file.size === 'number') ? file.size : 0; /* R119: never exceed this */
   const sameFmt = originalSize > 0 && inputFmtOf(file) === fmt; /* R120: always-smaller applies only to same-format optimization */
-  /* Animated GIF → GIF: preserve frames + apply quality-driven palette
-     / frame-skip reduction. Bails on any error to the single-frame path
-     so we never block on browser quirks. */
-  if (fmt === 'gif' && file && file.type === 'image/gif') {
+  /* Animation-preserving paths.
+
+     Gated on what the INPUT can actually carry rather than on GIF alone.
+     Both GIF and WebP store multi-frame images and ImageDecoder reads
+     either, so an animated WebP re-compressed to WebP — the most obvious
+     thing to do with one — used to come back as a single frame. Losing the
+     animation on a same-format re-encode is the worst version of this bug,
+     because nothing about the operation suggests content will be dropped.
+
+     Only GIF and WebP outputs can hold the result; PNG, JPG and AVIF are
+     stills here and correctly fall through to the single-frame encode.
+
+     Any failure drops through to that same single-frame path, so a browser
+     quirk costs the animation but never the conversion. A dimension error
+     is rethrown instead — quietly returning a still from an oversized
+     source would leave the user with no idea what happened. */
+  const animType = animatedInputType(file);
+  if (animType && (fmt === 'gif' || fmt === 'webp')) {
     try {
-      const probe = await getGifFrameCount(file);
+      const probe = await getGifFrameCount(file, animType);
       if (probe.frameCount > 1) {
-        return await encodeAnimatedGif(file, settings, probe.buffer);
-      }
-    } catch (e) {
-      /* fall through to single-frame canvas path below */
-    }
-  }
-  /* Animated GIF → animated WebP. Same bail-out discipline as the GIF
-     path: any failure drops through to the single-frame canvas encode,
-     so a browser quirk costs the animation but never the conversion.
-     A genuine dimension error is rethrown, because silently producing a
-     still from a 20000 px panorama would be the confusing outcome. */
-  if (fmt === 'webp' && file && file.type === 'image/gif') {
-    try {
-      const probe = await getGifFrameCount(file);
-      if (probe.frameCount > 1) {
-        return await encodeAnimatedWebp(file, settings, probe.buffer);
+        return fmt === 'gif'
+          ? await encodeAnimatedGif(file, settings, probe.buffer, animType)
+          : await encodeAnimatedWebp(file, settings, probe.buffer, animType);
       }
     } catch (e) {
       if (e && /16383/.test(e.message || '')) throw e;
