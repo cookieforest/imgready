@@ -396,9 +396,19 @@ function feInit(item,resultIdx){
   var fmtEl=G('feFmt');
   var startFmt=item.results[resultIdx]?item.results[resultIdx].format:'webp';
   feLiveFmt=startFmt;
+  /* FE_FMTS is the common four. If the page's own output format isn't one
+     of them the user ended up stranded: on /png-to-ico/ the conversion
+     correctly produced an ICO, but the pill row offered only WEBP AVIF JPG
+     PNG, so nothing showed as active and one click on any of them lost ICO
+     with no way back — on the page named after it.
+
+     Append the current format rather than adding gif/ico to the list for
+     everyone; a photo page has no reason to offer ICO. */
+  var fmts=FE_FMTS.slice();
+  if(startFmt&&fmts.indexOf(startFmt)===-1)fmts.push(startFmt);
   var html='';
-  for(var i=0;i<FE_FMTS.length;i++){
-    var f=FE_FMTS[i];
+  for(var i=0;i<fmts.length;i++){
+    var f=fmts[i];
     var act=f===startFmt?' class="active"':'';
     html+='<button'+act+' onclick="feSwitchFmt(\''+f+'\')">'+f.toUpperCase()+'</button>';
   }
@@ -443,8 +453,11 @@ function feInit(item,resultIdx){
 }
 function feUpdateQDisabled(){
   var sl=G('feQSlider');
-  var isGif=(feLiveFmt==='gif');
-  sl.disabled=isGif;sl.style.opacity=isGif?'.3':'1';
+  /* Neither GIF nor ICO has a quality dial — GIF is palette-quantised and
+     ICO packs lossless PNGs. Leaving the slider live on ICO implied a
+     control that changed nothing. */
+  var noQuality=(feLiveFmt==='gif'||feLiveFmt==='ico');
+  sl.disabled=noQuality;sl.style.opacity=noQuality?'.3':'1';
 }
 window.feSwitchFmt=function(f){
   feLiveFmt=f;
@@ -492,7 +505,19 @@ async function feReEncode(){
   ctx.drawImage(bmp,sx,sy,sw,sh,0,0,w,h);
   try{
     var blob;
-    if(feLiveFmt==='avif'||(feLiveFmt==='webp'&&isIOS)){
+    /* ICO and GIF have no canvas encoder — c.toBlob('image/x-icon') is not
+       a thing, and the mimeMap below falls through to image/jpeg. Before
+       this branch existed, touching the quality slider on a /png-to-ico/
+       result silently replaced the real ICO with JPEG bytes still named
+       .ico. Delegate to processImg, which routes ICO to the main-thread
+       packer and GIF to the worker's gifenc path — the same encoders that
+       produced the result in the first place.
+
+       Source is decoded||file to match processAll: for HEIC/TIFF/SVG/ICO
+       inputs the raw file is not something those encoders can read. */
+    if(feLiveFmt==='ico'||feLiveFmt==='gif'){
+      blob=await processImg(fsCurrentItem.decoded||fsCurrentItem.file,getSettings(feLiveFmt),feLiveFmt);
+    } else if(feLiveFmt==='avif'||(feLiveFmt==='webp'&&isIOS)){
       blob=await encodeWithJsquash(c,feLiveFmt,isLossless?undefined:q);
     } else if(feLiveFmt==='png'&&!isLossless&&typeof UPNG!=='undefined'){
       blob=encodeWithUPNG(c,q);

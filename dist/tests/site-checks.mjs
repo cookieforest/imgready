@@ -156,7 +156,35 @@ for (const p of sitemapPaths) {
   }
 }
 
-/* ---------- 9. no page is orphaned ---------- */
+/* ---------- 9. the result overlay can't strand a format ---------- */
+{
+  const f = join(ROOT, 'src', '05-process-modal.js');
+  if (existsSync(f)) {
+    const js = read(f);
+    /* The overlay's pill row was a hardcoded FE_FMTS = webp/avif/jpg/png.
+       On /png-to-ico/ the encode was a correct ICO, but the row offered no
+       ICO pill and marked none active — so on the page named after the
+       format, one click on any pill lost it with no way back. The pill
+       list must append the result's own format when it isn't one of the
+       four. */
+    if (!/fmts\.indexOf\(startFmt\)===-1/.test(js.replace(/\s+/g, ''))) {
+      fail('result overlay', 'pill row does not append the current format — ICO/GIF results get no pill of their own');
+    }
+    /* Worse: feReEncode builds the output with canvas.toBlob and a mimeMap
+       that has no ico or gif, falling through to image/jpeg. Without an
+       explicit branch, adding an ICO pill hands back JPEG bytes named
+       .ico, and the quality slider does the same thing on its own. */
+    const re = js.slice(js.indexOf('async function feReEncode'));
+    const branch = /feLiveFmt==='ico'\|\|feLiveFmt==='gif'/.test(re.replace(/\s+/g, ''));
+    const fallback = re.includes("mimeMap[feLiveFmt]||'image/jpeg'");
+    if (fallback && !branch) {
+      fail('result overlay', 'feReEncode falls back to image/jpeg for ico/gif — silent format substitution');
+    }
+    if (branch) notes.push('result overlay: current format always gets a pill; ico/gif re-encode via their real encoders');
+  }
+}
+
+/* ---------- 10. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {
