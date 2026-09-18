@@ -1,28 +1,38 @@
-<!-- GENERATED from the brand mark by scratchpad/genicons.py.
+<!-- GENERATED from the brand mark by tools/genicons.py.
      Do not hand-edit. The art is the same 0 0 560 450 path data as
-     panda-mark.svg / panda-mark-sm.svg, transformed into this tile,
-     so the icons and the wordmark can never drift apart.
+     panda-mark.svg / panda-mark-sm.svg, transformed into this tile, so
+     the icons and the wordmark can never drift apart.
 
-     SMALL CUT. Chrome prefers an SVG favicon over the .ico when both
-     are offered, so this file is what the tab strip actually renders
-     at 16-20px. At that size the large cut's mouth is 0.6px and its
-     winking eye dissolves before the open one, leaving a one-eyed
+     SMALL CUT, no box. Chrome prefers an SVG favicon over the .ico when
+     both are offered, so this file is what the tab strip actually
+     renders at 16-20px. At that size the large cut's mouth is 0.6px and
+     its winking eye dissolves before the open one, leaving a one-eyed
      panda, so this carries symmetric eyes and a nose and nothing else.
+
+     The features are holes, and the fill flips on prefers-color-scheme:
+     rust-500 is 5.10 on a white tab strip but only 2.37 on Chrome's dark
+     one, where rust-200 gets 4.59.
   -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="imgready">
-  <rect width="64" height="64" rx="13" fill="#f9f0e4"/>
-  <g transform="translate(6.000 11.107) scale(0.092857)">
-    <g fill="#b84d1d">
-      <path d="M56,16c-22.7,62.7-23.3,127.3-2,194,50.7-29.3,95.3-72.7,134-130C146.7,36,102.7,14.7,56,16Z"/>
-      <path d="M504,16c22.7,62.7,23.3,127.3,2,194-50.7-29.3-95.3-72.7-134-130,41.3-44,85.3-65.3,132-64Z"/>
-      <path d="M280,40c122,0,222,76,236,174l34,52c-20,62-58,110-120,138-46,20-96,28-150,28s-104-8-150-28c-62-28-100-76-120-138l34-52c14-98,114-174,236-174Z"/>
+  <style>
+    .fur{fill:#b84d1d;}
+    @media (prefers-color-scheme:dark){.fur{fill:#e8865a;}}
+  </style>
+  <mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+    <g transform="translate(4.000 9.500) scale(0.100000)">
+      <g fill="#fff">
+        <path d="M56,16c-22.7,62.7-23.3,127.3-2,194,50.7-29.3,95.3-72.7,134-130C146.7,36,102.7,14.7,56,16Z"/>
+        <path d="M504,16c22.7,62.7,23.3,127.3,2,194-50.7-29.3-95.3-72.7-134-130,41.3-44,85.3-65.3,132-64Z"/>
+        <path d="M280,40c122,0,222,76,236,174l34,52c-20,62-58,110-120,138-46,20-96,28-150,28s-104-8-150-28c-62-28-100-76-120-138l34-52c14-98,114-174,236-174Z"/>
+      </g>
+      <g fill="#000">
+        <path d="M77.6,156.9c-3.9-13.5-8-33.7-6.7-58.3,1-19,5-34.9,8.9-46.4,7.4.3,19.7,1.6,33.4,7.8,13.3,6,22.4,14,27.5,19.3-9.9,8.5-20.7,19.1-31.6,31.9-13.8,16.3-24,32.1-31.6,45.7Z"/>
+        <path d="M482.4,156.9c3.9-13.5,8-33.7,6.7-58.3-1-19-5-34.9-8.9-46.4-7.4.3-19.7,1.6-33.4,7.8-13.3,6-22.4,14-27.5,19.3,9.9,8.5,20.7,19.1,31.6,31.9,13.8,16.3,24,32.1,31.6,45.7Z"/>
+        <ellipse cx="186.4" cy="270.4" rx="34" ry="40"/>
+        <ellipse cx="373.6" cy="270.4" rx="34" ry="40"/>
+        <ellipse cx="280" cy="316" rx="31" ry="24"/>
+      </g>
     </g>
-    <g fill="#f9f0e4">
-      <path d="M77.6,156.9c-3.9-13.5-8-33.7-6.7-58.3,1-19,5-34.9,8.9-46.4,7.4.3,19.7,1.6,33.4,7.8,13.3,6,22.4,14,27.5,19.3-9.9,8.5-20.7,19.1-31.6,31.9-13.8,16.3-24,32.1-31.6,45.7Z"/>
-      <path d="M482.4,156.9c3.9-13.5,8-33.7,6.7-58.3-1-19-5-34.9-8.9-46.4-7.4.3-19.7,1.6-33.4,7.8-13.3,6-22.4,14-27.5,19.3,9.9,8.5,20.7,19.1,31.6,31.9,13.8,16.3,24,32.1,31.6,45.7Z"/>
-      <ellipse cx="186.4" cy="270.4" rx="34" ry="40"/>
-      <ellipse cx="373.6" cy="270.4" rx="34" ry="40"/>
-      <ellipse cx="280" cy="316" rx="31" ry="24"/>
-    </g>
-  </g>
+  </mask>
+  <rect width="64" height="64" class="fur" mask="url(#m)"/>
 </svg>

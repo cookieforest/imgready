@@ -10,3 +10,7 @@ node_modules/
 # on every push. Once verified, dist/ moves back into .gitignore and
 # Cloudflare regenerates it per push.
 dist/*.map
+
+# Python bytecode from tools/
+__pycache__/
+*.pyc

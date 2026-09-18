@@ -1,22 +1,49 @@
-"""Generate the favicon SVG set from the brand mark geometry.
+"""Generate the favicon set from the brand mark geometry.
 
 All art lives in the mark's own 0 0 560 450 space and is transformed into
 a 64x64 tile, so the icons and the wordmark are literally the same paths.
-Change the mark, re-run this, and everything stays in sync.
+Change the mark, re-run this, and everything stays in sync. That drift is
+not hypothetical: the icons kept the old full-colour mascot for a while
+after the wordmark changed, because this used to be a scratchpad one-off.
 
-Optical sizes follow the same split as the wordmark:
-  favicon.svg        small cut  (tab strip, 16-20px)
-  favicon-large.svg  large cut  (source for 180/192/512 PNGs)
-  favicon-maskable   large cut, scaled to clear the 80% safe-zone circle
-  safari-pinned-tab  silhouette only, solid black, no features
+NO BOX. The face floats; there is no tile behind it. Two consequences,
+both handled here:
+
+  1. Features are HOLES cut with a mask, not cream paint. A hole shows
+     whatever is behind the icon, so the eyes stay visible on a white tab
+     strip AND on a dark one. Painted cream would vanish on white.
+
+  2. No single fill serves both schemes. Measured contrast:
+
+         backdrop                rust-500   rust-200
+         white / light tab          5.10       2.63
+         Chrome dark tab strip      2.37       4.59
+         Chrome dark window         3.16       6.12
+
+     So the SVGs carry a prefers-color-scheme rule and swap to the
+     lighter rust on dark. This is only possible because the box is gone
+     -- a tiled icon has a fixed backdrop and cannot adapt.
+
+Two places a background survives, because the platform forces one:
+  apple-touch-icon  iOS composites transparency onto BLACK, which turns
+                    a warm brand icon into a dark one.
+  maskable          spec requires full bleed; Android draws its own mask,
+                    so a transparent maskable renders as a bare shape.
+Both are composited at raster time (see tools/_raster.html), not baked
+into the SVGs.
+
+Optical sizes follow the same split as the wordmark, for the same
+measured reason -- at 16-20px the large cut's mouth is 0.6px and the
+winking eye dissolves before the open one, leaving a one-eyed panda.
 """
 import io
 import os
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
-CREAM = "#f9f0e4"   # matches manifest background_color and the page --bg
-RUST = "#b84d1d"    # --rust-500, matches theme_color and the wordmark
+CREAM = "#f9f0e4"      # manifest background_color and the page --bg
+RUST = "#b84d1d"       # --rust-500, matches theme_color and the wordmark
+RUST_DARK = "#e8865a"  # --rust-200, the fill on dark backdrops
 
 EAR_L = "M56,16c-22.7,62.7-23.3,127.3-2,194,50.7-29.3,95.3-72.7,134-130C146.7,36,102.7,14.7,56,16Z"
 EAR_R = "M504,16c22.7,62.7,23.3,127.3,2,194-50.7-29.3-95.3-72.7-134-130,41.3-44,85.3-65.3,132-64Z"
@@ -38,91 +65,145 @@ TONGUE = ("M282.6,352.9c-4.9,22.1,7.1,39.9,20,41.8,9.8,1.4,20.5-6.2,24.8-15.9,5.
 
 SILHOUETTE = [EAR_L, EAR_R, HEAD]
 
+LARGE_FEATURES = [
+    EARIN_L, EARIN_R, WINK, NOSE_LG, MOUTH, TONGUE,
+]
+LARGE_ELLIPSES = ['<ellipse cx="373.6" cy="270.4" rx="29.5" ry="37"/>']
+
+SMALL_FEATURES = [EARIN_L, EARIN_R]
+SMALL_ELLIPSES = [
+    '<ellipse cx="186.4" cy="270.4" rx="34" ry="40"/>',
+    '<ellipse cx="373.6" cy="270.4" rx="34" ry="40"/>',
+    '<ellipse cx="280" cy="316" rx="31" ry="24"/>',
+]
+
 
 def placement(width):
     """Centre a 560x450 mark of the given width inside a 64x64 tile."""
     scale = width / 560.0
-    h = 450 * scale
-    return (64 - width) / 2.0, (64 - h) / 2.0, scale
+    return (64 - width) / 2.0, (64 - 450 * scale) / 2.0, scale
 
 
-def art(width, features, fur=RUST):
+def art(width, paths, ellipses, scheme_aware=True):
     tx, ty, sc = placement(width)
-    fur_paths = "\n".join(f'      <path d="{p}"/>' for p in SILHOUETTE)
-    return (f'  <g transform="translate({tx:.3f} {ty:.3f}) scale({sc:.6f})">\n'
-            f'    <g fill="{fur}">\n{fur_paths}\n    </g>\n'
-            f'    <g fill="{CREAM}">\n{features}\n    </g>\n'
-            f'  </g>')
+    fur = "\n".join('        <path d="%s"/>' % p for p in SILHOUETTE)
+    cut = "\n".join('        <path d="%s"/>' % p for p in paths)
+    cut += ("\n" if cut and ellipses else "")
+    cut += "\n".join("        " + e for e in ellipses)
+
+    style = ""
+    if scheme_aware:
+        style = (
+            "  <style>\n"
+            "    .fur{fill:%s;}\n"
+            "    @media (prefers-color-scheme:dark){.fur{fill:%s;}}\n"
+            "  </style>\n" % (RUST, RUST_DARK)
+        )
+    paint = 'class="fur"' if scheme_aware else 'fill="%s"' % RUST
+
+    return (
+        style
+        + '  <mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">\n'
+        + '    <g transform="translate(%.3f %.3f) scale(%.6f)">\n' % (tx, ty, sc)
+        + '      <g fill="#fff">\n%s\n      </g>\n' % fur
+        + '      <g fill="#000">\n%s\n      </g>\n' % cut
+        + "    </g>\n"
+        + "  </mask>\n"
+        + '  <rect width="64" height="64" %s mask="url(#m)"/>' % paint
+    )
 
 
-LARGE_FEATURES = "\n".join([
-    f'      <path d="{EARIN_L}"/>',
-    f'      <path d="{EARIN_R}"/>',
-    f'      <path d="{WINK}"/>',
-    '      <ellipse cx="373.6" cy="270.4" rx="29.5" ry="37"/>',
-    f'      <path d="{NOSE_LG}"/>',
-    f'      <path d="{MOUTH}"/>',
-    f'      <path d="{TONGUE}"/>',
-])
+HDR = """<!-- GENERATED from the brand mark by tools/genicons.py.
+     Do not hand-edit. The art is the same 0 0 560 450 path data as
+     panda-mark.svg / panda-mark-sm.svg, transformed into this tile, so
+     the icons and the wordmark can never drift apart.
+{extra}  -->"""
 
-SMALL_FEATURES = "\n".join([
-    f'      <path d="{EARIN_L}"/>',
-    f'      <path d="{EARIN_R}"/>',
-    '      <ellipse cx="186.4" cy="270.4" rx="34" ry="40"/>',
-    '      <ellipse cx="373.6" cy="270.4" rx="34" ry="40"/>',
-    '      <ellipse cx="280" cy="316" rx="31" ry="24"/>',
-])
-
-HDR = ("<!-- GENERATED from the brand mark by scratchpad/genicons.py.\n"
-       "     Do not hand-edit. The art is the same 0 0 560 450 path data as\n"
-       "     panda-mark.svg / panda-mark-sm.svg, transformed into this tile,\n"
-       "     so the icons and the wordmark can never drift apart.\n{extra}  -->")
+OPEN = '\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="imgready">\n'
 
 FILES = {}
 
 FILES["favicon.svg"] = (
-    HDR.format(extra=
-        "\n     SMALL CUT. Chrome prefers an SVG favicon over the .ico when both\n"
-        "     are offered, so this file is what the tab strip actually renders\n"
-        "     at 16-20px. At that size the large cut's mouth is 0.6px and its\n"
-        "     winking eye dissolves before the open one, leaving a one-eyed\n"
-        "     panda, so this carries symmetric eyes and a nose and nothing else.\n")
-    + f'\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="imgready">\n'
-      f'  <rect width="64" height="64" rx="13" fill="{CREAM}"/>\n'
-    + art(52, SMALL_FEATURES) + "\n</svg>\n")
+    HDR.format(extra="""
+     SMALL CUT, no box. Chrome prefers an SVG favicon over the .ico when
+     both are offered, so this file is what the tab strip actually
+     renders at 16-20px. At that size the large cut's mouth is 0.6px and
+     its winking eye dissolves before the open one, leaving a one-eyed
+     panda, so this carries symmetric eyes and a nose and nothing else.
+
+     The features are holes, and the fill flips on prefers-color-scheme:
+     rust-500 is 5.10 on a white tab strip but only 2.37 on Chrome's dark
+     one, where rust-200 gets 4.59.
+""")
+    + OPEN + art(56, SMALL_FEATURES, SMALL_ELLIPSES) + "\n</svg>\n")
 
 FILES["favicon-large.svg"] = (
-    HDR.format(extra=
-        "\n     LARGE CUT. Source for apple-touch-icon (180) and the 192/512 PWA\n"
-        "     icons. All of those are well above the ~64px the expression needs,\n"
-        "     so this is where the wink and the tongue actually pay off.\n")
-    + f'\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="imgready">\n'
-      f'  <rect width="64" height="64" rx="13" fill="{CREAM}"/>\n'
-    + art(52, LARGE_FEATURES) + "\n</svg>\n")
+    HDR.format(extra="""
+     LARGE CUT, no box. Referenced by the manifest, and the source for
+     the apple-touch and PWA PNGs. All of those are well above the
+     ~64px the expression needs, so this is where the wink and the
+     tongue actually pay off.
+
+     Deliberately NOT scheme-aware, unlike favicon.svg. This file gets
+     rasterised, and a prefers-color-scheme rule bakes whichever scheme
+     the rendering browser happened to be in. That shipped once: every
+     PNG came out in the dark-mode salmon instead of the brand rust.
+     tools/_raster.html now asserts the rendered fur colour.
+""")
+    + OPEN + art(56, LARGE_FEATURES, LARGE_ELLIPSES, scheme_aware=False) + "\n</svg>\n")
 
 FILES["favicon-maskable.svg"] = (
-    HDR.format(extra=
-        "\n     MASKABLE. Full-bleed square on purpose: Android applies its own\n"
-        "     mask, so baking our own corners in would show a rounded rect\n"
-        "     inside another one. Art is narrowed to 42 units so the silhouette\n"
-        "     clears the 80% safe-zone circle (radius 25.6 from centre).\n")
-    + f'\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="imgready">\n'
-      f'  <rect width="64" height="64" fill="{CREAM}"/>\n'
-    + art(42, LARGE_FEATURES) + "\n</svg>\n")
+    HDR.format(extra="""
+     MASKABLE. The one variant that keeps a full-bleed background: the
+     spec requires it and Android draws its own mask, so a transparent
+     maskable would render as a bare shape with nothing behind it.
+     Corners are square on purpose: baking our own rounding in would
+     show a rounded rect inside Android's.
 
-_tx, _ty, _sc = placement(52)
+     Art is narrowed to 42 units so the silhouette clears the 80%
+     safe-zone circle. Verified by pixel scan, not by eye: it reaches
+     0.720 of the half-width against a 0.800 limit.
+""")
+    + OPEN
+    + '  <rect width="64" height="64" fill="%s"/>\n' % CREAM
+    + art(42, LARGE_FEATURES, LARGE_ELLIPSES, scheme_aware=False)
+    + "\n</svg>\n")
+
+_tx, _ty, _sc = placement(56)
 FILES["safari-pinned-tab.svg"] = (
-    "<!-- GENERATED by scratchpad/genicons.py. Safari pinned-tab mask: it\n"
+    "<!-- GENERATED by tools/genicons.py. Safari pinned-tab mask: Safari\n"
     "     wants a single-layer 100% black silhouette on transparent and\n"
-    "     tints it itself with the colour on <link rel=\"mask-icon\">, so all\n"
+    '     tints it itself with the colour on <link rel="mask-icon">, so all\n'
     "     fur colour is dropped and only the outline survives. Solid shapes\n"
     "     only, no even-odd knockout. -->\n"
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">\n'
-    f'  <g transform="translate({_tx:.3f} {_ty:.3f}) scale({_sc:.6f})" fill="#000000">\n'
-    + "\n".join(f'    <path d="{p}"/>' for p in SILHOUETTE)
+    + '  <g transform="translate(%.3f %.3f) scale(%.6f)" fill="#000000">\n' % (_tx, _ty, _sc)
+    + "\n".join('    <path d="%s"/>' % p for p in SILHOUETTE)
     + "\n  </g>\n</svg>\n")
 
-for name, body in FILES.items():
-    with io.open(os.path.join(ROOT, name), "w", encoding="utf-8", newline="") as fh:
-        fh.write(body)
-    print("wrote", name, len(body), "bytes")
+def _check_comments(name, body):
+    """An XML comment may not contain a double hyphen. A standalone SVG is
+    parsed strictly, so one "--" in a comment makes the whole file fail to
+    load, silently, in every browser. This has bitten this project three
+    times now, so it is asserted rather than remembered."""
+    i = 0
+    while True:
+        a = body.find("<!--", i)
+        if a == -1:
+            return
+        b = body.find("-->", a)
+        inner = body[a + 4:b]
+        if "--" in inner:
+            bad = inner[max(0, inner.find("--") - 40):inner.find("--") + 40]
+            raise SystemExit(
+                "%s: '--' inside an XML comment, file would not parse.\n"
+                "  near: ...%s..." % (name, bad.replace("\n", " ")))
+        i = b + 3
+
+
+if __name__ == "__main__":
+    for name, body in FILES.items():
+        _check_comments(name, body)
+        with io.open(os.path.join(ROOT, name), "w", encoding="utf-8", newline="") as fh:
+            fh.write(body)
+        print("wrote", name, len(body), "bytes")

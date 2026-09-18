@@ -123,6 +123,10 @@ const COPY_EXCLUDE = new Set([
   'app.js', 'app.css',                /* Phase 3: removed; mirrorDir won't see them */
   'index.html.bak', 'index.html.broken_truncated',
   'archive',                          /* R117: archived old versions + dev logs, not deployed */
+  'tools',                            /* icon generator + its throwaway raster page and
+                                         local server. Dev-only: shipping it would put a
+                                         POST /__save endpoint's source on the CDN. */
+  '__pycache__',
   /* R132 — unreferenced legacy demo assets (~1.9 MB). Verified zero code
      references: demo-original.png is only named in a code comment.
      Kept in the repo, excluded from the deploy. */

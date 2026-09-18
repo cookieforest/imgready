@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>raster</title></head>
+<body style="font:13px/1.5 system-ui;padding:16px">
+<pre id="log">working…</pre>
+<script>
+/* Rasterises the generated SVGs to the PNG set.
+
+   Served from the repo root by tools/iconserver.py, which accepts the
+   rendered bytes on POST /__save. Node here has no SVG rasteriser, so
+   this has to happen in a browser.
+
+   `bg` is the only interesting column: the icons are boxless, but two
+   targets force a background anyway.
+     apple-touch  iOS composites transparency onto BLACK.
+     maskable     spec requires full bleed; Android draws its own mask.
+   Everything else stays transparent so the face floats. */
+
+const CREAM = '#f9f0e4';
+
+function render(src, px, bg) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = c.height = px;
+      const g = c.getContext('2d');
+      if (bg) { g.fillStyle = bg; g.fillRect(0, 0, px, px); }
+      g.imageSmoothingEnabled = true;
+      g.imageSmoothingQuality = 'high';
+      g.drawImage(img, 0, 0, px, px);
+      res(c);
+    };
+    img.onerror = () => rej(new Error('could not load ' + src));
+    img.src = src + '?r=' + Date.now();
+  });
+}
+
+/* Max distance of any painted pixel from centre, over the icon's
+   half-width. Android keeps a circle of 80% of the icon, so the limit
+   is 0.8 here. Measured rather than eyeballed. */
+function reach(canvas, bgRGB) {
+  const n = canvas.width;
+  const d = canvas.getContext('2d').getImageData(0, 0, n, n).data;
+  const c = (n - 1) / 2;
+  let max = 0;
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      const i = (y * n + x) * 4;
+      if (d[i + 3] < 8) continue;
+      if (bgRGB && Math.abs(d[i] - bgRGB[0]) < 10 &&
+          Math.abs(d[i + 1] - bgRGB[1]) < 10 &&
+          Math.abs(d[i + 2] - bgRGB[2]) < 10) continue;
+      const r = Math.hypot(x - c, y - c) / c;
+      if (r > max) max = r;
+    }
+  }
+  return max;
+}
+
+const JOBS = [
+  // name,                     source,                  px,   background
+  ['favicon-16.png',          '/favicon.svg',          16,   null],
+  ['favicon-32.png',          '/favicon.svg',          32,   null],
+  ['favicon-48.png',          '/favicon.svg',          48,   null],
+  ['apple-touch-icon.png',    '/favicon-large.svg',    180,  CREAM],
+  ['icon-192.png',            '/favicon-large.svg',    192,  null],
+  ['icon-512.png',            '/favicon-large.svg',    512,  null],
+  ['icon-192-maskable.png',   '/favicon-maskable.svg', 192,  null],
+  ['icon-512-maskable.png',   '/favicon-maskable.svg', 512,  null],
+];
+
+(async () => {
+  const log = document.getElementById('log');
+  const out = [];
+
+  const mask = await render('/favicon-maskable.svg', 512, null);
+  const r = reach(mask, [249, 240, 228]);
+  out.push('maskable safe zone: ' + r.toFixed(3) + ' of half-width (limit 0.800) — ' +
+           (r <= 0.8 ? 'PASS' : 'FAIL'));
+
+  // a boxless icon must have genuinely transparent corners
+  const fav = await render('/favicon.svg', 64, null);
+  const corner = fav.getContext('2d').getImageData(1, 1, 1, 1).data;
+  out.push('favicon corner alpha: ' + corner[3] + ' (0 = no box) — ' +
+           (corner[3] === 0 ? 'PASS' : 'FAIL'));
+  out.push('');
+
+  /* Assert the fur came out the brand rust. A prefers-color-scheme rule
+     in a source SVG bakes whichever scheme the rendering browser is in,
+     and that shipped once: every PNG came out in the dark-mode salmon
+     (#e8865a) instead of #b84d1d, silently, because the pane was dark.
+     Sampling one fur pixel catches it for good. */
+  const RUST = [184, 77, 29];
+  const CREAM_RGB = [249, 240, 228];
+
+  /* Most common opaque non-cream colour = the fur. Sampling a fixed
+     point does not work: the maskable's art is narrowed to 42 units, so
+     a window tuned to the full-size cut lands on its background instead.
+     (That false positive is why this is a histogram.) */
+  function furAt(canvas) {
+    const n = canvas.width;
+    const d = canvas.getContext('2d').getImageData(0, 0, n, n).data;
+    const counts = new Map();
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 250) continue;
+      if (Math.abs(d[i] - CREAM_RGB[0]) < 10 &&
+          Math.abs(d[i + 1] - CREAM_RGB[1]) < 10 &&
+          Math.abs(d[i + 2] - CREAM_RGB[2]) < 10) continue;
+      const k = d[i] + ',' + d[i + 1] + ',' + d[i + 2];
+      counts.set(k, (counts.get(k) || 0) + 1);
+    }
+    let best = null, most = 0;
+    for (const [k, v] of counts) if (v > most) { most = v; best = k; }
+    return best ? best.split(',').map(Number) : null;
+  }
+
+  const payload = {};
+  for (const [name, src, px, bg] of JOBS) {
+    const c = await render(src, px, bg);
+    if (px >= 128) {
+      const f = furAt(c);
+      const ok = f && f.every((v, k) => Math.abs(v - RUST[k]) < 6);
+      out.push((ok ? '  ok   ' : '  WRONG') + ' fur ' + (f ? 'rgb(' + f + ')' : 'none') + '  ' + name);
+      if (!ok) throw new Error(name + ' rendered the wrong fur colour: rgb(' + f + '), expected rgb(' + RUST + ')');
+    }
+    payload[name] = c.toDataURL('image/png').split(',')[1];
+    out.push('rendered ' + name + '  ' + px + 'px  bg=' + (bg || 'transparent'));
+  }
+
+  const resp = await fetch('/__save', { method: 'POST', body: JSON.stringify(payload) });
+  const j = await resp.json();
+  out.push('', 'SAVED:');
+  j.written.forEach((w) => out.push('  ' + w));
+  log.textContent = out.join('\n');
+  window.__done = out.join('\n');
+})().catch((e) => {
+  document.getElementById('log').textContent = 'ERROR: ' + e.message;
+  window.__done = 'ERROR: ' + e.message;
+});
+</script>
+</body></html>
