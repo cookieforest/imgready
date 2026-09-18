@@ -5,24 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Page Not Found | imgready</title>
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#b84d1d">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<style>@font-face{font-family:'Fraunces';src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),url('/fonts/fraunces-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-@font-face{font-family:'Inter';src:url('/fonts/inter-latin.woff2') format('woff2-variations'),url('/fonts/inter-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
-.brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:28px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;margin-bottom:32px;display:block;}
-.brand span{color:#5a7a5a;}
-h1{font-size:2.2rem;font-weight:700;color:#2e2a22;margin-bottom:12px;}
-p{font-size:1rem;color:#5a5448;line-height:1.7;max-width:480px;margin-bottom:28px;}
-.links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:520px;}
-.btn{display:inline-block;padding:12px 24px;background:#5a7a5a;color:#fff;border-radius:10px;font-size:.9rem;font-weight:700;text-decoration:none;transition:background .2s;}
-.btn:hover{background:#7a9e7a;}
-.btn.ghost{background:transparent;color:#5a7a5a;border:2px solid #5a7a5a;}
-.btn.ghost:hover{background:#e8f0e8;}
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#000000">
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/app.css">
+<style>
+  /* Everything here rides on app.css tokens. This page used to carry its
+     own hardcoded palette (pale green) and its own @font-face blocks
+     pointing at Fraunces and Inter — two files that no longer exist, so
+     it was fetching two 404s from the 404 page and falling back to
+     Georgia. Tokens only from here on. */
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:var(--font-body);
+    min-height:100vh;margin:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;text-align:center;
+  }
+  .brand{
+    font-family:var(--font-display);font-synthesis:none;font-weight:400;
+    font-feature-settings:"ss01" on;
+    font-size:28px;letter-spacing:0;
+    text-decoration:none;color:var(--text);
+    margin-bottom:32px;display:block;
+  }
+  .brand span{color:var(--accent);}
+  h1{font-family:var(--font-display);font-synthesis:none;font-weight:400;font-size:2.2rem;color:var(--text);margin:0 0 12px;}
+  p{font-size:1rem;color:var(--text2);line-height:1.7;max-width:480px;margin:0 0 28px;}
+  .links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:520px;}
+  .btn{
+    display:inline-block;padding:12px 24px;
+    background:var(--accent);color:var(--on-accent);
+    border:2px solid var(--accent);
+    border-radius:10px;font-size:.9rem;font-weight:700;
+    text-decoration:none;transition:background .2s,color .2s;
+  }
+  .btn:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  .btn.ghost{background:transparent;color:var(--accent);}
+  .btn.ghost:hover{background:var(--accent);color:var(--on-accent);}
 </style>
 </head>
 <body>
-  <a class="brand" href="/">img<span class="g">ready</span></a>
+  <a class="brand" href="/">img<span>ready</span></a>
   <h1>Page not found</h1>
   <p>That URL doesn't exist. Try one of the tools below, or head back home.</p>
   <div class="links">

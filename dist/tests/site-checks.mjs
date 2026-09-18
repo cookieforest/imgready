@@ -530,7 +530,7 @@ for (const p of sitemapPaths) {
   notes.push('tokens: accent fills take their text colour from --on-accent');
 }
 
-/* ---------- 16. no page is orphaned ---------- */
+/* ---------- 17. no page is orphaned ---------- */
 {
   const linked = new Set();
   for (const [, file] of pages) {
@@ -543,6 +543,78 @@ for (const p of sitemapPaths) {
     if (slug === '/' || slug === '/tests/') continue;
     if (!linked.has(slug)) fail('orphan', `${slug} is in the sitemap but nothing links to it`);
   }
+}
+
+/* ---------- 18. text emphasis never rides on opacity ----------
+   Two AA failures hid behind this for months. `opacity` scales the
+   foreground toward the backdrop, so it cuts contrast in exact
+   proportion — but every contrast checker I had been using read the
+   declared `color` and reported a pass. .dz-formats at opacity:.78 was
+   really 3.78:1, and .dz-floats-caption at .75 was 3.41:1.
+
+   Emphasis on text belongs in a colour token or a font-weight, never in
+   opacity. Transitions, drag states and disabled controls are exempt:
+   WCAG 1.4.3 excludes inactive components, and a mid-animation frame is
+   not a resting state. */
+{
+  const TEXTY = /(^|[\s,>+~])(p|span|a|h[1-6]|li|label|small|figcaption|em|strong|dd|dt|caption|th|td)([\s,{:.[]|$)/i;
+  const EXEMPT = /:(hover|focus|active|disabled|placeholder)|\[disabled\]|\.dragging|\.is-dragging|disabled\]|-disabled|\.sr-only|@keyframes/i;
+  for (const [slug, file] of pages) {
+    const html = read(file);
+    for (const block of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)) {
+      const css = block[1].replace(/\/\*[\s\S]*?\*\//g, '');
+      for (const rule of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+        const sel = rule[1].trim();
+        const body = rule[2];
+        if (!/(^|;|\s)opacity\s*:\s*(0?\.\d+)\s*(;|$)/.test(body)) continue;
+        const val = parseFloat(body.match(/opacity\s*:\s*(0?\.\d+)/)[1]);
+        if (val >= 0.95) continue;
+        if (EXEMPT.test(sel)) continue;
+        /* only flag rules that also set a text colour or clearly target text */
+        if (!/(^|;|\s)color\s*:/.test(body) && !TEXTY.test(sel)) continue;
+        fail('opacity', `${slug}: \`${sel}\` fades text with opacity:${val} — contrast drops by the same factor; use a colour token or font-weight`);
+      }
+    }
+  }
+  notes.push('contrast: no text rule dims itself with opacity');
+}
+
+/* ---------- 19. the display face is never asked to fake a weight ----------
+   Poetsen One is a static, single-weight (400) face with no italic. Any
+   rule that asks a display consumer for 600/700/bold or italic gets a
+   browser-synthesised one: a smeared faux-bold and a sheared oblique on
+   a face that is already heavy. Every var(--font-display) declaration
+   therefore carries font-synthesis:none, which the cascade honours even
+   when a higher-specificity rule wins the font-weight property. */
+{
+  const fontFiles = existsSync(join(ROOT, 'fonts')) ? readdirSync(join(ROOT, 'fonts')) : [];
+  if (!fontFiles.some((f) => /poetsenone/.test(f))) {
+    fail('display-font', 'fonts/poetsenone-latin.woff2 is missing — the display face will fall back');
+  }
+  /* no reference may survive to a font file that is no longer shipped */
+  const shipped = new Set(fontFiles);
+  /* 404.html is not in the pages list (it has no directory index), and
+     that is exactly how it drifted: it kept @font-face blocks pointing
+     at Fraunces and Inter long after both files were deleted, so the
+     404 page was fetching two 404s of its own. */
+  const sources = [['app.css', join(ROOT, 'src', 'app.css')],
+                   ['/404.html', join(ROOT, '404.html')], ...pages];
+  for (const [label, file] of sources) {
+    if (!existsSync(file)) continue;
+    const text = read(file);
+    for (const m of text.matchAll(/\/fonts\/([A-Za-z0-9._-]+\.woff2?)/g)) {
+      if (!shipped.has(m[1])) fail('display-font', `${label}: references /fonts/${m[1]}, which is not in fonts/`);
+    }
+    /* every display use must disable synthesis in its own block */
+    for (const rule of text.matchAll(/\{[^{}]*\}/g)) {
+      const b = rule[0];
+      if (!b.includes('var(--font-display)')) continue;
+      if (!/font-synthesis\s*:\s*none/.test(b)) {
+        fail('display-font', `${label}: a var(--font-display) block omits font-synthesis:none — \`${b.slice(0, 60)}…\``);
+      }
+    }
+  }
+  notes.push('display font: Poetsen One ships one weight, and no rule can fake another');
 }
 
 /* ---------- report ---------- */

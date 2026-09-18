@@ -3310,10 +3310,8 @@ if (!window._navMenuOutsideClick) {
     formats = normalize(formats);
     window.PREFS.outFormats = formats;
     window.PREFS.outFormat = formats[0]; /* back-compat */
-    /* Sync empty-state pills (multi-active possible) */
-    document.querySelectorAll('#dzPills button').forEach(b => {
-      b.classList.toggle('active', formats.includes(b.dataset.outFmt));
-    });
+    /* (The empty-state pill row this used to sync is gone — output
+       format is chosen after dropping now.) */
     /* Sync workspace dropdown menu items */
     const wpills = document.querySelectorAll('#formatPills button[data-fmt]');
     wpills.forEach(b => b.classList.toggle('active', formats.includes(b.dataset.fmt)));
@@ -3663,32 +3661,10 @@ if (!window._navMenuOutsideClick) {
       e.dataTransfer.dropEffect = 'copy';
     }
   }, true);
-  document.addEventListener('click', e => {
-    const btn = e.target.closest && e.target.closest('#dzPills button[data-out-fmt]');
-    if (!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const clicked = btn.dataset.outFmt;
-    const current = (window.PREFS.outFormats || ['auto']).slice();
-    let next;
-    if (current.includes(clicked)) {
-      /* Allow unpicking ALL — empty array reverts to "match input on
-         drop" via presetFormatFromInput. Previous version forbade the
-         last unpick (legacy from when PREFS defaulted to ['webp']). */
-      next = current.filter(f => f !== clicked);
-    } else {
-      next = [...current, clicked];
-    }
-    setOutFormats(next);
-    /* R146 — a click is explicit intent, so the drop-time auto-preset must
-       not overwrite it. Unpicking everything is the documented way to ask
-       for "match the input", so that clears the flag again. */
-    window.PREFS.explicitFormat = next.length > 0;
-    /* Sync multi mode with selection count: 2+ → on, ≤1 → off.
-       Previously only set ON, leaving multi stuck after user
-       deselected back to a single format. */
-    setMultiOutMode(next.length >= 2);
-  });
+  /* The click handler for the empty-state #dzPills row lived here. The
+     row is gone; format is chosen after dropping, where the result is
+     visible. setOutFormats and the workspace dropdown are untouched. */
+
 
   /* 3. Headline verb rotation — Bionic Julia pattern verbatim
      (https://bionicjulia.com/blog/creating-react-component-fades-changing-words),

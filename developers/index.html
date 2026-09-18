@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>imgready for Developers — Free Image Optimization SDK & API</title>
 <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="description" content="Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. No server required — compresses client-side.">
 <meta property="og:title" content="imgready for Developers — SDK & API">
 <meta property="og:description" content="Free JavaScript SDK for image optimization. WebP, AVIF, HEIC, PNG-8 quantization. Drop-in script tag, no backend required.">
@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://imgready.app/og/developers.png">
 <link rel="canonical" href="https://imgready.app/developers/">
-<style>@font-face{font-family:'Fredoka';src:url('/fonts/fredoka-latin.woff2') format('woff2-variations'),url('/fonts/fredoka-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
+<style>:root{--font-display:'Poetsen One',ui-rounded,'Segoe UI',system-ui,sans-serif;}@font-face{font-family:'Poetsen One';src:url('/fonts/poetsenone-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
 @font-face{font-family:'Nunito';src:url('/fonts/nunito-latin.woff2') format('woff2-variations'),url('/fonts/nunito-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
 
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -29,7 +29,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',syst
 
 /* NAV */
 nav{padding:18px 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.nav-brand{font-family:'Fredoka',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
+.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
 .nav-brand .g{color:var(--accent,var(--accent));}
 nav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;}
 nav a.nav-link:hover{text-decoration:underline;}
@@ -40,7 +40,7 @@ nav a.nav-link:hover{text-decoration:underline;}
 /* HERO */
 .hero{padding:52px 0 44px;border-bottom:1px solid var(--border);}
 .hero-badge{display:inline-block;background:var(--accent-light);color:var(--accent);border:1px solid #b8d4b8;border-radius:99px;font-size:.76rem;font-weight:700;padding:4px 14px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:18px;}
-.hero h1{font-family:'Fredoka',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:16px;color:var(--text);}
+.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:16px;color:var(--text);}
 .hero h1 em{font-style:normal;color:var(--accent);}
 .hero p{font-size:1rem;color:var(--text2);max-width:580px;line-height:1.75;margin-bottom:28px;}
 .hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;}
@@ -63,7 +63,7 @@ nav a.nav-link:hover{text-decoration:underline;}
 
 /* SECTION */
 section{margin-top:52px;}
-section h2{font-family:'Fredoka',ui-serif,Georgia,serif;font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-.5px;}
+section h2{font-family:var(--font-display);font-synthesis:none;font-size:1.4rem;font-weight:400;color:var(--text);margin-bottom:6px;letter-spacing:-.5px;}
 .section-sub{font-size:.88rem;color:var(--muted);margin-bottom:28px;}
 
 /* CODE BLOCKS */
@@ -520,7 +520,7 @@ imgready.<span class="c-fn">init</span>({
   </div>
 
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:'Fredoka',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:var(--text2);">img<span style="color:var(--accent)">ready</span></div>
+    <div class="footer-brand" style="font-family:var(--font-display);font-feature-settings:'ss01' on;letter-spacing:-.3px;color:var(--text2);">img<span style="color:var(--accent)">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

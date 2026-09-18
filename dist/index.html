@@ -108,23 +108,23 @@
 <link rel="prefetch" href="/samples/demo_2.jpg">
 <link rel="prefetch" href="/home-editor.js">
 <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <link rel="preload" href="/editor.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/editor.css"></noscript>
 <style>
   /* R24 — Brand type system. Three self-hosted OFL variable fonts:
-     - Fredoka (display): Google Fonts, OFL, variable weight axis.
-       Used for hero headings, modal titles, the wordmark italic.
-     - Inter (body): rsms.me/inter, OFL, 400..700 wght axis. UI workhorse.
+     - Poetsen One (display): Google Fonts, OFL. STATIC, one weight
+       (400), no italic — see the app.css header. Hero headings, modal
+       titles, the wordmark. Never give it a font-weight or font-style.
+     - Nunito (body): Google Fonts, OFL, 400..700 wght axis. UI workhorse.
      - JetBrains Mono (mono accent): jetbrains.com/lp/mono, OFL.
        Used for byte counts, filenames, the keyboard-shortcut hints.
      All Latin-only subsets, total ~147KB woff2. Loaded with display:swap
      so first paint never blocks on font load. */
   @font-face{
-    font-family:'Fredoka';
-    src:url('/fonts/fredoka-latin.woff2') format('woff2-variations'),
-        url('/fonts/fredoka-latin.woff2') format('woff2');
-    font-weight:400 700;
+    font-family:'Poetsen One';
+    src:url('/fonts/poetsenone-latin.woff2') format('woff2');
+    font-weight:400;
     font-style:normal;
     font-display:swap;
     unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -174,10 +174,10 @@
        The dark workspace palette below (body[data-state=solo|multi])
        still overrides them deliberately — that inversion is the design,
        not an accident, and it measures 6.2:1 to 16.4:1. */
-    /* Type tokens. Body via Nunito, display via Fredoka — both rounded
-       and soft-terminalled, for a friendly rather than technical voice.
+    /* Type tokens. Body via Nunito, display via Poetsen One — both
+       rounded and soft, for a friendly rather than technical voice.
        Mono stays JetBrains Mono for byte-count strings. */
-    --font-display:"Fredoka",ui-rounded,"Segoe UI",system-ui,sans-serif;
+    --font-display:"Poetsen One",ui-rounded,"Segoe UI",system-ui,sans-serif;
     --font-body:"Nunito",ui-rounded,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
     --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     --brand-h:48px;
@@ -239,15 +239,19 @@
   body{font-family:var(--font-body);
     color:var(--text);background:var(--bg);}
   /* R24 — display type for hero headings + brand wordmark + Edit modal
-     title. Fredoka is already soft at display sizes, no optical axis. */
+     title. Poetsen One is a static single-weight face with no italic, so
+     this rule pins weight/style to what the file actually ships. Without
+     the pin the browser synthesises a smeared bold and a sheared oblique
+     on a face that is already heavy. The visual hierarchy comes from
+     SIZE, not weight — do not add a font-weight to anything here. */
   h1,h2,.brand,.hero h2,.edit-modal .edit-header h2,.edit-modal .edit-brand-link,.tc-brand-name,.footer-brand{
-    font-family:var(--font-display);
+    font-family:var(--font-display);font-synthesis:none;
+    font-weight:400;
+    font-style:normal;
     font-feature-settings:"ss01" on;
-    letter-spacing:-.01em;
+    letter-spacing:0;
   }
-  .brand{font-style:italic;font-weight:600;}
-  .hero h2{font-weight:600;}
-  .edit-modal .edit-header h2{font-weight:600;letter-spacing:-.005em;}
+  .edit-modal .edit-header h2{letter-spacing:-.005em;}
   /* R24 — mono for byte counts, file size strings, keyboard hints,
      anything that should read as "technical, factual, not marketing copy". */
   kbd, .qr-size, .size-info, .edit-size-info, .compare-meta span:nth-child(2),
@@ -269,7 +273,7 @@
 
   .brand-bar{height:var(--brand-h);display:flex;align-items:center;gap:14px;
     padding:0 16px;background:var(--bg);position:relative;z-index:10;}
-  .brand{font-weight:700;font-size:.96rem;letter-spacing:-.01em;color:var(--text);text-decoration:none;}
+  .brand{font-size:.96rem;letter-spacing:0;color:var(--text);text-decoration:none;}
   .brand .g,.footer-brand .g{color:var(--accent);}
   .brand-spacer{flex:1;}
   .exit-link{
@@ -1533,7 +1537,7 @@
     display:inline-flex;align-items:baseline;gap:6px;
   }
   .top-chrome .tc-brand-name{
-    font-size:.92rem;font-weight:700;font-style:italic;color:rgba(255,255,255,.95);
+    font-size:.92rem;font-weight:400;color:rgba(255,255,255,.95);
     letter-spacing:-.01em;text-decoration:none;line-height:1;
   }
   .top-chrome .tc-brand-name .g{color:var(--accent);}
@@ -1588,73 +1592,29 @@
      empty-state surface. Explicit colors instead of var(--card-bg)
      because --card-bg is the dark liquid-glass color (the workspace
      surface), not the empty-state surface. */
-  .dz-format-pre{
-    display:flex;flex-direction:column;align-items:center;
-    gap:10px;margin:18px auto 0;
-    padding:16px 18px 18px;
-    width:100%;max-width:560px;
-    box-sizing:border-box;
-  }
-  .dz-format-label{
-    font-size:.64rem;font-weight:700;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--muted);
-  }
+  /* Output capability, as one quiet line. Replaces the .dz-format-pre
+     pill row; its rules, the mobile grid that sized them and the
+     aria radiogroup wiring are all removed with it. */
+  /* The output half is the quieter of the two: "will it take my file"
+     is the question you have before dropping; "what can it make" is
+     the one you have after. */
+  /* One clause per line at every width. Run together they wrapped
+     mid-phrase ("MP4 or / MOV · gives ...") and the separator landed in
+     the middle of a line. */
+  .dzf-in,.dzf-out{display:block;}
+  .dzf-sep{display:none;}
+  /* The output half was set to opacity .8 to read as secondary. Stacked
+     on the parent's .78 that made 0.62 and 2.75:1. Differentiated by
+     weight instead, which costs no contrast. */
+  .dzf-in{font-weight:600;}
   /* Inline hint inside the OUTPUT FORMAT label — clarifies that
      pre-picking is optional. Lighter weight + lowercase to read
      as caption alongside the all-caps label. */
-  .dz-format-hint{
-    font-weight:500;
-    letter-spacing:.02em;
-    text-transform:none;
-    color:var(--muted);
-    opacity:.85;
-    margin-left:2px;
-  }
-  .dz-format-pre .dz-pills{
-    display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:center;
-  }
-  .dz-format-pre .dz-pills button{
-    height:30px;padding:0 14px;
-    border:1px solid var(--border);
-    /* Was a hardcoded #fff. --text follows the theme but the background
-       didn't, so in dark these became near-white text on white: 1.27:1,
-       six invisible buttons. */
-    background:var(--surface);
-    color:var(--text);
-    font:inherit;font-size:.76rem;font-weight:600;
-    border-radius:6px;cursor:pointer;
-    transition:background .12s ease,border-color .12s ease,color .12s ease;
-  }
-  .dz-format-pre .dz-pills button:hover{
-    background:var(--accent-light);
-    border-color:var(--accent);
-    color:var(--accent-strong);
-  }
-  .dz-format-pre .dz-pills button.active{
-    background:var(--accent);
-    border-color:var(--accent);
-    color:var(--on-accent);
-  }
   /* Six pills in a centered wrap break 5 + 1 on a phone, leaving ICO
      alone on its own row under a full line — reads like a mistake
      rather than a choice. A 3-column grid splits them 3 + 3 and gives
      every pill the same width, so the block stays a block. */
   @media (max-width:560px){
-    .dz-format-pre .dz-pills{
-      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:8px;width:100%;max-width:19rem;margin-inline:auto;
-    }
-    .dz-format-pre .dz-pills button{padding:0 8px;}
-  }
-  .dz-format-hint{
-    margin:8px 0 0;
-    font-size:.72rem;
-    color:var(--muted-strong,var(--muted));
-    text-align:center;
-    line-height:1.4;
-  }
-  .dz-format-hint strong{
-    color:var(--accent);font-weight:700;
   }
   /* Microcopy inside the dropzone — closing line of the card. */
   .dz-microcopy{
@@ -1697,22 +1657,13 @@
     clip:rect(0,0,0,0);
     white-space:nowrap;border:0;
   }
-  /* Capabilities line — secondary subtitle showing supported formats
-     + batch limit so first-time users see this without digging into
-     the FAQ. Slightly smaller and muted vs the primary subtitle. */
-  body[data-state="empty"] .dropzone .dz-capabilities{
-    margin-top:4px;
-    font-size:.8rem;
-    color:var(--muted-strong,var(--muted));
-    opacity:.85;
-  }
   /* H2 size/weight bump for the empty state. /app.css defaults to
      1.25rem / weight 600 / -.2px, which reads thin as the primary hook.
      Line-height stays at the normal 1.2 — the .dz-loop is now a plain
      inline-block with no overflow:hidden, so its baseline naturally
      aligns with the surrounding text. */
   body[data-state="empty"] .dropzone h2{
-    font-size:1.6rem;font-weight:700;letter-spacing:-.3px;
+    font-size:1.6rem;font-weight:400;letter-spacing:-.3px;
     line-height:1.2;
   }
   /* Trust line — the strongest copy in the product (privacy wedge).
@@ -1733,7 +1684,13 @@
     display:none;
     max-width:34rem;margin:8px auto 0;
     font-size:.76rem;line-height:1.5;
-    color:var(--muted);opacity:.78;
+    /* No opacity. --muted is 5.83:1 on the page; at .78 it composited
+       to 3.78 and failed AA — and it had been doing that since the line
+       was added, unnoticed because the contrast audits I was running
+       folded alpha from background layers but not element opacity.
+       If something needs to be quieter, it needs a lighter COLOUR that
+       still clears 4.5, not a transparency. */
+    color:var(--muted);
     text-wrap:balance;
   }
   body[data-state="empty"] .dz-formats{display:block;}
@@ -1778,7 +1735,7 @@
   }
   /* ...but not a second dropzone, sample strip or format row — the list
      has Add more, and those would be the same offer twice. */
-  body[data-state="multi"][data-view="list"] .beta-empty :is(.dropzone,.dz-floats-caption,.dz-floats,.dz-format-pre){
+  body[data-state="multi"][data-view="list"] .beta-empty :is(.dropzone,.dz-floats-caption,.dz-floats){
     display:none;
   }
   .file-list-wrap{display:none;}
@@ -2157,7 +2114,10 @@
   .dz-floats-caption{
     text-align:center;font-size:.72rem;color:var(--muted);
     margin:18px 0 4px;
-    opacity:.75;
+    /* Was opacity:.75, which composited --muted's 5.83:1 down to 3.41
+       and failed AA. Same pattern as .dz-formats: transparency used to
+       make text quieter, which costs contrast in exact proportion.
+       Quieter here comes from the size and the colour, not alpha. */
   }
   body[data-state="multi"] .dz-floats-caption,
   body[data-state="solo"] .dz-floats-caption{display:none;}
@@ -2829,10 +2789,9 @@
   /* Brand center (mirrors home .tc-brand — centered display serif). */
   .edit-modal .edit-brand-link{
     flex:0 0 auto;
-    font-family:var(--font-display);
-    font-style:italic;font-weight:700;
+    font-family:var(--font-display);font-synthesis:none;
     font-size:.96rem;
-    letter-spacing:-.01em;
+    letter-spacing:0;
     color:rgba(255,255,255,.95);
     text-decoration:none;
     transition:opacity .12s;
@@ -5315,11 +5274,6 @@
     outline: 2px solid var(--accent);
     outline-offset: 3px;
   }
-  .dz-format-pre button:focus-visible,
-  .adjust-pills button:focus-visible{
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
   /* R25 — WCAG contrast fix for primary actions on cream. White on
      #7a9a7a was 3.12:1 (fail AA). Promote --accent-strong as the base
      background so the white label clears 4.81:1 (pass AA, pass UI). */
@@ -5379,7 +5333,7 @@
     position:relative;
   }
   .kb-shortcuts h2{
-    font-size:1.05rem;font-weight:700;margin:0 0 16px;
+    font-size:1.05rem;font-weight:400;margin:0 0 16px;
     color:var(--text);
   }
   .kb-shortcuts-table{
@@ -5796,7 +5750,11 @@
          homepage was the weaker of the two despite accepting strictly
          more. Kept to one dim line, and it must stay in sync with the
          accept attribute above. -->
-    <p class="dz-formats">JPG, PNG, WebP, AVIF, HEIC, TIFF, SVG, GIF, ICO &mdash; and MP4 or MOV into an animated GIF</p>
+    <p class="dz-formats">
+      <span class="dzf-in">Takes JPG, PNG, WebP, AVIF, HEIC, TIFF, SVG, GIF, ICO, MP4 or MOV</span>
+      <span class="dzf-sep" aria-hidden="true"> · </span>
+      <span class="dzf-out">Gives WebP, AVIF, JPG, PNG, GIF or ICO, picked per file</span>
+    </p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
@@ -5841,17 +5799,22 @@
        click-to-open-file-picker handler that would otherwise hijack
        every pill click. Selection persists via window.PREFS.outFormat
        into the workspace's format dropdown. -->
-  <div class="dz-format-pre" id="dzFormatPre" role="radiogroup" aria-label="Output format">
-    <div class="dz-format-label">Output format <span class="dz-format-hint">— optional, pick one or many</span></div>
-    <div class="dz-pills" id="dzPills">
-      <button type="button" data-out-fmt="webp" data-tt="WebP — modern web format, broadly supported.">WebP</button>
-      <button type="button" data-out-fmt="avif" data-tt="AVIF — best compression. Modern browsers only.">AVIF</button>
-      <button type="button" data-out-fmt="jpg" data-tt="JPG — universal compatibility. Always lossy.">JPG</button>
-      <button type="button" data-out-fmt="png" data-tt="PNG — screenshots, graphics, transparency.">PNG</button>
-      <button type="button" data-out-fmt="gif" data-tt="GIF — animations and flat colour. 256-colour limit.">GIF</button>
-      <button type="button" data-out-fmt="ico" data-tt="ICO — browser favicons.">ICO</button>
-    </div>
-  </div>
+  <!-- The six output-format buttons that used to sit here were labelled
+       "optional, pick one or many". Measured on a 768px viewport they
+       sat at y 714-804 — below the fold — with no pill active, so they
+       neither got seen nor said what would happen if you ignored them,
+       and the choice did not persist past the visit. Six controls
+       announcing their own skippability, in the best real estate after
+       the dropzone.
+
+       What they were good for was saying what the tool can output. That
+       moved into the dropzone's format line, which now states both
+       directions in one place — as two separate lines they shared six
+       format names and read as repetition. Choosing a format is
+       something you do AFTER dropping now, where the result is on
+       screen to judge, and anyone who arrived wanting a specific
+       conversion is almost certainly on one of the 36 landing pages
+       that prime it from the slug. -->
 
 
     <header class="hero-below">
@@ -5961,7 +5924,7 @@
   </div>
 
     <footer class="site-footer">
-    <div class="footer-brand" style="font-weight:700;color:var(--text2);font-style:italic;">img<span class="g">ready</span></div>
+    <div class="footer-brand" style="color:var(--text2);">img<span class="g">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a><a href="/support/">♥ Support</a>
@@ -9739,10 +9702,8 @@ if (!window._navMenuOutsideClick) {
     formats = normalize(formats);
     window.PREFS.outFormats = formats;
     window.PREFS.outFormat = formats[0]; /* back-compat */
-    /* Sync empty-state pills (multi-active possible) */
-    document.querySelectorAll('#dzPills button').forEach(b => {
-      b.classList.toggle('active', formats.includes(b.dataset.outFmt));
-    });
+    /* (The empty-state pill row this used to sync is gone — output
+       format is chosen after dropping now.) */
     /* Sync workspace dropdown menu items */
     const wpills = document.querySelectorAll('#formatPills button[data-fmt]');
     wpills.forEach(b => b.classList.toggle('active', formats.includes(b.dataset.fmt)));
@@ -10092,32 +10053,10 @@ if (!window._navMenuOutsideClick) {
       e.dataTransfer.dropEffect = 'copy';
     }
   }, true);
-  document.addEventListener('click', e => {
-    const btn = e.target.closest && e.target.closest('#dzPills button[data-out-fmt]');
-    if (!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const clicked = btn.dataset.outFmt;
-    const current = (window.PREFS.outFormats || ['auto']).slice();
-    let next;
-    if (current.includes(clicked)) {
-      /* Allow unpicking ALL — empty array reverts to "match input on
-         drop" via presetFormatFromInput. Previous version forbade the
-         last unpick (legacy from when PREFS defaulted to ['webp']). */
-      next = current.filter(f => f !== clicked);
-    } else {
-      next = [...current, clicked];
-    }
-    setOutFormats(next);
-    /* R146 — a click is explicit intent, so the drop-time auto-preset must
-       not overwrite it. Unpicking everything is the documented way to ask
-       for "match the input", so that clears the flag again. */
-    window.PREFS.explicitFormat = next.length > 0;
-    /* Sync multi mode with selection count: 2+ → on, ≤1 → off.
-       Previously only set ON, leaving multi stuck after user
-       deselected back to a single format. */
-    setMultiOutMode(next.length >= 2);
-  });
+  /* The click handler for the empty-state #dzPills row lived here. The
+     row is gone; format is chosen after dropping, where the result is
+     visible. setOutFormats and the workspace dropdown are untouched. */
+
 
   /* 3. Headline verb rotation — Bionic Julia pattern verbatim
      (https://bionicjulia.com/blog/creating-react-component-fades-changing-words),
@@ -11440,25 +11379,8 @@ function doClear(){
     });
     updateAria();
   }
-  /* R25 — sync aria-checked across dz-format-pre radiogroup so AT users
-     know which format is currently selected. */
-  function wireFormatAria(){
-    var group = document.getElementById('dzFormatPre');
-    if (!group) return;
-    var btns = group.querySelectorAll('button[data-out-fmt]');
-    btns.forEach(function(b){
-      b.setAttribute('role', 'radio');
-      b.setAttribute('aria-checked', b.classList.contains('active') ? 'true' : 'false');
-    });
-    /* Re-sync on click via mutation observer — the existing JS toggles
-       .active class; we mirror to aria-checked. */
-    var obs = new MutationObserver(function(){
-      btns.forEach(function(b){
-        b.setAttribute('aria-checked', b.classList.contains('active') ? 'true' : 'false');
-      });
-    });
-    btns.forEach(function(b){ obs.observe(b, { attributes: true, attributeFilter: ['class'] }); });
-  }
+  /* wireFormatAria removed with the empty-state format radiogroup it
+     synced aria-checked for. */
 
   function init(){
     Object.keys(DEFAULTS).forEach(applyToPanel);
@@ -11466,7 +11388,6 @@ function doClear(){
     wireInputs();
     wireReset();
     syncQualityLabel();
-    wireFormatAria();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
