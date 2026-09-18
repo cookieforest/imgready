@@ -524,7 +524,11 @@ body.fmt-ico .adv-group-resize{display:none;}
    dashed border so it reads as "drop area" at a glance. Hover lifts the
    border to the accent colour. Once images are in the queue it compacts
    (rule below). */
-.dropzone{border:2px dashed color-mix(in srgb,var(--accent) 35%,transparent);border-radius:var(--radius);padding:84px 24px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface);position:relative;overflow:hidden;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+/* Padding was 84px top and bottom: 168px of a 421px box, 40% of the
+   hero given to empty space with the content floating in the middle.
+   That ratio is what read as unfinished, not the content. 52px keeps
+   it generous and pulls the h1 above the fold on a 900px viewport. */
+.dropzone{border:2px dashed color-mix(in srgb,var(--accent) 35%,transparent);border-radius:var(--radius);padding:52px 24px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface);position:relative;overflow:hidden;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .dropzone:hover{border-color:color-mix(in srgb,var(--accent) 65%,transparent);background:color-mix(in srgb,var(--accent) 4%,var(--surface));}
 .dropzone.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));border-style:solid;}
 /* Brief acknowledgement pulse the moment a file is accepted into the queue.
@@ -535,7 +539,7 @@ body.fmt-ico .adv-group-resize{display:none;}
   40%{transform:scale(.985);background:color-mix(in srgb,var(--accent) 14%,var(--surface));border-color:var(--accent);}
   100%{transform:scale(1);background:var(--surface);}
 }
-@media(max-width:600px){.dropzone{padding:64px 16px;min-height:220px;}}
+@media(max-width:600px){.dropzone{padding:36px 16px;min-height:200px;}}
 
 /* Full-window drag overlay. Appears the moment the user starts
    dragging a file from outside the browser into the page. Replaces
@@ -1089,10 +1093,43 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
 .content-section .content-foot{font-size:.8rem;color:var(--muted-strong);margin-top:32px;padding-top:18px;border-top:1px dashed var(--border);}
 .content-section .content-foot a{color:var(--accent);text-decoration:none;}
 .content-section .content-foot a:hover{text-decoration:underline;}
-.format-table{width:100%;border-collapse:collapse;margin:18px 0 24px;font-size:.84rem;}
-.format-table th{text-align:left;padding:10px 14px;background:var(--surface2);color:var(--text);font-weight:700;border:1px solid var(--border);}
-.format-table td{padding:10px 14px;border:1px solid var(--border);color:var(--text2);}
-.format-table tr:nth-child(even) td{background:var(--surface);}
+/* Formats grid. Was a 6-row table with a hairline on every cell, which
+   the design skill calls the laziest possible layout for a spec sheet
+   (9.F, and 4.9 names the replacement: a card per spec carrying the
+   name, the figure, and one line on why it matters).
+
+   Five formats, five cells: WebP spans the full width because it is the
+   recommended default, the other four sit 2x2 under it. That is the
+   "hero + 4" shape 4.7 names, and it avoids the empty trailing cell a
+   plain 2-column grid would leave with an odd item count.
+
+   The figure is green because green means savings everywhere else on
+   this site, and these are savings. It is not decoration. */
+.fmt-grid{
+  list-style:none;margin:18px 0 26px;padding:0;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
+}
+/* The section's generic ul rule paints an accent bullet via ::before.
+   These are cards, not a bullet list, and 9.F bans decorative dots
+   outright, so it is cancelled here rather than loosened there. */
+.content-section .fmt-grid li::before{content:none;}
+.fmt-grid li{
+  display:flex;flex-direction:column;gap:3px;
+  padding:14px 16px;position:static;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+}
+.fmt-grid .fmt-hero{grid-column:1 / -1;background:var(--surface2);}
+.fmt-name{font-family:var(--font-display);font-synthesis:none;font-weight:400;font-size:1.05rem;color:var(--text);}
+.fmt-best{font-size:.84rem;color:var(--text2);}
+.fmt-fig{font-size:.8rem;color:var(--text2);margin-top:2px;}
+.fmt-fig b{color:var(--success);font-weight:700;}
+/* 4.7: state the collapse, do not assume it */
+@media(max-width:560px){
+  .fmt-grid{grid-template-columns:1fr;}
+  .fmt-grid .fmt-hero{grid-column:auto;}
+}
 .faq-item{margin-bottom:20px;}
 .faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:10px 0;}
 .faq-item summary:hover{color:var(--accent);}
