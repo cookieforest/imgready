@@ -7068,15 +7068,36 @@ async function addFilesFromList(fileList){
    half instead of ellipsing the line. Truncating the string kept the
    input size the visitor already knew and cut off the result — the same
    mistake the compare bar made, repeated here before I noticed. */
+/* toUpperCase() renders "WEBP" and "JPEG", but every other surface on
+   this site writes "WebP" and "JPG". One label map so the working
+   screen matches the marketing copy. */
+const FMT_LABEL = { webp:'WebP', avif:'AVIF', jpeg:'JPG', jpg:'JPG', png:'PNG',
+                    gif:'GIF', ico:'ICO', heic:'HEIC', heif:'HEIF', tiff:'TIFF',
+                    bmp:'BMP', svg:'SVG', 'svg+xml':'SVG' };
+function fmtLabel(x){
+  const k = String(x || '').toLowerCase().replace(/^image\//, '');
+  return FMT_LABEL[k] || k.toUpperCase();
+}
 function flFillMeta(el, f, enc){
-  const inFmt = (f.file.type.split('/')[1] || (f.name.split('.').pop() || '')).toUpperCase();
+  const inFmt = fmtLabel(f.file.type.split('/')[1] || (f.name.split('.').pop() || ''));
+  const outFmt = enc ? fmtLabel(enc.format) : '';
+  /* The middle dot is rationed to one per line (design skill 9.F), and
+     this line used two. It also printed the format twice when it had
+     not changed: "848.3 KB - PNG -> 167.4 KB - PNG". So the format is
+     named once at the end when it stays the same, and only spelled out
+     on both sides when the conversion actually changes it. */
+  const same = !!enc && outFmt === inFmt;
   el.textContent = '';
   const before = document.createElement('span');
   before.className = 'fl-before';
-  before.textContent = `${fmtSize(f.file.size)} · ${inFmt} → `;
+  before.textContent = same
+    ? `${fmtSize(f.file.size)} → `
+    : `${fmtSize(f.file.size)} ${inFmt} → `;
   const after = document.createElement('span');
   after.className = 'fl-after';
-  after.textContent = enc ? `${fmtSize(enc.size)} · ${(enc.format || '').toUpperCase()}` : 'encoding…';
+  after.textContent = !enc ? 'encoding…'
+    : same ? `${fmtSize(enc.size)} · ${outFmt}`
+           : `${fmtSize(enc.size)} ${outFmt}`;
   el.append(before, after);
 }
 /* Display order only — FILES keeps its original indexing, because
@@ -7349,13 +7370,19 @@ function syncCompareBar(){
          than ellipsing the line. Truncating the string kept the input
          size the visitor already knew and cut off the result, which is
          the only reason they opened this view. */
+      const outFmt = fmtLabel(enc.format);
+      const same = outFmt === inFmt;            /* see flFillMeta: one dot per line */
       stats.textContent = '';
       const before = document.createElement('span');
       before.className = 'cmp-before';
-      before.textContent = `${fmtSize(f.file.size)} · ${inFmt} → `;
+      before.textContent = same
+        ? `${fmtSize(f.file.size)} → `
+        : `${fmtSize(f.file.size)} ${inFmt} → `;
       const after = document.createElement('span');
       after.className = 'cmp-after';
-      after.textContent = `${fmtSize(enc.size)} · ${(enc.format || '').toUpperCase()}`;
+      after.textContent = same
+        ? `${fmtSize(enc.size)} · ${outFmt}`
+        : `${fmtSize(enc.size)} ${outFmt}`;
       stats.append(before, after);
       if (Math.abs(pct) >= 1) {
         const b = document.createElement('span');
