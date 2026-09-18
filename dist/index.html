@@ -1751,15 +1751,40 @@
      rather than the three I had been testing with.
      Scrolling is restored for the list view only; compare keeps the
      lock, which is correct for a full-bleed image. */
-  body[data-state="multi"][data-view="list"]{overflow-y:auto;}
+  /* The page keeps scrolling while work is happening.
+
+     Dropping files used to swap the whole document for a locked
+     100vh workspace and hide .beta-empty — 3297px of hero, FAQ and
+     footer — so during a long batch you stared at a black box with
+     nothing to read and nowhere to scroll. TinyPNG keeps its page
+     under the drop panel for exactly this reason.
+
+     In list view the body is the scroller again (height:auto, normal
+     overflow), the stage sizes to its content, and the marketing
+     returns underneath via flex order — the list is later in the DOM
+     than .beta-empty, so order puts it first without moving anything.
+     The compare view keeps the locked viewport, which is right for a
+     full-bleed image. */
+  body[data-state="multi"][data-view="list"]{
+    display:flex;flex-direction:column;
+    overflow-y:auto;height:auto;min-height:100vh;
+  }
   body[data-state="multi"][data-view="list"] .stage.multi{
-    overflow-y:auto;-webkit-overflow-scrolling:touch;height:100vh;
+    order:1;height:auto;min-height:0;overflow:visible;
+  }
+  body[data-state="multi"][data-view="list"] .beta-empty{
+    display:block;order:2;
+  }
+  /* ...but not a second dropzone, sample strip or format row — the list
+     has Add more, and those would be the same offer twice. */
+  body[data-state="multi"][data-view="list"] .beta-empty :is(.dropzone,.dz-floats-caption,.dz-floats,.dz-format-pre){
+    display:none;
   }
   .file-list-wrap{display:none;}
   body[data-state="multi"][data-view="list"] .file-list-wrap{
     display:flex;flex-direction:column;gap:10px;
     width:min(860px,calc(100% - 32px));
-    margin:0 auto;padding:18px 0 96px;
+    margin:0 auto;padding:18px 0 28px;
   }
   /* In list view the canvas, cover-flow and their chrome step aside.
      The settings bar stays, because the settings are global and belong
