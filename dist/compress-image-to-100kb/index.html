@@ -121,9 +121,9 @@ tr:nth-child(even) td{background:var(--surface);}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready — compress image to 100KB", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/compress-image-to-100kb/", "browserRequirements": "Requires a modern browser with WebAssembly support", "description": "Compress any image to 100KB or less, free and in your browser. Set the target and the output always lands at or under 100 KB. JPG, PNG, WebP, HEIC. No upload.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["Target a file size in KB", "Guaranteed at-or-under output", "Batch up to 200 files", "JPG, WebP, AVIF, PNG, GIF output", "Runs fully client-side — no upload", "Resize and compress in one pass"], "permissions": "No file upload; all processing happens locally in the browser"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready: compress image to 100KB", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/compress-image-to-100kb/", "browserRequirements": "Requires a modern browser with WebAssembly support", "description": "Compress any image to 100KB or less, free and in your browser. Set the target and the output always lands at or under 100 KB. JPG, PNG, WebP, HEIC. No upload.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["Target a file size in KB", "Guaranteed at-or-under output", "Batch up to 200 files", "JPG, WebP, AVIF, PNG, GIF output", "Runs fully client-side, no upload", "Resize and compress in one pass"], "permissions": "No file upload; all processing happens locally in the browser"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Compress Image to 100KB", "item": "https://imgready.app/compress-image-to-100kb/"}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will the result always be under 100 KB?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, whenever it is achievable at the image's dimensions. The encoder searches quality and returns the best-looking result that still fits at or under 100 KB — it never returns a file over your target. If 100 KB is impossible at the current resolution (a very large photo, for example), you get the smallest file the encoder can produce, and reducing the dimensions will then bring it under."}}, {"@type": "Question", "name": "Which format should I choose to hit 100 KB?", "acceptedAnswer": {"@type": "Answer", "text": "JPG if anything other than a browser will read the file — it is accepted everywhere. WebP if the destination is a website you control, because WebP is 25–35% more efficient and therefore looks better at the same 100 KB. Avoid PNG for photographs on a byte budget: PNG is lossless and has no quality dial, so hitting a small target means heavy colour banding."}}, {"@type": "Question", "name": "Does compressing to 100 KB ruin the quality?", "acceptedAnswer": {"@type": "Answer", "text": "It depends entirely on resolution. At 1200 px wide, most photographs at 100 KB look completely fine for web use. At 6000 px wide, 100 KB is far too little and the image will visibly degrade. The fix is to resize the dimensions down first and let compression work on a sensible pixel count — imgready can do both in the same pass."}}, {"@type": "Question", "name": "Can I compress many images to 100 KB at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drop up to 200 files, set the target once, and every file is encoded against the same ceiling independently — each one gets its own quality search, because the quality needed to hit 100 KB differs per image. Download them individually or all together as a ZIP."}}, {"@type": "Question", "name": "Are my images uploaded to a server?", "acceptedAnswer": {"@type": "Answer", "text": "No. Compression runs locally in your browser using WebAssembly, so the files never leave your device. That is the reason this tool is appropriate for documents you would not upload elsewhere — application photos, ID scans, insurance evidence. You can confirm it by watching the Network tab in your browser's developer tools while a file compresses."}}, {"@type": "Question", "name": "Why does the same quality setting give different file sizes?", "acceptedAnswer": {"@type": "Answer", "text": "Because file size is driven by how much detail the image contains, not by the slider alone. Smooth gradients and flat colour compress extremely well; fine texture like foliage, fabric or gravel does not. This is precisely why targeting a size directly is more useful than targeting a quality number — the tool adapts the quality per image to meet your byte budget."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will the result always be under 100 KB?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, whenever it is achievable at the image's dimensions. The encoder searches quality and returns the best-looking result that still fits at or under 100 KB, it never returns a file over your target. If 100 KB is impossible at the current resolution (a very large photo, for example), you get the smallest file the encoder can produce, and reducing the dimensions will then bring it under."}}, {"@type": "Question", "name": "Which format should I choose to hit 100 KB?", "acceptedAnswer": {"@type": "Answer", "text": "JPG if anything other than a browser will read the file, it is accepted everywhere. WebP if the destination is a website you control, because WebP is 25-35% more efficient and therefore looks better at the same 100 KB. Avoid PNG for photographs on a byte budget: PNG is lossless and has no quality dial, so hitting a small target means heavy colour banding."}}, {"@type": "Question", "name": "Does compressing to 100 KB ruin the quality?", "acceptedAnswer": {"@type": "Answer", "text": "It depends entirely on resolution. At 1200 px wide, most photographs at 100 KB look completely fine for web use. At 6000 px wide, 100 KB is far too little and the image will visibly degrade. The fix is to resize the dimensions down first and let compression work on a sensible pixel count, imgready can do both in the same pass."}}, {"@type": "Question", "name": "Can I compress many images to 100 KB at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drop up to 200 files, set the target once, and every file is encoded against the same ceiling independently, each one gets its own quality search, because the quality needed to hit 100 KB differs per image. Download them individually or all together as a ZIP."}}, {"@type": "Question", "name": "Are my images uploaded to a server?", "acceptedAnswer": {"@type": "Answer", "text": "No. Compression runs locally in your browser using WebAssembly, so the files never leave your device. That is the reason this tool is appropriate for documents you would not upload elsewhere, application photos, ID scans, insurance evidence. You can confirm it by watching the Network tab in your browser's developer tools while a file compresses."}}, {"@type": "Question", "name": "Why does the same quality setting give different file sizes?", "acceptedAnswer": {"@type": "Answer", "text": "Because file size is driven by how much detail the image contains, not by the slider alone. Smooth gradients and flat colour compress extremely well; fine texture like foliage, fabric or gravel does not. This is precisely why targeting a size directly is more useful than targeting a quality number, the tool adapts the quality per image to meet your byte budget."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Compress Image to 100KB Online Free | imgready", "description": "Compress any image to 100KB or less, free and in your browser. Set the target and the output always lands at or under 100 KB. JPG, PNG, WebP, HEIC. No upload.", "url": "https://imgready.app/compress-image-to-100kb/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "https://imgready.app/og/compress-image-to-100kb.png"}, "inLanguage": "en"}</script>
 </head>
 <body>
@@ -145,10 +145,10 @@ tr:nth-child(even) td{background:var(--surface);}
 
   <section class="hero">
     <h1>Compress image to 100&nbsp;KB,<br><em>guaranteed under the limit</em></h1>
-    <p class="lede">Set 100&nbsp;KB as the ceiling and imgready searches encoder quality until the file fits — landing at or under your target, never over it. Works on JPG, PNG, WebP, AVIF, HEIC and TIFF, up to 200 files at once, entirely inside your browser.</p>
+    <p class="lede">Set 100&nbsp;KB as the ceiling and imgready searches encoder quality until the file fits, landing at or under your target, never over it. Works on JPG, PNG, WebP, AVIF, HEIC and TIFF, up to 200 files at once, entirely inside your browser.</p>
     <!-- =============== imgready tool (lifted from homepage) ===============-->
 <div class="app">
-<!-- SETTINGS TRIGGER — full-width pill right above the dropzone, on
+<!-- SETTINGS TRIGGER: full-width pill right above the dropzone, on
        both mobile and desktop. The label calls out what's inside so power
        users self-identify ("custom output, quality, resize") rather than
        relying on the generic word "Settings." Click expands the panel
@@ -170,9 +170,9 @@ tr:nth-child(even) td{background:var(--surface);}
           <button id="btnPng" onclick="selectFormat('png')">PNG</button>
           <button id="btnJpg" onclick="selectFormat('jpg')">JPG</button>
           <button id="btnGif" onclick="selectFormat('gif')">GIF</button>
-          <button id="btnIco" onclick="selectFormat('ico')" title="Multi-resolution Windows icon — for favicons and desktop icons">ICO</button>
+          <button id="btnIco" onclick="selectFormat('ico')" title="Multi-resolution Windows icon, for favicons and desktop icons">ICO</button>
         </div>
-        <!-- Multi-format toggle hidden — niche developer feature for HTML
+        <!-- Multi-format toggle hidden: niche developer feature for HTML
              <picture> output, no measurable user demand surfaced in the
              usage research. Kept in source so we can re-enable in one
              line if the data ever justifies it.
@@ -189,14 +189,14 @@ tr:nth-child(even) td{background:var(--surface);}
       </div>
       <span class="adv-hint" id="fmtTagline"></span>
     </div>
-    <!-- Live Photo extraction toggle — opt-in feature for users who know
+    <!-- Live Photo extraction toggle: opt-in feature for users who know
          their HEIC files contain a 3-second video and want it as MP4.
          Default OFF: matches the dominant user expectation (HEIC → JPG,
          video silently dropped, like CloudConvert/FreeConvert). When ON,
          imgready detects Live Photos via the HEIF parser and outputs
          both the still and the embedded MOV (re-wrapped as MP4) on the
          same card. The toggle is always visible regardless of selected
-         output format — Live Photo detection is input-driven not
+         output format. Live Photo detection is input-driven not
          output-driven, and the user might select WebP for the still
          while still wanting the video. */
     <div class="adv-group adv-group-livephoto">
@@ -204,9 +204,9 @@ tr:nth-child(even) td{background:var(--surface);}
         <input type="checkbox" id="livePhotoExtract" onchange="onLivePhotoToggle(this.checked)">
         Save Live Photo videos as MP4
       </label>
-      <span class="adv-hint">iPhone Live Photos store a 3-second video alongside the still — turn this on to get both files.</span>
+      <span class="adv-hint">iPhone Live Photos store a 3-second video alongside the still. Turn this on to get both files.</span>
     </div>
-    <!-- ICO size-set selector — only visible when format = ico (CSS rule
+    <!-- ICO size-set selector: only visible when format = ico (CSS rule
          body.fmt-ico .adv-group-ico { display: block }). Three presets
          cover 99% of cases; "Custom" expands to individual checkboxes.
          The default is the favicon set (16/32/48), which is what most
@@ -216,7 +216,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <select id="icoSizeSet" onchange="applyIcoSizeSet(this.value)">
         <option value="favicon">Favicon (16, 32, 48)</option>
         <option value="windows">Full Windows Icon (16, 32, 48, 64, 128, 256)</option>
-        <option value="custom">Custom — pick sizes</option>
+        <option value="custom">Custom: pick sizes</option>
       </select>
       <div class="ico-size-checks" id="icoSizeChecks">
         <label><input type="checkbox" data-size="16" checked> 16</label>
@@ -245,7 +245,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <div class="row"><input type="range" id="qualitySlider" min="30" max="100" value="82" oninput="onQualityInput(this.value)"><span class="val-badge" id="qVal">82</span></div>
       <span class="adv-hint" id="qualityHint">Great quality with significant file size savings.</span>
     </div>
-    <!-- Crop section hidden — peer compression tools (TinyPNG, Squoosh,
+    <!-- Crop section hidden: peer compression tools (TinyPNG, Squoosh,
          Compressor.io) don't ship crop in their compress flow; it's a
          separate product category. No usage signal in our traffic to
          justify keeping it. Source preserved for one-line revival.
@@ -273,7 +273,7 @@ tr:nth-child(even) td{background:var(--surface);}
       </div>
       <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
-    <!-- Metadata strip hidden — defaulted to ON via the checkbox initial
+    <!-- Metadata strip hidden: defaulted to ON via the checkbox initial
          state, which is the right behaviour for privacy regardless of
          whether the user touches it. Most users never want EXIF preserved;
          the rare ones who do can have the toggle revealed back from source.
@@ -292,7 +292,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
     <h2>Drop your images here</h2>
-    <p>or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <p>or click to browse. JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
@@ -301,17 +301,17 @@ tr:nth-child(even) td{background:var(--surface);}
          users don't need re-reassurance mid-batch. -->
     <div class="dz-trust" aria-hidden="false">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>Stays on your device — never uploaded</span>
+      <span>Stays on your device, never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
   </div>
 
-  <!-- HERO — moved below the dropzone so the action surface comes first.
+  <!-- HERO: moved below the dropzone so the action surface comes first.
        Hidden via CSS when body.has-images so returning users mid-batch
        aren't reading marketing copy between their dropzone and their
        cards. The h1 still anchors the page for SEO + first-time visitors
        who scroll-read before acting. -->
-  <!-- (Saved status moved into the compact dropzone bar — see #dzSaved
+  <!-- (Saved status moved into the compact dropzone bar, see #dzSaved
        inside #dropzone above. The big banner here was replaced because
        it took its own row of vertical real estate for what's really a
        quiet stat reading; tucking it next to "Add more images" is
@@ -332,7 +332,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <!-- Action triplet: Share / Copy / Download. Wrapped in
            .action-cluster so they wrap together as a single visual unit
            when the action bar narrows. Mirrors the per-card row. Each
-           button is feature-gated independently — Share on Web Share
+           button is feature-gated independently. Share on Web Share
            API support, Copy on single-result mode + clipboard support. -->
       <div class="action-cluster" id="actionCluster">
         <button class="btn btn-share" id="shareAllBtn" style="display:none" onclick="shareAll()" aria-label="Share all results via your device">
@@ -342,7 +342,7 @@ tr:nth-child(even) td{background:var(--surface);}
         <button class="btn btn-dl" id="dlAllBtn" style="display:none" onclick="downloadAll()">Download all</button>
       </div>
       <!-- Reprocess sits AFTER the cluster as a quiet text-link
-           affordance — not visually competitive with the action
+           affordance, not visually competitive with the action
            triplet. Only shown when allDone (see recompute). -->
       <button class="btn btn-link" id="reprocessBtn" style="display:none" onclick="reprocessAll()" title="Discard existing results and re-encode every image with the current settings">or reprocess all</button>
     </div>
@@ -370,16 +370,16 @@ tr:nth-child(even) td{background:var(--surface);}
     <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">&#x2715;</button>
   </div>
 
-  <!-- INSTALL PROMPT — surfaced only after the user's first successful run -->
+  <!-- INSTALL PROMPT: surfaced only after the user's first successful run -->
   <div class="install-banner" id="installBanner" role="status">
     <div class="ib-title">Quick access tip</div>
-    <div class="ib-desc">Bookmark imgready for one-click access — <strong>Ctrl+D</strong> <span style="color:var(--muted);">(⌘D on Mac)</span></div>
+    <div class="ib-desc">Bookmark imgready for one-click access: <strong>Ctrl+D</strong> <span style="color:var(--muted);">(⌘D on Mac)</span></div>
     <div class="ib-row">
       <button class="ib-dismiss" onclick="dismissInstall()" style="margin-left:auto;">Got it</button>
     </div>
   </div>
 
-  <!-- CARD GRID — the "no images yet" empty-state element used to live
+  <!-- CARD GRID: the "no images yet" empty-state element used to live
        here, but it was redundant with the dropzone above (which already
        *is* the empty-state CTA). Removed for cleaner page rhythm. -->
   <div class="grid" id="grid"></div>
@@ -387,7 +387,7 @@ tr:nth-child(even) td{background:var(--surface);}
 <!-- TOAST -->
 <div class="loader-toast" id="libToast"><div class="spin"></div><span id="libToastMsg">Decoding...</span></div>
 
-<!-- UNDO REMOVAL TOAST — appears for 5s after removing an image -->
+<!-- UNDO REMOVAL TOAST: appears for 5s after removing an image -->
 <div class="undo-toast" id="undoToast" role="status" aria-live="polite">
   <span id="undoToastMsg">Image removed</span>
   <button class="undo-toast-btn" onclick="undoRemove()" aria-label="Undo removal">Undo</button>
@@ -408,9 +408,9 @@ tr:nth-child(even) td{background:var(--surface);}
     <div class="fs-divider" id="fsDiv"></div>
     <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     <!-- Stacked label structure:
-           Row 1 (.fs-lbl-title)   — large title: "Before" / "After"
-           Row 2 (.fs-lbl-info)    — size · format
-           Row 3 (.fs-lbl-savings) — savings %, AFTER label only
+           Row 1 (.fs-lbl-title), large title: "Before" / "After"
+           Row 2 (.fs-lbl-info), size · format
+           Row 3 (.fs-lbl-savings), savings %, AFTER label only
          The After side adds a dedicated savings row (the win); the
          Before side stops at the info row since there's nothing to
          celebrate. Both labels populated by JS in showFsResult and
@@ -440,8 +440,8 @@ tr:nth-child(even) td{background:var(--surface);}
       <!-- Toolbar split into two logical groups so the row no longer
            overflows when the size readout, slider, format pills, and
            three action buttons all fight for one line.
-             .fe-tuning  — left:  format pills · slider · size readout
-             .fe-actions — right: Share / Copy / Download
+             .fe-tuning: left:  format pills · slider · size readout
+             .fe-actions, right: Share / Copy / Download
            On wide viewports the two groups sit side-by-side with the
            tuning group taking the available space and the actions
            group anchored right. On narrow viewports they wrap onto
@@ -465,7 +465,7 @@ tr:nth-child(even) td{background:var(--surface);}
           <span class="fe-size" id="feSize" hidden></span>
         </div>
         <div class="fe-actions">
-          <!-- Apply button removed — the live slider auto-commits each settle.
+          <!-- Apply button removed: the live slider auto-commits each settle.
                What you see in the modal is what's saved on the card. -->
           <!-- Share / Copy / Download triplet, mirroring the per-card
                action row. Share is feature-gated (only renders when
@@ -502,38 +502,38 @@ tr:nth-child(even) td{background:var(--surface);}
 </div>
 </section>
 
-<div class="features"><div class="feat"><h3>Never over the limit</h3><p>The output lands at or under 100&nbsp;KB — overshoot is treated as a bug.</p></div><div class="feat"><h3>Best quality that fits</h3><p>A binary search keeps the highest quality still under your ceiling.</p></div><div class="feat"><h3>Nothing uploaded</h3><p>Encoding runs locally in your browser. Files never leave your device.</p></div><div class="feat"><h3>Batch of 200</h3><p>Set the target once and every file comes back under it.</p></div></div>
+<div class="features"><div class="feat"><h3>Never over the limit</h3><p>The output lands at or under 100&nbsp;KB, overshoot is treated as a bug.</p></div><div class="feat"><h3>Best quality that fits</h3><p>A binary search keeps the highest quality still under your ceiling.</p></div><div class="feat"><h3>Nothing uploaded</h3><p>Encoding runs locally in your browser. Files never leave your device.</p></div><div class="feat"><h3>Batch of 200</h3><p>Set the target once and every file comes back under it.</p></div></div>
 
   <h2>Why 100&nbsp;KB is the number everyone lands on</h2>
-  <p>100&nbsp;KB is not an arbitrary round figure — it is roughly the point where an image stops being the slowest thing on a web page. Google's own performance guidance treats images as the single largest contributor to Largest Contentful Paint (LCP), the Core Web Vital that measures when your main content actually appears. On a mid-range phone over 4G, a 100&nbsp;KB image arrives in a fraction of a second; a 2&nbsp;MB one does not. That is the whole reason this specific target keeps showing up in CMS upload limits, marketplace listing rules, job-application portals and university submission forms.</p>
+  <p>100&nbsp;KB is not an arbitrary round figure, it is roughly the point where an image stops being the slowest thing on a web page. Google's own performance guidance treats images as the single largest contributor to Largest Contentful Paint (LCP), the Core Web Vital that measures when your main content actually appears. On a mid-range phone over 4G, a 100&nbsp;KB image arrives in a fraction of a second; a 2&nbsp;MB one does not. That is the whole reason this specific target keeps showing up in CMS upload limits, marketplace listing rules, job-application portals and university submission forms.</p>
   <p>The catch is that "compress to 100&nbsp;KB" is a <em>file size</em> instruction, while every normal image tool gives you a <em>quality</em> slider. Quality 80 might land at 60&nbsp;KB for one photo and 400&nbsp;KB for another, because file size depends on resolution and on how much detail the photo actually contains. A flat blue sky compresses to almost nothing; a close-up of gravel does not. So the usual workflow is guesswork: pick a quality, export, check the size, adjust, repeat.</p>
   <h3>How imgready hits the number instead of guessing</h3>
-  <p>Set the target once and the encoder does the searching. imgready runs a binary search over encoder quality directly in your browser, encoding the image several times at different settings and keeping the <strong>highest quality whose output still fits under your ceiling</strong>. Because the search is over real encodes rather than an estimate, the result is the actual file you download — not a prediction that turns out wrong.</p>
+  <p>Set the target once and the encoder does the searching. imgready runs a binary search over encoder quality directly in your browser, encoding the image several times at different settings and keeping the <strong>highest quality whose output still fits under your ceiling</strong>. Because the search is over real encodes rather than an estimate, the result is the actual file you download, not a prediction that turns out wrong.</p>
   <p>The rule the tool enforces is deliberately one-sided: the output lands <strong>at or under</strong> 100&nbsp;KB, never over. If a form rejects anything above 100&nbsp;KB, a tool that returns 103&nbsp;KB has failed you completely, so overshoot is treated as a bug rather than a rounding detail.</p>
   <h2>Which output format to pick for a 100&nbsp;KB target</h2>
   <p>Format matters more than the slider here, because the byte budget is fixed and the only question is how much picture you can buy with it.</p>
-  <h3>JPG — the safe default</h3>
-  <p>Universally accepted by every upload form, email client and printing service. If something else is going to read the file and you do not control what, choose JPG. imgready encodes JPG with MozJPEG, which typically produces files 10–25% smaller than a browser's built-in encoder at the same visible quality — meaning more detail survives inside the same 100&nbsp;KB.</p>
-  <h3>WebP — noticeably better picture at the same size</h3>
-  <p>WebP is 25–35% more efficient than JPEG, so a 100&nbsp;KB WebP simply looks better than a 100&nbsp;KB JPG of the same photo. Support is effectively universal in browsers now. Use it when the destination is a website you control.</p>
+  <h3>JPG: the safe default</h3>
+  <p>Universally accepted by every upload form, email client and printing service. If something else is going to read the file and you do not control what, choose JPG. imgready encodes JPG with MozJPEG, which typically produces files 10-25% smaller than a browser's built-in encoder at the same visible quality, meaning more detail survives inside the same 100&nbsp;KB.</p>
+  <h3>WebP: noticeably better picture at the same size</h3>
+  <p>WebP is 25-35% more efficient than JPEG, so a 100&nbsp;KB WebP simply looks better than a 100&nbsp;KB JPG of the same photo. Support is effectively universal in browsers now. Use it when the destination is a website you control.</p>
   <h3>Avoid PNG for this particular job</h3>
-  <p>PNG has no quality dial to search over — it is lossless by design, so the encoder cannot trade detail for bytes the way JPG and WebP can. Forcing a photograph into 100&nbsp;KB of PNG means dropping to a tiny palette and visible colour banding. Keep PNG for screenshots, logos and flat graphics; use JPG or WebP for photographs on a byte budget.</p>
-  <h2>When 100&nbsp;KB is not reachable — and what to do</h2>
+  <p>PNG has no quality dial to search over, it is lossless by design, so the encoder cannot trade detail for bytes the way JPG and WebP can. Forcing a photograph into 100&nbsp;KB of PNG means dropping to a tiny palette and visible colour banding. Keep PNG for screenshots, logos and flat graphics; use JPG or WebP for photographs on a byte budget.</p>
+  <h2>When 100&nbsp;KB is not reachable, and what to do</h2>
   <p>Sometimes the target is physically impossible at the image's current dimensions. A 6000&nbsp;&times;&nbsp;4000 photo from a modern camera contains 24 million pixels; even at aggressive compression, encoding that many pixels takes more than 100&nbsp;KB. When that happens the tool gives you the smallest file it can produce rather than pretending, and the fix is to reduce dimensions first.</p>
-  <p>This is the step most people skip. Resolution is the strongest lever on file size there is: halving an image's width and height removes three quarters of its pixels before compression even begins. A 1200&nbsp;px-wide photo at reasonable quality lands under 100&nbsp;KB comfortably, and 1200&nbsp;px is already wider than most content columns on the web. Set a resize alongside the size target and the two work together — imgready resizes first, then searches quality against your ceiling.</p>
+  <p>This is the step most people skip. Resolution is the strongest lever on file size there is: halving an image's width and height removes three quarters of its pixels before compression even begins. A 1200&nbsp;px-wide photo at reasonable quality lands under 100&nbsp;KB comfortably, and 1200&nbsp;px is already wider than most content columns on the web. Set a resize alongside the size target and the two work together, imgready resizes first, then searches quality against your ceiling.</p>
   <h3>Rough guide to what fits</h3>
-  <p>As a starting point for photographic content at a 100&nbsp;KB ceiling: around 1600&nbsp;px wide is usually achievable for simple scenes, 1200&nbsp;px is reliable for most photos, and 800&nbsp;px leaves room to spare even for busy, detailed images. Flat or graphic content goes much further; dense texture — foliage, crowds, gravel, fabric weave — much less.</p>
+  <p>As a starting point for photographic content at a 100&nbsp;KB ceiling: around 1600&nbsp;px wide is usually achievable for simple scenes, 1200&nbsp;px is reliable for most photos, and 800&nbsp;px leaves room to spare even for busy, detailed images. Flat or graphic content goes much further; dense texture: foliage, crowds, gravel, fabric weave, much less.</p>
   <h2>Nothing is uploaded, including the originals you are shrinking</h2>
-  <p>Every encode runs inside your browser tab using WebAssembly builds of the same encoders professional tools use. Your images are never transmitted anywhere, which matters more than usual for this use case: images destined for job applications, visa forms, insurance claims and medical portals are exactly the files you should not be handing to an anonymous web service. You can verify the claim yourself — open your browser's Network tab and watch it stay empty while the compression runs.</p>
+  <p>Every encode runs inside your browser tab using WebAssembly builds of the same encoders professional tools use. Your images are never transmitted anywhere, which matters more than usual for this use case: images destined for job applications, visa forms, insurance claims and medical portals are exactly the files you should not be handing to an anonymous web service. You can verify the claim yourself, open your browser's Network tab and watch it stay empty while the compression runs.</p>
   <p>The practical side effects are that it works offline after the first visit, there is no queue or rate limit, and batch size is bounded by your device rather than someone's server bill. Drop up to 200 files, set the ceiling once, and every file comes back under it.</p>
 
   <h2>Frequently asked questions</h2>
-    <details class="faq-item"><summary>Will the result always be under 100 KB?</summary><p>Yes, whenever it is achievable at the image's dimensions. The encoder searches quality and returns the best-looking result that still fits at or under 100 KB — it never returns a file over your target. If 100 KB is impossible at the current resolution (a very large photo, for example), you get the smallest file the encoder can produce, and reducing the dimensions will then bring it under.</p></details>
-    <details class="faq-item"><summary>Which format should I choose to hit 100 KB?</summary><p>JPG if anything other than a browser will read the file — it is accepted everywhere. WebP if the destination is a website you control, because WebP is 25–35% more efficient and therefore looks better at the same 100 KB. Avoid PNG for photographs on a byte budget: PNG is lossless and has no quality dial, so hitting a small target means heavy colour banding.</p></details>
-    <details class="faq-item"><summary>Does compressing to 100 KB ruin the quality?</summary><p>It depends entirely on resolution. At 1200 px wide, most photographs at 100 KB look completely fine for web use. At 6000 px wide, 100 KB is far too little and the image will visibly degrade. The fix is to resize the dimensions down first and let compression work on a sensible pixel count — imgready can do both in the same pass.</p></details>
-    <details class="faq-item"><summary>Can I compress many images to 100 KB at once?</summary><p>Yes. Drop up to 200 files, set the target once, and every file is encoded against the same ceiling independently — each one gets its own quality search, because the quality needed to hit 100 KB differs per image. Download them individually or all together as a ZIP.</p></details>
-    <details class="faq-item"><summary>Are my images uploaded to a server?</summary><p>No. Compression runs locally in your browser using WebAssembly, so the files never leave your device. That is the reason this tool is appropriate for documents you would not upload elsewhere — application photos, ID scans, insurance evidence. You can confirm it by watching the Network tab in your browser's developer tools while a file compresses.</p></details>
-    <details class="faq-item"><summary>Why does the same quality setting give different file sizes?</summary><p>Because file size is driven by how much detail the image contains, not by the slider alone. Smooth gradients and flat colour compress extremely well; fine texture like foliage, fabric or gravel does not. This is precisely why targeting a size directly is more useful than targeting a quality number — the tool adapts the quality per image to meet your byte budget.</p></details>
+    <details class="faq-item"><summary>Will the result always be under 100 KB?</summary><p>Yes, whenever it is achievable at the image's dimensions. The encoder searches quality and returns the best-looking result that still fits at or under 100 KB, it never returns a file over your target. If 100 KB is impossible at the current resolution (a very large photo, for example), you get the smallest file the encoder can produce, and reducing the dimensions will then bring it under.</p></details>
+    <details class="faq-item"><summary>Which format should I choose to hit 100 KB?</summary><p>JPG if anything other than a browser will read the file, it is accepted everywhere. WebP if the destination is a website you control, because WebP is 25-35% more efficient and therefore looks better at the same 100 KB. Avoid PNG for photographs on a byte budget: PNG is lossless and has no quality dial, so hitting a small target means heavy colour banding.</p></details>
+    <details class="faq-item"><summary>Does compressing to 100 KB ruin the quality?</summary><p>It depends entirely on resolution. At 1200 px wide, most photographs at 100 KB look completely fine for web use. At 6000 px wide, 100 KB is far too little and the image will visibly degrade. The fix is to resize the dimensions down first and let compression work on a sensible pixel count, imgready can do both in the same pass.</p></details>
+    <details class="faq-item"><summary>Can I compress many images to 100 KB at once?</summary><p>Yes. Drop up to 200 files, set the target once, and every file is encoded against the same ceiling independently, each one gets its own quality search, because the quality needed to hit 100 KB differs per image. Download them individually or all together as a ZIP.</p></details>
+    <details class="faq-item"><summary>Are my images uploaded to a server?</summary><p>No. Compression runs locally in your browser using WebAssembly, so the files never leave your device. That is the reason this tool is appropriate for documents you would not upload elsewhere, application photos, ID scans, insurance evidence. You can confirm it by watching the Network tab in your browser's developer tools while a file compresses.</p></details>
+    <details class="faq-item"><summary>Why does the same quality setting give different file sizes?</summary><p>Because file size is driven by how much detail the image contains, not by the slider alone. Smooth gradients and flat colour compress extremely well; fine texture like foliage, fabric or gravel does not. This is precisely why targeting a size directly is more useful than targeting a quality number, the tool adapts the quality per image to meet your byte budget.</p></details>
 
   <h2>Related tools and guides</h2>
   <div class="related">
@@ -541,7 +541,7 @@ tr:nth-child(even) td{background:var(--surface);}
     <a href="/compress-image-to-200kb/">Compress to 200 KB<small>More headroom for large photos</small></a>
     <a href="/compress-jpg/">Compress JPG<small>Quality-slider control for JPEG</small></a>
     <a href="/compress-png/">Compress PNG<small>PNG-8 quantization for graphics</small></a>
-    <a href="/resize/">Resize images<small>Cut dimensions first — the strongest lever</small></a>
+    <a href="/resize/">Resize images<small>Cut dimensions first: the strongest lever</small></a>
     <a href="/jpg-to-webp/">JPG to WebP<small>Better picture at the same file size</small></a>
     <a href="/compress/">Compress all formats<small>JPG, PNG, WebP, HEIC, TIFF</small></a>
     <a href="/compress-image-to-500kb/">Compress to 500 KB<small>Roomier ceiling</small></a>
@@ -552,7 +552,7 @@ tr:nth-child(even) td{background:var(--surface);}
 
   <div class="bottom-cta">
     <p>Set the ceiling and let it hit the number.</p>
-    <a class="hero-cta" href="#dropzone">Compress to 100&nbsp;KB — FREE</a>
+    <a class="hero-cta" href="#dropzone">Compress to 100&nbsp;KB. FREE</a>
   </div>
 
   <footer class="site-footer">

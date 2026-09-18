@@ -48,8 +48,8 @@
   <p class="lede">
     Every case here is a behaviour that was wrong at some point. The engine's
     recurring failure mode is producing a file of the wrong kind and reporting
-    success, so the assertions read actual bytes — magic numbers, ICO directory
-    entries, decoded frame counts — rather than trusting a label.
+    success, so the assertions read actual bytes, magic numbers, ICO directory
+    entries, decoded frame counts, rather than trusting a label.
   </p>
 
   <div class="bar">
@@ -62,7 +62,7 @@
 
   <div class="note">
     Runs against the real worker over HTTP, so it must be served rather than
-    opened from disk. Fixtures are generated in the browser — no binary files
+    opened from disk. Fixtures are generated in the browser, no binary files
     to keep in sync. Headless:
     <code>await window.IMGREADY_TESTS.run()</code>
   </div>
@@ -99,7 +99,7 @@
     summary.innerHTML =
       '<strong>' + res.passed + '</strong> <span class="ok">passed</span>, ' +
       '<strong>' + res.failed + '</strong> <span class="' + (res.failed ? 'no' : '') + '">failed</span>' +
-      (res.skipped ? ', ' + res.skipped + ' skipped' : '') + ' — ' + secs + 's';
+      (res.skipped ? ', ' + res.skipped + ' skipped' : '') + ': ' + secs + 's';
     document.title = (res.failed ? '✕ ' : '✓ ') + res.passed + '/' +
                      (res.passed + res.failed) + ' imgready tests';
     runBtn.disabled = fastBtn.disabled = false;

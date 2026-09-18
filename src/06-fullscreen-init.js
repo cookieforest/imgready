@@ -315,7 +315,7 @@ window.toggleTheme=function(){
        which silently kept the tool in "near-lossless" mode forever after
        the first visit — wrong default for an optimise-first product).
        Bumping the key resets returning visitors to the HTML default of 82
-       once; we then validate to a 30–95 sane range so a future bug or
+       once; we then validate to a 30-95 sane range so a future bug or
        hand-edit can't poison the slider. */
     var q=localStorage.getItem('imgready_q_v2');
     var qNum=q!=null?parseInt(q,10):NaN;

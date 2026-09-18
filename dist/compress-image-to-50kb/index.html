@@ -121,9 +121,9 @@ tr:nth-child(even) td{background:var(--surface);}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready — compress image to 50KB", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/compress-image-to-50kb/", "browserRequirements": "Requires a modern browser with WebAssembly support", "description": "Compress an image to 50KB or less for exam, visa and government forms. Output always lands at or under 50 KB. JPG output, resize included, nothing uploaded.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["Target a 50 KB file size ceiling", "Guaranteed at-or-under output", "Resize to exact dimensions", "JPG output for form compatibility", "Runs fully client-side — no upload", "Batch up to 200 files"], "permissions": "No file upload; all processing happens locally in the browser"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready: compress image to 50KB", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/compress-image-to-50kb/", "browserRequirements": "Requires a modern browser with WebAssembly support", "description": "Compress an image to 50KB or less for exam, visa and government forms. Output always lands at or under 50 KB. JPG output, resize included, nothing uploaded.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["Target a 50 KB file size ceiling", "Guaranteed at-or-under output", "Resize to exact dimensions", "JPG output for form compatibility", "Runs fully client-side, no upload", "Batch up to 200 files"], "permissions": "No file upload; all processing happens locally in the browser"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Compress Image to 50KB", "item": "https://imgready.app/compress-image-to-50kb/"}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will the file definitely be under 50 KB?", "acceptedAnswer": {"@type": "Answer", "text": "Yes when it is achievable at the image's dimensions. The encoder returns the best-looking result that stays at or under 50 KB and never returns a file above the target. If 50 KB is impossible at the current resolution, you get the smallest file it can make — resize the dimensions down and it will then fit comfortably."}}, {"@type": "Question", "name": "What dimensions should I use for a 50 KB photo?", "acceptedAnswer": {"@type": "Answer", "text": "For general photographs, 600–800 px on the long edge is the comfortable range and 1000 px is often achievable. For a passport-style headshot on a plain background, even 413x531 px or similar portal-specified sizes land well under 50 KB, because plain backgrounds compress extremely efficiently."}}, {"@type": "Question", "name": "Which format do government and exam portals accept?", "acceptedAnswer": {"@type": "Answer", "text": "Almost always JPG, and many accept nothing else. Choose JPG for any official upload, and check whether the portal also specifies exact pixel dimensions or a minimum file size — several reject images under about 20 KB as well as those over the maximum."}}, {"@type": "Question", "name": "Is it safe to compress ID photos and documents here?", "acceptedAnswer": {"@type": "Answer", "text": "The files are never uploaded. Compression happens inside your browser using WebAssembly, so identity documents, signatures and application photos stay on your own device. You can verify this by opening the Network tab in developer tools and watching that no image is transmitted while the file compresses."}}, {"@type": "Question", "name": "Why does my photo look blurry at 50 KB?", "acceptedAnswer": {"@type": "Answer", "text": "Because the resolution is too high for the budget. Compression removes detail to save bytes, so a very large image forced into 50 KB has to remove a great deal. Reduce the pixel dimensions first — the same photo at 800 px wide will look far better at 50 KB than a 4000 px version squeezed into the same space."}}, {"@type": "Question", "name": "Can I set both the dimensions and the 50 KB limit at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, and that is the recommended order of operations. Set the resize and the output format, then set the size ceiling. imgready resizes first and then searches encoder quality against your target, so the two settings cooperate rather than fight."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will the file definitely be under 50 KB?", "acceptedAnswer": {"@type": "Answer", "text": "Yes when it is achievable at the image's dimensions. The encoder returns the best-looking result that stays at or under 50 KB and never returns a file above the target. If 50 KB is impossible at the current resolution, you get the smallest file it can make, resize the dimensions down and it will then fit comfortably."}}, {"@type": "Question", "name": "What dimensions should I use for a 50 KB photo?", "acceptedAnswer": {"@type": "Answer", "text": "For general photographs, 600-800 px on the long edge is the comfortable range and 1000 px is often achievable. For a passport-style headshot on a plain background, even 413x531 px or similar portal-specified sizes land well under 50 KB, because plain backgrounds compress extremely efficiently."}}, {"@type": "Question", "name": "Which format do government and exam portals accept?", "acceptedAnswer": {"@type": "Answer", "text": "Almost always JPG, and many accept nothing else. Choose JPG for any official upload, and check whether the portal also specifies exact pixel dimensions or a minimum file size, several reject images under about 20 KB as well as those over the maximum."}}, {"@type": "Question", "name": "Is it safe to compress ID photos and documents here?", "acceptedAnswer": {"@type": "Answer", "text": "The files are never uploaded. Compression happens inside your browser using WebAssembly, so identity documents, signatures and application photos stay on your own device. You can verify this by opening the Network tab in developer tools and watching that no image is transmitted while the file compresses."}}, {"@type": "Question", "name": "Why does my photo look blurry at 50 KB?", "acceptedAnswer": {"@type": "Answer", "text": "Because the resolution is too high for the budget. Compression removes detail to save bytes, so a very large image forced into 50 KB has to remove a great deal. Reduce the pixel dimensions first, the same photo at 800 px wide will look far better at 50 KB than a 4000 px version squeezed into the same space."}}, {"@type": "Question", "name": "Can I set both the dimensions and the 50 KB limit at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, and that is the recommended order of operations. Set the resize and the output format, then set the size ceiling. imgready resizes first and then searches encoder quality against your target, so the two settings cooperate rather than fight."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Compress Image to 50KB Online Free | imgready", "description": "Compress an image to 50KB or less for exam, visa and government forms. Output always lands at or under 50 KB. JPG output, resize included, nothing uploaded.", "url": "https://imgready.app/compress-image-to-50kb/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "https://imgready.app/og/compress-image-to-50kb.png"}, "inLanguage": "en"}</script>
 </head>
 <body>
@@ -145,10 +145,10 @@ tr:nth-child(even) td{background:var(--surface);}
 
   <section class="hero">
     <h1>Compress image to 50&nbsp;KB,<br><em>for the form that keeps refusing</em></h1>
-    <p class="lede">Portals that cap uploads at 50&nbsp;KB do not explain how to get there. Set 50&nbsp;KB as the ceiling, pick JPG, and imgready searches quality until the file fits — at or under the limit, never over. Your documents never leave your device.</p>
+    <p class="lede">Portals that cap uploads at 50&nbsp;KB do not explain how to get there. Set 50&nbsp;KB as the ceiling, pick JPG, and imgready searches quality until the file fits, at or under the limit, never over. Your documents never leave your device.</p>
     <!-- =============== imgready tool (lifted from homepage) ===============-->
 <div class="app">
-<!-- SETTINGS TRIGGER — full-width pill right above the dropzone, on
+<!-- SETTINGS TRIGGER: full-width pill right above the dropzone, on
        both mobile and desktop. The label calls out what's inside so power
        users self-identify ("custom output, quality, resize") rather than
        relying on the generic word "Settings." Click expands the panel
@@ -170,9 +170,9 @@ tr:nth-child(even) td{background:var(--surface);}
           <button id="btnPng" onclick="selectFormat('png')">PNG</button>
           <button id="btnJpg" onclick="selectFormat('jpg')">JPG</button>
           <button id="btnGif" onclick="selectFormat('gif')">GIF</button>
-          <button id="btnIco" onclick="selectFormat('ico')" title="Multi-resolution Windows icon — for favicons and desktop icons">ICO</button>
+          <button id="btnIco" onclick="selectFormat('ico')" title="Multi-resolution Windows icon, for favicons and desktop icons">ICO</button>
         </div>
-        <!-- Multi-format toggle hidden — niche developer feature for HTML
+        <!-- Multi-format toggle hidden: niche developer feature for HTML
              <picture> output, no measurable user demand surfaced in the
              usage research. Kept in source so we can re-enable in one
              line if the data ever justifies it.
@@ -189,14 +189,14 @@ tr:nth-child(even) td{background:var(--surface);}
       </div>
       <span class="adv-hint" id="fmtTagline"></span>
     </div>
-    <!-- Live Photo extraction toggle — opt-in feature for users who know
+    <!-- Live Photo extraction toggle: opt-in feature for users who know
          their HEIC files contain a 3-second video and want it as MP4.
          Default OFF: matches the dominant user expectation (HEIC → JPG,
          video silently dropped, like CloudConvert/FreeConvert). When ON,
          imgready detects Live Photos via the HEIF parser and outputs
          both the still and the embedded MOV (re-wrapped as MP4) on the
          same card. The toggle is always visible regardless of selected
-         output format — Live Photo detection is input-driven not
+         output format. Live Photo detection is input-driven not
          output-driven, and the user might select WebP for the still
          while still wanting the video. */
     <div class="adv-group adv-group-livephoto">
@@ -204,9 +204,9 @@ tr:nth-child(even) td{background:var(--surface);}
         <input type="checkbox" id="livePhotoExtract" onchange="onLivePhotoToggle(this.checked)">
         Save Live Photo videos as MP4
       </label>
-      <span class="adv-hint">iPhone Live Photos store a 3-second video alongside the still — turn this on to get both files.</span>
+      <span class="adv-hint">iPhone Live Photos store a 3-second video alongside the still. Turn this on to get both files.</span>
     </div>
-    <!-- ICO size-set selector — only visible when format = ico (CSS rule
+    <!-- ICO size-set selector: only visible when format = ico (CSS rule
          body.fmt-ico .adv-group-ico { display: block }). Three presets
          cover 99% of cases; "Custom" expands to individual checkboxes.
          The default is the favicon set (16/32/48), which is what most
@@ -216,7 +216,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <select id="icoSizeSet" onchange="applyIcoSizeSet(this.value)">
         <option value="favicon">Favicon (16, 32, 48)</option>
         <option value="windows">Full Windows Icon (16, 32, 48, 64, 128, 256)</option>
-        <option value="custom">Custom — pick sizes</option>
+        <option value="custom">Custom: pick sizes</option>
       </select>
       <div class="ico-size-checks" id="icoSizeChecks">
         <label><input type="checkbox" data-size="16" checked> 16</label>
@@ -245,7 +245,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <div class="row"><input type="range" id="qualitySlider" min="30" max="100" value="82" oninput="onQualityInput(this.value)"><span class="val-badge" id="qVal">82</span></div>
       <span class="adv-hint" id="qualityHint">Great quality with significant file size savings.</span>
     </div>
-    <!-- Crop section hidden — peer compression tools (TinyPNG, Squoosh,
+    <!-- Crop section hidden: peer compression tools (TinyPNG, Squoosh,
          Compressor.io) don't ship crop in their compress flow; it's a
          separate product category. No usage signal in our traffic to
          justify keeping it. Source preserved for one-line revival.
@@ -273,7 +273,7 @@ tr:nth-child(even) td{background:var(--surface);}
       </div>
       <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
-    <!-- Metadata strip hidden — defaulted to ON via the checkbox initial
+    <!-- Metadata strip hidden: defaulted to ON via the checkbox initial
          state, which is the right behaviour for privacy regardless of
          whether the user touches it. Most users never want EXIF preserved;
          the rare ones who do can have the toggle revealed back from source.
@@ -292,7 +292,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
     <h2>Drop your images here</h2>
-    <p>or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <p>or click to browse. JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
@@ -301,17 +301,17 @@ tr:nth-child(even) td{background:var(--surface);}
          users don't need re-reassurance mid-batch. -->
     <div class="dz-trust" aria-hidden="false">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>Stays on your device — never uploaded</span>
+      <span>Stays on your device, never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
   </div>
 
-  <!-- HERO — moved below the dropzone so the action surface comes first.
+  <!-- HERO: moved below the dropzone so the action surface comes first.
        Hidden via CSS when body.has-images so returning users mid-batch
        aren't reading marketing copy between their dropzone and their
        cards. The h1 still anchors the page for SEO + first-time visitors
        who scroll-read before acting. -->
-  <!-- (Saved status moved into the compact dropzone bar — see #dzSaved
+  <!-- (Saved status moved into the compact dropzone bar, see #dzSaved
        inside #dropzone above. The big banner here was replaced because
        it took its own row of vertical real estate for what's really a
        quiet stat reading; tucking it next to "Add more images" is
@@ -332,7 +332,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <!-- Action triplet: Share / Copy / Download. Wrapped in
            .action-cluster so they wrap together as a single visual unit
            when the action bar narrows. Mirrors the per-card row. Each
-           button is feature-gated independently — Share on Web Share
+           button is feature-gated independently. Share on Web Share
            API support, Copy on single-result mode + clipboard support. -->
       <div class="action-cluster" id="actionCluster">
         <button class="btn btn-share" id="shareAllBtn" style="display:none" onclick="shareAll()" aria-label="Share all results via your device">
@@ -342,7 +342,7 @@ tr:nth-child(even) td{background:var(--surface);}
         <button class="btn btn-dl" id="dlAllBtn" style="display:none" onclick="downloadAll()">Download all</button>
       </div>
       <!-- Reprocess sits AFTER the cluster as a quiet text-link
-           affordance — not visually competitive with the action
+           affordance, not visually competitive with the action
            triplet. Only shown when allDone (see recompute). -->
       <button class="btn btn-link" id="reprocessBtn" style="display:none" onclick="reprocessAll()" title="Discard existing results and re-encode every image with the current settings">or reprocess all</button>
     </div>
@@ -370,16 +370,16 @@ tr:nth-child(even) td{background:var(--surface);}
     <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">&#x2715;</button>
   </div>
 
-  <!-- INSTALL PROMPT — surfaced only after the user's first successful run -->
+  <!-- INSTALL PROMPT: surfaced only after the user's first successful run -->
   <div class="install-banner" id="installBanner" role="status">
     <div class="ib-title">Quick access tip</div>
-    <div class="ib-desc">Bookmark imgready for one-click access — <strong>Ctrl+D</strong> <span style="color:var(--muted);">(⌘D on Mac)</span></div>
+    <div class="ib-desc">Bookmark imgready for one-click access: <strong>Ctrl+D</strong> <span style="color:var(--muted);">(⌘D on Mac)</span></div>
     <div class="ib-row">
       <button class="ib-dismiss" onclick="dismissInstall()" style="margin-left:auto;">Got it</button>
     </div>
   </div>
 
-  <!-- CARD GRID — the "no images yet" empty-state element used to live
+  <!-- CARD GRID: the "no images yet" empty-state element used to live
        here, but it was redundant with the dropzone above (which already
        *is* the empty-state CTA). Removed for cleaner page rhythm. -->
   <div class="grid" id="grid"></div>
@@ -387,7 +387,7 @@ tr:nth-child(even) td{background:var(--surface);}
 <!-- TOAST -->
 <div class="loader-toast" id="libToast"><div class="spin"></div><span id="libToastMsg">Decoding...</span></div>
 
-<!-- UNDO REMOVAL TOAST — appears for 5s after removing an image -->
+<!-- UNDO REMOVAL TOAST: appears for 5s after removing an image -->
 <div class="undo-toast" id="undoToast" role="status" aria-live="polite">
   <span id="undoToastMsg">Image removed</span>
   <button class="undo-toast-btn" onclick="undoRemove()" aria-label="Undo removal">Undo</button>
@@ -408,9 +408,9 @@ tr:nth-child(even) td{background:var(--surface);}
     <div class="fs-divider" id="fsDiv"></div>
     <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     <!-- Stacked label structure:
-           Row 1 (.fs-lbl-title)   — large title: "Before" / "After"
-           Row 2 (.fs-lbl-info)    — size · format
-           Row 3 (.fs-lbl-savings) — savings %, AFTER label only
+           Row 1 (.fs-lbl-title), large title: "Before" / "After"
+           Row 2 (.fs-lbl-info), size · format
+           Row 3 (.fs-lbl-savings), savings %, AFTER label only
          The After side adds a dedicated savings row (the win); the
          Before side stops at the info row since there's nothing to
          celebrate. Both labels populated by JS in showFsResult and
@@ -440,8 +440,8 @@ tr:nth-child(even) td{background:var(--surface);}
       <!-- Toolbar split into two logical groups so the row no longer
            overflows when the size readout, slider, format pills, and
            three action buttons all fight for one line.
-             .fe-tuning  — left:  format pills · slider · size readout
-             .fe-actions — right: Share / Copy / Download
+             .fe-tuning: left:  format pills · slider · size readout
+             .fe-actions, right: Share / Copy / Download
            On wide viewports the two groups sit side-by-side with the
            tuning group taking the available space and the actions
            group anchored right. On narrow viewports they wrap onto
@@ -465,7 +465,7 @@ tr:nth-child(even) td{background:var(--surface);}
           <span class="fe-size" id="feSize" hidden></span>
         </div>
         <div class="fe-actions">
-          <!-- Apply button removed — the live slider auto-commits each settle.
+          <!-- Apply button removed: the live slider auto-commits each settle.
                What you see in the modal is what's saved on the card. -->
           <!-- Share / Copy / Download triplet, mirroring the per-card
                action row. Share is feature-gated (only renders when
@@ -502,35 +502,35 @@ tr:nth-child(even) td{background:var(--surface);}
 </div>
 </section>
 
-<div class="features"><div class="feat"><h3>At or under 50&nbsp;KB</h3><p>The output never exceeds your ceiling — forms accept it first try.</p></div><div class="feat"><h3>Resize in the same pass</h3><p>Set the exact pixel dimensions a portal demands, then the size cap.</p></div><div class="feat"><h3>Documents stay private</h3><p>ID photos and scans are processed locally, never uploaded.</p></div><div class="feat"><h3>JPG for compatibility</h3><p>MozJPEG fits more detail into a small budget than browser encoders.</p></div></div>
+<div class="features"><div class="feat"><h3>At or under 50&nbsp;KB</h3><p>The output never exceeds your ceiling, forms accept it first try.</p></div><div class="feat"><h3>Resize in the same pass</h3><p>Set the exact pixel dimensions a portal demands, then the size cap.</p></div><div class="feat"><h3>Documents stay private</h3><p>ID photos and scans are processed locally, never uploaded.</p></div><div class="feat"><h3>JPG for compatibility</h3><p>MozJPEG fits more detail into a small budget than browser encoders.</p></div></div>
 
   <h2>Who actually needs 50&nbsp;KB</h2>
-  <p>50&nbsp;KB is rarely a design preference — it is almost always a rule someone else wrote. Government portals, university admission systems, competitive-exam applications, visa and passport services, banking KYC uploads and older HR systems routinely cap photo uploads at 50&nbsp;KB, sometimes with a minimum size as well. The form rejects the file, gives no useful explanation, and you are left trying to hit a number your phone's camera app has never heard of.</p>
+  <p>50&nbsp;KB is rarely a design preference, it is almost always a rule someone else wrote. Government portals, university admission systems, competitive-exam applications, visa and passport services, banking KYC uploads and older HR systems routinely cap photo uploads at 50&nbsp;KB, sometimes with a minimum size as well. The form rejects the file, gives no useful explanation, and you are left trying to hit a number your phone's camera app has never heard of.</p>
   <p>The second audience is technical: avatars, favicon-adjacent UI images, email-signature logos, forum thumbnails and list-view images on data-heavy pages. At 50&nbsp;KB an image is small enough that dozens can load without measurably affecting page speed.</p>
   <h3>Why hitting a hard 50&nbsp;KB is awkward by hand</h3>
   <p>Because the quality slider in ordinary image editors has no idea what 50&nbsp;KB means. You export at quality 70, get 180&nbsp;KB, drop to 40, get 62&nbsp;KB, drop to 25, get 44&nbsp;KB but the photo now looks like it was faxed. Meanwhile the real problem was resolution the whole time: a 4000&nbsp;px-wide photo cannot fit into 50&nbsp;KB without destroying it, whereas the same photo at 800&nbsp;px fits easily and still looks sharp.</p>
-  <p>imgready inverts the workflow. You state the ceiling — 50&nbsp;KB — and the encoder searches quality for you, running real encodes and keeping the best-looking one that stays under the limit. The output is <strong>at or under 50&nbsp;KB</strong>, never above, because a file that comes back at 51&nbsp;KB is useless to a form that rejects anything over 50.</p>
+  <p>imgready inverts the workflow. You state the ceiling: 50&nbsp;KB, and the encoder searches quality for you, running real encodes and keeping the best-looking one that stays under the limit. The output is <strong>at or under 50&nbsp;KB</strong>, never above, because a file that comes back at 51&nbsp;KB is useless to a form that rejects anything over 50.</p>
   <h2>Getting a good-looking photo into 50&nbsp;KB</h2>
-  <p>At this budget, resolution is not a detail — it is the deciding factor. Compression can only throw away detail that exists; it cannot make 12 million pixels cost nothing. Reduce the dimensions first and compression has an easy job instead of an impossible one.</p>
+  <p>At this budget, resolution is not a detail, it is the deciding factor. Compression can only throw away detail that exists; it cannot make 12 million pixels cost nothing. Reduce the dimensions first and compression has an easy job instead of an impossible one.</p>
   <h3>Recommended dimensions for a 50&nbsp;KB ceiling</h3>
-  <p>For photographic content, roughly: 600–800&nbsp;px on the long edge is the comfortable zone, 1000&nbsp;px is achievable for simpler images, and anything beyond about 1200&nbsp;px will force quality down far enough to show artefacts. For a passport-style headshot — a face on a plain background — 50&nbsp;KB is generous, because plain backgrounds compress to almost nothing. Many portals want 413&nbsp;&times;&nbsp;531&nbsp;px or similar, which lands well under the cap.</p>
+  <p>For photographic content, roughly: 600-800&nbsp;px on the long edge is the comfortable zone, 1000&nbsp;px is achievable for simpler images, and anything beyond about 1200&nbsp;px will force quality down far enough to show artefacts. For a passport-style headshot, a face on a plain background, 50&nbsp;KB is generous, because plain backgrounds compress to almost nothing. Many portals want 413&nbsp;&times;&nbsp;531&nbsp;px or similar, which lands well under the cap.</p>
   <h3>Check the form's other rules before you compress</h3>
-  <p>Application portals frequently specify more than a maximum size: exact pixel dimensions, a minimum file size (some reject anything under 20&nbsp;KB), an accepted format list that is often JPG-only, and occasionally a background colour. Set the resize to the required dimensions and the output format to JPG, then apply the 50&nbsp;KB ceiling — in that order, since resizing changes what quality is needed.</p>
+  <p>Application portals frequently specify more than a maximum size: exact pixel dimensions, a minimum file size (some reject anything under 20&nbsp;KB), an accepted format list that is often JPG-only, and occasionally a background colour. Set the resize to the required dimensions and the output format to JPG, then apply the 50&nbsp;KB ceiling, in that order, since resizing changes what quality is needed.</p>
   <h2>Format choice at 50&nbsp;KB</h2>
-  <p>Use <strong>JPG</strong> for anything being submitted to a form, without exception. Portals are conservative and many predate WebP entirely; JPG is the format they expect and the one their validators accept. imgready encodes JPG through MozJPEG, which fits measurably more detail into a small budget than a browser's default encoder — worth a lot when the budget is only 50&nbsp;KB.</p>
-  <p>Use <strong>WebP</strong> only for images you are placing on a website yourself. It is roughly 25–35% more efficient, which at this size is the difference between an avatar that looks crisp and one that looks slightly smeared.</p>
+  <p>Use <strong>JPG</strong> for anything being submitted to a form, without exception. Portals are conservative and many predate WebP entirely; JPG is the format they expect and the one their validators accept. imgready encodes JPG through MozJPEG, which fits measurably more detail into a small budget than a browser's default encoder, worth a lot when the budget is only 50&nbsp;KB.</p>
+  <p>Use <strong>WebP</strong> only for images you are placing on a website yourself. It is roughly 25-35% more efficient, which at this size is the difference between an avatar that looks crisp and one that looks slightly smeared.</p>
   <p>Do not use <strong>PNG</strong> for photographs here. PNG is lossless and has no quality control to search over, so squeezing a photo into 50&nbsp;KB of PNG means cutting the palette down until the image visibly posterises. PNG remains the right choice for flat logos and screenshots with text, where a small palette is genuinely sufficient.</p>
   <h2>Your documents never leave your device</h2>
   <p>This matters more at 50&nbsp;KB than at any other size, because of what these files usually are: passport photographs, signature scans, identity documents, exam admit cards, medical evidence. Uploading those to an unknown compression website means handing personal identity documents to a third party with no accountability.</p>
   <p>imgready never transmits them. The encoders are WebAssembly builds running inside your own browser tab, the file is read from disk locally, and the result is written back locally. Open the Network panel in your browser's developer tools and you will see no image traffic at all while it works. It also keeps functioning offline once the page has loaded, which is convenient in a queue at an office with poor signal.</p>
-  <p>If you have a stack of photos to submit — a family's worth of application forms, or a class's worth of ID pictures — drop up to 200 at once. Every file gets its own quality search against the same 50&nbsp;KB ceiling, because the quality required differs from photo to photo.</p>
+  <p>If you have a stack of photos to submit, a family's worth of application forms, or a class's worth of ID pictures, drop up to 200 at once. Every file gets its own quality search against the same 50&nbsp;KB ceiling, because the quality required differs from photo to photo.</p>
 
   <h2>Frequently asked questions</h2>
-    <details class="faq-item"><summary>Will the file definitely be under 50 KB?</summary><p>Yes when it is achievable at the image's dimensions. The encoder returns the best-looking result that stays at or under 50 KB and never returns a file above the target. If 50 KB is impossible at the current resolution, you get the smallest file it can make — resize the dimensions down and it will then fit comfortably.</p></details>
-    <details class="faq-item"><summary>What dimensions should I use for a 50 KB photo?</summary><p>For general photographs, 600–800 px on the long edge is the comfortable range and 1000 px is often achievable. For a passport-style headshot on a plain background, even 413x531 px or similar portal-specified sizes land well under 50 KB, because plain backgrounds compress extremely efficiently.</p></details>
-    <details class="faq-item"><summary>Which format do government and exam portals accept?</summary><p>Almost always JPG, and many accept nothing else. Choose JPG for any official upload, and check whether the portal also specifies exact pixel dimensions or a minimum file size — several reject images under about 20 KB as well as those over the maximum.</p></details>
+    <details class="faq-item"><summary>Will the file definitely be under 50 KB?</summary><p>Yes when it is achievable at the image's dimensions. The encoder returns the best-looking result that stays at or under 50 KB and never returns a file above the target. If 50 KB is impossible at the current resolution, you get the smallest file it can make, resize the dimensions down and it will then fit comfortably.</p></details>
+    <details class="faq-item"><summary>What dimensions should I use for a 50 KB photo?</summary><p>For general photographs, 600-800 px on the long edge is the comfortable range and 1000 px is often achievable. For a passport-style headshot on a plain background, even 413x531 px or similar portal-specified sizes land well under 50 KB, because plain backgrounds compress extremely efficiently.</p></details>
+    <details class="faq-item"><summary>Which format do government and exam portals accept?</summary><p>Almost always JPG, and many accept nothing else. Choose JPG for any official upload, and check whether the portal also specifies exact pixel dimensions or a minimum file size, several reject images under about 20 KB as well as those over the maximum.</p></details>
     <details class="faq-item"><summary>Is it safe to compress ID photos and documents here?</summary><p>The files are never uploaded. Compression happens inside your browser using WebAssembly, so identity documents, signatures and application photos stay on your own device. You can verify this by opening the Network tab in developer tools and watching that no image is transmitted while the file compresses.</p></details>
-    <details class="faq-item"><summary>Why does my photo look blurry at 50 KB?</summary><p>Because the resolution is too high for the budget. Compression removes detail to save bytes, so a very large image forced into 50 KB has to remove a great deal. Reduce the pixel dimensions first — the same photo at 800 px wide will look far better at 50 KB than a 4000 px version squeezed into the same space.</p></details>
+    <details class="faq-item"><summary>Why does my photo look blurry at 50 KB?</summary><p>Because the resolution is too high for the budget. Compression removes detail to save bytes, so a very large image forced into 50 KB has to remove a great deal. Reduce the pixel dimensions first, the same photo at 800 px wide will look far better at 50 KB than a 4000 px version squeezed into the same space.</p></details>
     <details class="faq-item"><summary>Can I set both the dimensions and the 50 KB limit at once?</summary><p>Yes, and that is the recommended order of operations. Set the resize and the output format, then set the size ceiling. imgready resizes first and then searches encoder quality against your target, so the two settings cooperate rather than fight.</p></details>
 
   <h2>Related tools and guides</h2>
@@ -548,7 +548,7 @@ tr:nth-child(even) td{background:var(--surface);}
 
   <div class="bottom-cta">
     <p>Set 50&nbsp;KB and stop fighting the upload form.</p>
-    <a class="hero-cta" href="#dropzone">Compress to 50&nbsp;KB — FREE</a>
+    <a class="hero-cta" href="#dropzone">Compress to 50&nbsp;KB. FREE</a>
   </div>
 
   <footer class="site-footer">

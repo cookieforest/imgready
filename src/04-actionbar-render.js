@@ -361,7 +361,7 @@ function setCardProcessing(item,active,fmt){
   if(active){
     card.classList.add('processing');
     var label=fmt?'Encoding '+fmt.toUpperCase():'Processing';
-    var hint=fmt==='avif'?'AVIF takes 5–15s — hang tight':'';
+    var hint=fmt==='avif'?'AVIF takes 5-15s: hang tight':'';
     var html='<div class="proc-overlay"><div class="proc-spin"></div><div class="proc-label">'+label+'</div>'+(hint?'<div class="proc-hint">'+hint+'</div>':'')+'</div>';
     if(!overlay)thumb.insertAdjacentHTML('beforeend',html);
     else overlay.outerHTML=html;
@@ -380,7 +380,7 @@ function renderAll(){
     dzP.textContent='or drag and drop. They\'ll be queued with your current batch.';
   } else if(!hasImages&&dzH2&&dzP){
     dzH2.textContent='Drop your images here';
-    dzP.textContent='or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more';
+    dzP.textContent='or click to browse: JPG, PNG, HEIC, TIFF, WebP, AVIF and more';
   }
   var ab=G('actionBar');if(ab)ab.style.display=hasImages?'flex':'none';
   updateChargePreview();
@@ -569,7 +569,7 @@ window.processAll=async function(){
       var slowTimer=null;
       if(fmt==='avif'){
         slowTimer=setTimeout(function(){
-          if(pl)pl.textContent='Encoding AVIF — this may take a moment on larger images…';
+          if(pl)pl.textContent='Encoding AVIF: this may take a moment on larger images…';
         },AVIF_SLOW_THRESHOLD);
       }
       try{
@@ -656,7 +656,7 @@ window.processAll=async function(){
             break;
           }
         }
-        if(!item.errorMsg)item.errorMsg='One or more outputs failed — see rows below.';
+        if(!item.errorMsg)item.errorMsg='One or more outputs failed, see rows below.';
       }
     }
     /* Live Photo video extraction. Runs once per item AFTER all

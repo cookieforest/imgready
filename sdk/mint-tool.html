@@ -58,9 +58,9 @@
     <h2>Mint a new key</h2>
     <label for="tier">Tier</label>
     <select id="tier">
-      <option value="personal">Personal ($9 — non-commercial)</option>
-      <option value="developer" selected>Developer ($29 — commercial / client)</option>
-      <option value="commercial">Commercial ($99 — agency / SaaS)</option>
+      <option value="personal">Personal ($9: non-commercial)</option>
+      <option value="developer" selected>Developer ($29: commercial / client)</option>
+      <option value="commercial">Commercial ($99: agency / SaaS)</option>
     </select>
 
     <label for="email">Customer email</label>
@@ -183,15 +183,15 @@ Thanks for supporting imgready! Here's your ${tierName} license key:
 
   ${lastKey}
 
-How to use it — call this once at the top of your app:
+How to use it. Call this once at the top of your app:
 
   imgready.init({ licenseKey: '${lastKey}' });
 
 The "Images optimized by imgready" badge will be removed from any page that loads the SDK.
 
-Keep this key safe — it cannot be regenerated. If you lose it or have any questions, just reply to this email.
+Keep this key safe: it cannot be regenerated. If you lose it or have any questions, just reply to this email.
 
-— Jeffrey
+- Jeffrey
 hello@imgready.app
 `;
   navigator.clipboard.writeText(tmpl).then(() => {

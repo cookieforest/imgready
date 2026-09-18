@@ -479,7 +479,7 @@ function _ensureWindowDragOverlay(){
   _windowDragOverlay.innerHTML='<div class="wd-card">'+
     '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'+
     '<div class="wd-title">Drop anywhere</div>'+
-    '<div class="wd-sub">Stays on your device — never uploaded</div>'+
+    '<div class="wd-sub">Stays on your device, never uploaded</div>'+
   '</div>';
   document.body.appendChild(_windowDragOverlay);
   return _windowDragOverlay;
@@ -540,7 +540,7 @@ document.addEventListener('drop',async function(e){
   e.preventDefault();
   _hideWindowDragOverlay();
   var dzel=G('dropzone');if(dzel)dzel.classList.remove('drag');
-  /* Drop into the fullscreen modal: don't close — switch the modal's
+  /* Drop into the fullscreen modal: don't close: switch the modal's
      subject to the new file (Squoosh-style). The modal flips back into
      preview-only mode showing the new file's original; the encode runs in
      background and transitions to the result on completion. The previous
@@ -671,7 +671,7 @@ async function addFiles(list){
     var ok=await imgrConfirm(
       'You\'re about to add '+list.length+' files (current: '+images.length+'). '+
       'Browsers can struggle with more than '+BATCH_SOFT_LIMIT+' large images at once. Continue anyway?',
-      {title:'Big batch — heads up'}
+      {title:'Big batch: heads up'}
     );
     if(!ok)return;
   }
@@ -734,7 +734,7 @@ async function addFiles(list){
        For instantly-decodable formats (JPG/PNG/WebP/AVIF/GIF) the
        <img>-tag-based decode in addFiles' simple branch already set
        origUrl, so fsBefore lands at once. For HEIC/TIFF/BMP origUrl
-       arrives ~1–3 s later via preDecodeFile; openPreview's internal
+       arrives ~1-3 s later via preDecodeFile; openPreview's internal
        poller fills fsBefore as soon as it does. The user goes straight
        into the focused experience instead of staring at a card. */
     if(typeof window.openPreview==='function'&&!soloItem.errorMsg){

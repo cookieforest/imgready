@@ -116,7 +116,7 @@ function openEditMode(idx){
     btn.dataset.tab = t.id;
     /* R20 - every tab gets an icon + label. R22 - title carries shortcut hint. */
     btn.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#' + (t.icon || 'i-arrow-left-right') + '"/></svg><span>' + t.label + '</span>';
-    btn.title = t.label + ' — ' + (i + 1);
+    btn.title = t.label + ': ' + (i + 1);
     btn.addEventListener('click', () => _switchEditTab(t.id));
     tabBar.appendChild(btn);
   });
@@ -704,7 +704,7 @@ function _ensureSplitUi(){
     cc.type = 'button';
     cc.className = 'edit-compare-chip'; cc.id = 'editCompareChip';
     cc.innerHTML = '<svg class="ico" aria-hidden="true" style="width:13px;height:13px"><use href="#i-arrow-left-right"/></svg>Compare';
-    cc.title = 'Compare original vs edited — drag the divider';
+    cc.title = 'Compare original vs edited: drag the divider';
     cc.addEventListener('click', _toggleSplitCompare);
     col.appendChild(cc);
   }
@@ -1032,7 +1032,7 @@ function _renderRotateTab(body){
     const enabled = (rs.enabled !== false);
     /* R66 — feed the RAW combined angle to CSS rotate so dragging the
        slider across 0 doesn't snap modulo and trigger a 360° spin. The
-       encoded payload (used by the bake step) still normalizes to 0–360. */
+       encoded payload (used by the bake step) still normalizes to 0-360. */
     const totalRaw = rs.deg + rs.angle;
     const totalNorm = ((totalRaw % 360) + 360) % 360;
     const tx = enabled

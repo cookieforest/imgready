@@ -617,6 +617,59 @@ for (const p of sitemapPaths) {
   notes.push('display font: Poetsen One ships one weight, and no rule can fake another');
 }
 
+/* ---------- 20. no em-dash in anything a person can read ----------
+   The design skill bans it outright (section 9.G) as the single most
+   recognisable LLM writing tell. The sweep that removed 3307 of them
+   found four separate populations, and only the last is exempt:
+
+     page copy        visible
+     JSON-LD          visible, Google renders FAQ answers into results
+     JS string liters visible, this is the working-screen UI copy
+     code comments    not visible, left alone
+
+   So this checks markup and JS strings but skips comments. Encoded
+   forms count: &mdash; renders identically and was missed by the first
+   sweep precisely because it is not the literal character. */
+{
+  const strip = (s) => s
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    /* A trailing `// note` after code counts as a comment too, which an
+       anchored regex misses. `//` inside a string or a URL does not, so
+       only cut where the quotes before it are balanced. */
+    .split('\n')
+    .map((line) => {
+      let i = 0;
+      for (;;) {
+        const j = line.indexOf('//', i);
+        if (j === -1) return line;
+        const before = line.slice(0, j);
+        const even = (q) => (before.split(q).length - 1) % 2 === 0;
+        if (even('"') && even("'") && even('`') && !before.endsWith(':')) return before;
+        i = j + 2;
+      }
+    })
+    .join('\n');
+  const DASH = /\u2014|\u2013|&mdash;|&ndash;/;
+  const targets = [...pages];
+  for (const f of ['sw.js']) if (existsSync(join(ROOT, f))) targets.push(['/' + f, join(ROOT, f)]);
+  const srcDir = join(ROOT, 'src');
+  if (existsSync(srcDir)) {
+    for (const n of readdirSync(srcDir)) {
+      if (n.endsWith('.js')) targets.push(['src/' + n, join(srcDir, n)]);
+    }
+  }
+  let hits = 0;
+  for (const [label, file] of targets) {
+    const body = strip(read(file));
+    if (!DASH.test(body)) continue;
+    const m = body.match(new RegExp('.{0,45}(?:' + DASH.source + ').{0,45}'));
+    hits++;
+    fail('em-dash', `${label}: ${(m ? m[0] : '').replace(/\s+/g, ' ').trim()}`);
+  }
+  if (!hits) notes.push('copy: no em-dash or en-dash in any visible string');
+}
+
 /* ---------- report ---------- */
 console.log('imgready site checks\n');
 notes.forEach((n) => console.log('  · ' + n));

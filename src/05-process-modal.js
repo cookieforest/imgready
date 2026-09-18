@@ -63,7 +63,7 @@ window.openPreview=function(imgId){
   if(!item)return;
   var modalWasOpen=G('fsModal').classList.contains('show');
   /* For HEIC / TIFF / BMP inputs, origUrl isn't ready immediately —
-     decoding takes 1–3 s. Open the modal anyway with an empty fsBefore
+     decoding takes 1-3 s. Open the modal anyway with an empty fsBefore
      and a "Decoding…" pulse; once preDecodeFile lands the origUrl,
      poll-and-populate fsBefore without flashing the modal. The
      `_fsPreviewItemId` guard means a drop-switch in the meantime

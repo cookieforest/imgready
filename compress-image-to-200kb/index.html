@@ -121,9 +121,9 @@ tr:nth-child(even) td{background:var(--surface);}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){.hero h1{font-size:1.55rem;}}
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready — compress image to 200KB", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/compress-image-to-200kb/", "browserRequirements": "Requires a modern browser with WebAssembly support", "description": "Compress images to 200KB or less while keeping quality high. Output always lands at or under 200 KB. WebP, AVIF and JPG output, batch of 200, nothing uploaded.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["Target a 200 KB file size ceiling", "Guaranteed at-or-under output", "WebP, AVIF, JPG output", "Batch up to 200 files", "Resize and compress in one pass", "Runs fully client-side — no upload"], "permissions": "No file upload; all processing happens locally in the browser"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready: compress image to 200KB", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/compress-image-to-200kb/", "browserRequirements": "Requires a modern browser with WebAssembly support", "description": "Compress images to 200KB or less while keeping quality high. Output always lands at or under 200 KB. WebP, AVIF and JPG output, batch of 200, nothing uploaded.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["Target a 200 KB file size ceiling", "Guaranteed at-or-under output", "WebP, AVIF, JPG output", "Batch up to 200 files", "Resize and compress in one pass", "Runs fully client-side, no upload"], "permissions": "No file upload; all processing happens locally in the browser"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Compress Image to 200KB", "item": "https://imgready.app/compress-image-to-200kb/"}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is 200 KB small enough for good page speed?", "acceptedAnswer": {"@type": "Answer", "text": "For a single hero or featured image, yes — 200 KB loads quickly on a normal mobile connection and will not usually be the bottleneck in Largest Contentful Paint. Where it becomes a problem is volume: ten 200 KB images on one screen is 2 MB. Use 200 KB for images that carry the page and a tighter budget for thumbnails and list views."}}, {"@type": "Question", "name": "Should I choose WebP or JPG at 200 KB?", "acceptedAnswer": {"@type": "Answer", "text": "WebP if the image is displayed in a browser you control — it is 25–35% more efficient, so 200 KB of WebP visibly beats 200 KB of JPG. JPG if the file is going anywhere you do not control, such as email, print or a marketplace listing, because compatibility matters more than efficiency there."}}, {"@type": "Question", "name": "Will the output ever be larger than 200 KB?", "acceptedAnswer": {"@type": "Answer", "text": "No. The encoder searches quality and keeps the best result that stays at or under your ceiling, so overshoot does not happen. If 200 KB is unreachable at the image's current dimensions, you receive the smallest file it can produce and reducing the resolution will bring it under."}}, {"@type": "Question", "name": "Is it better to resize or to compress harder?", "acceptedAnswer": {"@type": "Answer", "text": "Resize first, almost always. Halving width and height removes three quarters of the pixels before compression starts, which preserves far more apparent sharpness than keeping a huge image and compressing it aggressively to the same file size. Set the dimensions you actually need, then apply the byte ceiling."}}, {"@type": "Question", "name": "Can I use AVIF for a 200 KB target?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, and at this budget AVIF produces excellent fidelity because it compresses roughly 40–50% tighter than JPEG. The trade-off is encoding speed — AVIF derives from the AV1 video codec and takes noticeably longer in the browser, which is worth considering on large batches or older devices."}}, {"@type": "Question", "name": "Does every image in a batch get its own quality setting?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Each file is searched independently against the same 200 KB ceiling, which is the point of targeting size rather than quality: a flat product shot and a dense landscape need very different quality settings to arrive at the same file size, and the tool works that out per image."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is 200 KB small enough for good page speed?", "acceptedAnswer": {"@type": "Answer", "text": "For a single hero or featured image, yes, 200 KB loads quickly on a normal mobile connection and will not usually be the bottleneck in Largest Contentful Paint. Where it becomes a problem is volume: ten 200 KB images on one screen is 2 MB. Use 200 KB for images that carry the page and a tighter budget for thumbnails and list views."}}, {"@type": "Question", "name": "Should I choose WebP or JPG at 200 KB?", "acceptedAnswer": {"@type": "Answer", "text": "WebP if the image is displayed in a browser you control, it is 25-35% more efficient, so 200 KB of WebP visibly beats 200 KB of JPG. JPG if the file is going anywhere you do not control, such as email, print or a marketplace listing, because compatibility matters more than efficiency there."}}, {"@type": "Question", "name": "Will the output ever be larger than 200 KB?", "acceptedAnswer": {"@type": "Answer", "text": "No. The encoder searches quality and keeps the best result that stays at or under your ceiling, so overshoot does not happen. If 200 KB is unreachable at the image's current dimensions, you receive the smallest file it can produce and reducing the resolution will bring it under."}}, {"@type": "Question", "name": "Is it better to resize or to compress harder?", "acceptedAnswer": {"@type": "Answer", "text": "Resize first, almost always. Halving width and height removes three quarters of the pixels before compression starts, which preserves far more apparent sharpness than keeping a huge image and compressing it aggressively to the same file size. Set the dimensions you actually need, then apply the byte ceiling."}}, {"@type": "Question", "name": "Can I use AVIF for a 200 KB target?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, and at this budget AVIF produces excellent fidelity because it compresses roughly 40-50% tighter than JPEG. The trade-off is encoding speed. AVIF derives from the AV1 video codec and takes noticeably longer in the browser, which is worth considering on large batches or older devices."}}, {"@type": "Question", "name": "Does every image in a batch get its own quality setting?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Each file is searched independently against the same 200 KB ceiling, which is the point of targeting size rather than quality: a flat product shot and a dense landscape need very different quality settings to arrive at the same file size, and the tool works that out per image."}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Compress Image to 200KB Online Free | imgready", "description": "Compress images to 200KB or less while keeping quality high. Output always lands at or under 200 KB. WebP, AVIF and JPG output, batch of 200, nothing uploaded.", "url": "https://imgready.app/compress-image-to-200kb/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "https://imgready.app/og/compress-image-to-200kb.png"}, "inLanguage": "en"}</script>
 </head>
 <body>
@@ -145,10 +145,10 @@ tr:nth-child(even) td{background:var(--surface);}
 
   <section class="hero">
     <h1>Compress image to 200&nbsp;KB,<br><em>without visible compromise</em></h1>
-    <p class="lede">200&nbsp;KB is the quality-first budget — enough for hero images, featured images and product photography to still look right. Set the ceiling and imgready keeps the highest quality that fits, at or under your target, entirely in your browser.</p>
+    <p class="lede">200&nbsp;KB is the quality-first budget, enough for hero images, featured images and product photography to still look right. Set the ceiling and imgready keeps the highest quality that fits, at or under your target, entirely in your browser.</p>
     <!-- =============== imgready tool (lifted from homepage) ===============-->
 <div class="app">
-<!-- SETTINGS TRIGGER — full-width pill right above the dropzone, on
+<!-- SETTINGS TRIGGER: full-width pill right above the dropzone, on
        both mobile and desktop. The label calls out what's inside so power
        users self-identify ("custom output, quality, resize") rather than
        relying on the generic word "Settings." Click expands the panel
@@ -170,9 +170,9 @@ tr:nth-child(even) td{background:var(--surface);}
           <button id="btnPng" onclick="selectFormat('png')">PNG</button>
           <button id="btnJpg" onclick="selectFormat('jpg')">JPG</button>
           <button id="btnGif" onclick="selectFormat('gif')">GIF</button>
-          <button id="btnIco" onclick="selectFormat('ico')" title="Multi-resolution Windows icon — for favicons and desktop icons">ICO</button>
+          <button id="btnIco" onclick="selectFormat('ico')" title="Multi-resolution Windows icon, for favicons and desktop icons">ICO</button>
         </div>
-        <!-- Multi-format toggle hidden — niche developer feature for HTML
+        <!-- Multi-format toggle hidden: niche developer feature for HTML
              <picture> output, no measurable user demand surfaced in the
              usage research. Kept in source so we can re-enable in one
              line if the data ever justifies it.
@@ -189,14 +189,14 @@ tr:nth-child(even) td{background:var(--surface);}
       </div>
       <span class="adv-hint" id="fmtTagline"></span>
     </div>
-    <!-- Live Photo extraction toggle — opt-in feature for users who know
+    <!-- Live Photo extraction toggle: opt-in feature for users who know
          their HEIC files contain a 3-second video and want it as MP4.
          Default OFF: matches the dominant user expectation (HEIC → JPG,
          video silently dropped, like CloudConvert/FreeConvert). When ON,
          imgready detects Live Photos via the HEIF parser and outputs
          both the still and the embedded MOV (re-wrapped as MP4) on the
          same card. The toggle is always visible regardless of selected
-         output format — Live Photo detection is input-driven not
+         output format. Live Photo detection is input-driven not
          output-driven, and the user might select WebP for the still
          while still wanting the video. */
     <div class="adv-group adv-group-livephoto">
@@ -204,9 +204,9 @@ tr:nth-child(even) td{background:var(--surface);}
         <input type="checkbox" id="livePhotoExtract" onchange="onLivePhotoToggle(this.checked)">
         Save Live Photo videos as MP4
       </label>
-      <span class="adv-hint">iPhone Live Photos store a 3-second video alongside the still — turn this on to get both files.</span>
+      <span class="adv-hint">iPhone Live Photos store a 3-second video alongside the still. Turn this on to get both files.</span>
     </div>
-    <!-- ICO size-set selector — only visible when format = ico (CSS rule
+    <!-- ICO size-set selector: only visible when format = ico (CSS rule
          body.fmt-ico .adv-group-ico { display: block }). Three presets
          cover 99% of cases; "Custom" expands to individual checkboxes.
          The default is the favicon set (16/32/48), which is what most
@@ -216,7 +216,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <select id="icoSizeSet" onchange="applyIcoSizeSet(this.value)">
         <option value="favicon">Favicon (16, 32, 48)</option>
         <option value="windows">Full Windows Icon (16, 32, 48, 64, 128, 256)</option>
-        <option value="custom">Custom — pick sizes</option>
+        <option value="custom">Custom: pick sizes</option>
       </select>
       <div class="ico-size-checks" id="icoSizeChecks">
         <label><input type="checkbox" data-size="16" checked> 16</label>
@@ -245,7 +245,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <div class="row"><input type="range" id="qualitySlider" min="30" max="100" value="82" oninput="onQualityInput(this.value)"><span class="val-badge" id="qVal">82</span></div>
       <span class="adv-hint" id="qualityHint">Great quality with significant file size savings.</span>
     </div>
-    <!-- Crop section hidden — peer compression tools (TinyPNG, Squoosh,
+    <!-- Crop section hidden: peer compression tools (TinyPNG, Squoosh,
          Compressor.io) don't ship crop in their compress flow; it's a
          separate product category. No usage signal in our traffic to
          justify keeping it. Source preserved for one-line revival.
@@ -273,7 +273,7 @@ tr:nth-child(even) td{background:var(--surface);}
       </div>
       <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
-    <!-- Metadata strip hidden — defaulted to ON via the checkbox initial
+    <!-- Metadata strip hidden: defaulted to ON via the checkbox initial
          state, which is the right behaviour for privacy regardless of
          whether the user touches it. Most users never want EXIF preserved;
          the rare ones who do can have the toggle revealed back from source.
@@ -292,7 +292,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </span>
     <h2>Drop your images here</h2>
-    <p>or click to browse — JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
+    <p>or click to browse. JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
     <!-- Trust line: the privacy claim is imgready's strongest wedge vs.
          TinyPNG/Compressor.io. Putting it INSIDE the dropzone keeps it
          in the same eye-line as the action, so first-time visitors don't
@@ -301,17 +301,17 @@ tr:nth-child(even) td{background:var(--surface);}
          users don't need re-reassurance mid-batch. -->
     <div class="dz-trust" aria-hidden="false">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>Stays on your device — never uploaded</span>
+      <span>Stays on your device, never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
   </div>
 
-  <!-- HERO — moved below the dropzone so the action surface comes first.
+  <!-- HERO: moved below the dropzone so the action surface comes first.
        Hidden via CSS when body.has-images so returning users mid-batch
        aren't reading marketing copy between their dropzone and their
        cards. The h1 still anchors the page for SEO + first-time visitors
        who scroll-read before acting. -->
-  <!-- (Saved status moved into the compact dropzone bar — see #dzSaved
+  <!-- (Saved status moved into the compact dropzone bar, see #dzSaved
        inside #dropzone above. The big banner here was replaced because
        it took its own row of vertical real estate for what's really a
        quiet stat reading; tucking it next to "Add more images" is
@@ -332,7 +332,7 @@ tr:nth-child(even) td{background:var(--surface);}
       <!-- Action triplet: Share / Copy / Download. Wrapped in
            .action-cluster so they wrap together as a single visual unit
            when the action bar narrows. Mirrors the per-card row. Each
-           button is feature-gated independently — Share on Web Share
+           button is feature-gated independently. Share on Web Share
            API support, Copy on single-result mode + clipboard support. -->
       <div class="action-cluster" id="actionCluster">
         <button class="btn btn-share" id="shareAllBtn" style="display:none" onclick="shareAll()" aria-label="Share all results via your device">
@@ -342,7 +342,7 @@ tr:nth-child(even) td{background:var(--surface);}
         <button class="btn btn-dl" id="dlAllBtn" style="display:none" onclick="downloadAll()">Download all</button>
       </div>
       <!-- Reprocess sits AFTER the cluster as a quiet text-link
-           affordance — not visually competitive with the action
+           affordance, not visually competitive with the action
            triplet. Only shown when allDone (see recompute). -->
       <button class="btn btn-link" id="reprocessBtn" style="display:none" onclick="reprocessAll()" title="Discard existing results and re-encode every image with the current settings">or reprocess all</button>
     </div>
@@ -370,16 +370,16 @@ tr:nth-child(even) td{background:var(--surface);}
     <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">&#x2715;</button>
   </div>
 
-  <!-- INSTALL PROMPT — surfaced only after the user's first successful run -->
+  <!-- INSTALL PROMPT: surfaced only after the user's first successful run -->
   <div class="install-banner" id="installBanner" role="status">
     <div class="ib-title">Quick access tip</div>
-    <div class="ib-desc">Bookmark imgready for one-click access — <strong>Ctrl+D</strong> <span style="color:var(--muted);">(⌘D on Mac)</span></div>
+    <div class="ib-desc">Bookmark imgready for one-click access: <strong>Ctrl+D</strong> <span style="color:var(--muted);">(⌘D on Mac)</span></div>
     <div class="ib-row">
       <button class="ib-dismiss" onclick="dismissInstall()" style="margin-left:auto;">Got it</button>
     </div>
   </div>
 
-  <!-- CARD GRID — the "no images yet" empty-state element used to live
+  <!-- CARD GRID: the "no images yet" empty-state element used to live
        here, but it was redundant with the dropzone above (which already
        *is* the empty-state CTA). Removed for cleaner page rhythm. -->
   <div class="grid" id="grid"></div>
@@ -387,7 +387,7 @@ tr:nth-child(even) td{background:var(--surface);}
 <!-- TOAST -->
 <div class="loader-toast" id="libToast"><div class="spin"></div><span id="libToastMsg">Decoding...</span></div>
 
-<!-- UNDO REMOVAL TOAST — appears for 5s after removing an image -->
+<!-- UNDO REMOVAL TOAST: appears for 5s after removing an image -->
 <div class="undo-toast" id="undoToast" role="status" aria-live="polite">
   <span id="undoToastMsg">Image removed</span>
   <button class="undo-toast-btn" onclick="undoRemove()" aria-label="Undo removal">Undo</button>
@@ -408,9 +408,9 @@ tr:nth-child(even) td{background:var(--surface);}
     <div class="fs-divider" id="fsDiv"></div>
     <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     <!-- Stacked label structure:
-           Row 1 (.fs-lbl-title)   — large title: "Before" / "After"
-           Row 2 (.fs-lbl-info)    — size · format
-           Row 3 (.fs-lbl-savings) — savings %, AFTER label only
+           Row 1 (.fs-lbl-title), large title: "Before" / "After"
+           Row 2 (.fs-lbl-info), size · format
+           Row 3 (.fs-lbl-savings), savings %, AFTER label only
          The After side adds a dedicated savings row (the win); the
          Before side stops at the info row since there's nothing to
          celebrate. Both labels populated by JS in showFsResult and
@@ -440,8 +440,8 @@ tr:nth-child(even) td{background:var(--surface);}
       <!-- Toolbar split into two logical groups so the row no longer
            overflows when the size readout, slider, format pills, and
            three action buttons all fight for one line.
-             .fe-tuning  — left:  format pills · slider · size readout
-             .fe-actions — right: Share / Copy / Download
+             .fe-tuning: left:  format pills · slider · size readout
+             .fe-actions, right: Share / Copy / Download
            On wide viewports the two groups sit side-by-side with the
            tuning group taking the available space and the actions
            group anchored right. On narrow viewports they wrap onto
@@ -465,7 +465,7 @@ tr:nth-child(even) td{background:var(--surface);}
           <span class="fe-size" id="feSize" hidden></span>
         </div>
         <div class="fe-actions">
-          <!-- Apply button removed — the live slider auto-commits each settle.
+          <!-- Apply button removed: the live slider auto-commits each settle.
                What you see in the modal is what's saved on the card. -->
           <!-- Share / Copy / Download triplet, mirroring the per-card
                action row. Share is feature-gated (only renders when
@@ -502,36 +502,36 @@ tr:nth-child(even) td{background:var(--surface);}
 </div>
 </section>
 
-<div class="features"><div class="feat"><h3>At or under 200&nbsp;KB</h3><p>Predictable maximum weight for every image on the page.</p></div><div class="feat"><h3>Highest quality that fits</h3><p>Real encodes are searched, not estimated — no guesswork.</p></div><div class="feat"><h3>WebP, AVIF or JPG</h3><p>Spend the budget on fidelity or on resolution, your choice.</p></div><div class="feat"><h3>Whole galleries at once</h3><p>200 files, one ceiling, an independent search for each.</p></div></div>
+<div class="features"><div class="feat"><h3>At or under 200&nbsp;KB</h3><p>Predictable maximum weight for every image on the page.</p></div><div class="feat"><h3>Highest quality that fits</h3><p>Real encodes are searched, not estimated, no guesswork.</p></div><div class="feat"><h3>WebP, AVIF or JPG</h3><p>Spend the budget on fidelity or on resolution, your choice.</p></div><div class="feat"><h3>Whole galleries at once</h3><p>200 files, one ceiling, an independent search for each.</p></div></div>
 
   <h2>200&nbsp;KB is the quality-first budget</h2>
   <p>Where 50&nbsp;KB is a rule imposed by a form and 100&nbsp;KB is a performance guideline, 200&nbsp;KB is usually a deliberate choice: you want the image to look genuinely good and you are willing to spend bytes on it. It is the natural budget for a full-width hero image, a blog post's featured image, product photography where detail sells the item, and portfolio work where compression artefacts would be embarrassing.</p>
   <p>It is also still fast. 200&nbsp;KB over a normal mobile connection arrives quickly enough that it will not be the bottleneck in your Largest Contentful Paint, provided it is the only large asset competing for bandwidth. The trade is deliberate: roughly double the bytes of a 100&nbsp;KB image in exchange for meaningfully more detail, especially on wide or texture-heavy photographs.</p>
   <h3>What the extra headroom actually buys</h3>
-  <p>Two things, and it is worth choosing which one you want. You can spend it on <strong>resolution</strong> — keeping a 2000&nbsp;px-wide image instead of shrinking to 1200&nbsp;px, which matters for hero banners on large displays and for images users may zoom. Or you can spend it on <strong>fidelity</strong> at the same dimensions, which matters for photographs full of fine texture: foliage, hair, fabric weave, crowds, architectural detail. Those subjects show compression artefacts first, and 200&nbsp;KB gives the encoder enough room to keep them clean.</p>
+  <p>Two things, and it is worth choosing which one you want. You can spend it on <strong>resolution</strong>: keeping a 2000&nbsp;px-wide image instead of shrinking to 1200&nbsp;px, which matters for hero banners on large displays and for images users may zoom. Or you can spend it on <strong>fidelity</strong> at the same dimensions, which matters for photographs full of fine texture: foliage, hair, fabric weave, crowds, architectural detail. Those subjects show compression artefacts first, and 200&nbsp;KB gives the encoder enough room to keep them clean.</p>
   <p>What you should not do is leave the dimensions enormous and rely on compression alone. A 5000&nbsp;px photo squeezed into 200&nbsp;KB looks worse than a 1800&nbsp;px version of the same photo at the same file size, because the encoder is forced to discard detail across four times as many pixels. Resolution first, then the byte budget.</p>
   <h2>How the target is met</h2>
-  <p>Set 200&nbsp;KB as the ceiling and imgready searches encoder quality by running real encodes — not estimates — and keeping the highest-quality result that still fits. Because it is a genuine search over actual output, the file you download is the file that was measured. The result lands <strong>at or under</strong> 200&nbsp;KB and never above it.</p>
-  <p>In practice a 200&nbsp;KB ceiling usually resolves to a fairly high quality setting for normally-sized web images, which is exactly the point: you are not asking for aggressive compression, you are asking for a predictable maximum. That predictability is what makes it useful at scale — a whole gallery encoded to the same ceiling gives you a page whose total image weight you can actually calculate in advance.</p>
+  <p>Set 200&nbsp;KB as the ceiling and imgready searches encoder quality by running real encodes, not estimates, and keeping the highest-quality result that still fits. Because it is a genuine search over actual output, the file you download is the file that was measured. The result lands <strong>at or under</strong> 200&nbsp;KB and never above it.</p>
+  <p>In practice a 200&nbsp;KB ceiling usually resolves to a fairly high quality setting for normally-sized web images, which is exactly the point: you are not asking for aggressive compression, you are asking for a predictable maximum. That predictability is what makes it useful at scale, a whole gallery encoded to the same ceiling gives you a page whose total image weight you can actually calculate in advance.</p>
   <h2>Format choice when quality is the priority</h2>
-  <h3>WebP — the best picture per byte</h3>
-  <p>At a quality-first budget, WebP is the strongest choice for anything displayed in a browser. It is 25–35% more efficient than JPEG, so a 200&nbsp;KB WebP carries noticeably more detail than a 200&nbsp;KB JPG of the same photograph. Browser support is effectively universal now.</p>
-  <h3>AVIF — smaller still, slower to encode</h3>
-  <p>AVIF compresses tighter again, often 40–50% below JPEG, which at 200&nbsp;KB means very high fidelity. The cost is encoding time — AVIF is built on the AV1 video codec and does substantially more work, which is noticeable in the browser on large batches or older hardware. For a handful of hero images compiled once, it is an excellent trade.</p>
-  <h3>JPG — when something else has to read it</h3>
-  <p>If the file is going into an email, a print workflow, a marketplace listing or any system you do not control, use JPG. At 200&nbsp;KB, JPG through MozJPEG produces genuinely good results for typical web dimensions — this budget is comfortable rather than tight.</p>
+  <h3>WebP: the best picture per byte</h3>
+  <p>At a quality-first budget, WebP is the strongest choice for anything displayed in a browser. It is 25-35% more efficient than JPEG, so a 200&nbsp;KB WebP carries noticeably more detail than a 200&nbsp;KB JPG of the same photograph. Browser support is effectively universal now.</p>
+  <h3>AVIF: smaller still, slower to encode</h3>
+  <p>AVIF compresses tighter again, often 40-50% below JPEG, which at 200&nbsp;KB means very high fidelity. The cost is encoding time. AVIF is built on the AV1 video codec and does substantially more work, which is noticeable in the browser on large batches or older hardware. For a handful of hero images compiled once, it is an excellent trade.</p>
+  <h3>JPG: when something else has to read it</h3>
+  <p>If the file is going into an email, a print workflow, a marketplace listing or any system you do not control, use JPG. At 200&nbsp;KB, JPG through MozJPEG produces genuinely good results for typical web dimensions, this budget is comfortable rather than tight.</p>
   <h3>PNG remains the wrong tool for photographs</h3>
   <p>PNG has no quality dial for the encoder to search, being lossless by design. At 200&nbsp;KB a photograph would need its palette cut down until banding appears. Use PNG for screenshots, UI graphics, logos and anything with text or hard edges, where losslessness is the actual requirement.</p>
   <h2>Batch a whole gallery to one ceiling</h2>
-  <p>The real value of a size target appears at volume. Drop up to 200 files, set 200&nbsp;KB once, and every image gets an independent quality search against that ceiling — the flat-background product shot will settle at a high quality, the dense forest photograph at a lower one, and both come back under budget. That is the outcome a single global quality setting cannot give you, because identical quality settings produce wildly different file sizes depending on image content.</p>
+  <p>The real value of a size target appears at volume. Drop up to 200 files, set 200&nbsp;KB once, and every image gets an independent quality search against that ceiling, the flat-background product shot will settle at a high quality, the dense forest photograph at a lower one, and both come back under budget. That is the outcome a single global quality setting cannot give you, because identical quality settings produce wildly different file sizes depending on image content.</p>
   <p>All of it runs in your browser through WebAssembly encoders, so nothing is uploaded, there is no queue, and the only limit on batch size is your own device's memory. Results download individually or together as a ZIP.</p>
 
   <h2>Frequently asked questions</h2>
-    <details class="faq-item"><summary>Is 200 KB small enough for good page speed?</summary><p>For a single hero or featured image, yes — 200 KB loads quickly on a normal mobile connection and will not usually be the bottleneck in Largest Contentful Paint. Where it becomes a problem is volume: ten 200 KB images on one screen is 2 MB. Use 200 KB for images that carry the page and a tighter budget for thumbnails and list views.</p></details>
-    <details class="faq-item"><summary>Should I choose WebP or JPG at 200 KB?</summary><p>WebP if the image is displayed in a browser you control — it is 25–35% more efficient, so 200 KB of WebP visibly beats 200 KB of JPG. JPG if the file is going anywhere you do not control, such as email, print or a marketplace listing, because compatibility matters more than efficiency there.</p></details>
+    <details class="faq-item"><summary>Is 200 KB small enough for good page speed?</summary><p>For a single hero or featured image, yes, 200 KB loads quickly on a normal mobile connection and will not usually be the bottleneck in Largest Contentful Paint. Where it becomes a problem is volume: ten 200 KB images on one screen is 2 MB. Use 200 KB for images that carry the page and a tighter budget for thumbnails and list views.</p></details>
+    <details class="faq-item"><summary>Should I choose WebP or JPG at 200 KB?</summary><p>WebP if the image is displayed in a browser you control, it is 25-35% more efficient, so 200 KB of WebP visibly beats 200 KB of JPG. JPG if the file is going anywhere you do not control, such as email, print or a marketplace listing, because compatibility matters more than efficiency there.</p></details>
     <details class="faq-item"><summary>Will the output ever be larger than 200 KB?</summary><p>No. The encoder searches quality and keeps the best result that stays at or under your ceiling, so overshoot does not happen. If 200 KB is unreachable at the image's current dimensions, you receive the smallest file it can produce and reducing the resolution will bring it under.</p></details>
     <details class="faq-item"><summary>Is it better to resize or to compress harder?</summary><p>Resize first, almost always. Halving width and height removes three quarters of the pixels before compression starts, which preserves far more apparent sharpness than keeping a huge image and compressing it aggressively to the same file size. Set the dimensions you actually need, then apply the byte ceiling.</p></details>
-    <details class="faq-item"><summary>Can I use AVIF for a 200 KB target?</summary><p>Yes, and at this budget AVIF produces excellent fidelity because it compresses roughly 40–50% tighter than JPEG. The trade-off is encoding speed — AVIF derives from the AV1 video codec and takes noticeably longer in the browser, which is worth considering on large batches or older devices.</p></details>
+    <details class="faq-item"><summary>Can I use AVIF for a 200 KB target?</summary><p>Yes, and at this budget AVIF produces excellent fidelity because it compresses roughly 40-50% tighter than JPEG. The trade-off is encoding speed. AVIF derives from the AV1 video codec and takes noticeably longer in the browser, which is worth considering on large batches or older devices.</p></details>
     <details class="faq-item"><summary>Does every image in a batch get its own quality setting?</summary><p>Yes. Each file is searched independently against the same 200 KB ceiling, which is the point of targeting size rather than quality: a flat product shot and a dense landscape need very different quality settings to arrive at the same file size, and the tool works that out per image.</p></details>
 
   <h2>Related tools and guides</h2>
@@ -552,7 +552,7 @@ tr:nth-child(even) td{background:var(--surface);}
 
   <div class="bottom-cta">
     <p>Keep the quality, cap the weight.</p>
-    <a class="hero-cta" href="#dropzone">Compress to 200&nbsp;KB — FREE</a>
+    <a class="hero-cta" href="#dropzone">Compress to 200&nbsp;KB. FREE</a>
   </div>
 
   <footer class="site-footer">

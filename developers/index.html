@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>imgready for Developers — Free Image Optimization SDK & API</title>
+<title>imgready for Developers: Free Image Optimization SDK & API</title>
 <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
-<meta name="description" content="Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. No server required — compresses client-side.">
-<meta property="og:title" content="imgready for Developers — SDK & API">
+<meta name="description" content="Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. No server required: compresses client-side.">
+<meta property="og:title" content="imgready for Developers. SDK & API">
 <meta property="og:description" content="Free JavaScript SDK for image optimization. WebP, AVIF, HEIC, PNG-8 quantization. Drop-in script tag, no backend required.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://imgready.app/og/developers.png">
@@ -118,7 +118,7 @@ pre{background:var(--text);color:#e8e4d8;border-radius:10px;padding:20px 24px;fo
 .price-card ul li{font-size:.8rem;color:var(--text2);padding-left:16px;position:relative;}
 .price-card ul li::before{content:'✓';position:absolute;left:0;color:var(--accent);font-weight:700;}
 .price-card ul li.muted{color:var(--muted);}
-.price-card ul li.muted::before{content:'–';color:var(--border);}
+.price-card ul li.muted::before{content:', ';color:var(--border);}
 .locked-badge{display:inline-block;background:#fff3cd;border:1px solid #e6c84a;color:#7a6020;border-radius:4px;font-size:.64rem;font-weight:700;padding:1px 6px;margin-left:4px;vertical-align:middle;}
 
 /* WAITLIST */
@@ -174,7 +174,7 @@ pre{background:var(--text);color:#e8e4d8;border-radius:10px;padding:20px 24px;fo
   <div class="hero">
     <div class="hero-badge">For Developers</div>
     <h1>Add image optimization<br>to <em>any website</em> in minutes</h1>
-    <p>The imgready SDK is a free JavaScript library that brings the same compression engine powering imgready.app directly into your own projects — no server, no uploads, no backend required.</p>
+    <p>The imgready SDK is a free JavaScript library that brings the same compression engine powering imgready.app directly into your own projects, no server, no uploads, no backend required.</p>
     <div class="hero-pills">
       <span class="pill green">Free forever</span>
       <span class="pill green">No backend needed</span>
@@ -190,20 +190,20 @@ pre{background:var(--text);color:#e8e4d8;border-radius:10px;padding:20px 24px;fo
     <div class="option-card featured">
       <span class="tag">Available now</span>
       <h3>JavaScript SDK</h3>
-      <p>Built for user-facing flows. A visitor uploads a photo — your site compresses it instantly in their browser before it ever hits your server. No backend, no infrastructure, no cost.</p>
+      <p>Built for user-facing flows. A visitor uploads a photo, your site compresses it instantly in their browser before it ever hits your server. No backend, no infrastructure, no cost.</p>
       <ul>
         <li>Free, no signup required</li>
         <li>Works in any framework or plain HTML</li>
         <li>WebP, AVIF, PNG, JPG, GIF output</li>
         <li>HEIC &amp; TIFF input supported</li>
         <li>Batch processing built in</li>
-        <li>Privacy-first — files never leave the device</li>
+        <li>Privacy-first: files never leave the device</li>
       </ul>
     </div>
     <div class="option-card">
       <span class="tag soon">Coming soon</span>
       <h3>REST API</h3>
-      <p>Built for automated pipelines. Optimize images server-side — on upload, on schedule, or in a build process — without any user interaction. Works from Python, PHP, Node, Ruby, or any HTTP client.</p>
+      <p>Built for automated pipelines. Optimize images server-side: on upload, on schedule, or in a build process, without any user interaction. Works from Python, PHP, Node, Ruby, or any HTTP client.</p>
       <ul>
         <li>Automatic optimization on image upload</li>
         <li>HEIC &amp; TIFF input support</li>
@@ -217,7 +217,7 @@ pre{background:var(--text);color:#e8e4d8;border-radius:10px;padding:20px 24px;fo
 
   <!-- QUICKSTART -->
   <section>
-    <h2>Quickstart — SDK</h2>
+    <h2>Quickstart: SDK</h2>
     <p class="section-sub">Three steps, no account needed.</p>
 
     <div class="steps">
@@ -242,20 +242,20 @@ pre{background:var(--text);color:#e8e4d8;border-radius:10px;padding:20px 24px;fo
         <div class="step-num">2</div>
         <div class="step-body">
           <h4>Compress an image file</h4>
-          <p>Pass any image <code>File</code> or <code>Blob</code> — from a file input, drag-and-drop, or clipboard paste. Get back a compressed <code>Blob</code> ready to upload or display.</p>
+          <p>Pass any image <code>File</code> or <code>Blob</code>: from a file input, drag-and-drop, or clipboard paste. Get back a compressed <code>Blob</code> ready to upload or display.</p>
         </div>
       </div>
     </div>
 
     <div class="code-wrap">
-      <div class="code-label">JavaScript — basic usage</div>
+      <div class="code-label">JavaScript: basic usage</div>
       <pre id="code-basic"><span class="c-comment">// Compress a single image to WebP at quality 82</span>
 <span class="c-kw">const</span> result = <span class="c-kw">await</span> imgready.<span class="c-fn">compress</span>(file, {
   <span class="c-key">format</span>:  <span class="c-str">'webp'</span>,
   <span class="c-key">quality</span>: <span class="c-num">82</span>
 });
 
-<span class="c-comment">// result is a Blob — download it, upload it, display it</span>
+<span class="c-comment">// result is a Blob: download it, upload it, display it</span>
 <span class="c-kw">const</span> url = URL.<span class="c-fn">createObjectURL</span>(result);
 <span class="c-kw">const</span> a = document.<span class="c-fn">createElement</span>(<span class="c-str">'a'</span>);
 a.href = url;
@@ -269,7 +269,7 @@ a.<span class="c-fn">click</span>();</pre>
         <div class="step-num">3</div>
         <div class="step-body">
           <h4>That's it</h4>
-          <p>No API keys, no accounts, no server. The SDK lazy-loads its encoders (WebP, AVIF, HEIC) only when needed — no impact on page load for formats you don't use.</p>
+          <p>No API keys, no accounts, no server. The SDK lazy-loads its encoders (WebP, AVIF, HEIC) only when needed, no impact on page load for formats you don't use.</p>
         </div>
       </div>
     </div>
@@ -322,7 +322,7 @@ results.<span class="c-fn">forEach</span>((blob, i) =&gt; {
     <div class="code-label">Convert iPhone HEIC photos to WebP (unique to imgready)</div>
     <div class="code-wrap">
       <pre id="code-heic"><span class="c-comment">// HEIC files from iPhone drop events or file inputs</span>
-<span class="c-comment">// are decoded automatically — no extra setup needed</span>
+<span class="c-comment">// are decoded automatically: no extra setup needed</span>
 
 <span class="c-kw">const</span> heicFile = input.files[<span class="c-num">0</span>]; <span class="c-comment">// e.g. IMG_4821.HEIC</span>
 
@@ -356,7 +356,7 @@ imgready.<span class="c-fn">init</span>({
     <table class="opts-table">
       <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
       <tr><td><code>format</code></td><td>string</td><td><code>'webp'</code></td><td>Output format: <code>webp</code>, <code>avif</code>, <code>png</code>, <code>jpg</code>, <code>gif</code></td></tr>
-      <tr><td><code>quality</code></td><td>number</td><td><code>82</code></td><td>1–100. At 100 PNG is lossless; below 100 PNG uses indexed color (PNG-8). JPG/WebP/AVIF are always lossy.</td></tr>
+      <tr><td><code>quality</code></td><td>number</td><td><code>82</code></td><td>1-100. At 100 PNG is lossless; below 100 PNG uses indexed color (PNG-8). JPG/WebP/AVIF are always lossy.</td></tr>
       <tr><td><code>maxDim</code></td><td>number</td><td><code>0</code></td><td>Resize longest side to this value in px. <code>0</code> = no resize. Aspect ratio always preserved.</td></tr>
       <tr><td><code>crop</code></td><td>string</td><td><code>'none'</code></td><td>Crop from center: <code>none</code>, <code>1:1</code>, <code>4:3</code>, <code>3:4</code>, <code>16:9</code>, <code>9:16</code></td></tr>
       <tr><td><code>licenseKey</code></td><td>string</td><td><code>null</code></td><td>Your license key. Removes the "Optimized by imgready" footer badge. Auto-emailed after purchase below; <a href="mailto:hello@imgready.app" style="color:var(--accent);">contact us</a> if you need it resent.</td></tr>
@@ -381,7 +381,7 @@ imgready.<span class="c-fn">init</span>({
     </div>
 
     <div class="callout" style="margin-top:18px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);">
-      <strong>How license delivery works.</strong> Pay through any of the buttons below. Within a minute Stripe sends a notification to our license server, which mints a key bound to your purchase, stores it, and emails it to the address you used at checkout. The email comes from <a href="mailto:hello@imgready.app">hello@imgready.app</a>. Keys are HMAC-signed and verified server-side &mdash; they are not derivable from the SDK source. If you don't see the email within five minutes, check spam, then reply to any email from us and we'll resend.
+      <strong>How license delivery works.</strong> Pay through any of the buttons below. Within a minute Stripe sends a notification to our license server, which mints a key bound to your purchase, stores it, and emails it to the address you used at checkout. The email comes from <a href="mailto:hello@imgready.app">hello@imgready.app</a>. Keys are HMAC-signed and verified server-side, they are not derivable from the SDK source. If you don't see the email within five minutes, check spam, then reply to any email from us and we'll resend.
     </div>
 
     <!-- LICENSE TIERS -->
@@ -400,7 +400,7 @@ imgready.<span class="c-fn">init</span>({
         </ul>
         <a href="https://buy.stripe.com/7sY28s0dF6LV3o3c480kE00" target="_blank" rel="noopener"
           style="display:block;margin-top:16px;text-align:center;padding:9px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:.84rem;font-weight:700;color:var(--accent);text-decoration:none;">
-          Buy Personal — $9
+          Buy Personal: $9
         </a>
       </div>
       <div class="price-card featured" style="display:flex;flex-direction:column;">
@@ -417,7 +417,7 @@ imgready.<span class="c-fn">init</span>({
         </ul>
         <a href="https://buy.stripe.com/9B69AU1hJ3zJ7Ej0lq0kE01" target="_blank" rel="noopener"
           style="display:block;margin-top:16px;text-align:center;padding:9px;background:var(--accent);border:1px solid var(--accent);border-radius:8px;font-size:.84rem;font-weight:700;color:#fff;text-decoration:none;">
-          Buy Developer — $29
+          Buy Developer: $29
         </a>
       </div>
       <div class="price-card" style="display:flex;flex-direction:column;">
@@ -434,36 +434,36 @@ imgready.<span class="c-fn">init</span>({
         </ul>
         <a href="https://buy.stripe.com/7sY5kE5xZgmv5wb6JO0kE02" target="_blank" rel="noopener"
           style="display:block;margin-top:16px;text-align:center;padding:9px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:.84rem;font-weight:700;color:var(--accent);text-decoration:none;">
-          Buy Commercial — $99
+          Buy Commercial: $99
         </a>
       </div>
     </div>
 
     <div class="callout" style="margin-top:20px;">
-      <strong>For open source projects:</strong> Attribution is always required unless a license key is present. Link back to imgready.app in your README — no key needed. Questions? <a href="mailto:hello@imgready.app" style="color:var(--accent);">hello@imgready.app</a>
+      <strong>For open source projects:</strong> Attribution is always required unless a license key is present. Link back to imgready.app in your README, no key needed. Questions? <a href="mailto:hello@imgready.app" style="color:var(--accent);">hello@imgready.app</a>
     </div>
   </section>
 
   <!-- SECURITY & VALIDATION -->
   <section>
     <h2>How license validation works</h2>
-    <p class="section-sub">Short version &mdash; for technical buyers wondering if they can trust the system.</p>
+    <p class="section-sub">Short version, for technical buyers wondering if they can trust the system.</p>
     <ul style="list-style:none;padding-left:0;">
       <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Each key is signed with HMAC-SHA256 against a server-side secret. Keys cannot be forged from the SDK source.</li>
       <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>On <code>imgready.init()</code>, the SDK calls our verification endpoint exactly once. Result is cached in <code>localStorage</code> for 24 hours, so subsequent page loads are instant and offline-tolerant.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>The verification call is a single POST to our Cloudflare Worker, returns in milliseconds, and contains only the key &mdash; never image data, never user data. <a href="/privacy/">Privacy policy</a> covers this in detail.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>If verification fails (bad key, network outage, server down), the badge stays visible &mdash; the SDK is fail-safe, never fail-open. Your image processing continues uninterrupted; only the attribution display is gated.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Personal-tier keys are domain-bound on request &mdash; tell us the domain at purchase or after, and the key will only validate on that origin. Developer and Commercial keys are unrestricted across your project portfolio.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Lost your key? Email <a href="mailto:hello@imgready.app">hello@imgready.app</a> from the address you used at purchase &mdash; we'll look it up in our records and resend.</li>
+      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>The verification call is a single POST to our Cloudflare Worker, returns in milliseconds, and contains only the key, never image data, never user data. <a href="/privacy/">Privacy policy</a> covers this in detail.</li>
+      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>If verification fails (bad key, network outage, server down), the badge stays visible, the SDK is fail-safe, never fail-open. Your image processing continues uninterrupted; only the attribution display is gated.</li>
+      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Personal-tier keys are domain-bound on request, tell us the domain at purchase or after, and the key will only validate on that origin. Developer and Commercial keys are unrestricted across your project portfolio.</li>
+      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Lost your key? Email <a href="mailto:hello@imgready.app">hello@imgready.app</a> from the address you used at purchase, we'll look it up in our records and resend.</li>
     </ul>
   </section>
 
   <!-- REST API COMING SOON -->
   <section>
-    <h2>REST API — coming soon</h2>
-    <p class="section-sub">Server-side optimization for any language or pipeline. Pricing and tier details will be announced at launch — join the waitlist below to be first to know and lock in early access rates.</p>
+    <h2>REST API: coming soon</h2>
+    <p class="section-sub">Server-side optimization for any language or pipeline. Pricing and tier details will be announced at launch, join the waitlist below to be first to know and lock in early access rates.</p>
     <div class="callout">
-      <strong>What's coming:</strong> A simple REST endpoint you POST an image to and get back an optimized file — from Python, PHP, Node, Ruby, or any HTTP client. Full HEIC &amp; TIFF support, WebP &amp; AVIF output, resize and crop, API key dashboard, and CI/CD pipeline ready. Early access members get preferential pricing locked in at signup.
+      <strong>What's coming:</strong> A simple REST endpoint you POST an image to and get back an optimized file, from Python, PHP, Node, Ruby, or any HTTP client. Full HEIC &amp; TIFF support, WebP &amp; AVIF output, resize and crop, API key dashboard, and CI/CD pipeline ready. Early access members get preferential pricing locked in at signup.
     </div>
   </section>
 
@@ -474,7 +474,7 @@ imgready.<span class="c-fn">init</span>({
     <div class="waitlist-wrap">
       <div class="waitlist-header">
         <h3>Get early access to the imgready API</h3>
-        <p>We'll email you at launch — no spam, one email.</p>
+        <p>We'll email you at launch, no spam, one email.</p>
       </div>
       <div class="waitlist-embed">
         <iframe
@@ -496,7 +496,7 @@ imgready.<span class="c-fn">init</span>({
     <h2>Questions?</h2>
     <p class="section-sub">The SDK is new. If something's broken or unclear, reach out directly.</p>
     <div class="callout">
-      Email <a href="mailto:hello@imgready.app" style="color:var(--accent);font-weight:600;">hello@imgready.app</a> — for bug reports, license key requests, or REST API early access enquiries. Response within 24 hours.
+      Email <a href="mailto:hello@imgready.app" style="color:var(--accent);font-weight:600;">hello@imgready.app</a>: for bug reports, license key requests, or REST API early access enquiries. Response within 24 hours.
     </div>
   </section>
 
@@ -504,9 +504,9 @@ imgready.<span class="c-fn">init</span>({
     <h2>Frequently asked questions</h2>
   <details class="faq-item"><summary>Is the imgready SDK free?</summary><p>The SDK is free to use with the imgready attribution badge visible. A paid licence removes the badge and is available via Ko-fi.</p></details>
   <details class="faq-item"><summary>What formats does the SDK support?</summary><p>WebP, AVIF, JPG, PNG, and GIF output. HEIC and TIFF input via optional lazy-loaded decoders. The SDK exposes the same encoder pipeline as the imgready UI.</p></details>
-  <details class="faq-item"><summary>Can I use imgready in a Node.js or server environment?</summary><p>No — the SDK relies on the browser's Canvas API and WebAssembly runtime. It is a client-side only library. For server-side image processing, consider sharp or libvips.</p></details>
-  <details class="faq-item"><summary>Where is the SDK documentation?</summary><p>Full API reference, options object, and code examples are on this page. The SDK is also available as an ES module import — see the Quickstart section above.</p></details>
-  <details class="faq-item"><summary>Does the SDK work with React, Vue, Angular, and other frameworks?</summary><p>Yes. The SDK works in any framework — React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in.</p></details>
+  <details class="faq-item"><summary>Can I use imgready in a Node.js or server environment?</summary><p>No. The SDK relies on the browser's Canvas API and WebAssembly runtime. It is a client-side only library. For server-side image processing, consider sharp or libvips.</p></details>
+  <details class="faq-item"><summary>Where is the SDK documentation?</summary><p>Full API reference, options object, and code examples are on this page. The SDK is also available as an ES module import, see the Quickstart section above.</p></details>
+  <details class="faq-item"><summary>Does the SDK work with React, Vue, Angular, and other frameworks?</summary><p>Yes. The SDK works in any framework. React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in.</p></details>
   <details class="faq-item"><summary>What's the bundle size impact of the SDK?</summary><p>The main SDK script is ~2 KB minified. WebAssembly encoders (WebP, AVIF, HEIC) are lazy-loaded on demand, adding ~1.5 MB each only when needed and cached after first use. Pages using only PNG/JPG output have zero encoder overhead until a user actually compresses.</p></details>
   
   <h2>Related</h2>

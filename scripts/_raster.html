@@ -75,13 +75,13 @@ const JOBS = [
 
   const mask = await render('/favicon-maskable.svg', 512, null);
   const r = reach(mask, [249, 240, 228]);
-  out.push('maskable safe zone: ' + r.toFixed(3) + ' of half-width (limit 0.800) — ' +
+  out.push('maskable safe zone: ' + r.toFixed(3) + ' of half-width (limit 0.800), ' +
            (r <= 0.8 ? 'PASS' : 'FAIL'));
 
   // a boxless icon must have genuinely transparent corners
   const fav = await render('/favicon.svg', 64, null);
   const corner = fav.getContext('2d').getImageData(1, 1, 1, 1).data;
-  out.push('favicon corner alpha: ' + corner[3] + ' (0 = no box) — ' +
+  out.push('favicon corner alpha: ' + corner[3] + ' (0 = no box): ' +
            (corner[3] === 0 ? 'PASS' : 'FAIL'));
   out.push('');
 

@@ -13,36 +13,36 @@ function G(id){return document.getElementById(id);}
    QUALITY HINT TEXT
    ======================================== */
 var QUALITY_HINTS=[
-  {max:55,text:'Smaller file with noticeable quality loss — good for thumbnails.'},
-  {max:70,text:'Smaller file with some quality loss — good for web thumbnails.'},
+  {max:55,text:'Smaller file with noticeable quality loss, good for thumbnails.'},
+  {max:70,text:'Smaller file with some quality loss, good for web thumbnails.'},
   {max:89,text:'Great quality with significant file size savings.'},
-  {max:99,text:'Near-lossless quality — minimal file size savings over original.'},
-  {max:100,text:'Lossless mode — no quality loss, largest file size.'}
+  {max:99,text:'Near-lossless quality: minimal file size savings over original.'},
+  {max:100,text:'Lossless mode: no quality loss, largest file size.'}
 ];
 var QUALITY_HINTS_JPG=[
-  {max:55,text:'Smaller file with noticeable quality loss — good for thumbnails.'},
-  {max:70,text:'Smaller file with some quality loss — good for web thumbnails.'},
+  {max:55,text:'Smaller file with noticeable quality loss, good for thumbnails.'},
+  {max:70,text:'Smaller file with some quality loss, good for web thumbnails.'},
   {max:89,text:'Great quality with significant file size savings.'},
-  {max:99,text:'High quality — minimal savings. JPG cannot be truly lossless.'},
-  {max:100,text:'Max quality — JPG is always lossy by design, even at 100.'}
+  {max:99,text:'High quality: minimal savings. JPG cannot be truly lossless.'},
+  {max:100,text:'Max quality: JPG is always lossy by design, even at 100.'}
 ];
 var QUALITY_HINTS_PNG=[
-  {max:55,text:'PNG-8 with few colors — dramatic file size reduction, visible banding.'},
-  {max:70,text:'PNG-8 with moderate colors — good savings, minor color shifts.'},
-  {max:89,text:'PNG-8 with 256 colors — excellent balance of quality and file size.'},
-  {max:99,text:'PNG-8 with 256 colors — near-original quality, still significantly smaller.'},
-  {max:100,text:'Lossless PNG — every pixel preserved exactly, largest file size.'}
+  {max:55,text:'PNG-8 with few colors, dramatic file size reduction, visible banding.'},
+  {max:70,text:'PNG-8 with moderate colors, good savings, minor color shifts.'},
+  {max:89,text:'PNG-8 with 256 colors, excellent balance of quality and file size.'},
+  {max:99,text:'PNG-8 with 256 colors, near-original quality, still significantly smaller.'},
+  {max:100,text:'Lossless PNG: every pixel preserved exactly, largest file size.'}
 ];
 /* AVIF behaves quite differently from JPG — quality 50 in AVIF looks
    roughly comparable to quality 80 in JPG, so the same slider position
    means very different things. Calibrated copy lets users skip the
    "wait, why is q=82 already huge" surprise. */
 var QUALITY_HINTS_AVIF=[
-  {max:35,text:'Heavy AVIF compression — visible blur, very small files.'},
-  {max:55,text:'AVIF sweet spot — typically half the size of JPG at the same visible quality.'},
-  {max:75,text:'High-quality AVIF — savings narrow as quality rises.'},
-  {max:99,text:'Near-lossless AVIF — minimal savings over the source.'},
-  {max:100,text:'Lossless AVIF — files often larger than the lossy versions; AVIF is designed for lossy.'}
+  {max:35,text:'Heavy AVIF compression: visible blur, very small files.'},
+  {max:55,text:'AVIF sweet spot: typically half the size of JPG at the same visible quality.'},
+  {max:75,text:'High-quality AVIF: savings narrow as quality rises.'},
+  {max:99,text:'Near-lossless AVIF: minimal savings over the source.'},
+  {max:100,text:'Lossless AVIF: files often larger than the lossy versions; AVIF is designed for lossy.'}
 ];
 function getQualityHint(v,jpgOnly,pngOnly,avifOnly){
   var hints=avifOnly?QUALITY_HINTS_AVIF:(jpgOnly?QUALITY_HINTS_JPG:(pngOnly?QUALITY_HINTS_PNG:QUALITY_HINTS));
@@ -128,13 +128,13 @@ var currentCropRatio='none';
 var CROP_RATIOS={'none':null,'1:1':1,'4:3':4/3,'3:4':3/4,'16:9':16/9,'9:16':9/16};
 var LIBHEIF_URL='/vendor/libheif.js';
 var FORMAT_INFO={
-  auto:'Smart default — keep the input format. HEIC, TIFF and BMP become JPG; SVG becomes PNG.',
-  webp:'Modern web standard — great quality, small files, all devices.',
-  avif:'Best compression — high quality. Note: encoding takes longer than other formats.',
-  png:'Optimized PNG — lossy at lower quality (PNG-8), lossless at 100.',
-  jpg:'Universal — works everywhere, great for photos.',
+  auto:'Smart default: keep the input format. HEIC, TIFF and BMP become JPG; SVG becomes PNG.',
+  webp:'Modern web standard: great quality, small files, all devices.',
+  avif:'Best compression: high quality. Note: encoding takes longer than other formats.',
+  png:'Optimized PNG: lossy at lower quality (PNG-8), lossless at 100.',
+  jpg:'Universal: works everywhere, great for photos.',
   gif:'Simple animations and flat-colour graphics.',
-  ico:'Multi-resolution Windows icon — for favicons and desktop icons. Auto-squares your image and packs the sizes you pick.'
+  ico:'Multi-resolution Windows icon: for favicons and desktop icons. Auto-squares your image and packs the sizes you pick.'
 };
 var LOSSY_FORMATS={webp:true,avif:true,jpg:true};
 var ALL_FMTS=['auto','webp','avif','png','jpg','gif','ico'];
@@ -249,7 +249,7 @@ window.clearAllClick=function(){
     _processingCancelled=true;
     btn.disabled=true;btn.textContent='Cancelling…';
     /* Hard-stop in-flight worker encodes — without this, AVIF on a big
-       photo could keep the user staring at "Cancelling…" for 10–15 s.
+       photo could keep the user staring at "Cancelling…" for 10-15 s.
        cancelAll terminates the workers, rejects every pending promise
        with the 'Cancelled' sentinel, and nulls out the pool so the next
        processAll call lazily spawns a fresh set. Wrapped in try because
@@ -316,9 +316,9 @@ function maybeShowNudge(){
   var savedStr=saved>1048576?(saved/1048576).toFixed(1)+' MB':(Math.round(saved/1024))+' KB';
   var msg='';
   var kofi='<a href="https://ko-fi.com/imgready" target="_blank" rel="noopener">buy me a coffee ♥</a>';
-  if(bigSave&&bigCount){msg=count+' images, <strong>'+savedStr+'</strong> saved — all without touching a server. If imgready helped, '+kofi;}
-  else if(bigSave){msg='You just saved <strong>'+savedStr+'</strong> — that\'s real bandwidth. imgready is free and always will be. '+kofi+' if it helped.';}
-  else{msg='You just blasted through <strong>'+count+' images</strong> — all processed locally. If imgready saved you time, '+kofi;}
+  if(bigSave&&bigCount){msg=count+' images, <strong>'+savedStr+'</strong> saved: all without touching a server. If imgready helped, '+kofi;}
+  else if(bigSave){msg='You just saved <strong>'+savedStr+'</strong>: that\'s real bandwidth. imgready is free and always will be. '+kofi+' if it helped.';}
+  else{msg='You just blasted through <strong>'+count+' images</strong>: all processed locally. If imgready saved you time, '+kofi;}
   var txt=G('nudgeText');
   if(txt)txt.innerHTML=msg;
   setTimeout(function(){
@@ -453,10 +453,10 @@ function updateFormatUI(){
     /* On mobile, AVIF encodes 3-6× slower than desktop — warn proactively so users
        aren't left wondering if the app is frozen. Show before they hit Process. */
     var mobileAvifWarn=(active.indexOf('avif')!==-1&&isMobileDevice)
-      ?' <span style="color:var(--warn);font-style:normal;font-weight:600;font-size:.76rem;">Mobile tip: AVIF takes 15–30s per image — try WebP for speed.</span>'
+      ?' <span style="color:var(--warn);font-style:normal;font-weight:600;font-size:.76rem;">Mobile tip: AVIF takes 15-30s per image, try WebP for speed.</span>'
       :'';
     if(active.length===1){tl.innerHTML='<span style="font-style:italic">'+FORMAT_INFO[active[0]]+'</span>'+mobileAvifWarn;}
-    else{tl.innerHTML=(active.length+' formats selected — each image will produce '+active.length+' outputs.')+mobileAvifWarn;}
+    else{tl.innerHTML=(active.length+' formats selected: each image will produce '+active.length+' outputs.')+mobileAvifWarn;}
   }
   /* Update count badge next to Multi-format toggle */
   var moc=G('moCount');if(moc)moc.textContent=getActiveFormats().length;
@@ -472,8 +472,8 @@ function updateFormatUI(){
   var qg=G('qualityGroup'),qh=G('qualityHint');
   if(qg)qg.classList.toggle('disabled-group',onlyGif||onlyIco);
   if(qh){
-    if(onlyIco){qh.textContent='ICO packs lossless PNGs at each icon size — the quality slider has no effect. Use "Icon size set" to control the file.';}
-    else if(onlyGif){qh.textContent='GIF uses a fixed 256-color palette — quality slider has no effect.';}
+    if(onlyIco){qh.textContent='ICO packs lossless PNGs at each icon size, the quality slider has no effect. Use "Icon size set" to control the file.';}
+    else if(onlyGif){qh.textContent='GIF uses a fixed 256-color palette, quality slider has no effect.';}
     else{qh.textContent=getQualityHint(parseInt((G('qualitySlider')||{value:82}).value),isJpgOnly(),isPngOnly(),isAvifOnly());}
   }
   updateChargePreview();

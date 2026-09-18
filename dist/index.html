@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Free Image Converter — HEIC, TIFF, WebP, PNG, JPG | imgready</title>
+<title>Free Image Converter: HEIC, TIFF, WebP, PNG, JPG | imgready</title>
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device — private, fast, unlimited.">
-<meta property="og:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
-<meta property="og:description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device — private, fast, unlimited.">
+<meta name="description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device, private, fast, unlimited.">
+<meta property="og:title" content="Free Image Converter. TIFF, HEIC, WebP, PNG to JPG | imgready">
+<meta property="og:description" content="Convert TIFF, HEIC, WebP, PNG to JPG (and back) free in your browser. No upload, no sign-up, no watermark. Files stay on your device, private, fast, unlimited.">
 <meta property="og:image" content="https://imgready.app/og/home.png">
 <meta property="og:image:type" content="image/png">
-<meta property="og:image:alt" content="imgready — free in-browser image converter, no upload">
+<meta property="og:image:alt" content="imgready, free in-browser image converter, no upload">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
@@ -18,10 +18,10 @@
 <meta property="og:site_name" content="imgready">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Free Image Converter — TIFF, HEIC, WebP, PNG to JPG | imgready">
+<meta name="twitter:title" content="Free Image Converter. TIFF, HEIC, WebP, PNG to JPG | imgready">
 <meta name="twitter:description" content="Convert TIFF, HEIC, WebP, PNG to JPG free in your browser. No upload, no sign-up. Files stay private on your device.">
 <meta name="twitter:image" content="https://imgready.app/og/home.png">
-<meta name="twitter:image:alt" content="imgready — free in-browser image converter, no upload">
+<meta name="twitter:image:alt" content="imgready, free in-browser image converter, no upload">
 <link rel="canonical" href="https://imgready.app/">
 
 <!-- Structured data: WebApplication + FAQPage (preserved from stable) -->
@@ -35,7 +35,7 @@
       "name": "imgready",
       "alternateName": ["image ready", "imgready image converter"],
       "url": "https://imgready.app/",
-      "description": "Free browser-based image converter. Convert TIFF, HEIC, WebP, PNG to JPG (and back) without uploading. Runs 100% in your browser — files stay private.",
+      "description": "Free browser-based image converter. Convert TIFF, HEIC, WebP, PNG to JPG (and back) without uploading. Runs 100% in your browser, files stay private.",
       "applicationCategory": "MultimediaApplication",
       "applicationSubCategory": "Image Converter",
       "operatingSystem": "Any (Web Browser)",
@@ -56,7 +56,7 @@
         "Photo adjustments (brightness, contrast, saturation, vignette, blur)",
         "Filter presets",
         "Crop + rotate",
-        "100% client-side — no upload"
+        "100% client-side, no upload"
       ],
       "permissions": "No permissions required. No file upload.",
       "screenshot": {
@@ -84,7 +84,7 @@
   ]
 }
 </script>
-<!-- Production CSS — drives the empty-state styling so beta inherits the
+<!-- Production CSS: drives the empty-state styling so beta inherits the
      stable homepage look. Beta's inline <style> below overrides only when
      in solo/multi state (the dark workspace) via :root variables scoped
      to body[data-state]. -->
@@ -103,7 +103,7 @@
 <!-- R127: warm the sample sources at idle/low priority so clicking a sample loads instantly. Non-blocking (prefetch), respects browser idle scheduling. -->
 <!-- R132: only the small sample is prefetched. Prefetching all three cost
      ~9.3 MB per visit (demo_1 is 7.3 MB, demo_3 1.6 MB) even for users who
-     never click a sample — that starved real requests and burned mobile data.
+     never click a sample, that starved real requests and burned mobile data.
      The heavy two load on demand. -->
 <link rel="prefetch" href="/samples/demo_2.jpg">
 <link rel="prefetch" href="/home-editor.js">
@@ -112,9 +112,9 @@
 <link rel="stylesheet" href="/app.css">
 <link rel="preload" href="/editor.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/editor.css"></noscript>
 <style>
-  /* R24 — Brand type system. Three self-hosted OFL variable fonts:
+  /* R24. Brand type system. Three self-hosted OFL variable fonts:
      - Poetsen One (display): Google Fonts, OFL. STATIC, one weight
-       (400), no italic — see the app.css header. Hero headings, modal
+       (400), no italic, see the app.css header. Hero headings, modal
        titles, the wordmark. Never give it a font-weight or font-style.
      - Nunito (body): Google Fonts, OFL, 400..700 wght axis. UI workhorse.
      - JetBrains Mono (mono accent): jetbrains.com/lp/mono, OFL.
@@ -147,7 +147,7 @@
     font-display:swap;
     unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
-  /* R25 — skip link visible on focus, hidden otherwise. WCAG 2.4.1. */
+  /* R25: skip link visible on focus, hidden otherwise. WCAG 2.4.1. */
   .r25-skip-link{
     position:absolute;top:-100px;left:8px;z-index:9999;
     /* Inverting the text tokens guarantees contrast in either theme. It
@@ -165,16 +165,16 @@
        --surface, --radius, --card-shadow) now come from /app.css, which
        defines them on bare :root. They used to be redeclared here with
        different values, and because this <style> comes after that
-       <link>, these won won every time — so the homepage and the landing
+       <link>, these won won every time, so the homepage and the landing
        pages rendered two different palettes from one codebase, and the
        app.css rules referencing tokens this block never defined
        (--surface, --radius, --card-shadow) resolved to nothing.
        Only homepage-specific tokens belong here now.
 
        The dark workspace palette below (body[data-state=solo|multi])
-       still overrides them deliberately — that inversion is the design,
+       still overrides them deliberately, that inversion is the design,
        not an accident, and it measures 6.2:1 to 16.4:1. */
-    /* Type tokens. Body via Nunito, display via Poetsen One — both
+    /* Type tokens. Body via Nunito, display via Poetsen One, both
        rounded and soft, for a friendly rather than technical voice.
        Mono stays JetBrains Mono for byte-count strings. */
     --font-display:"Poetsen One",ui-rounded,"Segoe UI",system-ui,sans-serif;
@@ -183,7 +183,7 @@
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
     --thumb-big:86px;--thumb-small:45px;--stride:70px;  /* active thumb +15% (75->86); unselected +28% (35->45) for easier clicking; stride bumped to preserve gap */
-    /* 8-pt spacing grid — use these for new work and migrate older
+    /* 8-pt spacing grid, use these for new work and migrate older
        values opportunistically. --s-half = 4px is the minor unit for
        tight gaps; multiples of 8 from --s-1 onward. */
     --s-half:4px;
@@ -193,7 +193,7 @@
     --s-4:24px;
     --s-5:32px;
     --s-6:40px;
-    /* Toolbar bottom inset — the visual distance from viewport bottom
+    /* Toolbar bottom inset: the visual distance from viewport bottom
        to the menu-card's bottom edge. Used by everything that positions
        above the toolbar (scrubber, filename ribbon, cover-flow).
        Desktop multi state: .menu-wrap bottom:18 + padding-bottom:0 = 18.
@@ -205,7 +205,7 @@
   }
   /* The workspace inverts to dark so a full-bleed image can own the
      screen without the page competing with it. That is about VIEWING AN
-     IMAGE, not about being in the workspace — the batch list is a
+     IMAGE, not about being in the workspace, the batch list is a
      document, rows of names and numbers, and it was flipping the whole
      page from warm cream to near-black to show a table. The inversion
      is scoped to the compare view; the list stays on the site palette.
@@ -215,7 +215,7 @@
   body[data-state="solo"],
   body[data-state="multi"]:not([data-view="list"]){
     /* Remaps the SAME semantic names to the dark primitives from
-       /app.css — see the design-system header there. Measured on this
+       /app.css, see the design-system header there. Measured on this
        canvas: text 15.63:1, muted 7.91, accent 7.2. */
     --bg:var(--night-900);--text:var(--cream-050);--muted:var(--cream-300);
     --accent:var(--rust-200);--accent-strong:var(--rust-200);--accent-ink:#f0956b;
@@ -224,7 +224,7 @@
     --saving-on-dark:var(--bamboo-300);
     /* These were NOT remapped and fell through to the light values: the
        savings figure rendered dark green on near-black at 2.74:1.
-       Semantic hues stay conventional (green/amber/red) across themes —
+       Semantic hues stay conventional (green/amber/red) across themes, 
        only their lightness follows the context. */
     --success:var(--bamboo-300);   /* 10.32 on this canvas */
     --warn:#c49a50;      /* 7.28 */
@@ -238,12 +238,12 @@
   html,body{margin:0;}
   body{font-family:var(--font-body);
     color:var(--text);background:var(--bg);}
-  /* R24 — display type for hero headings + brand wordmark + Edit modal
+  /* R24, display type for hero headings + brand wordmark + Edit modal
      title. Poetsen One is a static single-weight face with no italic, so
      this rule pins weight/style to what the file actually ships. Without
      the pin the browser synthesises a smeared bold and a sheared oblique
      on a face that is already heavy. The visual hierarchy comes from
-     SIZE, not weight — do not add a font-weight to anything here. */
+     SIZE, not weight, do not add a font-weight to anything here. */
   h1,h2,.brand,.hero h2,.edit-modal .edit-header h2,.edit-modal .edit-brand-link,.tc-brand-name,.footer-brand{
     font-family:var(--font-display);font-synthesis:none;
     font-weight:400;
@@ -252,7 +252,7 @@
     letter-spacing:0;
   }
   .edit-modal .edit-header h2{letter-spacing:-.005em;}
-  /* R24 — mono for byte counts, file size strings, keyboard hints,
+  /* R24, mono for byte counts, file size strings, keyboard hints,
      anything that should read as "technical, factual, not marketing copy". */
   kbd, .qr-size, .size-info, .edit-size-info, .compare-meta span:nth-child(2),
   .batch-progress-text, .lbl-title + span,
@@ -289,7 +289,7 @@
   .state-toggle button.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
 
   /* --- empty state ---
-     NOTE: must NOT use class name `.empty-state` — production app.css already
+     NOTE: must NOT use class name `.empty-state`, production app.css already
      defines that selector at line 596 with `text-align:center` + muted color,
      which would cascade into our hero/content section. We use `.beta-empty`
      instead so the production homepage CSS (which keys off `.app`, `.dropzone`,
@@ -305,16 +305,16 @@
      supplies the max-width / centered gutter / horizontal padding
      identical to legacy. All visual styling (.topnav padding/margin,
      .brand 22px desktop & 42px mobile, .nav-link, .nav-hamburger)
-     comes from /app.css unchanged — we only override visibility scope. */
+     comes from /app.css unchanged, we only override visibility scope. */
   .legacy-nav{display:none;}
   body[data-state="empty"] .legacy-nav{display:flex;}
-  /* Skip the minimal .brand-bar on empty state — legacy-nav has its
+  /* Skip the minimal .brand-bar on empty state, legacy-nav has its
      own brand. Workspace states (solo/multi) already hide .brand-bar
      via the existing rule lower in this stylesheet. */
   body[data-state="empty"] .brand-bar{display:none;}
   body[data-state="solo"] .beta-empty,
   body[data-state="multi"] .beta-empty{display:none;}
-  /* Beta does NOT override .dropzone / .dz-icon / .dz-title / .dz-sub / .dz-trust —
+  /* Beta does NOT override .dropzone / .dz-icon / .dz-title / .dz-sub / .dz-trust, 
      production app.css owns the empty-state styling so beta inherits the
      stable homepage look pixel-for-pixel (84px padding, 280px min-height,
      full content-column width, etc). */
@@ -324,7 +324,7 @@
   /* ...but not behind the list, which is page content. */
   body[data-view="list"] .stage.multi{background:var(--bg);}
   body[data-state="solo"] .stage.solo{display:block;}
-  /* Solo state has no cover-flow — image-canvas fills below the menu-bar */
+  /* Solo state has no cover-flow, image-canvas fills below the menu-bar */
   body[data-state="solo"] .stage.solo .image-canvas{
     bottom:calc(var(--menu-h, 80px) + 12px);
   }
@@ -334,7 +334,7 @@
     }
   }
   body[data-state="multi"] .stage.multi{display:block;}
-  /* Bottom-fade overlay — gradient from semi-transparent black at the
+  /* Bottom-fade overlay, gradient from semi-transparent black at the
      bottom up to fully transparent ~280px above. Makes the cover-flow
      filmstrip thumbnails readable when the underlying image is busy
      (white skies, bright product shots, etc). Positioned above the
@@ -369,11 +369,11 @@
        (layout). Pairs with the wrap's transform on the same paint frame
        so the line stops mismatch-jittering 1px during pan/zoom. */
     transform-origin:0 0;will-change:transform;pointer-events:none;z-index:3;}
-  /* Slider handle — visual match for stable's .fs-handle (44x44, white,
+  /* Slider handle, visual match for stable's .fs-handle (44x44, white,
      gray double-arrow, dramatic drop shadow). The one deviation from
      stable: pointer-events stays auto (stable uses none) so the handle
      remains a grabbable target when zoomed in. With pointer-events:none,
-     zoom>1 would steal the click for pan — defeating click-and-drag. */
+     zoom>1 would steal the click for pan, defeating click-and-drag. */
   .compare-handle{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     width:44px;height:44px;border-radius:50%;background:#fff;
@@ -411,7 +411,7 @@
   .image-canvas:not(.has-after) .compare-handle,
   .image-canvas:not(.has-after) .compare-meta.r{display:none;}
 
-  /* Drop-anywhere overlay — overrides production CSS to match user spec:
+  /* Drop-anywhere overlay, overrides production CSS to match user spec:
      dashed border spans the full viewport (inset from edges), all text
      white, no inner card chrome. The production version drew a small
      bordered card in the center; this is a full-page treatment. */
@@ -450,7 +450,7 @@
     .window-drop-overlay .wd-title{font-size:1.2rem;}
   }
 
-  /* Reject toast — file-rejection feedback. Bottom-center, dark, fades. */
+  /* Reject toast, file-rejection feedback. Bottom-center, dark, fades. */
   .reject-toast{
     position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(8px);
     background:rgba(20,20,20,.95);color:#fff;
@@ -480,7 +480,7 @@
   .bigbatch-actions{display:flex;gap:8px;justify-content:flex-end;}
   .bigbatch-actions .btn{padding:8px 16px;}
 
-  /* Filename label — sits BELOW the cover-flow strip, just above the
+  /* Filename label, sits BELOW the cover-flow strip, just above the
      bar. The previous position above the strip read as a header for the
      image (wrong eyeline) and crowded the Before meta on narrow viewports.
      Tucking it below the strip ties the label to the active thumb that
@@ -504,11 +504,11 @@
     text-shadow:0 1px 2px rgba(0,0,0,.5);
   }
   .filename-ribbon:empty{display:none;}
-  /* Center loading overlay — replaces the corner "Encoding..." status with a
+  /* Center loading overlay, replaces the corner "Encoding..." status with a
      prominent middle-of-canvas state. The corner had two problems: (1) easy
      to miss on big screens, (2) it competed with the After meta box for the
      same corner. */
-  /* Loader pill — legacy fs-encoding-pulse style. Just a glowing dot
+  /* Loader pill: legacy fs-encoding-pulse style. Just a glowing dot
      on the left + "Encoding…" text. No spinner ring, no filename, no
      batch counter, no progress bar. Positioned bottom-center above the
      menu bar so it doesn't cover the image. Only paints for genuinely
@@ -539,7 +539,7 @@
     50%{opacity:1;transform:scale(1.15);}
   }
 
-  /* Per-thumb spinner — a tiny ring+pulse overlay so the user sees encoding
+  /* Per-thumb spinner, a tiny ring+pulse overlay so the user sees encoding
      progress for every file, not just the selected one. Important for batch
      drops where they want to know "how many are still cooking". */
   .cflow-thumb .thumb-progress{
@@ -548,7 +548,7 @@
     background:rgba(0,0,0,.42);border-radius:inherit;pointer-events:none;
     z-index:2;
   }
-  /* Focus ring for keyboard navigation — only when keyboard-focused
+  /* Focus ring for keyboard navigation, only when keyboard-focused
      (focus-visible), not on mouse-click which would feel noisy. */
   .cflow-thumb:focus-visible{
     outline:2px solid var(--accent);outline-offset:3px;
@@ -556,12 +556,12 @@
   }
   .cflow-thumb.encoding .thumb-progress{display:flex;}
   /* While the active thumb is encoding, the per-image hover icons are
-     disabled — wouldn't make sense to share/copy/download a result
+     disabled, wouldn't make sense to share/copy/download a result
      that doesn't exist yet, and delete-mid-encode races the worker. */
   .cflow-track:has(.cflow-thumb.active.encoding) .pi-actions{
     opacity:.4;pointer-events:none;
   }
-  /* "queued, not yet encoding" — softer overlay so the user can tell the
+  /* "queued, not yet encoding": softer overlay so the user can tell the
      thumb is scheduled to be processed but isn't actively cooking yet. */
   .cflow-thumb.queued .thumb-progress{display:flex;background:rgba(0,0,0,.22);}
   .cflow-thumb.queued .thumb-progress::after{
@@ -589,7 +589,7 @@
   }
   .image-canvas.zoomed{cursor:grab;}
   .image-canvas.zoomed.zoom-dragging{cursor:grabbing;transition:none;}
-  /* Disable zoom cursor when the compare handle is the target — we want to
+  /* Disable zoom cursor when the compare handle is the target, we want to
      drag the slider, not start a zoom. */
   /* compare-handle cursor handled in main rule above */
 
@@ -601,9 +601,9 @@
 
   /* ---------- UX pass 3: stable-fullscreen feature parity ---------- */
 
-  /* Zoom-level chip — appears in the top corner during a zoom interaction
+  /* Zoom-level chip, appears in the top corner during a zoom interaction
      and auto-fades 1.2s after the user stops scrolling/pinching. Without
-     this, the wheel-zoom we shipped is invisible affordance — users can't
+     this, the wheel-zoom we shipped is invisible affordance, users can't
      tell if anything happened or how far in they are. Mirrors stable's
      fsZoomLevel chip. */
   .zoom-chip{
@@ -617,23 +617,23 @@
   }
   .zoom-chip.show{opacity:1;}
 
-  /* Output-larger warning — when the encoded result is BIGGER than the
+  /* Output-larger warning, when the encoded result is BIGGER than the
      original (rare: PNG-of-photo to JPG-100, or AVIF on a small icon),
      the savings text should read as warning, not celebration. Stable
      uses .bad on .fs-lbl-savings with a red color; we mirror that. */
   .compare-meta .pct.bad{color:#ff8b8b;}
 
-  /* Bar / batch-counter UI removed — only the selected image surfaces
+  /* Bar / batch-counter UI removed, only the selected image surfaces
      in the loader; everything else runs in the background and is
      conveyed via the per-thumb spinner badge. */
 
-  /* Live size + spinner inline next to the quality slider — closes the
+  /* Live size + spinner inline next to the quality slider, closes the
      "did anything just happen?" gap during re-encodes. The spinner
      replaces the size text while encoding, so the eye-line is the same. */
   .quality-row .qr-size{
     font-size:.72rem;color:var(--muted);font-weight:600;
     text-align:right;font-variant-numeric:tabular-nums;
-    /* Empty span collapses to 0 — only takes width when there's a size to
+    /* Empty span collapses to 0, only takes width when there's a size to
        show. Otherwise it leaves a phantom gap on the right of the slider. */
   }
   .quality-row .qr-size:empty{display:none;}
@@ -648,7 +648,7 @@
     border:2px solid rgba(255,255,255,.18);border-top-color:var(--accent);
     animation:csSpin .8s linear infinite;margin-left:4px;
   }
-  /* Quality-slider spinner only fires when the user adjusts the slider —
+  /* Quality-slider spinner only fires when the user adjusts the slider, 
      other settings changes (format, resize, crop) don't trigger the
      spinner since it's specifically attached to the slider's eyeline. */
   body[data-quality-encoding="on"] .quality-row .qr-spinner,
@@ -662,7 +662,7 @@
   body[data-state="multi"] .stage.multi .image-canvas.has-after:not(.zoomed) .compare-zoom{cursor:col-resize;}
   body[data-state="multi"] .stage.multi .image-canvas.slider-dragging .compare-zoom{cursor:col-resize;}
 
-  /* ---------- COVER FLOW filmstrip — bottom, two-size, no overlap ---------- */
+  /* ---------- COVER FLOW filmstrip, bottom, two-size, no overlap ---------- */
   .cover-flow{
     position:absolute;
     /* Cover-flow above the bar with a gap that holds the filename.
@@ -670,7 +670,7 @@
        (~16px) → 12px gap → cover-flow. Total ~42px above bar. */
     bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + 48px);  /* 28 filename + ~20 to clear ribbon font */
     left:0;right:0;
-    height:96px;  /* was 80 — fits 86px active thumb with ~5px margin */
+    height:96px;  /* was 80: fits 86px active thumb with ~5px margin */
     z-index:6;
     cursor:grab;touch-action:pan-y;
     /* overflow:visible so the per-image action icons (which sit ABOVE the
@@ -718,17 +718,17 @@
   }
   .cflow-thumb .thumb-num{font-size:.8rem;line-height:1;}
   .cflow-thumb.active .thumb-num{font-size:1rem;}
-  /* Add-more tile — frosted-glass card, thin dashed border, large "+".
+  /* Add-more tile, frosted-glass card, thin dashed border, large "+".
      Pattern researched against Google Photos, Figma, Linear, and macOS
      Big Sur frosted controls. The previous 3px dotted bold border with
      solid black fill read as draft/unfinished and competed with image
      thumbs for visual weight. Goal: clearly secondary affordance, neither
      loud nor invisible.
-       border-style:dashed (not dotted) — dashed reads as "input/dropzone",
+       border-style:dashed (not dotted), dashed reads as "input/dropzone",
          dotted reads as "diagram placeholder"
-       border-width:1.5px — thin, refined
-       border-color:rgba(255,255,255,.22) — present but quiet
-       background:rgba(255,255,255,.04) + backdrop-filter:blur — glass
+       border-width:1.5px, thin, refined
+       border-color:rgba(255,255,255,.22), present but quiet
+       background:rgba(255,255,255,.04) + backdrop-filter:blur, glass
          layer that picks up subtle context from the workspace bg
        icon: 26px (larger so the "+" is the primary affordance)
        text: 0.62rem, normal-case, white at 55% opacity (soft label) */
@@ -745,7 +745,7 @@
     background:rgba(255,255,255,.10);
     border-color:rgba(255,255,255,.5);
     color:#fff;
-    /* Don't translate on hover — the parent .cflow-thumb has overflow:hidden
+    /* Don't translate on hover: the parent .cflow-thumb has overflow:hidden
        (needed for image-thumb rounding) so any vertical translate gets
        clipped at the top edge. Use an inset white glow as the "rise" cue
        instead, which stays entirely within the slot bounds. */
@@ -753,7 +753,7 @@
                inset 0 -16px 24px -12px rgba(255,255,255,.12);
   }
   .cflow-thumb.add-more svg{width:26px;height:26px;stroke-width:2;}
-  /* Clear-all thumb-tile — mirrors add-more's treatment but on the
+  /* Clear-all thumb-tile, mirrors add-more's treatment but on the
      LEFT end of the strip. Same dashed-border 'glass' slot styling
      so the two corner tiles read as a matching pair. Positioned at
      virtual index -1 by layoutCoverFlow (one stride to the left of
@@ -783,7 +783,7 @@
     outline:2px solid var(--accent);outline-offset:2px;
   }
   .cflow-thumb.clear-all svg{width:18px;height:18px;stroke-width:2;}
-  /* Mobile tap target — Apple HIG 44pt min. Default --thumb-small is
+  /* Mobile tap target. Apple HIG 44pt min. Default --thumb-small is
      21px on narrow viewports which is below the threshold. Override
      bookends to at least 40px (still under Apple's 44 but closer to
      Material's 36dp floor and a workable compromise vs. the cramped
@@ -801,7 +801,7 @@
       width:20px;height:20px;
     }
   }
-  /* Scrubber bar — bottom-center of cover-flow. Thin track, pill
+  /* Scrubber bar: bottom-center of cover-flow. Thin track, pill
      indicator inside. Hidden when only 1 image. */
   .cflow-scrubber{
     position:absolute;
@@ -823,7 +823,7 @@
     opacity:0;
     transition:opacity .18s ease;
   }
-  /* Invisible expanded hit area — 16px above + 16px below the 4px
+  /* Invisible expanded hit area: 16px above + 16px below the 4px
      track = 36px total touch box. Apple HIG min is 44pt, but the
      visible track stays 4px for visual restraint. */
   .cflow-scrubber::before{
@@ -843,22 +843,22 @@
   body[data-state="multi"] .cflow-scrubber.has-many{opacity:1;}
   .cflow-scrubber-thumb{
     position:absolute;top:0;bottom:0;
-    background:rgba(255,255,255,.85);  /* was .55 — bumped for contrast on the lighter track */
+    background:rgba(255,255,255,.85);  /* was .55: bumped for contrast on the lighter track */
     border-radius:4px;
     transition:left .15s ease, width .15s ease;
     min-width:18px;
   }
   .cflow-thumb.add-more .add-more-label{
-    /* Drop the all-caps tracked-out style — too formal for a small chip */
+    /* Drop the all-caps tracked-out style, too formal for a small chip */
     text-transform:none;font-weight:500;letter-spacing:0;
     font-size:.68rem;color:rgba(255,255,255,.55);
   }
-  /* Old uppercase add-more-label rule removed — superseded by the soft
+  /* Old uppercase add-more-label rule removed, superseded by the soft
      style further down. */
-  /* Add-more always at full opacity — it's not a navigable image, just an action
+  /* Add-more always at full opacity, it's not a navigable image, just an action
      affordance, so the cover-flow's depth-based dimming doesn't apply. */
   .cflow-thumb.add-more{opacity:1 !important;}
-  /* Add-more shouldn't be the "selected" main image — exclude from active styling */
+  /* Add-more shouldn't be the "selected" main image, exclude from active styling */
   .cflow-thumb.add-more.active .thumb-slot{
     border-color:var(--accent);color:var(--accent);
   }
@@ -888,7 +888,7 @@
   .pi-icon svg{width:16px;height:16px;}
   /* Click-confirmation: button itself turns green with a checkmark icon
      for 1.2s, plus a small tooltip above ("Copied!"). The button-state
-     change is the dominant signal — easy to spot in peripheral vision —
+     change is the dominant signal, easy to spot in peripheral vision, 
      and the tooltip provides the explicit verb. Mirrors the standard
      "click → green check" pattern from gh/google/etc copy-buttons. */
   .pi-icon{position:relative;
@@ -906,7 +906,7 @@
   }
   .pi-icon.confirmed .pi-check{display:flex;}
   .pi-icon .pi-check svg{width:18px;height:18px;}
-  /* Tooltip — supplements the button-state change with the explicit verb. */
+  /* Tooltip, supplements the button-state change with the explicit verb. */
   .pi-icon .pi-toast{
     position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);
     background:#fff;color:#111;font-size:.72rem;font-weight:700;letter-spacing:.02em;
@@ -923,19 +923,19 @@
   .pi-icon.confirmed .pi-toast{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* ---------- bottom-right action card ---------- */
-  /* Bottom toolbar — moved from right corner to bottom-center per UX
+  /* Bottom toolbar, moved from right corner to bottom-center per UX
      research. Matches stable's fs-editor pattern + Lightroom/Photoshop
      bottom-toolbar convention. The previous corner card overlapped the
      cover-flow when many thumbs were shown. */
-  /* Bottom toolbar wrapper. Note: NO transform on .menu-wrap — a transform
+  /* Bottom toolbar wrapper. Note: NO transform on .menu-wrap, a transform
      here would create a fixed-position containing block, breaking the
      preset menu (which uses position:fixed with JS-set viewport coords).
      Centering is done by flex justify-content on a full-width wrapper. */
   .menu-wrap{
     position:absolute;
-    left:0;right:0;bottom:var(--s-3);  /* 16 — was 14 */
+    left:0;right:0;bottom:var(--s-3);  /* 16: was 14 */
     display:flex;align-items:stretch;justify-content:center;
-    padding:0 var(--s-3);  /* 16 — was 14 */
+    padding:0 var(--s-3);  /* 16: was 14 */
     pointer-events:none;z-index:7;
   }
   .menu-card{
@@ -943,7 +943,7 @@
     position:relative;
     display:flex;align-items:stretch;
     /* Solid bg, no backdrop-filter. backdrop-filter:blur on this element
-       was the root cause of the drawer-animation white-flash bug —
+       was the root cause of the drawer-animation white-flash bug. 
        Chrome doesn't re-render backdrop-filter regions during nested
        size transitions, so each newly-revealed strip painted with the
        browser's default white before the filter caught up. Removing
@@ -961,7 +961,7 @@
   /* The drawer is the only piece that needs overflow:hidden for its
      slide animation. Constrain there, not on the whole card. */
   .bb-drawer{overflow:hidden;}
-  /* Settings drawer — slides out leftward FROM the gear like a strip of
+  /* Settings drawer, slides out leftward FROM the gear like a strip of
      film. The drawer holds the secondary controls (Resize + Privacy)
      that the user visits less often than format/quality. Width animates
      0→auto via max-width transition. */
@@ -969,14 +969,14 @@
     display:flex;align-items:center;
     /* Two-stage open: max-width snaps INSTANTLY (layout shifts the
        actions immediately), and clip-path animates the visual reveal.
-       This avoids transitioning ANY layout property — clip-path is a
+       This avoids transitioning ANY layout property, clip-path is a
        paint-time operation that composites smoothly without triggering
        backdrop-filter or size-recalc rendering bugs. */
     max-width:0;overflow:hidden;
     height:46px;
     border-left:1px solid transparent;
     padding:0;
-    /* No own background — inherits menu-card's #1a1a1a transparently
+    /* No own background: inherits menu-card's #1a1a1a transparently
        so the toolbar paints from a single composite layer. Previously
        declaring background:#1a1a1a here put the drawer on its own
        compositor layer (via clip-path) and rendered a few RGB units
@@ -1017,7 +1017,7 @@
   .bb-drawer-inner::-webkit-scrollbar{height:6px;}
   .bb-drawer-inner::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
   .bb-drawer-inner{
-    display:flex;align-items:center;gap:var(--s-3);  /* 16 — was 14 */
+    display:flex;align-items:center;gap:var(--s-3);  /* 16: was 14 */
     padding:var(--s-1) var(--s-2);                   /* 8 / 12 */
     white-space:nowrap;
     background:transparent;
@@ -1030,21 +1030,21 @@
     text-transform:uppercase;color:rgba(255,255,255,.55);
     flex:none;white-space:nowrap;
   }
-  /* Desktop: row-group wrapper is invisible to layout — its 3 bb-section
+  /* Desktop: row-group wrapper is invisible to layout, its 3 bb-section
      children participate directly in bb-drawer-inner's flex. The wrapper
      only kicks in on mobile (see @media block below). */
   .bb-row-group{display:contents;}
-  /* (Removed .multi-out-switch rules — the standalone label they
+  /* (Removed .multi-out-switch rules, the standalone label they
      targeted was moved INSIDE the format dropdown menu.) */
-  /* Original ('auto') stays VISIBLE in multi mode — it just becomes
+  /* Original ('auto') stays VISIBLE in multi mode, it just becomes
      a normal multi-select item. 'Original' means 'match input format',
      which composes coherently with other formats (e.g. JPG-in + Original
      + WebP yields JPG + WebP output). Hiding it caused menu height to
      jump every time the user toggled Multi. */
-  /* Multi-mode active override removed — base .format-menu button.active
+  /* Multi-mode active override removed, base .format-menu button.active
      now uses the same accent treatment, so the override is redundant. */
 
-  /* .bb-row — horizontal sub-grouping inside a section. Used for Resize
+  /* .bb-row: horizontal sub-grouping inside a section. Used for Resize
      where input + presets dropdown sit side-by-side. */
   .bb-row{
     display:flex;flex-direction:row;align-items:center;gap:6px;
@@ -1059,7 +1059,7 @@
     .bb-row .resize-input-wrap{flex:1;width:auto;}
   }
 
-  /* Toolbar baseline — every interactive element targets this height so
+  /* Toolbar baseline, every interactive element targets this height so
      the bar reads as one cohesive control surface, not a parade of
      mismatched chips. Format pills, presets dropdown, mode toggle,
      batch buttons, and the gear all align. */
@@ -1079,12 +1079,12 @@
   }
   .bb-divider{
     width:1px;background:rgba(255,255,255,.12);align-self:stretch;
-    margin:var(--s-1) 0;  /* 8 — was 6 */
+    margin:var(--s-1) 0;  /* 8: was 6 */
   }
   /* Batch actions (right edge of bar) */
   .menu-card > .actions{
-    padding:var(--s-1) var(--s-2);  /* 8 / 12 — was 8/10 */
-    flex-direction:row;gap:var(--s-1);  /* 8 — was 6 */
+    padding:var(--s-1) var(--s-2);  /* 8 / 12: was 8/10 */
+    flex-direction:row;gap:var(--s-1);  /* 8: was 6 */
     align-items:center;
   }
   .menu-card > .actions .btn{
@@ -1092,7 +1092,7 @@
     display:inline-flex;align-items:center;
     font-size:.72rem;
   }
-  /* Output-size suffix on the Download button — gives the CTA a
+  /* Output-size suffix on the Download button, gives the CTA a
      concrete value to anchor the user's decision. Hidden when empty
      (no encode yet) and a single space-margin when populated. */
   .menu-card > .actions .btn .btn-size{
@@ -1109,7 +1109,7 @@
   .settings-icon svg{width:100%;height:100%;}
   .menu-card.open .settings-icon,
   body[data-adjust="open"] .settings-icon{transform:rotate(90deg);color:var(--accent);}
-  /* Gear button — vertical "tab" anchored between drawer and core. Acts
+  /* Gear button, vertical "tab" anchored between drawer and core. Acts
      as the drawer-pull: clicking rotates the gear and slides the drawer
      out from its left edge. The text label is hidden in the bottom-bar
      layout (icon-only, like stable's fs editor); the title attribute
@@ -1121,10 +1121,10 @@
     padding:0 12px;
     color:rgba(255,255,255,.78);font-family:inherit;
     cursor:pointer;border-radius:0;
-    /* No right-divider — drawer now sits to the gear's right and provides
+    /* No right-divider: drawer now sits to the gear's right and provides
        its own border-left when open. Keeps the visual clean both states. */
   }
-  /* Gear "open" indicator — subtle bg tint instead of full green so the
+  /* Gear "open" indicator: subtle bg tint instead of full green so the
      drawer + gear visually read as one continuous panel, not two cards.
      The icon rotation + (mobile) Close-text label are the explicit
      state cues. */
@@ -1141,7 +1141,7 @@
       border-bottom:1px solid rgba(255,255,255,.08);
     }
     .settings-toggle::after{
-      /* Affordance text — "Settings" hint visible only on mobile so the
+      /* Affordance text, "Settings" hint visible only on mobile so the
          user knows the gear opens a panel. Hidden on desktop since the
          drawer slides out visibly when clicked. */
       content:"Settings";
@@ -1158,7 +1158,7 @@
      was overriding the tone-down at line ~604 with full-green background.
      The earlier rule with rgba(255,255,255,.08) wins now.) */
 
-  /* .adjust-panel — legacy class kept for any inner sections inside the
+  /* .adjust-panel, legacy class kept for any inner sections inside the
      drawer that referenced it. The drawer itself handles open/close via
      max-width on .bb-drawer (parent), so no display toggle is needed here. */
   .adjust-panel{display:contents;}
@@ -1192,7 +1192,7 @@
     background:var(--accent);color:var(--on-accent);border-color:var(--accent);
   }
   .quality-row{display:flex;align-items:center;gap:6px;}
-  /* Quality slider — hand-styled.
+  /* Quality slider, hand-styled.
      Why: relying on `accent-color` + the UA-painted track (a) flashed
      a light gray "white bar" during drawer slide-out as the track
      revealed pixel-by-pixel, and (b) on mobile the green fill simply
@@ -1200,7 +1200,7 @@
      + custom pseudos gives us a fully predictable surface: dark track,
      accent-filled portion via CSS gradient, custom round thumb. The
      `--p` custom property is the slider's current value (10-100)
-     updated from the input event handler — drives the gradient stop.
+     updated from the input event handler, drives the gradient stop.
      Works identically on Chrome/Safari/Firefox/iOS/Android. */
   .quality-row input[type=range]{
     --p:82;
@@ -1218,7 +1218,7 @@
      IMPORTANT: every visible slider surface uses the ACCENT palette (or a
      near-black mix), never pure white. White surfaces would flash visibly
      during the drawer slide-out animation as the slider clip-revealed
-     pixel-by-pixel — even at 14px the thumb's #fff fill read as a small
+     pixel-by-pixel, even at 14px the thumb's #fff fill read as a small
      white bar mid-animation. */
   .quality-row input[type=range]::-webkit-slider-runnable-track{
     height:4px;border-radius:2px;
@@ -1256,14 +1256,14 @@
     box-shadow:0 1px 2px rgba(0,0,0,.4);
   }
   .q-val{color:#fff;font-weight:700;font-size:.72rem;min-width:24px;text-align:center;}
-  /* Resize control — segmented [Pixels | Percent] + numeric input with
+  /* Resize control, segmented [Pixels | Percent] + numeric input with
      right-aligned unit suffix. Pattern from Apple Photos export, Lightroom
      custom size, and Affinity Photo's resize dialog. The native <select>
      was dropped because (a) browsers can't reliably style the option popup
      dark, leaving white-on-white text in the dropdown, and (b) the
      two-step "open menu, pick mode, type value" flow was extra friction
      for what's a binary choice. */
-  /* Resize-mode-toggle (Pixels|Percent) — REMOVED per user feedback in
+  /* Resize-mode-toggle (Pixels|Percent). REMOVED per user feedback in
      favor of pixels-only. Selectors kept stub-only so any leftover query
      in JS doesn't error. */
   .resize-mode-toggle{display:none;}
@@ -1289,7 +1289,7 @@
     color:rgba(255,255,255,.45);font-size:.76rem;font-weight:600;
     pointer-events:none;
   }
-  /* Toggle switch — replaces the native checkbox for "Strip metadata".
+  /* Toggle switch: replaces the native checkbox for "Strip metadata".
      Pattern from iOS / Android settings, Linear, Notion. The
      <input type="checkbox"> is kept as the actual control (a11y) and
      hidden via opacity:0; the visual switch is built from the label's
@@ -1321,7 +1321,7 @@
     box-shadow:0 0 0 2px rgba(122,154,122,.4);
   }
 
-  /* Quick-pick presets — compact dropdown that opens UPWARD (the toolbar
+  /* Quick-pick presets: compact dropdown that opens UPWARD (the toolbar
      lives at the bottom of the viewport, so popovers open above). The
      previous inline chip row added vertical bulk to the drawer; this
      pattern keeps the section compact and the chips a single click away. */
@@ -1346,14 +1346,14 @@
     background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3);
   }
   .resize-presets.open .resize-presets-trigger svg{transform:rotate(180deg);}
-  /* Position FIXED instead of absolute — the .bb-drawer parent has
+  /* Position FIXED instead of absolute, the .bb-drawer parent has
      overflow:hidden (needed for the slide animation), which was clipping
      the popover when it tried to open above the trigger. JS computes the
      fixed position from the trigger's getBoundingClientRect on open. */
   .resize-presets-menu{
     /* Position FIXED so the drawer's overflow:hidden can't clip the
        popover. Always painted (display:flex) but hidden via visibility +
-       opacity so the transition works reliably — display:none → flex
+       opacity so the transition works reliably, display:none → flex
        in the same frame skips the transition and was leaving the menu
        invisible on first open. */
     position:fixed;
@@ -1366,7 +1366,7 @@
     visibility:hidden;opacity:0;pointer-events:none;
     transition:opacity .14s ease,transform .14s ease,visibility 0s linear .14s;
     /* Menu's left edge anchors to the trigger's left edge (set via JS). No
-       horizontal centering — that caused mobile clipping when the trigger
+       horizontal centering: that caused mobile clipping when the trigger
        sat near the viewport's left edge (translateX(-50%) pulled the menu
        half-off-screen). JS additionally right-clamps to prevent overflow
        on the right side. */
@@ -1392,7 +1392,7 @@
 
   /* Inline Custom px input row inside the resize dropdown.
      Visually integrated with menu buttons: same horizontal padding,
-     same row height, no hard border — just a subtle top divider. */
+     same row height, no hard border, just a subtle top divider. */
   .resize-custom-row{
     display:flex;align-items:center;gap:4px;
     padding:6px 6px 4px;
@@ -1420,7 +1420,7 @@
     background:rgba(255,255,255,.12);
     border-color:var(--accent);
   }
-  /* Hide native number-input spin buttons — the value is committed via
+  /* Hide native number-input spin buttons, the value is committed via
      Set / Enter, so spinners just add visual noise. */
   .resize-custom-row .resize-custom-input::-webkit-outer-spin-button,
   .resize-custom-row .resize-custom-input::-webkit-inner-spin-button{
@@ -1476,7 +1476,7 @@
 
 
 
-  /* TOP-CHROME — 2-row liquid glass, flush at viewport top.
+  /* TOP-CHROME, 2-row liquid glass, flush at viewport top.
      Outer flex is row (3 sections side by side). Each section is
      flex-COLUMN with 2 rows: label/brand on top, value(s) on bottom. */
   .top-chrome{display:none;}
@@ -1527,7 +1527,7 @@
   }
   .top-chrome .tc-pct.bad{color:#ff8b8b;}
   .top-chrome .tc-pct:empty{display:none;}
-  /* Mobile: hide the savings % — top-chrome is narrow and the size
+  /* Mobile: hide the savings %: top-chrome is narrow and the size
      readout reads cleaner without it. */
   @media (max-width:767px){
     .top-chrome .tc-pct{display:none !important;}
@@ -1545,32 +1545,32 @@
     font-size:.68rem;color:rgba(255,255,255,.55);
     font-variant-numeric:tabular-nums;line-height:1;
   }
-  /* Body reset — kill the default 8px margin that produces the gap above
+  /* Body reset: kill the default 8px margin that produces the gap above
      the chrome. Scoped to workspace states to leave landing untouched. */
   body[data-state="solo"],body[data-state="multi"]{margin:0;padding:0;}
   body[data-state="solo"] .brand-bar,
   body[data-state="multi"] .brand-bar{display:none !important;}
-  /* Duplicate brand-bar display:none removed — the !important version above is the authoritative rule. */
+  /* Duplicate brand-bar display:none removed, the !important version above is the authoritative rule. */
   body[data-state="solo"] .stage,body[data-state="multi"] .stage{height:100vh;}
   body[data-state="solo"] .stage.solo .image-canvas,
   body[data-state="multi"] .stage.multi .image-canvas{
     top:0;left:0;right:0;bottom:0;
     /* --menu-h-delta is republished every animation frame during the
        drawer transition (via _animTicker → updateMenuHeight). That
-       per-frame update produces smooth motion on its own — adding a
+       per-frame update produces smooth motion on its own, adding a
        CSS transition here would cause each frame to RESTART the
        transition from current rendered position, producing jitter. */
     transform:translateY(calc(-1 * var(--menu-h-delta, 0px)));
   }
   body[data-state="solo"] .stage.solo .compare-meta,body[data-state="multi"] .stage.multi .compare-meta{display:none;}
-  /* Cover-flow has no container background — thumbs float freely
+  /* Cover-flow has no container background, thumbs float freely
      against the full-screen image (like before the liquid-glass push). */
   body[data-state="multi"] .menu-wrap{left:24px;right:24px;bottom:18px;}
   /* Glass treatment for the bar FLOATING OVER THE IMAGE. Scoped to the
      compare view: in the list the same element is an inline panel on a
      light page, where a blurred dark slab with a heavy drop shadow is
      wrong. The !important here is why re-skinning it for the list kept
-     failing no matter how specific the override got — the right fix was
+     failing no matter how specific the override got, the right fix was
      to stop this rule applying there, not to escalate. */
   body[data-state="multi"]:not([data-view="list"]) .menu-card{
     background:rgba(20,20,20,.55) !important;
@@ -1587,7 +1587,7 @@
      Users with conversion intent (e.g. "I want to convert HEIC to JPG")
      can pre-select their output format BEFORE dropping files. Selection
      persists into the workspace via window.PREFS.outFormat. */
-  /* Empty-state output pre-selector — sits OUTSIDE the dropzone (so
+  /* Empty-state output pre-selector, sits OUTSIDE the dropzone (so
      clicks don't bubble into the file picker) and styled for the cream
      empty-state surface. Explicit colors instead of var(--card-bg)
      because --card-bg is the dark liquid-glass color (the workspace
@@ -1607,23 +1607,23 @@
      on the parent's .78 that made 0.62 and 2.75:1. Differentiated by
      weight instead, which costs no contrast. */
   .dzf-in{font-weight:600;}
-  /* Inline hint inside the OUTPUT FORMAT label — clarifies that
+  /* Inline hint inside the OUTPUT FORMAT label, clarifies that
      pre-picking is optional. Lighter weight + lowercase to read
      as caption alongside the all-caps label. */
   /* Six pills in a centered wrap break 5 + 1 on a phone, leaving ICO
-     alone on its own row under a full line — reads like a mistake
+     alone on its own row under a full line, reads like a mistake
      rather than a choice. A 3-column grid splits them 3 + 3 and gives
      every pill the same width, so the block stays a block. */
   @media (max-width:560px){
   }
-  /* Microcopy inside the dropzone — closing line of the card. */
+  /* Microcopy inside the dropzone, closing line of the card. */
   .dz-microcopy{
     font-size:.76rem;color:var(--muted);
     text-align:center;
     margin-top:6px;
     min-height:1em;
   }
-  /* Verifiable privacy proofs — three small attestations under the
+  /* Verifiable privacy proofs: three small attestations under the
      hero. Each row is an inline-flex of icon + label. Subtle weight,
      accent-colored icons so they read as trust signals rather than
      navigation. */
@@ -1659,14 +1659,14 @@
   }
   /* H2 size/weight bump for the empty state. /app.css defaults to
      1.25rem / weight 600 / -.2px, which reads thin as the primary hook.
-     Line-height stays at the normal 1.2 — the .dz-loop is now a plain
+     Line-height stays at the normal 1.2, the .dz-loop is now a plain
      inline-block with no overflow:hidden, so its baseline naturally
      aligns with the surrounding text. */
   body[data-state="empty"] .dropzone h2{
     font-size:1.6rem;font-weight:400;letter-spacing:-.3px;
     line-height:1.2;
   }
-  /* Trust line — the strongest copy in the product (privacy wedge).
+  /* Trust line: the strongest copy in the product (privacy wedge).
      /app.css ships it at .74rem caption-level; bump in the empty
      state where the user is about to drop a file and needs the
      reassurance prominent. Post-drop the trust line is hidden via
@@ -1676,7 +1676,7 @@
     margin-top:14px;
   }
   /* Input-format line. Deliberately quieter than the trust line above
-     it — this is reference detail the eye should find on a second pass,
+     it, this is reference detail the eye should find on a second pass,
      not compete with the privacy claim or the drop instruction. Only
      shown in the empty state; once files are in, the user has already
      answered the question it exists to answer. */
@@ -1685,7 +1685,7 @@
     max-width:34rem;margin:8px auto 0;
     font-size:.76rem;line-height:1.5;
     /* No opacity. --muted is 5.83:1 on the page; at .78 it composited
-       to 3.78 and failed AA — and it had been doing that since the line
+       to 3.78 and failed AA, and it had been doing that since the line
        was added, unnoticed because the contrast audits I was running
        folded alpha from background layers but not element opacity.
        If something needs to be quieter, it needs a lighter COLOUR that
@@ -1700,7 +1700,7 @@
      so only one set of controls is reachable at a time. The workspace
      runs on the dark palette (body[data-state=solo|multi]), so these use
      the tokens rather than the light-state literals. */
-  /* The workspace is a deliberately locked viewport — body and .stage are
+  /* The workspace is a deliberately locked viewport, body and .stage are
      overflow:hidden with height:100vh so the image canvas can own the
      screen. The list is a document, not a canvas, and inherited that
      lock: at 40 files it was 2921px of rows inside a 720px box with no
@@ -1712,14 +1712,14 @@
   /* The page keeps scrolling while work is happening.
 
      Dropping files used to swap the whole document for a locked
-     100vh workspace and hide .beta-empty — 3297px of hero, FAQ and
-     footer — so during a long batch you stared at a black box with
+     100vh workspace and hide .beta-empty, 3297px of hero, FAQ and
+     footer, so during a long batch you stared at a black box with
      nothing to read and nowhere to scroll. TinyPNG keeps its page
      under the drop panel for exactly this reason.
 
      In list view the body is the scroller again (height:auto, normal
      overflow), the stage sizes to its content, and the marketing
-     returns underneath via flex order — the list is later in the DOM
+     returns underneath via flex order, the list is later in the DOM
      than .beta-empty, so order puts it first without moving anything.
      The compare view keeps the locked viewport, which is right for a
      full-bleed image. */
@@ -1733,7 +1733,7 @@
   body[data-state="multi"][data-view="list"] .beta-empty{
     display:block;order:2;
   }
-  /* ...but not a second dropzone, sample strip or format row — the list
+  /* ...but not a second dropzone, sample strip or format row, the list
      has Add more, and those would be the same offer twice. */
   body[data-state="multi"][data-view="list"] .beta-empty :is(.dropzone,.dz-floats-caption,.dz-floats){
     display:none;
@@ -1746,7 +1746,7 @@
   }
   /* In list view the canvas, cover-flow and their chrome step aside.
      The settings bar stays, because the settings are global and belong
-     with the batch — only its Share all / Download all cluster is hidden
+     with the batch, only its Share all / Download all cluster is hidden
      here, since the list header already owns batch actions. It sits
      collapsed until "Edit settings" pulls it open in place. */
   body[data-view="list"] .image-canvas,
@@ -1767,7 +1767,7 @@
      - cover-flow and its scrubber were a second way to navigate the
        batch, which is the list's job now, so compare gets a plain
        prev/next instead of a carousel of thumbnails
-     - .actions is Share all / Download all — batch actions that made no
+     - .actions is Share all / Download all, batch actions that made no
        sense floating over a single image
      - the filename ribbon and batch-progress chip duplicate what the
        compare bar and the list header already say */
@@ -1824,7 +1824,7 @@
   .cmp-dl{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
   .cmp-dl:hover{background:var(--accent);filter:brightness(1.1);}
   @media (max-width:860px){
-    /* The name goes before the numbers do — you just picked the file,
+    /* The name goes before the numbers do, you just picked the file,
        so you know which one it is; the sizes are why you drilled in. */
     .cmp-title{display:none;}
   }
@@ -1832,7 +1832,7 @@
     .cmp-bar{gap:6px;padding:8px 10px;}
     .cmp-pos{display:none;}
     /* Back collapses to the arrow, and the stats become the only thing
-       allowed to shrink — everything else is a tap target. Without this
+       allowed to shrink, everything else is a tap target. Without this
        the bar could not fit and pushed Download off the screen edge
        while "All files" wrapped onto a second line. */
     .cmp-back-label{display:none;}
@@ -1860,7 +1860,7 @@
      a document, holding controls that belong to the batch.
 
      My first attempt kept it floating and re-skinned it as a slide-in
-     side panel. That was the same mistake one step further on — still
+     side panel. That was the same mistake one step further on, still
      bending a dark, horizontal, fixed-position component into something
      it is not, and it came out with the wrong colours, wrong spacing and
      content scrolled off the top.
@@ -1876,7 +1876,7 @@
   body[data-view="list"][data-adjust="closed"] .menu-wrap{display:none;}
   /* Both attributes, because body[data-state="multi"] .menu-card sets a
      dark translucent background at the same specificity and later in the
-     file — a single-attribute selector here silently lost. */
+     file, a single-attribute selector here silently lost. */
   body[data-state="multi"][data-view="list"] .menu-card{
     flex-direction:column;align-items:stretch;
     width:100%;overflow:visible;
@@ -1884,7 +1884,7 @@
     border:1px solid var(--border);border-radius:12px;
     padding:16px;gap:14px;
   }
-  /* The Edit settings button IS the toggle here — the gear would be a
+  /* The Edit settings button IS the toggle here, the gear would be a
      second control for the same thing. */
   body[data-view="list"] .settings-toggle{display:none;}
   body[data-view="list"] .bb-drawer{overflow:visible;width:100%;height:auto;max-height:none;opacity:1;}
@@ -1900,7 +1900,7 @@
   body[data-view="list"] .bb-section-label{color:var(--muted);}
   body[data-view="list"] .bb-divider{display:none;}
   body[data-view="list"] .bb-row{width:100%;}
-  /* Every control inside the bar is painted for a dark surface —
+  /* Every control inside the bar is painted for a dark surface, 
      rgba(255,255,255,.75) text, .06 fills, .18 hairlines. On the light
      panel they vanished. Remapped to tokens here rather than changed at
      source, because the compare view still needs the dark treatment. */
@@ -2005,13 +2005,13 @@
   .fl-saving.pending{color:var(--muted);font-weight:600;}
   .fl-saving.failed{color:var(--danger);}
   .fl-meta-bad{color:var(--danger);}
-  /* A failed row isn't a button — there's nothing to compare — so it
+  /* A failed row isn't a button, there's nothing to compare, so it
      drops the affordances rather than looking clickable and doing
      nothing. */
   .fl-row-failed{cursor:default;background:color-mix(in srgb,var(--danger) 12%,transparent);}
   .fl-row-failed:hover{background:color-mix(in srgb,var(--danger) 12%,transparent);border-color:transparent;}
   /* Per-row download. Not the whole row, because the row itself opens the
-     comparison — the button stops propagation. */
+     comparison, the button stops propagation. */
   .fl-dl{
     font:inherit;font-size:.76rem;font-weight:600;
     padding:7px 12px;min-height:34px;
@@ -2049,7 +2049,7 @@
     .fl-head-actions .fl-btn{flex:1;}
   }
 
-  /* Floating sample cards — drag onto the dropzone, or click. 3 cards
+  /* Floating sample cards, drag onto the dropzone, or click. 3 cards
      row-aligned below the dropzone with subtle bobbing animation. */
   .dz-floats{
     display:flex;justify-content:center;gap:18px;
@@ -2066,7 +2066,7 @@
     display:flex;flex-direction:column;align-items:stretch;
     box-shadow:0 2px 8px rgba(0,0,0,.06);
     transition:box-shadow .18s ease, border-color .18s ease;
-    /* Continuous ambient drift — TWO simultaneous single-axis animations
+    /* Continuous ambient drift: TWO simultaneous single-axis animations
        on DIFFERENT periods. Each is a smooth 2-keyframe sine (no
        intermediate stops, no "deceleration into a keyframe" pause).
        Y-period (5-7s) and rotate-period (7-9s) never sync, so the
@@ -2122,7 +2122,7 @@
   body[data-state="multi"] .dz-floats-caption,
   body[data-state="solo"] .dz-floats-caption{display:none;}
   /* Two independent single-axis keyframes. Each is a pure 2-stop
-     sine wave with ease-in-out — no intermediate keyframes means
+     sine wave with ease-in-out, no intermediate keyframes means
      no visible deceleration points. The independent periods on the
      two animations create organic wander without ever syncing. */
   @keyframes dzFloatY{
@@ -2133,7 +2133,7 @@
     0%, 100% { rotate: 0deg; }
     50%      { rotate: 0.5deg; }
   }
-  /* No prefers-reduced-motion guard here — the float is 6px
+  /* No prefers-reduced-motion guard here, the float is 6px
      translateY + sub-1deg rotation over 5-7s. That's far below
      WCAG's vestibular-trigger threshold (which targets parallax,
      scale, rotate, or large translates). Subtle ambient drift is
@@ -2143,7 +2143,7 @@
     .dz-float-card{padding:6px;}
     .dz-float-label{font-size:.68rem;}
   }
-  /* Custom tooltip — instant show on hover, properly styled.
+  /* Custom tooltip, instant show on hover, properly styled.
      Better than native [title] which has a slow OS-level delay
      and tiny rendering. */
   [data-tt]{position:relative;}
@@ -2182,17 +2182,17 @@
   body[data-state="empty"] .dropzone .dz-trust svg{
     width:16px;height:16px;opacity:1;
   }
-  /* Headline verb rotation — Bionic Julia pattern.
+  /* Headline verb rotation: Bionic Julia pattern.
      https://bionicjulia.com/blog/creating-react-component-fades-changing-words
 
      Two persistent classes that get toggled, with the transition
      declaration on EACH class (not on the base element). The proven
-     reliable pattern across browsers — single-class toggles where the
+     reliable pattern across browsers, single-class toggles where the
      transition lives only on the base can sometimes skip the
      animation, hence the duplication. */
   .dz-loop{
     color:var(--accent);
-    /* Two-line stacked layout — verb sits on its own line, centered
+    /* Two-line stacked layout: verb sits on its own line, centered
        by the parent h2's text-align. Stacking eliminates the
        fixed-slot asymmetry problem and lets each line center
        independently. Slide-up + fade gives slot-machine feel. */
@@ -2218,8 +2218,8 @@
     }
   }
   /* Opacity-only fade is WCAG-safe under reduced-motion preferences
-     (only motion that simulates physical movement — parallax, large
-     translates, rotation, scale — is considered vestibular-triggering).
+     (only motion that simulates physical movement, parallax, large
+     translates, rotation, scale, is considered vestibular-triggering).
      So we DON'T disable the fade for reduced-motion users. */
 
   /* ===== WORKSPACE FORMAT DROPDOWN ======================================
@@ -2243,7 +2243,7 @@
   .format-menu button.active{
     background:var(--accent);color:var(--on-accent);
   }
-  /* Multi toggle row — sits at the top of the format dropdown menu.
+  /* Multi toggle row: sits at the top of the format dropdown menu.
      Visually distinct from format buttons (different bg + bottom
      divider) so users see it as a mode switch, not another format. */
   .format-menu .format-multi-row{
@@ -2311,14 +2311,14 @@
   }
   /* In multi mode, hide the Original ('auto') pill since it doesn't
      compose with the multi-select pattern. Existing rule already does
-     this for #formatPills button[data-fmt="auto"] — keep consistent. */
+     this for #formatPills button[data-fmt="auto"], keep consistent. */
 
   /* ===== QUALITY DROPDOWN ===========================================
      Preset rows + an inline slider row at the bottom of the menu.
      Reuses .resize-presets / .resize-presets-menu base styles for the
      trigger and popover; only the slider row needs custom CSS. */
   .quality-dropdown{position:relative;}
-  /* Disabled state — applied when the current format(s) don't read
+  /* Disabled state, applied when the current format(s) don't read
      the quality value (PNG/GIF/ICO are lossless). data-quality-applicable
      toggled by setQualityFormatSupport() at runtime. */
   .quality-dropdown[data-quality-applicable="off"] .resize-presets-trigger{
@@ -2328,7 +2328,7 @@
   /* Body swap via a BODY-level attribute. The menu portals to
      document.body on open, so an ancestor selector on .quality-dropdown
      drops out of scope. body[data-quality-by] is always reachable. */
-  /* Both bodies are always visible — see the note where the tabs used to
+  /* Both bodies are always visible, see the note where the tabs used to
      be. The inactive one is dimmed rather than hidden so it reads as
      "available, not currently driving the encode", and one click on it
      both selects it and applies. */
@@ -2405,7 +2405,7 @@
     flex:none;min-width:24px;text-align:right;
     color:#fff;font-weight:700;font-size:.72rem;
   }
-  /* Smart preset — sits at the top of the menu, visually marked with
+  /* Smart preset: sits at the top of the menu, visually marked with
      an accent dot to signal 'auto-tuned, not a fixed value'. */
   .quality-menu button[data-quality-preset="smart"]{
     position:relative;padding-left:22px;
@@ -2427,7 +2427,7 @@
 
   /* ---------- mobile ---------- */
   @media(max-width:767px){
-    /* Smaller cover-flow thumbnails on mobile — frees vertical space
+    /* Smaller cover-flow thumbnails on mobile, frees vertical space
        for the compare canvas (the actual reason users come to the page).
        80/42 still keeps the active thumb tappable (>=44px after scale
        up of small thumbs) without dominating the screen. */
@@ -2440,7 +2440,7 @@
     .cover-flow{
       bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 16px) + 48px);  /* matches desktop offset above ribbon */
       left:0;right:0;
-      height:80px;  /* was 72 — fits 64px active thumb with ~8px margin */
+      height:80px;  /* was 72: fits 64px active thumb with ~8px margin */
     }
     .image-canvas{
       bottom:calc(var(--menu-h, 100px) + 100px);
@@ -2451,12 +2451,12 @@
       bottom:calc(var(--menu-h, 80px) + var(--menu-anchor, 18px) + 28px);
       font-size:.68rem;max-width:80vw;
     }
-    /* Mobile bottom toolbar — wraps onto multiple rows in a defined order
+    /* Mobile bottom toolbar: wraps onto multiple rows in a defined order
        instead of collapsing into overflow chaos. The horizontal "film
        strip drawer" pattern works on desktop but is too wide for
        narrow viewports; mobile just stacks the rows. */
     .menu-wrap{
-      /* Mobile bar — small inset and respects safe-area-inset-bottom
+      /* Mobile bar: small inset and respects safe-area-inset-bottom
          so devices with a home indicator don't overlap the action
          buttons. */
       left:0;right:0;
@@ -2473,8 +2473,8 @@
       border-radius:14px;
     }
     /* Drawer becomes a top row (above the core), full-width, vertical
-       stack of sections. No horizontal slide-out — just show/hide block. */
-    /* Mobile drawer INLINE — pushes the menu-card taller when open;
+       stack of sections. No horizontal slide-out: just show/hide block. */
+    /* Mobile drawer INLINE: pushes the menu-card taller when open;
        the cover-flow + image canvas shift up via --menu-h wiring so
        the user can keep interacting with both while settings is open. */
     .bb-drawer{
@@ -2512,7 +2512,7 @@
         clip-path:none;-webkit-clip-path:none;
       }
     }
-    /* Mobile settings — 2-column grid for all four dropdowns
+    /* Mobile settings: 2-column grid for all four dropdowns
        (Format, Quality, Resize, Crop) and a full-width Privacy row.
        Every section is column-stacked: label on top, control below.
        Each cell is roughly 50% of container width so the dropdowns
@@ -2534,7 +2534,7 @@
       min-width:0; /* allow contents to shrink inside grid cell */
     }
     /* Privacy row (the only one with a .switch direct child) spans
-       both columns — gets its own full-width row at the bottom. */
+       both columns, gets its own full-width row at the bottom. */
     .bb-drawer-inner .bb-section:has(> .switch){
       grid-column:1 / -1;
       flex-direction:row !important;
@@ -2583,7 +2583,7 @@
     .bb-row-group .bb-section + .bb-section{
       padding-top:0;border-top:none;
     }
-    /* Format pills span full drawer width and divide equally — easier
+    /* Format pills span full drawer width and divide equally, easier
        to tap than the scroll-row default. */
     .bb-drawer-inner .adjust-pills{
       width:100%;overflow:visible;
@@ -2604,7 +2604,7 @@
     }
     .bb-core .adjust-pills::-webkit-scrollbar{display:none;}
     .bb-core .quality-row{min-width:0;flex:1;}
-    /* Settings gear on its own — keep visible at left of core. Border-left
+    /* Settings gear on its own, keep visible at left of core. Border-left
        was the divider hint on desktop; remove on mobile so it's a clean
        icon button. */
     .settings-toggle{border-left:none;padding:6px 8px;}
@@ -2617,7 +2617,7 @@
     }
     .actions .btn{
       flex:1;min-width:0;width:auto;
-      font-size:1.05rem;padding:13px 10px;  /* ~16.8px — modern mobile CTA range */
+      font-size:1.05rem;padding:13px 10px;  /* ~16.8px: modern mobile CTA range */
       font-weight:600;
       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
@@ -2625,7 +2625,7 @@
     .actions .btn-clear{flex:0 0 auto;padding:12px 12px;}
     .actions .lbl-full{display:none;}
     .actions .lbl-short{display:inline;}
-    /* Collapsed by default on mobile — only the "Before" / "After" title
+    /* Collapsed by default on mobile, only the "Before" / "After" title
        and the savings % chip are visible. Tap a card to expand and reveal
        the dims/KB/format details. Tap again to collapse. Saves precious
        horizontal real estate on the canvas while keeping savings glanceable. */
@@ -2677,8 +2677,8 @@
     text-shadow:0 1px 3px rgba(0,0,0,.4);}
   .mock-image.large{font-size:1.4rem;padding:20px;}
 
-  /* ========= EDIT MODAL — second workflow surface ========= */
-  /* ══ EDIT MODAL — Round 5 layout overhaul ══
+  /* ========= EDIT MODAL, second workflow surface ========= */
+  /* ══ EDIT MODAL. Round 5 layout overhaul ══
      2-column: image preview fills left, 300px panel on right.
      imgready design language: dark canvas, image is the hero.
      Single 48px header row. ══════════════════════════════ */
@@ -2695,7 +2695,7 @@
   .edit-modal button .ico{margin-right:5px;}
   .edit-modal button.btn-icon .ico{margin:0;width:1.05em;height:1.05em;}
   /* ============================================================
-     R30 — UNIFICATION PASS: bring the Edit modal in line with the
+     R30. UNIFICATION PASS: bring the Edit modal in line with the
      home compress toolbar. Four buckets of changes:
        1. TOP CHROME: flush flat bar (rounded only at bottom) instead
           of two floating pills. Matches home .top-chrome tokens.
@@ -2708,9 +2708,9 @@
        4. TABS: horizontal icon+label inline (was: column-stacked),
           --bb-btn-h height, sage tint when active.
      The R28/R29 4-stack layout (canvas / top-chrome / options-strip
-     / bottom-row) is preserved — only the visual tokens change.
+     / bottom-row) is preserved, only the visual tokens change.
      ============================================================ */
-  /* R28 — Edit modal mirrors home solo-state composition:
+  /* R28: Edit modal mirrors home solo-state composition:
      image-canvas fills inset:0, chrome (top brand + bottom menu-card)
      floats absolutely above. NO backdrop-filter on the bottom card
      (the home .menu-card comment explicitly warned about white-flash
@@ -2721,7 +2721,7 @@
     color:#fff;overflow:hidden;
   }
   .edit-modal[hidden]{display:none !important;}
-  /* R28 — image canvas fills the entire modal. Render fns continue to
+  /* R28, image canvas fills the entire modal. Render fns continue to
      write to this element via id="editPreviewCol". */
   .edit-modal .edit-canvas-area{
     position:absolute;inset:0;
@@ -2729,7 +2729,7 @@
     background:#0a0a0c;
     overflow:hidden;
   }
-  /* R34 — zoom transform target. Tools render into this layer;
+  /* R34: zoom transform target. Tools render into this layer;
      split-compare overlay/button are appended to editPreviewCol
      directly (outside the layer) so they stay unscaled. */
   .edit-modal .edit-zoom-layer{
@@ -2740,7 +2740,7 @@
        the old direct-in-editPreviewCol renders before R34). */
     display:flex;align-items:center;justify-content:center;
   }
-  /* R30 — Edit top chrome mirrors home .top-chrome EXACTLY:
+  /* R30: Edit top chrome mirrors home .top-chrome EXACTLY:
      - single flush-at-top bar (NOT two floating pills)
      - rounded only at bottom corners (border-radius:0 0 14px 14px)
      - same blur/opacity tokens as home (rgba(20,20,20,.55), blur 11px)
@@ -2765,7 +2765,7 @@
     gap:14px;
     line-height:1.15;
   }
-  /* Children render as plain elements INSIDE the bar — no individual
+  /* Children render as plain elements INSIDE the bar, no individual
      pill backgrounds, so the bar reads as one cohesive surface. */
   .edit-modal .edit-top-chrome > *{
     pointer-events:auto;
@@ -2774,7 +2774,7 @@
     border:none;border-radius:0;padding:0;
     color:#fff;line-height:1;
   }
-  /* Filename left (mirrors home .tc-before — left-aligned mono text). */
+  /* Filename left (mirrors home .tc-before, left-aligned mono text). */
   .edit-modal .edit-filename-chip{
     display:flex;align-items:center;
     flex:1;min-width:0;
@@ -2786,7 +2786,7 @@
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     order:1;
   }
-  /* Brand center (mirrors home .tc-brand — centered display serif). */
+  /* Brand center (mirrors home .tc-brand, centered display serif). */
   .edit-modal .edit-brand-link{
     flex:0 0 auto;
     font-family:var(--font-display);font-synthesis:none;
@@ -2800,7 +2800,7 @@
   .edit-modal .edit-brand-link:hover{opacity:.85;}
   .edit-modal .edit-brand-link .g{color:var(--accent);}
   .edit-modal .edit-brand-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
-  /* Size info right (mirrors home .tc-after — right-aligned mono stats). */
+  /* Size info right (mirrors home .tc-after, right-aligned mono stats). */
   .edit-modal .edit-top-chrome .edit-size-info{
     display:flex;align-items:center;justify-content:flex-end;
     flex:1;min-width:0;text-align:right;
@@ -2812,7 +2812,7 @@
     order:3;
   }
   .edit-modal .edit-top-chrome .edit-size-info:empty{display:none;}
-  /* R28 — bottom menu wrap + card. Mirrors home .menu-wrap / .menu-card
+  /* R28, bottom menu wrap + card. Mirrors home .menu-wrap / .menu-card
      exactly: solid #1a1a1a card, border-radius:14px, floats with 16px
      margins from viewport edges. */
   .edit-modal .edit-menu-wrap{
@@ -2830,10 +2830,10 @@
     color:#fff;
     display:flex;flex-direction:column;
     overflow:hidden;
-    /* R55 — the wrap is flex-direction:row with justify-content:center.
+    /* R55: the wrap is flex-direction:row with justify-content:center.
        Without flex:1 or width:100%, the card shrinks to its content
        width (~500px) and sits as a small island in the middle of wide
-       viewports — looks skewed/off-center even though the icons inside
+       viewports, looks skewed/off-center even though the icons inside
        are mathematically centered. Force it to fill the wrap so the
        icon row spans the available width. Max-width prevents absurd
        sprawl on ultra-wide screens. */
@@ -2841,14 +2841,14 @@
     width:100%;
     max-width:880px;
   }
-  /* R28 — options strip lives ABOVE the bottom row inside the card.
+  /* R28: options strip lives ABOVE the bottom row inside the card.
      Has a border-bottom that separates it visually from the bottom row
      when content is present. :empty collapses entirely, taking the
      border with it (no orphan separator on tabs that have no controls). */
-  /* R29 — strip mirrors home .adjust-panel density. flex-row primary;
+  /* R29: strip mirrors home .adjust-panel density. flex-row primary;
      wraps onto a second line only when controls genuinely don't fit.
      max-height 22vh ensures the canvas keeps the lion's share of space. */
-  /* R43 — Redesigned tool panel strip: vertical column, more breathing room.
+  /* R43: Redesigned tool panel strip: vertical column, more breathing room.
      Previous compact horizontal layout (R29) crammed controls into a single
      scrollable row; this update gives each tool its own vertical column so
      sliders can stretch full-width and buttons meet the 36px touch-target. */
@@ -2863,15 +2863,15 @@
   .edit-modal .edit-options-strip::-webkit-scrollbar{width:3px;}
   .edit-modal .edit-options-strip::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
   .edit-modal .edit-options-strip:empty{display:none;}
-  /* R31 — Slide-up reveal when a tool's controls appear. */
+  /* R31. Slide-up reveal when a tool's controls appear. */
   @keyframes _editBodyIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
   .edit-modal .edit-options-strip.anim-in{animation:_editBodyIn .18s ease-out both;}
-  /* R43 — Children fill the strip width; each control wrapper owns its
+  /* R43. Children fill the strip width; each control wrapper owns its
      own layout. Removed the old forced flex-row that flattened all tools. */
   .edit-modal .edit-options-strip > * {
     min-width:0;width:100%;flex:0 0 auto;
   }
-  /* R43 — Tool control wrappers use column layout so controls stack
+  /* R43: Tool control wrappers use column layout so controls stack
      vertically; only neutralise legacy margins/borders with !important. */
   .edit-pixelate-controls,
   .edit-blur-controls,
@@ -2887,14 +2887,14 @@
   .bg-refine-section .bg-refine-tool-strip{
     display:flex;gap:4px;width:100%;
   }
-  /* R43 — Bigger touch targets on mode toggles (was 28px) */
+  /* R43: Bigger touch targets on mode toggles (was 28px) */
   .edit-pixelate-controls .edit-preset-btn,
   .edit-blur-controls .edit-preset-btn,
   .bg-refine-section .edit-preset-btn{
     height:36px;padding:0 14px;
     font-size:.8rem;border-radius:8px;flex:1;
   }
-  /* R43 — Larger, more readable help text (was .62rem) */
+  /* R43: Larger, more readable help text (was .62rem) */
   .edit-pixelate-help,
   .edit-blur-help,
   .bg-refine-help,
@@ -2902,7 +2902,7 @@
     font-size:.72rem;color:rgba(255,255,255,.4);
     line-height:1.4;margin:0;
   }
-  /* R43 — Action buttons: taller touch target (was 28px) */
+  /* R43: Action buttons: taller touch target (was 28px) */
   .edit-frames-action-btn{
     height:36px;padding:0 14px;
     font-size:.8rem;font-weight:600;border-radius:8px;
@@ -2928,7 +2928,7 @@
     text-transform:uppercase;color:rgba(255,255,255,.55);
     margin:0;
   }
-  /* R35 — floating action pill (injected into editPreviewCol by _ensureSplitUi).
+  /* R35: floating action pill (injected into editPreviewCol by _ensureSplitUi).
      All editing actions live here; card now only holds options + tool strip. */
   .edit-action-pill{
     position:absolute;bottom:var(--split-btn-bottom,120px);left:50%;transform:translateX(-50%);
@@ -2997,7 +2997,7 @@
     white-space:nowrap;
   }
   .edit-zoom-chip.show{opacity:1;}
-  /* Tool strip — self-contained pill at card bottom. */
+  /* Tool strip, self-contained pill at card bottom. */
   .edit-modal .edit-tab-bar{
     display:flex;
     justify-content:safe center;
@@ -3041,7 +3041,7 @@
   .edit-modal .edit-tab-bar .edit-tab:hover{
     color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);
   }
-  /* R33 — iOS Photos active state: small accent dot above the icon,
+  /* R33: iOS Photos active state: small accent dot above the icon,
      white text, no background fill (pill is the container, not the tab). */
   .edit-modal .edit-tab-bar .edit-tab.active{
     background:transparent;color:#fff;
@@ -3054,14 +3054,14 @@
     background:var(--accent);
   }
   .edit-modal .edit-tab-bar .edit-tab.active .ico{color:var(--accent);}
-  /* R30 — Actions cluster now matches home .menu-card > .actions:
+  /* R30. Actions cluster now matches home .menu-card > .actions:
      - same --bb-btn-h:30px height
      - same .72rem font, weight 600
      - same border-radius:7px
      - same padding 0 12px
      - .bb-divider equivalent (1px vertical, stretch margins) instead
        of full-height border-left, matching home's section divider. */
-  /* R34 — actions-cluster is now the right side of the pill actions row;
+  /* R34: actions-cluster is now the right side of the pill actions row;
      no left divider needed (pill-util is left, cluster is right). */
   .edit-modal .edit-actions-cluster{
     display:flex;align-items:center;gap:6px;
@@ -3119,18 +3119,18 @@
   .edit-modal .edit-actions-cluster .btn-primary:focus-visible{
     outline:2px solid var(--accent);outline-offset:2px;
   }
-  /* Legacy selector neutralizers — these are referenced by older CSS
+  /* Legacy selector neutralizers: these are referenced by older CSS
      blocks; defang to prevent any cascade bleed onto the new structure. */
   .edit-modal .edit-modal-card,
   .edit-modal .edit-header,
   .edit-modal .edit-brand-bar,
   .edit-modal .edit-layout,
-  /* R39 — exclude .edit-zoom-layer: display:contents removes the box and
+  /* R39, exclude .edit-zoom-layer: display:contents removes the box and
      makes CSS transforms inert, so the zoom transform would be silently
      ignored. All other legacy layout wrappers keep display:contents. */
   .edit-modal .edit-preview-col:not(.edit-zoom-layer),
   .edit-modal .edit-panel-col{display:contents;}
-  /* R31 — .edit-tabs legacy alias kept; individual .edit-tab rule
+  /* R31, .edit-tabs legacy alias kept; individual .edit-tab rule
      now covered by .edit-tab-bar .edit-tab above.
      Keep legacy classes intact so existing render code doesn't break. */
   .edit-modal .edit-tabs{display:contents;}
@@ -3148,7 +3148,7 @@
   .edit-modal .edit-tab:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);}
   .edit-modal .edit-tab.active{background:rgba(138,174,138,.18);color:#fff;}
   .edit-modal .edit-tab.active .ico{color:var(--accent);}
-  /* R29 — sub-toggle pill switcher, tighter and inline. */
+  /* R29, sub-toggle pill switcher, tighter and inline. */
   .edit-modal .edit-subtoggle{
     display:inline-flex;gap:2px;padding:3px;border-radius:7px;
     background:rgba(255,255,255,.04);
@@ -3167,14 +3167,14 @@
   .edit-modal .edit-subtab.active{background:rgba(255,255,255,.12);color:#fff;}
   .edit-modal .edit-subtab.active .ico{color:var(--accent);}
   .edit-modal .edit-subbody{display:flex;flex-direction:column;gap:12px;}
-  /* R27 — legacy .edit-body styling kept for any inline references;
+  /* R27, legacy .edit-body styling kept for any inline references;
      same rules as .edit-options-strip so nothing breaks. */
   .edit-modal .edit-body{
     overflow-y:auto;overflow-x:hidden;
     padding:0;
     display:flex;flex-direction:column;gap:12px;
   }
-  /* R27 — old .edit-actions footer is gone; actions moved to the
+  /* R27: old .edit-actions footer is gone; actions moved to the
      brand bar. These selectors are kept as no-ops for any
      accidentally-still-referenced legacy DOM. */
   .edit-modal .edit-actions,
@@ -3230,7 +3230,7 @@
     overflow:hidden;
   }
   .edit-compare-overlay img{max-width:100%;max-height:calc(100% - 44px);object-fit:contain;}
-  /* R35 — .edit-split-btn lives inside .edit-action-pill (see above). */
+  /* R35, .edit-split-btn lives inside .edit-action-pill (see above). */
   .edit-split-overlay{
     position:absolute;inset:0;display:none;
     pointer-events:none;z-index:15;
@@ -3277,7 +3277,7 @@
   .edit-split-label.after {right:10px;}
   
 
-  /* R47 — Tap-to-disable dot, iPhone Photos pattern. Lives inside the
+  /* R47. Tap-to-disable dot, iPhone Photos pattern. Lives inside the
      dropdown trigger button as its first child. Visible only when the
      chip is "modified" (parent .edit-X-dd-trigger has .modified). Click
      stops propagation so the chip's dropdown doesn't open. */
@@ -3307,7 +3307,7 @@
     opacity:.55;
   }
 
-    /* R46 — Single-row toolbar wrapper used by Rotate + Adjust tabs.
+    /* R46: Single-row toolbar wrapper used by Rotate + Adjust tabs.
      The options strip uses flex-direction:column at the strip level so
      each tool gets its own block; this toolbar overrides direction to
      row for tools whose controls fit on one line. */
@@ -3327,7 +3327,7 @@
     transition:background var(--e-t-fast, .12s ease),color var(--e-t-fast, .12s ease);
   }
   .edit-rotate-btn:hover{background:var(--e-bg-3, rgba(255,255,255,.12));}
-  /* R47 — explicit dimensions + flex-centering so the icon stays
+  /* R47, explicit dimensions + flex-centering so the icon stays
      truly centered inside the 36×36 square regardless of the
      font-size:0 trick. line-height:0 prevents inherited line-height
      from offsetting the icon vertically. */
@@ -3341,7 +3341,7 @@
     display:block;flex:none;
   }
   .edit-rotate-btn.rot-icon-only .rot-lbl{
-    /* sr-only — keep label in DOM for accessibility tree but hide visually */
+    /* sr-only, keep label in DOM for accessibility tree but hide visually */
     position:absolute;width:1px;height:1px;padding:0;margin:-1px;
     overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
   }
@@ -3349,7 +3349,7 @@
     padding:0 14px;font-size:.8rem;font-weight:600;
     letter-spacing:.01em;
   }
-  /* R46 — Adjust + Rotate dropdown chips become content-width inside
+  /* R46: Adjust + Rotate dropdown chips become content-width inside
      the toolbar (was width:100% which forced each onto its own row). */
   .edit-rotate-toolbar .edit-tool-dd,
   .edit-adjust-toolbar .edit-filter-dd,
@@ -3377,10 +3377,10 @@
 
   
 
-  /* R48b — Zero detent on the scrubber. Apple Photos marks the neutral
+  /* R48b: Zero detent on the scrubber. Apple Photos marks the neutral
      position with a small dot on the slider track; users scrub there
      to reset. We use a background image on the track at 50% (the
-     middle of a 0–200 range, which represents the default value of
+     middle of a 0-200 range, which represents the default value of
      100). */
   .adj-scrubber input[type=range]{
     background:linear-gradient(to right,
@@ -3393,7 +3393,7 @@
   }
 
   
-  /* R48b — per-tab reset button at end of the icon row. Discreet (no
+  /* R48b: per-tab reset button at end of the icon row. Discreet (no
      border, dim color) so it doesn't compete with the adjustment icons
      for attention; activates only when at least one adjustment is
      modified. */
@@ -3411,7 +3411,7 @@
   .adj-row-reset:disabled{opacity:.32;cursor:default;pointer-events:none;}
   .adj-row-reset .ico{width:14px;height:14px;}
 
-    /* R48 — Apple Photos scrubber + icon carousel. The Adjust tab's
+    /* R48. Apple Photos scrubber + icon carousel. The Adjust tab's
      core 3 adjustments (Brightness / Contrast / Saturation) share one
      horizontal scrubber slider; tapping an icon below switches which
      adjustment the slider controls. Modified state per-icon shown via
@@ -3438,7 +3438,7 @@
   .adj-scrubber input[type=range]{
     width:100%;
   }
-  /* Icon row — horizontal flex, each icon a tall vertical pill with
+  /* Icon row: horizontal flex, each icon a tall vertical pill with
      icon + label + corner dot for modified state. */
   .adj-icon-row{
     display:flex;align-items:stretch;gap:6px;
@@ -3449,7 +3449,7 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:0;
     padding:10px 6px;
-    /* R48b — labels are gone; pad vertically so icon sits centered. */
+    /* R48b: labels are gone; pad vertically so icon sits centered. */
     background:rgba(255,255,255,.04);
     border:1px solid transparent;border-radius:10px;
     color:rgba(255,255,255,.75);
@@ -3466,11 +3466,11 @@
     color:#fff;
   }
   .adj-icon-btn.selected .ico{color:var(--accent);}
-  /* R48b — labels removed from carousel; Apple-Photos-style icon-only.
+  /* R48b, labels removed from carousel; Apple-Photos-style icon-only.
      The active label appears above the scrubber via .adj-scrubber-label. */
   .adj-icon-btn .adj-icon-label{display:none;}
   /* Modified dot: small accent-filled circle at the top-right corner */
-  /* R48b — Apple Photos pattern: a thin ring around the icon shows
+  /* R48b. Apple Photos pattern: a thin ring around the icon shows
      adjustment magnitude. CSS conic-gradient draws a partial arc from
      the top of the ring proportional to |value - 100|. Sign is encoded
      in arc direction (positive sweeps CW, negative CCW) via the
@@ -3490,7 +3490,7 @@
   .adj-icon-btn.modified .adj-icon-dot{opacity:1;}
 
   
-  /* R49 — flat icon carousel. Adjustments and filter presets share the
+  /* R49, flat icon carousel. Adjustments and filter presets share the
      same horizontal row. No popovers. Tap = single action. */
   .adj-flat-carousel{
     display:flex;flex-direction:row;align-items:center;gap:8px;
@@ -3582,11 +3582,11 @@
 
 
   /* ====================================================================
-     R61 — hide size info from top bar (user does not want it visible)
+     R61, hide size info from top bar (user does not want it visible)
      ==================================================================== */
   .edit-modal .edit-size-info{display:none !important;}
 
-  /* R62 — match home tool top chrome: ONE 780px-wide centered pill with
+  /* R62, match home tool top chrome: ONE 780px-wide centered pill with
      3 sections inside (left: history / center: brand / right: actions).
      We keep the original .edit-top-chrome rule untouched (translucent
      dark pill anchored top-center). Just slot in our new groups using
@@ -3603,7 +3603,7 @@
   .edit-modal .edit-top-chrome .edit-brand-link{
     order:2;
     flex:0 0 auto;
-    /* No own pill background — it sits inside the chrome pill. */
+    /* No own pill background: it sits inside the chrome pill. */
     background:transparent !important;
     backdrop-filter:none !important;
     -webkit-backdrop-filter:none !important;
@@ -3626,7 +3626,7 @@
   .edit-modal .edit-top-chrome .edit-filename-chip{display:none !important;}
   .edit-modal .edit-top-chrome .edit-size-info{display:none !important;}
 
-  /* Top-bar buttons inside the chrome — smaller, transparent so they
+  /* Top-bar buttons inside the chrome, smaller, transparent so they
      read as items WITHIN the pill, not separate pills. */
   .edit-modal .edit-top-history-btn{
     background:transparent !important;
@@ -3666,7 +3666,7 @@
   }
 
   /* ====================================================================
-     R60 — top-chrome history controls + dynamic Save/Done
+     R60: top-chrome history controls + dynamic Save/Done
      ==================================================================== */
   .edit-modal .edit-top-history{
     pointer-events:auto;
@@ -3700,7 +3700,7 @@
     width:14px;height:14px;
   }
 
-  /* Dynamic Save/Done button — neutral when "Done", accent when "Save". */
+  /* Dynamic Save/Done button: neutral when "Done", accent when "Save". */
   .edit-modal .edit-top-save{
     background:rgba(255,255,255,.10);
     border-color:rgba(255,255,255,.18);
@@ -3723,7 +3723,7 @@
   .edit-modal .edit-action-pill{display:none !important;}
 
   /* ====================================================================
-     R59 — top-chrome Cancel/Save buttons (Apple Photos style)
+     R59, top-chrome Cancel/Save buttons (Apple Photos style)
      ==================================================================== */
   .edit-modal .edit-top-actions{
     pointer-events:auto;
@@ -3763,7 +3763,7 @@
 
 
 
-  /* R63 — feedback pulse for icons that get tapped but have nothing
+  /* R63: feedback pulse for icons that get tapped but have nothing
      to act on (e.g. Angle icon already at 0). */
   @keyframes ed-icon-pulse{
     0%{transform:scale(1);}
@@ -3776,7 +3776,7 @@
 
 
   /* ====================================================================
-     R67 — Floating tool surface (formerly inside menu-card).
+     R67. Floating tool surface (formerly inside menu-card).
      Sits OVER the photo, anchored just above the menu-card. Apple Photos
      pattern. The menu-card collapses to a thin tab-nav-only dock.
      ==================================================================== */
@@ -3803,8 +3803,8 @@
   }
   .edit-modal .edit-tool-surface:empty{display:none;}
 
-  /* R69 — bottom dock matches main tool .menu-card: solid #1a1a1a,
-     no backdrop-filter (Chrome's drawer-animation white-flash bug —
+  /* R69, bottom dock matches main tool .menu-card: solid #1a1a1a,
+     no backdrop-filter (Chrome's drawer-animation white-flash bug, 
      same reason the main card avoids it). */
   .edit-modal .edit-menu-card-thin{
     background:#1a1a1a;
@@ -3822,7 +3822,7 @@
     border-bottom:none;
   }
 
-  /* R69 — no wrapping card. Icons (their own .pi-icon-style pills)
+  /* R69: no wrapping card. Icons (their own .pi-icon-style pills)
      and the scrubber float bare over the photo. Only the scrubber's
      own backdrop preserves tick legibility. */
   .edit-modal .edit-tool-surface .edit-tool-toolbar{
@@ -3858,11 +3858,11 @@
     border-color:transparent;
   }
 
-  /* Top-chrome size — tighten the brand-link pill inside the chrome. */
+  /* Top-chrome size: tighten the brand-link pill inside the chrome. */
   .edit-modal .edit-top-chrome{ min-height:42px; }
 
   /* ====================================================================
-     R56 — Cancel the global "edit-modal button .ico" 5px right-margin for
+     R56: Cancel the global "edit-modal button .ico" 5px right-margin for
      circle-family buttons. That rule was kicking every SVG icon inside
      every circle 2.5px to the left of center, producing a tab-wide
      "skewed left" illusion across the whole icon row.
@@ -3878,7 +3878,7 @@
   }
 
   /* ====================================================================
-     R54 — bold disable visual + locked tab height (no stretching)
+     R54: bold disable visual + locked tab height (no stretching)
      ==================================================================== */
 
   /* Disable toggle: when active, the inner is filled red with a
@@ -3914,7 +3914,7 @@
     min-height:138px;
   }
 
-  /* Compact per-icon "modified" disable — icon goes dim with a small slash
+  /* Compact per-icon "modified" disable, icon goes dim with a small slash
      overlay, value still shown so user knows the parameter is preserved. */
   .edit-modal .adj-circle-btn.icon-disabled .ed-circle-inner,
   .edit-modal .adj-circle-btn.icon-disabled .adj-circle-inner{
@@ -3940,16 +3940,16 @@
   }
 
   /* ====================================================================
-     R53 — captions off by default, disable-toggle visuals, tighter center
+     R53: captions off by default, disable-toggle visuals, tighter center
      ==================================================================== */
 
   /* Hide the caption beneath circle buttons by default. Apple Photos is
-     minimal — captions only appear on hover/focus or for active state. */
+     minimal: captions only appear on hover/focus or for active state. */
   .edit-modal .ed-circle-btn .ed-circle-cap{display:none;}
   .edit-modal .ed-circle-btn:hover .ed-circle-cap,
   .edit-modal .ed-circle-btn:focus-visible .ed-circle-cap{display:block;}
 
-  /* R72 — match Adjust's .adj-flat-carousel padding so all tabs share
+  /* R72, match Adjust's .adj-flat-carousel padding so all tabs share
      the same row height + spacing. */
   .edit-modal .ed-func-row{
     flex-wrap:nowrap;
@@ -3958,7 +3958,7 @@
     gap:14px;
   }
 
-  /* Disable toggle button — variant of .ed-circle-sm. When the tab is
+  /* Disable toggle button: variant of .ed-circle-sm. When the tab is
      disabled, the button is filled red-ish and the rest of the row dims. */
   .edit-modal .ed-disable-btn .ed-circle-inner{
     background:rgba(255,255,255,.06);
@@ -3979,17 +3979,17 @@
   .edit-modal .ed-func-row.row-disabled .adj-tick-ruler,
   .edit-modal .ed-func-row.row-disabled ~ .adj-tick-ruler{opacity:.32;pointer-events:none;}
 
-  /* Rotate's tick-ruler reuses .adj-tick-ruler — ensure good spacing under
+  /* Rotate's tick-ruler reuses .adj-tick-ruler, ensure good spacing under
      the icon row. */
-  /* R74 — removed margin-top override; rotate ruler now matches Adjust. */
+  /* R74: removed margin-top override; rotate ruler now matches Adjust. */
 
   /* ====================================================================
-     R52 — Unified circular function-icon family (.ed-circle-btn)
+     R52: Unified circular function-icon family (.ed-circle-btn)
      Used across Rotate, Pixelate, Blur, Remove BG, Text tabs so every
      function icon shares the same UI family as Adjust's .adj-circle-btn.
      ==================================================================== */
 
-  /* R68 — match home tool .pi-icon: 44px solid-ish dark pill with
+  /* R68: match home tool .pi-icon: 44px solid-ish dark pill with
      backdrop-blur, thin white border, no always-on inner ring. */
   .edit-modal .ed-circle-btn{
     flex:0 0 auto;width:44px;height:44px;
@@ -4002,7 +4002,7 @@
     font-family:inherit;
   }
   .edit-modal .ed-circle-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
-  /* Ring overlay — transparent by default; only shows for selected /
+  /* Ring overlay, transparent by default; only shows for selected /
      modified states (set by JS via CSS custom properties). */
   .edit-modal .ed-circle-btn .ed-circle-ring{
     position:absolute;inset:-3px;
@@ -4011,7 +4011,7 @@
     pointer-events:none;
     transition:background .12s ease;
   }
-  /* The icon container IS the pill — backdrop-blurred dark surface. */
+  /* The icon container IS the pill, backdrop-blurred dark surface. */
   .edit-modal .ed-circle-btn .ed-circle-inner{
     position:relative;
     width:44px;height:44px;
@@ -4068,7 +4068,7 @@
   .edit-modal .ed-func-row::-webkit-scrollbar{display:none;}
 
   /* ====================================================================
-     R50 — Apple Photos faithful Adjust + new Filters tab
+     R50. Apple Photos faithful Adjust + new Filters tab
      ==================================================================== */
 
   .edit-modal .adj-tab-r50,
@@ -4079,7 +4079,7 @@
     padding:8px 8px 4px;
   }
 
-  /* R71 — pill lives inside the floating tool surface as first child;
+  /* R71: pill lives inside the floating tool surface as first child;
      position relative (in flow) so it stacks above the icons naturally. */
   .edit-modal #editBody > .adj-section-pill{
     position:relative;
@@ -4112,7 +4112,7 @@
   }
   .edit-modal .adj-section-pill-val:empty{display:none;}
 
-  /* R68 — adj-circle-btn (Adjust icons with conic magnitude ring) shares
+  /* R68, adj-circle-btn (Adjust icons with conic magnitude ring) shares
      the pi-icon pill base; ring sits OUTSIDE the pill as an overlay. */
   .edit-modal .adj-circle-btn{
     flex:0 0 auto;width:44px;height:44px;
@@ -4152,7 +4152,7 @@
   }
   .edit-modal .adj-circle-btn:hover .adj-circle-inner{background:rgba(50,50,50,.95);transform:translateY(-1px);}
 
-  /* R68 — Selected = full accent ring overlay outside the pill. */
+  /* R68. Selected = full accent ring overlay outside the pill. */
   .edit-modal .adj-circle-btn.selected .adj-circle-ring{
     background:conic-gradient(from -90deg,
       var(--accent) 0deg,
@@ -4163,7 +4163,7 @@
   .edit-modal .adj-circle-btn.selected .adj-circle-inner{
     border-color:rgba(255,255,255,.28);
   }
-  /* R68 — Modified = arc segment of the ring fills accent. */
+  /* R68: Modified = arc segment of the ring fills accent. */
   .edit-modal .adj-circle-btn.modified .adj-circle-ring{
     background:conic-gradient(from var(--r48-arc-from, -90deg),
       var(--accent) 0deg,
@@ -4218,7 +4218,7 @@
   .edit-modal .adj-carousel-r50 .adj-row-reset:disabled{opacity:.32;pointer-events:none;}
   .edit-modal .adj-carousel-r50 .adj-row-reset .ico{width:14px;height:14px;}
 
-  /* R63 — clean scrubber. Default tick density set per slider via the
+  /* R63, clean scrubber. Default tick density set per slider via the
      --range CSS variable on the ruler element (JS writes it). Tick
      positions in the gradients are computed as (5 / range) * 100% for
      minor ticks and (25 / range) * 100% for major ticks. */
@@ -4228,7 +4228,7 @@
     padding:0 12px;
     margin-top:8px;
     --range:200;
-    /* R71 — no backdrop. Ticks pop via a sharp text-shadow so they
+    /* R71: no backdrop. Ticks pop via a sharp text-shadow so they
        stay legible against bright photos. */
     background:transparent;
     backdrop-filter:none;
@@ -4236,7 +4236,7 @@
     border:none;
     border-radius:0;
   }
-  /* R65 — one DOM element per tick. JS populates .adj-tick spans into
+  /* R65: one DOM element per tick. JS populates .adj-tick spans into
      .adj-tick-ticks; every Nth gets .major. Guaranteed pixel alignment
      vs the gradient approach which rounded minor and major tracks
      differently. */
@@ -4264,9 +4264,9 @@
     transform:translateX(-1px);
     box-shadow:0 0 2px rgba(0,0,0,.85);
   }
-  /* Center indicator — accent vertical line at the "default" value. */
+  /* Center indicator: accent vertical line at the "default" value. */
   .edit-modal .adj-tick-center{
-    /* R73 — Apple gold (#ffd60a) center mark: distinct from green
+    /* R73. Apple gold (#ffd60a) center mark: distinct from green
        accent, more obvious than white. Full-height + 3px wide with
        drop-shadow for contrast against bright photos. */
     position:absolute;
@@ -4278,7 +4278,7 @@
     pointer-events:none;
     box-shadow:0 0 4px rgba(0,0,0,.9);
   }
-  /* Position indicator — clean white vertical line (no halo). Matches
+  /* Position indicator: clean white vertical line (no halo). Matches
      Apple Photos: a single tick line, not a dot with shadow. */
   .edit-modal .adj-tick-dot{
     position:absolute;
@@ -4390,7 +4390,7 @@
   .edit-preview-col .edit-rotate-preview{
     width:100%;height:100%;
     background-size:contain;background-position:center;background-repeat:no-repeat;
-    /* R66 — drop transform transition. With raw-angle rotate values, a
+    /* R66: drop transform transition. With raw-angle rotate values, a
        sliding scrubber generates ~60 transform updates per second; the
        transition was queuing them, causing the visible 360° flip when
        the value direction reversed past zero. */
@@ -4434,7 +4434,7 @@
   }
   .edit-angle-row input[type=range]{flex:1;min-width:0;}
   .edit-adjust-sliders{display:flex;flex-direction:column;gap:10px;}
-  /* R43 — .adj-row stretches full-width; slider takes remaining space. */
+  /* R43, .adj-row stretches full-width; slider takes remaining space. */
   .adj-row{
     display:flex;align-items:center;gap:8px;
     width:100%;flex:0 0 auto;min-width:0;
@@ -4453,8 +4453,8 @@
     text-align:right;font-variant-numeric:tabular-nums;
     min-width:32px;flex:0 0 auto;
   }
-  /* R29 — preset strip horizontal-scroll, no wrap.
-     R30 — kept as a fallback for tabs that still use inline pills
+  /* R29: preset strip horizontal-scroll, no wrap.
+     R30: kept as a fallback for tabs that still use inline pills
      (Crop aspect, Pixelate/Blur tool modes), but the Adjust tab's
      7 filter presets have been moved to .edit-filter-dd (dropdown
      chip), matching home's .resize-presets pattern. */
@@ -4480,10 +4480,10 @@
   .edit-preset-btn.active{
     background:var(--accent);color:var(--on-accent);border-color:var(--accent);
   }
-  /* R30 — Filter / Vignette dropdown chips. Mirrors home's
+  /* R30: Filter / Vignette dropdown chips. Mirrors home's
      .resize-presets-trigger pattern exactly: chevron chip on the bar,
      fixed-position popover opening UPWARD (toolbar is at the bottom). */
-  /* R43 — dropdown chip rows stretch full-width; trigger fills remaining space */
+  /* R43: dropdown chip rows stretch full-width; trigger fills remaining space */
   .edit-filter-dd,.edit-vignette-dd,.edit-adjust-dd,.edit-tool-dd{
     position:relative;display:flex;align-items:center;
     gap:8px;width:100%;
@@ -4522,7 +4522,7 @@
   .edit-tool-dd-trigger .dd-value{
     color:#fff;font-weight:600;
   }
-  /* R30b — accent dot on trigger when control is in non-default state.
+  /* R30b: accent dot on trigger when control is in non-default state.
      Mirrors iOS Photos' "adjusted" indicator. */
   .edit-adjust-dd-trigger.modified .dd-value::before,
   .edit-filter-dd-trigger.modified .dd-value::before,
@@ -4544,7 +4544,7 @@
     transition:opacity .14s ease,transform .14s ease,visibility 0s linear .14s;
     left:-9999px;
   }
-  /* R34 — menus are portaled to <body> by _editPortalMenu so the
+  /* R34: menus are portaled to <body> by _editPortalMenu so the
      ancestor selector (.parent.open .menu) no longer matches.
      Drive visibility directly from the menu's own .open class. */
   .edit-filter-dd-menu.open,
@@ -4597,9 +4597,9 @@
   .edit-vignette-dd-menu .vig-reset-row button:disabled{
     opacity:.35;cursor:default;
   }
-  /* R30b — Adjust dropdown popover. Mirrors the home quality-dropdown
+  /* R30b: Adjust dropdown popover. Mirrors the home quality-dropdown
      pattern (slider inside the popover, label above). Three rows
-     stacked vertically — Brightness, Contrast, Saturation — plus a
+     stacked vertically: Brightness, Contrast, Saturation, plus a
      Reset link at the bottom. Same width / chrome as vignette menu. */
   .edit-adjust-dd-menu{
     min-width:280px;padding:10px 12px;gap:6px;
@@ -4637,7 +4637,7 @@
   .edit-adjust-dd-menu .adj-reset-row button:disabled{
     opacity:.35;cursor:default;
   }
-  /* R30c — Shared "tool" dropdown popover. Used by Rotate (Angle),
+  /* R30c: Shared "tool" dropdown popover. Used by Rotate (Angle),
      Pixelate (Brush+Cell), Blur (Brush+Amount), BG-refine (Brush+Soft).
      Same chrome as the Adjust menu so every popover reads as one
      consistent family across tabs. */
@@ -4662,7 +4662,7 @@
   .edit-tool-dd-menu .adj-val{
     min-width:30px;text-align:right;
   }
-  /* Round 14 — Vignette (lives inside the Adjust tab) */
+  /* Round 14: Vignette (lives inside the Adjust tab) */
   .edit-vignette-section{
     display:flex;flex-direction:column;gap:8px;
     padding:9px 9px 10px;margin-top:2px;
@@ -4682,7 +4682,7 @@
   .edit-vignette-reset:hover{background:rgba(255,255,255,.08);color:#fff;}
   .edit-vignette-reset:disabled{opacity:.35;cursor:not-allowed;}
   .edit-vignette-sliders{display:flex;flex-direction:column;gap:8px;}
-  /* R29 — vignette uses the new compact .adj-row. */
+  /* R29, vignette uses the new compact .adj-row. */
   .edit-vignette-section{
     display:inline-flex;align-items:center;gap:10px;
     flex:0 0 auto;
@@ -4786,8 +4786,8 @@
     border:1px solid rgba(255,255,255,.12);font-size:.84rem;
   }
   /* Round 6: Auto Enhance row inside Adjust tab */
-  /* R29 — auto-enhance compact pill in the strip row, not a hero band. */
-  /* R43 — auto-enhance row stretches full-width; button gets proper height */
+  /* R29, auto-enhance compact pill in the strip row, not a hero band. */
+  /* R43: auto-enhance row stretches full-width; button gets proper height */
   .edit-auto-enhance-row{
     display:flex;align-items:center;gap:8px;
     padding:0;border:none;background:transparent;
@@ -4828,7 +4828,7 @@
   .edit-pixelate-help{
     margin:0;font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.4;
   }
-  /* Round 13: Blur tab — brush + full-image blur
+  /* Round 13: Blur tab: brush + full-image blur
      ctx.filter='blur(Npx)' is browser-native (no new deps).
      MDN: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter */
   .edit-preview-col .edit-blur-wrap{
@@ -4868,7 +4868,7 @@
   .tx-add-row .edit-frames-action-btn{
     flex:1 1 0;min-width:0;
     padding:7px 8px;font-size:.8rem;
-    /* R44 — keep single-line so "+ Watermark" stops wrapping inside
+    /* R44: keep single-line so "+ Watermark" stops wrapping inside
        the 36px height. flex:1 1 0 + min-width:0 lets buttons shrink
        equally; nowrap + ellipsis handle the longest label gracefully. */
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -4901,7 +4901,7 @@
     cursor:pointer;font-size:.88rem;padding:0 3px;line-height:1;
   }
   .tx-item-row .tx-item-del:hover{color:#ff7070;}
-  /* R71 — text-tab empty state cleaned up: centered subtle copy below icons. */
+  /* R71, text-tab empty state cleaned up: centered subtle copy below icons. */
   .edit-modal .edit-tool-surface .tx-empty{
     text-align:center;
     color:rgba(255,255,255,.55);
@@ -4950,14 +4950,14 @@
   .tx-anchor-help{
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
-  /* R44 — Hide the "Drag any item…" help when the list shows the
+  /* R44: Hide the "Drag any item…" help when the list shows the
      "Nothing added yet" empty-state copy. They were both visible
      in R43, competing for attention. Now: empty state → just the
      empty copy; once items exist (no .tx-empty), the drag hint
      reappears as contextual help. */
   .edit-text-controls:has(.tx-empty) .tx-anchor-help{display:none;}
 
-  /* R44 — BG panel hierarchy. R43 hid the title (h3) and icon, which
+  /* R44. BG panel hierarchy. R43 hid the title (h3) and icon, which
      left the panel with just a dim one-line description and no clear
      anchor. Restore a tight title + subtitle stack so users know what
      this tab does at a glance. */
@@ -4976,7 +4976,7 @@
     color:rgba(255,255,255,.62);
     font-size:.76rem;line-height:1.4;
   }
-  /* R44 — Remove background button: constrained width + centered so
+  /* R44: Remove background button: constrained width + centered so
      the CTA reads as a deliberate action, not a wall. R43 had width:100%
      which made it span the full panel and dwarf the surrounding controls. */
   .edit-bg-run{
@@ -4995,7 +4995,7 @@
   .edit-bg-progress-fill{height:100%;background:var(--accent);transition:width .25s ease;}
   .edit-bg-progress-label{font-size:.72rem;color:rgba(255,255,255,.4);}
   .edit-bg-success-msg{margin:4px 0;font-size:.76rem;color:#6fcf97;}
-  /* R44 — disclaimer made readable. R43 had it at 28% opacity / .72rem
+  /* R44, disclaimer made readable. R43 had it at 28% opacity / .72rem
      which made the important "60 MB one-time download" warning visually
      invisible. Bumped to 70% opacity / .78rem + centered to match the
      CTA, so users actually notice the model-download cost before clicking. */
@@ -5010,7 +5010,7 @@
     background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.07);border-radius:7px;
   }
-  /* R43 — bg mode buttons: 36px touch target */
+  /* R43: bg mode buttons: 36px touch target */
   .bg-mode-btn{
     flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
     padding:8px 8px;font-size:.8rem;font-weight:600;color:rgba(255,255,255,.62);
@@ -5024,7 +5024,7 @@
     border-color:rgba(255,255,255,.18);
     box-shadow:0 1px 0 rgba(0,0,0,.18) inset;
   }
-  /* R44 — HQ "~110 MB" inline badge: slightly smaller + brighter and
+  /* R44: HQ "~110 MB" inline badge: slightly smaller + brighter and
      shifted left so it reads as auxiliary metadata, not a label peer. */
   .bg-mode-pill{
     font-size:.64rem;font-weight:500;
@@ -5054,7 +5054,7 @@
     margin:0;font-size:.68rem;color:rgba(255,255,255,.42);line-height:1.45;
   }
   @media (max-width:640px){
-    /* R28 — mobile layout. Floating top chrome with tighter padding
+    /* R28, mobile layout. Floating top chrome with tighter padding
        and shrunken pills. Bottom card wraps the actions row onto its
        own line below the tabs so all 6 action buttons fit. */
     .edit-modal .edit-top-chrome{top:10px;left:10px;right:10px;gap:6px;}
@@ -5065,11 +5065,11 @@
       left:8px;right:8px;
       bottom:max(8px, env(safe-area-inset-bottom, 8px));
     }
-    /* R35 — mobile: tighten strip margins. */
+    /* R35: mobile: tighten strip margins. */
     .edit-modal .edit-tab-bar{margin:0 6px 6px;}
     .edit-modal .edit-options-strip{max-height:32vh;padding:10px 12px;gap:10px;}
     .edit-compare-btn{display:none;}
-    /* R32 — on mobile the strip stays scrollable; shrink buttons slightly. */
+    /* R32, on mobile the strip stays scrollable; shrink buttons slightly. */
     .edit-modal .edit-tab-bar{padding:4px 6px;gap:1px;}
     .edit-modal .edit-tab-bar .edit-tab,.edit-modal .edit-tab{
       min-width:48px;height:46px;font-size:.60rem;padding:4px 6px;
@@ -5077,7 +5077,7 @@
     .edit-modal .edit-tab-bar .edit-tab .ico,.edit-modal .edit-tab .ico{width:16px;height:16px;}
     .edit-modal .edit-subtab{padding:5px 8px;font-size:.72rem;}
     .edit-modal .edit-body{padding:12px 12px;gap:12px;min-height:0;}
-    /* Preset / filter / aspect / mode buttons share .edit-preset-btn — shrink so they fit in one row. */
+    /* Preset / filter / aspect / mode buttons share .edit-preset-btn, shrink so they fit in one row. */
     .edit-modal .edit-preset-btn{padding:5px 9px;font-size:.72rem;}
     .edit-modal .edit-actions{padding:8px 12px;gap:8px;}
     .edit-modal .edit-actions-row{gap:8px;}
@@ -5091,7 +5091,7 @@
 
   
 
-  /* R25 — slider thumb touch target. WCAG 2.5.5 calls for >=44px hit
+  /* R25, slider thumb touch target. WCAG 2.5.5 calls for >=44px hit
      areas; default browser thumbs are ~14-16px. Bump visible thumb to
      22px (still feels precise on desktop) and use ::-webkit-slider-thumb
      padding to expand the hit zone to ~44px without changing visual size.
@@ -5131,7 +5131,7 @@
     background:rgba(255,255,255,.16);
   }
 
-  /* R24 — accent harmonization. Carry the sage more confidently into the
+  /* R24: accent harmonization. Carry the sage more confidently into the
      dark editor surfaces. Was: subtle accent ink on hover only. Now:
      accent fills the primary Save action with a saturated tone that
      matches the cream-on-sage logo treatment, and the active Edit tab
@@ -5146,14 +5146,14 @@
     background:var(--accent);
     filter:brightness(1.04);
   }
-  /* R32 — removed R24 underline indicator; active tab uses background
+  /* R32: removed R24 underline indicator; active tab uses background
      fill only (iOS Photos style), set in the strip rule above. */
   .edit-modal .edit-tab.active{background:rgba(138,174,138,.12);}
-  /* R24 — wordmark on the hero gets the warm sage as the second word's color
+  /* R24, wordmark on the hero gets the warm sage as the second word's color
      (was already using .g class on the "g" letter; promote to whole accent). */
   .brand .g{color:var(--accent-strong,var(--accent));}
 
-  /* R23 — Advanced encoder controls section. Native <details>, per-format
+  /* R23. Advanced encoder controls section. Native <details>, per-format
      tabs, simple form controls. No JS framework, no animations beyond the
      browser-native details expand. Persists per format to localStorage. */
   .r23-adv-section .r23-adv-details{
@@ -5238,7 +5238,7 @@
   .r23-adv-reset:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);}
   .r23-adv-reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-  /* R22 — precise crosshair override during active drag OR when
+  /* R22, precise crosshair override during active drag OR when
      Caps Lock is engaged (Photoshop convention). Uses !important
      to beat the inline cursor:url(...) set by each brush's
      refreshCursor function. Selectors cover Pixelate, Blur, and
@@ -5253,10 +5253,10 @@
   }
 
   
-  /* R22 — focus-visible keyboard a11y across the Edit modal and the
+  /* R22: focus-visible keyboard a11y across the Edit modal and the
      main app's pi-icon row. WCAG 2.1 SC 2.4.7 (Focus Visible) compliance.
      Uses :focus-visible (not :focus) so mouse clicks don't trigger the
-     outline — only keyboard nav (Tab) does. */
+     outline, only keyboard nav (Tab) does. */
   .edit-modal button:focus-visible,
   .edit-modal input[type="range"]:focus-visible,
   .edit-modal .edit-tab:focus-visible,
@@ -5274,7 +5274,7 @@
     outline: 2px solid var(--accent);
     outline-offset: 3px;
   }
-  /* R25 — WCAG contrast fix for primary actions on cream. White on
+  /* R25: WCAG contrast fix for primary actions on cream. White on
      #7a9a7a was 3.12:1 (fail AA). Promote --accent-strong as the base
      background so the white label clears 4.81:1 (pass AA, pass UI). */
   .btn-primary{
@@ -5286,7 +5286,7 @@
     border-color:var(--accent-ink);
   }
 
-  /* R25 — extend focus-visible accent outlines to all interactive
+  /* R25: extend focus-visible accent outlines to all interactive
      elements outside the Edit modal. R22 covered the modal; this fills
      in the home page surfaces. WCAG 2.1 SC 2.4.7 compliance for the
      entire app, not just the editor. */
@@ -5305,7 +5305,7 @@
     outline-offset: 3px;
     border-radius: 4px;
   }
-  /* Mobile inherits all the above — no breakpoint override needed. */
+  /* Mobile inherits all the above, no breakpoint override needed. */
 
 
   body[data-edit-open="true"] .menu-card,
@@ -5436,7 +5436,7 @@
   body[data-empty-batch="true"] .menu-card > .actions .btn:not(.settings-toggle){
     opacity:.4;pointer-events:none;
   }
-  /* The dropzone overlay — centered in the image-canvas region. */
+  /* The dropzone overlay: centered in the image-canvas region. */
   .empty-batch-dropzone{
     display:none;
     position:absolute;top:50%;left:50%;
@@ -5480,7 +5480,7 @@
 
 
   /* ====================================================================
-     R70 — Targeted fixes (icon value display, crop, dock clipping,
+     R70. Targeted fixes (icon value display, crop, dock clipping,
      tab bar polish, flip icon size).
      ==================================================================== */
 
@@ -5501,7 +5501,7 @@
   }
   .edit-modal .adj-circle-btn.modified .adj-circle-val{opacity:1;}
 
-  /* (2) Crop tab — pi-icon-style ratio buttons + accent Apply pill. */
+  /* (2) Crop tab, pi-icon-style ratio buttons + accent Apply pill. */
   .edit-modal .edit-tool-surface .edit-crop-presets{
     display:flex;align-items:center;justify-content:center;
     flex-wrap:wrap;
@@ -5534,7 +5534,7 @@
     background:var(--accent);
     border-color:var(--accent);
   }
-  /* Crop instruction text — keep but make subtle */
+  /* Crop instruction text: keep but make subtle */
   .edit-modal .edit-tool-surface #editBody > div + p {
     text-align:center;
     color:rgba(255,255,255,.45);
@@ -5567,13 +5567,13 @@
   .edit-modal .ed-circle-btn[data-rot="fv"] .ed-circle-inner .ico{
     width:22px;height:22px;
   }
-  /* (4) Pixelate grid icon — tone down stroke so it doesn't read as a
+  /* (4) Pixelate grid icon: tone down stroke so it doesn't read as a
      decorative ring around the active tab. */
   .edit-modal .edit-tab-bar .edit-tab[data-tab="pixelate"] .ico{
     transform:scale(.92);
   }
 
-  /* (6) Tab bar polish — Apple Photos style: text-only labels with a
+  /* (6) Tab bar polish: Apple Photos style: text-only labels with a
      small accent indicator BELOW the active label. No wrap pill, no
      icon, tighter spacing. */
   .edit-modal .edit-menu-card-thin .edit-tab-bar{
@@ -5625,7 +5625,7 @@
 
 
 
-  /* R71 — kill the browser focus ring on tab buttons after click. The
+  /* R71, kill the browser focus ring on tab buttons after click. The
      accent dot ::before is the only "active" indicator. */
   .edit-modal .edit-tab-bar .edit-tab:focus{outline:none;}
   .edit-modal .edit-tab-bar .edit-tab:focus-visible{
@@ -5634,12 +5634,12 @@
 
 
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Are my images uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file — no requests carry image data."}}, {"@type": "Question", "name": "What's the difference between WebP and AVIF?", "acceptedAnswer": {"@type": "Answer", "text": "Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly. imgready uses WebAssembly encoders for both so every device gets identical output regardless of browser."}}, {"@type": "Question", "name": "How big a batch can I drop in?", "acceptedAnswer": {"@type": "Answer", "text": "The soft cap is 200 files, with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop."}}, {"@type": "Question", "name": "Is there a file-size cap?", "acceptedAnswer": {"@type": "Answer", "text": "No. Drop a 100 MB TIFF if you have one. imgready has no caps because there's no server to bill for storage."}}, {"@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass — no double-encoding."}}, {"@type": "Question", "name": "What if the file fails to convert?", "acceptedAnswer": {"@type": "Answer", "text": "Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level \"Couldn't read this file\" error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue."}}, {"@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30–50 files at a time)."}}, {"@type": "Question", "name": "Is imgready really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — completely, no caps. Supported by voluntary Ko-fi tips. No ads, no tracking, no accounts."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Are my images uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file, no requests carry image data."}}, {"@type": "Question", "name": "What's the difference between WebP and AVIF?", "acceptedAnswer": {"@type": "Answer", "text": "Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly. imgready uses WebAssembly encoders for both so every device gets identical output regardless of browser."}}, {"@type": "Question", "name": "How big a batch can I drop in?", "acceptedAnswer": {"@type": "Answer", "text": "The soft cap is 200 files, with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop."}}, {"@type": "Question", "name": "Is there a file-size cap?", "acceptedAnswer": {"@type": "Answer", "text": "No. Drop a 100 MB TIFF if you have one. imgready has no caps because there's no server to bill for storage."}}, {"@type": "Question", "name": "Can I resize and compress at the same time?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass, no double-encoding."}}, {"@type": "Question", "name": "What if the file fails to convert?", "acceptedAnswer": {"@type": "Answer", "text": "Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level \"Couldn't read this file\" error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue."}}, {"@type": "Question", "name": "Does imgready work on iPhone or iPad?", "acceptedAnswer": {"@type": "Answer", "text": "Yes: imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30-50 files at a time)."}}, {"@type": "Question", "name": "Is imgready really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes: completely, no caps. Supported by voluntary Ko-fi tips. No ads, no tracking, no accounts."}}]}</script>
 </head>
 <body data-state="empty" data-adjust="open" data-pi-actions="closed" data-confirm="closed" data-bigbatch="closed" data-multiout="off" data-quality-by="quality" data-edit-open="false">
-<!-- R25 — skip link, visible on focus, WCAG 2.4.1 Bypass Blocks -->
+<!-- R25: skip link, visible on focus, WCAG 2.4.1 Bypass Blocks -->
 <a class="r25-skip-link" href="#dropzone">Skip to main content</a>
-<!-- Lucide icon sprite (ISC — https://github.com/lucide-icons/lucide/blob/main/LICENSE). Hidden inert SVG; <use href="#i-name"> references each <symbol>. -->
+<!-- Lucide icon sprite (ISC: https://github.com/lucide-icons/lucide/blob/main/LICENSE). Hidden inert SVG; <use href="#i-name"> references each <symbol>. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
   <defs>
     <symbol id="i-rotate-cw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></symbol>
@@ -5683,16 +5683,16 @@
 <header class="top-chrome" aria-label="Workspace info">
   <div class="tc-section tc-before">
     <span class="tc-label">Before</span>
-    <span class="tc-value" id="tcBefore">—</span>
+    <span class="tc-value" id="tcBefore">: </span>
   </div>
   <div class="tc-section tc-brand">
     <a href="/" class="tc-brand-name" onclick="if(typeof FILES!=='undefined' && FILES.length && document.body.dataset.emptyBatch!=='true'){event.preventDefault();askLeaveHome();}">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="tc-stats" id="tcStats">—</span>
+    <span class="tc-stats" id="tcStats">: </span>
   </div>
   <div class="tc-section tc-after">
     <span class="tc-label">After</span>
     <span class="tc-after-line2">
-      <span class="tc-value" id="tcAfter">—</span>
+      <span class="tc-value" id="tcAfter">: </span>
       <span class="tc-pct" id="tcPct"></span>
     </span>
   </div>
@@ -5700,7 +5700,7 @@
 
 <section class="beta-empty">
   <div class="app">
-    <!-- Legacy v10 top-nav — first child of .app, identical structure
+    <!-- Legacy v10 top-nav: first child of .app, identical structure
          to the production homepage. /app.css owns every visual property
          (.topnav layout, .brand 22px/42px, .nav-link colors, mobile
          hamburger dropdown). The .legacy-nav class only exists as a
@@ -5741,7 +5741,7 @@
     </h2>
     <p>Drop, click, or paste &middot; up to 200 files</p>
     <!-- Input formats. The dropzone was the largest empty region on the
-         page and named none of them — a visitor with a .heic off their
+         page and named none of them, a visitor with a .heic off their
          phone, an .svg logo or an .mp4 had no way to know any of it was
          accepted. Video is the sharpest case: the whole feature was
          undiscoverable, since nothing outside the file picker's own
@@ -5763,10 +5763,10 @@
          users don't need re-reassurance mid-batch. -->
     <div class="dz-trust" aria-hidden="false">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>Stays on your device — never uploaded</span>
+      <span>Stays on your device, never uploaded</span>
     </div>
   </div>
-  <!-- Floating sample cards — sit beside the dropzone. Image-only;
+  <!-- Floating sample cards: sit beside the dropzone. Image-only;
        no labels (the photos speak for themselves). Click loads,
        drag-and-drop into the dropzone also loads. Drag-release
        outside the dropzone does nothing. -->
@@ -5794,14 +5794,14 @@
       <span class="dz-float-img" style="background-image:url('/samples/thumbs/demo_3.jpg')"></span>
     </button>
   </aside>
-  <!-- Output pre-selector — users with conversion intent pick before
+  <!-- Output pre-selector: users with conversion intent pick before
        dropping. Placed OUTSIDE .dropzone because the dropzone has a
        click-to-open-file-picker handler that would otherwise hijack
        every pill click. Selection persists via window.PREFS.outFormat
        into the workspace's format dropdown. -->
   <!-- The six output-format buttons that used to sit here were labelled
        "optional, pick one or many". Measured on a 768px viewport they
-       sat at y 714-804 — below the fold — with no pill active, so they
+       sat at y 714-804, below the fold, with no pill active, so they
        neither got seen nor said what would happen if you ignored them,
        and the choice did not persist past the visit. Six controls
        announcing their own skippability, in the best real estate after
@@ -5809,7 +5809,7 @@
 
        What they were good for was saying what the tool can output. That
        moved into the dropzone's format line, which now states both
-       directions in one place — as two separate lines they shared six
+       directions in one place, as two separate lines they shared six
        format names and read as repetition. Choosing a format is
        something you do AFTER dropping now, where the result is on
        screen to judge, and anyone who arrived wanting a specific
@@ -5820,10 +5820,10 @@
     <header class="hero-below">
     <h1 class="brand-h1">
       The image tool that <span class="brand-ready">never uploads.</span>
-      <span class="sr-tagline">imgready — Free in-browser image compressor, converter and resizer.</span>
+      <span class="sr-tagline">imgready: free in-browser image compressor, converter and resizer.</span>
     </h1>
     <p>Compress, convert and resize photos right in your browser.</p>
-    <!-- Verifiable trust signals — privacy-focused social-proof
+    <!-- Verifiable trust signals: privacy-focused social-proof
          equivalent. Each claim is testable (WiFi-off, no upload requests,
          open-source). Reinforces the H1 privacy lead without aggregating
          users (which would contradict the privacy stance). -->
@@ -5833,7 +5833,7 @@
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           <path d="M9 12l2 2 4-4"/>
         </svg>
-        <span>Zero uploads &mdash; try with WiFi off</span>
+        <span>Zero uploads. Try with WiFi off</span>
       </li>
       <li class="proof">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -5848,7 +5848,7 @@
           <polyline points="16 18 22 12 16 6"/>
           <polyline points="8 6 2 12 8 18"/>
         </svg>
-        <span>Open-source encoders &mdash; jsquash, libheif, OxiPNG</span>
+        <span>Open-source encoders: jsquash, libheif, OxiPNG</span>
       </li>
     </ul>
   </header>
@@ -5856,19 +5856,19 @@
   <div class="content-section">
 
     <h2>What imgready does</h2>
-    <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use — WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Compare before/after with a live slider.</p>
+    <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use. WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Compare before/after with a live slider.</p>
     <p>Encoding runs in your browser. The <a href="/why/">thinking behind it</a> goes deeper into what that means for speed and file-size limits.</p>
 
     <h3>Supported formats</h3>
-    <table class="format-table"><tr><th>Format</th><th>Best for</th><th>Compression</th></tr><tr><td><strong>WebP</strong></td><td>Modern web — blogs, e-commerce</td><td>25–35% smaller than JPEG</td></tr><tr><td><strong>AVIF</strong></td><td>Maximum compression, photos</td><td>Up to 50% smaller than JPEG</td></tr><tr><td><strong>JPEG / JPG</strong></td><td>Universal compatibility</td><td>Lossy, works everywhere</td></tr><tr><td><strong>PNG</strong></td><td>Screenshots, graphics, transparency</td><td>Lossless at 100, lossy PNG-8 below</td></tr><tr><td><strong>GIF</strong></td><td>Simple animations, flat colour</td><td>Limited to 256 colours</td></tr></table>
+    <table class="format-table"><tr><th>Format</th><th>Best for</th><th>Compression</th></tr><tr><td><strong>WebP</strong></td><td>Modern web: blogs, e-commerce</td><td>25-35% smaller than JPEG</td></tr><tr><td><strong>AVIF</strong></td><td>Maximum compression, photos</td><td>Up to 50% smaller than JPEG</td></tr><tr><td><strong>JPEG / JPG</strong></td><td>Universal compatibility</td><td>Lossy, works everywhere</td></tr><tr><td><strong>PNG</strong></td><td>Screenshots, graphics, transparency</td><td>Lossless at 100, lossy PNG-8 below</td></tr><tr><td><strong>GIF</strong></td><td>Simple animations, flat colour</td><td>Limited to 256 colours</td></tr></table>
 
     <h3>Common use cases</h3>
     <p>imgready is designed for the everyday image work that doesn't deserve a separate app. A few of the things it gets used for:</p>
     <ul class="use-cases">
       <li><strong>iPhone photos for Windows colleagues.</strong> Drop a HEIC, get a JPG back. No app install, no email back-and-forth about &quot;why won't this open&quot;.</li>
       <li><strong>Hero images for blog posts.</strong> Resize a 5&nbsp;MB phone photo to 1600&nbsp;px wide WebP under 200&nbsp;KB. Pages load faster, Lighthouse score climbs, no CDN cost.</li>
-      <li><strong>Shopify or Etsy product photography.</strong> Drop a folder of 50 photos, pick a target size, hit Download all &mdash; single ZIP, aspect ratios intact.</li>
-      <li><strong>EXIF stripping before sharing.</strong> Phone photos carry GPS coordinates by default. imgready strips them invisibly before you post — no extra step, no extra tool.</li>
+      <li><strong>Shopify or Etsy product photography.</strong> Drop a folder of 50 photos, pick a target size, hit Download all, single ZIP, aspect ratios intact.</li>
+      <li><strong>EXIF stripping before sharing.</strong> Phone photos carry GPS coordinates by default. imgready strips them invisibly before you post, no extra step, no extra tool.</li>
     </ul>
 
     <!-- Panda demo: shows a before/after compression slider so first-time
@@ -5877,7 +5877,7 @@
          JS init at end of beta script. -->
     <div class="demo-wrap" id="demoWrap">
       <div class="demo-header">
-        <span class="demo-title">See the difference — slide to compare</span>
+        <span class="demo-title">See the difference. Slide to compare</span>
         <div class="demo-stats" id="demoStats"></div>
       </div>
       <div class="demo-slider" id="demoSlider" oncontextmenu="return false">
@@ -5896,17 +5896,17 @@
     </div>
 
     <h3>How it actually works</h3>
-    <p>When you drop a file, imgready runs the same WebAssembly encoders Squoosh ships — but locally, on your machine. <strong>HEIC and HEIF</strong> decode through libheif (the C++ library Apple uses). <strong>WebP and AVIF</strong> encode with jsquash, Google's reference encoders ported to WebAssembly. <strong>PNG</strong> compression uses OxiPNG and UPNG for size, the browser's canvas for lossless. Resizing and cropping run on the HTML5 canvas API. None of this requires a server because none of it needs one — your machine has the compute.</p>
+    <p>When you drop a file, imgready runs the same WebAssembly encoders Squoosh ships, but locally, on your machine. <strong>HEIC and HEIF</strong> decode through libheif (the C++ library Apple uses). <strong>WebP and AVIF</strong> encode with jsquash, Google's reference encoders ported to WebAssembly. <strong>PNG</strong> compression uses OxiPNG and UPNG for size, the browser's canvas for lossless. Resizing and cropping run on the HTML5 canvas API. None of this requires a server because none of it needs one, your machine has the compute.</p>
 
     <h3>Frequently asked</h3>
-    <details class="faq-item"><summary>Are my images uploaded?</summary><p>No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file — no requests carry image data.</p></details>
+    <details class="faq-item"><summary>Are my images uploaded?</summary><p>No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file, no requests carry image data.</p></details>
     <details class="faq-item"><summary>What's the difference between WebP and AVIF?</summary><p>Both are modern formats designed to replace JPEG. WebP offers excellent compression and is supported by every major browser since 2020. AVIF compresses tighter (up to 50% vs JPEG) but encodes more slowly. imgready uses WebAssembly encoders for both so every device gets identical output regardless of browser.</p></details>
     <details class="faq-item"><summary>How big a batch can I drop in?</summary><p>The soft cap is 200 files, with a confirmation prompt above that. Practically, browsers handle a few hundred phone-sized photos comfortably on a recent laptop.</p></details>
     <details class="faq-item"><summary>Is there a file-size cap?</summary><p>No. Drop a 100&nbsp;MB TIFF if you have one. imgready has no caps because there's no server to bill for storage.</p></details>
-    <details class="faq-item"><summary>Can I resize and compress at the same time?</summary><p>Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass — no double-encoding.</p></details>
+    <details class="faq-item"><summary>Can I resize and compress at the same time?</summary><p>Yes. Open Settings (the + at the bottom of the screen once you've dropped images) and pick a resize mode. Resize and compression both happen in the same pass, no double-encoding.</p></details>
     <details class="faq-item"><summary>What if the file fails to convert?</summary><p>Two common reasons: the file is corrupted (not actually an image despite the extension), or the file uses a TIFF compression imgready doesn't support (anything beyond uncompressed, LZW, PackBits). When this happens you'll see a card-level &quot;Couldn't read this file&quot; error with a Retry button. If retrying doesn't help, opening the file in any image editor and re-saving it usually fixes the issue.</p></details>
-    <details class="faq-item"><summary>Does imgready work on iPhone or iPad?</summary><p>Yes — imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30–50 files at a time).</p></details>
-    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes &mdash; completely, no caps. Supported by voluntary Ko-fi tips. No ads, no tracking, no accounts.</p></details>
+    <details class="faq-item"><summary>Does imgready work on iPhone or iPad?</summary><p>Yes. Imgready works in mobile Safari and iOS Chrome. iOS Safari has a known bug in its native WebP encoder, so on iOS imgready always uses the WebAssembly encoder for consistent output. AVIF encoding on phones is noticeably slower and warmer than on desktop; for batch work on phones we recommend smaller groups (30-50 files at a time).</p></details>
+    <details class="faq-item"><summary>Is imgready really free?</summary><p>Yes, completely, no caps. Supported by voluntary Ko-fi tips. No ads, no tracking, no accounts.</p></details>
   </div>
 
   <!-- Keyboard shortcut hint button (subtle, bottom-right of viewport).
@@ -5938,7 +5938,7 @@
     <!-- The "Night mode" link lived here and did nothing: it toggled a
          .dark-mode class that no stylesheet defined, while flipping its
          own label so it looked like it had worked. Wiring it to the real
-         data-theme mechanism was tried and measured — the palette swaps
+         data-theme mechanism was tried and measured, the palette swaps
          but this page hardcodes ~260 colours outside the tokens, so the
          long-form content lands at 1.1-2.9:1, and landing pages hardcode
          body{background} so they go light-on-light. A working dark mode
@@ -5950,15 +5950,15 @@
 </div>
 </section>
 
-<!-- ============================ SOLO STATE (1 image) — same canvas as multi ============================ -->
+<!-- ============================ SOLO STATE (1 image): same canvas as multi ============================ -->
 <section class="stage solo">
   <div class="image-canvas" id="centerImageSolo">
     <div class="compare-zoom">
       <div class="compare-before" id="cbBeforeSolo" style="background:#000;"></div>
       <div class="compare-after"><div id="cbAfterSolo" style="position:absolute;inset:0;background:#000;"></div></div>
     </div>
-    <div class="compare-meta l"><span class="lbl-title">Before</span><span>—</span></div>
-    <div class="compare-meta r"><span class="lbl-title">After</span><span>—</span></div>
+    <div class="compare-meta l"><span class="lbl-title">Before</span><span>: </span></div>
+    <div class="compare-meta r"><span class="lbl-title">After</span><span>: </span></div>
   </div>
   <div class="menu-wrap">
     <div class="menu-card">
@@ -5987,8 +5987,8 @@
           </div>
           </div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
-          <span class="privacy-note" title="EXIF, GPS and other metadata are removed automatically when the image is re-encoded — nothing leaves your device.">Metadata removed automatically</span></div>
-        <!-- R23 Advanced encoder section — surfaces codec params already
+          <span class="privacy-note" title="EXIF, GPS and other metadata are removed automatically when the image is re-encoded, nothing leaves your device.">Metadata removed automatically</span></div>
+        <!-- R23 Advanced encoder section: surfaces codec params already
              loaded in WASM. Defaults preserve current behavior (no
              behavior change unless user opens & changes). Native
              <details> + per-format tabs; localStorage-persisted per
@@ -6032,7 +6032,7 @@
                     <option value="444">4:4:4 (sharper)</option>
                   </select>
                 </label>
-                <p class="r23-adv-help">AVIF is slow — effort 0 is fast but larger; 10 is small but slow. 4:4:4 helps fine text and lines.</p>
+                <p class="r23-adv-help">AVIF is slow: effort 0 is fast but larger; 10 is small but slow. 4:4:4 helps fine text and lines.</p>
               </div>
               <div class="r23-adv-panel" data-fmt="jpg" role="tabpanel" hidden>
                 <label class="r23-adv-row r23-adv-check">
@@ -6082,8 +6082,8 @@
 <!-- ============================ MULTI STATE ============================ -->
 <!-- The workspace has two views, switched by body[data-view]:
 
-       list    (default) — a row per file, the TinyPNG shape
-       compare           — the existing canvas + cover-flow, as a drill-down
+       list    (default): a row per file, the TinyPNG shape
+       compare, the existing canvas + cover-flow, as a drill-down
 
      Before this the batch was only ever presented through the cover-flow,
      which is a single-image view with thumbnails underneath: drop twelve
@@ -6160,14 +6160,14 @@
          SLIDER.screenPct (the on-screen anchor the user dragged to);
          the divider tracks the LOCAL pct so it lines up with the
          clipped boundary in zoomed space. -->
-    <div class="compare-handle" tabindex="0" role="slider" aria-label="Compare original with result" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% — half original, half result"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
+    <div class="compare-handle" tabindex="0" role="slider" aria-label="Compare original with result" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50%, half original, half result"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
     <div class="compare-meta l"><span class="lbl-title">Before</span><span>1.4 MB · PNG</span></div>
     <div class="compare-meta r"><span class="lbl-title">After</span><span>312 KB · WebP</span><span class="pct">78% smaller</span><span class="batch-row">↓ 4.6 MB · 20 files total</span></div>
     <div class="center-status" id="centerStatus" hidden aria-live="polite">
       <div class="cs-dot" aria-hidden="true"></div>
       <span class="cs-stage" id="csStage">Encoding…</span>
     </div>
-    <!-- Zoom-level chip — only visible during/after zoom changes -->
+    <!-- Zoom-level chip: only visible during/after zoom changes -->
     <div class="zoom-chip" id="zoomChip" aria-hidden="true">100%</div>
   </div>
 
@@ -6193,17 +6193,17 @@
         <button class="pi-icon" title="Share this" onclick="event.stopPropagation();piShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
         <button class="pi-icon" title="Copy to clipboard" onclick="event.stopPropagation();piCopy(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
         <button class="pi-icon" title="Download this" onclick="event.stopPropagation();piDownload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
-        <button class="pi-icon" title="Edit this — rotate, frames, background" onclick="event.stopPropagation();piEdit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+        <button class="pi-icon" title="Edit this, rotate, frames, background" onclick="event.stopPropagation();piEdit()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
         <button class="pi-icon danger" title="Delete this" onclick="event.stopPropagation();piDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
       </div>
     </div>
   </div>
-  <!-- Filename ribbon — sibling of image-canvas (NOT a child) so
+  <!-- Filename ribbon: sibling of image-canvas (NOT a child) so
        its bottom:var(--menu-h)+8 is relative to the stage, not to the
        image-canvas which has its own constrained bottom. The previous
        child placement made the filename render INSIDE the canvas area. -->
   <div class="filename-ribbon" id="filenameRibbon" aria-live="polite"></div>
-  <!-- Scrubber bar — thin horizontal indicator showing position in
+  <!-- Scrubber bar: thin horizontal indicator showing position in
        the thumb strip. Sits in the gap between filename ribbon and
        bottom toolbar so it's never occluded by thumbs. -->
   <div class="cflow-scrubber" id="cflowScrubber" role="slider" aria-label="Scrub through images" tabindex="-1">
@@ -6235,7 +6235,7 @@
                      When ON, format buttons become multi-select (active
                      items get a checkmark prefix, the menu stays open
                      so users can tap several in a row). Clicking the
-                     row itself doesn't close the menu — wired via JS. -->
+                     row itself doesn't close the menu, wired via JS. -->
                 <label class="format-multi-row" data-multi-row>
                   <input type="checkbox" id="multiOutToggle">
                   <span class="switch-track" aria-hidden="true"></span>
@@ -6247,18 +6247,18 @@
                      file set the format for everything, so a JPEG landing
                      in a batch behind a PNG came out as a 930 KB PNG from
                      a 412 KB original. -->
-                <button data-fmt="auto" data-tt="Auto — keep each file's own format, converting only what has to change (HEIC and SVG).">Auto</button>
-                <button data-fmt="webp" data-tt="WebP — modern web format, broadly supported.">WebP</button>
-                <button data-fmt="avif" data-tt="AVIF — best compression. Modern browsers only.">AVIF</button>
-                <button data-fmt="jpg" data-tt="JPG — universal compatibility. Always lossy.">JPG</button>
-                <button data-fmt="png" data-tt="PNG — screenshots, graphics, transparency.">PNG</button>
-                <button data-fmt="gif" data-tt="GIF — animations and flat colour. 256-colour limit.">GIF</button>
-                <button data-fmt="ico" data-tt="ICO — browser favicons.">ICO</button>
+                <button data-fmt="auto" data-tt="Auto, keep each file's own format, converting only what has to change (HEIC and SVG).">Auto</button>
+                <button data-fmt="webp" data-tt="WebP, modern web format, broadly supported.">WebP</button>
+                <button data-fmt="avif" data-tt="AVIF, best compression. Modern browsers only.">AVIF</button>
+                <button data-fmt="jpg" data-tt="JPG, universal compatibility. Always lossy.">JPG</button>
+                <button data-fmt="png" data-tt="PNG, screenshots, graphics, transparency.">PNG</button>
+                <button data-fmt="gif" data-tt="GIF, animations and flat colour. 256-colour limit.">GIF</button>
+                <button data-fmt="ico" data-tt="ICO, browser favicons.">ICO</button>
               </div>
             </div>
           </div>
           <div class="bb-divider"></div>
-          <!-- Quality dropdown — preset buttons stack vertically with the
+          <!-- Quality dropdown: preset buttons stack vertically with the
                slider inline at the bottom. .quality-row class is kept on
                the slider wrapper so existing JS selectors (which read
                .quality-row input[type=range]) keep working. -->
@@ -6270,14 +6270,14 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="resize-presets-menu quality-menu">
-                <!-- Segmented radio-style tabs — pick the AXIS first
+                <!-- Segmented radio-style tabs: pick the AXIS first
                      (quality bands vs KB ceiling), then the value
                      under it. Active state on body[data-quality-by]
                      so the portalled menu can resolve which body. -->
                 <!-- The "By quality / By size" tabs used to live here. They
                      existed only to reveal whichever body was hidden, because
                      setQuality() and setQualityTarget() already flip the mode
-                     themselves — touching the slider selects quality, clicking
+                     themselves, touching the slider selects quality, clicking
                      a KB target selects size. So the tabs cost a click to reach
                      the size presets and told the user nothing the highlighted
                      control doesn't. Both bodies are shown now and the mode is
@@ -6285,7 +6285,7 @@
                 <!-- BY QUALITY body -->
                 <div class="quality-by-quality-body">
                   <button type="button" data-quality-preset="smart" data-q="auto" class="active">Smart</button>
-                  <!-- R119: named presets (Lossless/Best/High/Standard/Compact) removed —
+                  <!-- R119: named presets (Lossless/Best/High/Standard/Compact) removed. 
                        Smart + the slider cover the range, and the always-smaller guarantee
                        makes fixed high-quality presets (which could inflate size) unnecessary. -->
                   <div class="quality-custom-row quality-row">
@@ -6293,7 +6293,7 @@
                     <span class="q-val">85</span>
                   </div>
                 </div>
-                <!-- BY SIZE body — always visible now; clicking any target
+                <!-- BY SIZE body: always visible now; clicking any target
                      switches the mode via setQualityTarget(). -->
                 <div class="quality-size-caption">or target a size</div>
                 <div class="quality-by-size-body">
@@ -6365,7 +6365,7 @@
     </div>
   </div>
 
-  <!-- Empty-batch dropzone — shown by CSS when body[data-empty-batch="true"].
+  <!-- Empty-batch dropzone: shown by CSS when body[data-empty-batch="true"].
        Drop or click loads the next batch; same flow as main dropzone. -->
   <div class="empty-batch-dropzone" id="emptyBatchDropzone" role="region" aria-label="Drop more images">
     <input type="file" id="emptyBatchInput" accept="image/*,video/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif,.mp4,.m4v,.mov,.webm" multiple aria-label="Choose more images or video">
@@ -6842,7 +6842,7 @@ async function extractVideoFrames(file, onProgress){
       });
       if (!seekOk) {
         if (bufs.length) break;
-        throw new Error('That video could not be scrubbed — try re-saving it as MP4.');
+        throw new Error('That video could not be scrubbed, try re-saving it as MP4.');
       }
       x.drawImage(v, 0, 0, w, h);
       bufs.push(x.getImageData(0, 0, w, h).data.buffer);
@@ -6947,7 +6947,7 @@ async function addFilesFromList(fileList){
         entryDims = { w: videoFrames.w, h: videoFrames.h };
         showErrorToast(
           videoFrames.truncated
-            ? `Using the first ${Math.round(videoFrames.usedSeconds)}s of ${Math.round(videoFrames.duration)}s — ${videoFrames.bufs.length} frames at ${VIDEO_FPS} fps.`
+            ? `Using the first ${Math.round(videoFrames.usedSeconds)}s of ${Math.round(videoFrames.duration)}s, ${videoFrames.bufs.length} frames at ${VIDEO_FPS} fps.`
             : `${videoFrames.bufs.length} frames at ${VIDEO_FPS} fps.`,
           videoFrames.truncated ? 7000 : 3000);
       } catch (err) {
@@ -7104,7 +7104,7 @@ function renderFileList(){
     li.className = 'fl-row';
     li.tabIndex = 0;
     li.setAttribute('role', 'button');
-    li.setAttribute('aria-label', `${f.name} — open comparison`);
+    li.setAttribute('aria-label', `${f.name}: open comparison`);
 
     const img = document.createElement('img');
     img.className = 'fl-thumb'; img.src = f.url; img.alt = ''; img.loading = 'lazy';
@@ -7131,7 +7131,7 @@ function renderFileList(){
       sav.className = 'fl-saving pending'; sav.textContent = '···';
     } else {
       const pct = Math.round((1 - enc.size / f.file.size) * 100);
-      if (Math.abs(pct) < 1) { sav.className = 'fl-saving pending'; sav.textContent = '—'; }
+      if (Math.abs(pct) < 1) { sav.className = 'fl-saving pending'; sav.textContent = ': '; }
       else {
         sav.className = 'fl-saving' + (pct < 0 ? ' bad' : '');
         sav.textContent = `${Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
@@ -7174,7 +7174,7 @@ function renderFileList(){
     } else {
       li.classList.add('fl-row-failed');
       li.removeAttribute('role'); li.removeAttribute('tabindex');
-      li.setAttribute('aria-label', `${f.name} — could not be converted`);
+      li.setAttribute('aria-label', `${f.name}: could not be converted`);
     }
     frag.appendChild(li);
   });
@@ -8086,7 +8086,7 @@ async function encodeFile(idx, overrideFmt){
     entry.timer = setTimeout(() => {
       if (ENCODE.pending[id] === entry) {
         delete ENCODE.pending[id];
-        reject(new Error('Encoding timed out (>60s) — try a different format or smaller image'));
+        reject(new Error('Encoding timed out (>60s): try a different format or smaller image'));
       }
     }, 60000);
     ENCODE.pending[id] = entry;
@@ -9281,7 +9281,7 @@ function ensureEditor(){
 function piEdit(){
   ensureEditor().then(function(){
     if (typeof _openEditFromPi === 'function') _openEditFromPi();
-  }).catch(function(){ showErrorToast('Could not load the editor — please check your connection and retry.'); });
+  }).catch(function(){ showErrorToast('Could not load the editor, please check your connection and retry.'); });
 }
 /* ===== Clear all (with confirm) ===== */
 function _setConfirmText(title, body, btnLabel){
@@ -9311,7 +9311,7 @@ function askLeaveHome(){
   window._confirmAction = function(){ try { doClear(); } catch(_){} window.location.href = '/'; };
   _setConfirmText(
     'Heading home?',
-    "Going back clears your current batch. Your images stayed on your device the whole time — nothing's uploaded — so once you leave, they're gone for good.",
+    "Going back clears your current batch. Your images stayed on your device the whole time, nothing's uploaded, so once you leave, they're gone for good.",
     'Leave anyway');
   document.body.dataset.confirm = 'open';
 }
@@ -9440,7 +9440,7 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     if (h) {
       var r = Math.round(next);
       h.setAttribute('aria-valuenow', String(r));
-      h.setAttribute('aria-valuetext', r + '% — ' + (r <= 2 ? 'showing the result' :
+      h.setAttribute('aria-valuetext', r + '%: ' + (r <= 2 ? 'showing the result' :
         r >= 98 ? 'showing the original' : r + '% original, ' + (100 - r) + '% result'));
     }
   }
@@ -10411,7 +10411,7 @@ if (!window._navMenuOutsideClick) {
     });
   }
   function _closeQualityMenu(){
-    /* Helper because the menu's portalled to body — both the wrapper's
+    /* Helper because the menu's portalled to body: both the wrapper's
        and the menu's own .open class need clearing. */
     const dd = document.querySelector('.quality-dropdown');
     const menu = document.querySelector('.quality-menu');
@@ -11008,7 +11008,7 @@ function _ensureWDO(){
   _wdo.innerHTML = '<div class="wd-card">' +
     '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
     '<div class="wd-title">Drop anywhere</div>' +
-    '<div class="wd-sub">Stays on your device — never uploaded</div>' +
+    '<div class="wd-sub">Stays on your device, never uploaded</div>' +
   '</div>';
   document.body.appendChild(_wdo);
   return _wdo;
@@ -11127,10 +11127,10 @@ function doClear(){
   /* The /-link in the brand-bar (logo click) still exits to '/' which
      is the empty state — preserves the landing-page-as-exit pattern. */
 }
-</script>
+</script>
 
 <!-- ============================================================
-     PROD: SW registration + Install prompt — copy of stable's pattern.
+     PROD: SW registration + Install prompt: copy of stable's pattern.
      ============================================================ -->
 <script>
 (function(){
@@ -11182,11 +11182,11 @@ function doClear(){
 })();
 </script>
 
-<!-- Big-batch confirm modal — port of stable's >200-file safeguard. -->
+<!-- Big-batch confirm modal: port of stable's >200-file safeguard. -->
 <div class="bigbatch-overlay" id="bigBatchOverlay" onclick="if(event.target===this)cancelBigBatch()" role="dialog" aria-modal="true" aria-labelledby="bigBatchTitle">
   <div class="bigbatch-modal">
     <h3 id="bigBatchTitle">That's a lot of files</h3>
-    <p>You've added <strong><span id="bigBatchCount">0</span></strong> files. Browsers usually handle 200–500 fine; over that, things slow down and your tab can run out of memory. Continue?</p>
+    <p>You've added <strong><span id="bigBatchCount">0</span></strong> files. Browsers usually handle 200-500 fine; over that, things slow down and your tab can run out of memory. Continue?</p>
     <div class="bigbatch-actions">
       <button class="btn btn-clear" onclick="cancelBigBatch()">Cancel</button>
       <button class="btn btn-primary" onclick="acceptBigBatch()">Continue</button>
@@ -11196,7 +11196,7 @@ function doClear(){
 
 <!-- PROTOTYPE_EOF -->
 
-<!-- Keyboard shortcuts modal — opened by '?' key, closed by Esc or
+<!-- Keyboard shortcuts modal: opened by '?' key, closed by Esc or
      outside-click. Hidden until first invocation. -->
 <div id="kbShortcuts" class="kb-shortcuts" hidden role="dialog" aria-labelledby="kbShortcutsTitle" aria-modal="true">
   <div class="kb-shortcuts-card">
@@ -11216,7 +11216,7 @@ function doClear(){
 </div>
 
 <!-- ============================================================
-     Edit modal — the second workflow surface. Opened by the Edit
+     Edit modal: the second workflow surface. Opened by the Edit
      pi-icon. File-type-aware tabs: Rotate (universal), Frames (GIF),
      Background removal (raster photos). Edits write a NEW source
      file to FILES[idx].file; the optimize/convert pipeline then re-
@@ -11225,36 +11225,36 @@ function doClear(){
      unaffected.
      ============================================================ -->
 <div id="editModal" class="edit-modal" hidden role="dialog" aria-modal="true" aria-labelledby="editTitle">
-  <!-- R28 — image canvas fills the viewport (inset:0). All chrome
+  <!-- R28: image canvas fills the viewport (inset:0). All chrome
        floats over it. Mirrors how the home solo state composes its
        .image-canvas with .top-chrome + .menu-card overlays. -->
   <main class="edit-canvas-area" id="editPreviewCol"><div id="editZoomLayer" class="edit-zoom-layer edit-preview-col"></div></main>
-  <!-- R28 — floating top chrome: two translucent pills (brand link +
+  <!-- R28: floating top chrome: two translucent pills (brand link +
        filename chip). pointer-events:none on container so canvas
        interactions (drag compare slider, etc.) pass through the empty
        space between the pills. -->
   <div class="edit-top-chrome">
     <a class="edit-brand-link" href="#" onclick="event.preventDefault();cancelEdit();" aria-label="Exit edit and return to imgready home">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <!-- R60 — history controls (Reset / Undo / Redo) moved into top chrome. -->
+    <!-- R60: history controls (Reset / Undo / Redo) moved into top chrome. -->
     <div class="edit-top-history">
       <button type="button" class="edit-top-history-btn edit-top-icon" id="editUndoBtn" onclick="_editUndo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ico" aria-hidden="true"><use href="#i-undo"/></svg></button>
       <button type="button" class="edit-top-history-btn edit-top-icon" id="editRedoBtn" onclick="_editRedo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ico" aria-hidden="true"><use href="#i-redo"/></svg></button>
     </div>
     <span class="edit-filename-chip" id="editTitle" aria-live="polite">Edit</span>
     <span class="edit-size-info" id="editSizeInfo"></span>
-    <!-- R60 — single dynamic action button. Shows "Save" when edits are
+    <!-- R60: single dynamic action button. Shows "Save" when edits are
          pending (accent), "Done" otherwise (neutral). Same handler. -->
     <div class="edit-top-actions">
       <button type="button" class="edit-top-btn edit-top-save" id="editSaveBtnTop" onclick="saveEdit()" title="Done">Done</button>
     </div>
   </div>
-  <!-- R28 — bottom menu card mirroring home .menu-wrap > .menu-card.
-       Solid #1a1a1a background (no backdrop-filter — see home CSS
+  <!-- R28: bottom menu card mirroring home .menu-wrap > .menu-card.
+       Solid #1a1a1a background (no backdrop-filter, see home CSS
        comment about white-flash on backdrop-filtered animating containers).
        Two stacked sections: options strip (only renders when active tab
        has controls; auto-collapses via :empty) + bottom row of tabs +
        action cluster. -->
-  <!-- R67 — tool surface floats over the photo (Apple Photos pattern). -->
+  <!-- R67: tool surface floats over the photo (Apple Photos pattern). -->
   <section class="edit-tool-surface" id="editBody" role="region" aria-label="Tool options"></section>
   <div class="edit-menu-wrap">
     <div class="edit-menu-card edit-menu-card-thin">
@@ -11269,7 +11269,7 @@ function doClear(){
 
 </div>
 
-<!-- Bulk batch progress — top-right floating indicator. Shows when
+<!-- Bulk batch progress: top-right floating indicator. Shows when
      2+ files are encoding, auto-hides when done. No buttons, no
      dismiss needed; appears + disappears with the encode lifecycle. -->
 <div id="batchProgress" class="batch-progress" hidden aria-live="polite">
@@ -11278,7 +11278,7 @@ function doClear(){
 </div>
 
 <script>
-/* R23 — Advanced encoder controls glue. Vanilla JS, no framework. */
+/* R23. Advanced encoder controls glue. Vanilla JS, no framework. */
 (function(){
   'use strict';
   var DEFAULTS = {
@@ -11364,12 +11364,12 @@ function doClear(){
     var s = document.getElementById('qualitySlider');
     var lbl = document.getElementById('qualityValLabel');
     if (!s || !lbl) return;
-    /* R25 — ensure slider has aria-valuetext for screen readers; the
-       numeric value alone is meaningless ("quality 82" — out of what?). */
+    /* R25: ensure slider has aria-valuetext for screen readers; the
+       numeric value alone is meaningless ("quality 82", out of what?). */
     function updateAria(){
       var v = parseInt(s.value, 10);
       var hint = v >= 95 ? 'near-lossless' : v >= 80 ? 'high quality' : v >= 60 ? 'good balance' : v >= 40 ? 'noticeable compression' : 'heavy compression';
-      s.setAttribute('aria-valuetext', v + ' of 100 — ' + hint);
+      s.setAttribute('aria-valuetext', v + ' of 100: ' + hint);
     }
     s.addEventListener('input', function(){
       lbl.textContent = s.value;

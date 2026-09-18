@@ -450,7 +450,7 @@ async function extractVideoFrames(file, onProgress){
       });
       if (!seekOk) {
         if (bufs.length) break;
-        throw new Error('That video could not be scrubbed — try re-saving it as MP4.');
+        throw new Error('That video could not be scrubbed, try re-saving it as MP4.');
       }
       x.drawImage(v, 0, 0, w, h);
       bufs.push(x.getImageData(0, 0, w, h).data.buffer);
@@ -555,7 +555,7 @@ async function addFilesFromList(fileList){
         entryDims = { w: videoFrames.w, h: videoFrames.h };
         showErrorToast(
           videoFrames.truncated
-            ? `Using the first ${Math.round(videoFrames.usedSeconds)}s of ${Math.round(videoFrames.duration)}s — ${videoFrames.bufs.length} frames at ${VIDEO_FPS} fps.`
+            ? `Using the first ${Math.round(videoFrames.usedSeconds)}s of ${Math.round(videoFrames.duration)}s, ${videoFrames.bufs.length} frames at ${VIDEO_FPS} fps.`
             : `${videoFrames.bufs.length} frames at ${VIDEO_FPS} fps.`,
           videoFrames.truncated ? 7000 : 3000);
       } catch (err) {
@@ -712,7 +712,7 @@ function renderFileList(){
     li.className = 'fl-row';
     li.tabIndex = 0;
     li.setAttribute('role', 'button');
-    li.setAttribute('aria-label', `${f.name} — open comparison`);
+    li.setAttribute('aria-label', `${f.name}: open comparison`);
 
     const img = document.createElement('img');
     img.className = 'fl-thumb'; img.src = f.url; img.alt = ''; img.loading = 'lazy';
@@ -739,7 +739,7 @@ function renderFileList(){
       sav.className = 'fl-saving pending'; sav.textContent = '···';
     } else {
       const pct = Math.round((1 - enc.size / f.file.size) * 100);
-      if (Math.abs(pct) < 1) { sav.className = 'fl-saving pending'; sav.textContent = '—'; }
+      if (Math.abs(pct) < 1) { sav.className = 'fl-saving pending'; sav.textContent = ': '; }
       else {
         sav.className = 'fl-saving' + (pct < 0 ? ' bad' : '');
         sav.textContent = `${Math.abs(pct)}% ${pct >= 0 ? 'smaller' : 'larger'}`;
@@ -782,7 +782,7 @@ function renderFileList(){
     } else {
       li.classList.add('fl-row-failed');
       li.removeAttribute('role'); li.removeAttribute('tabindex');
-      li.setAttribute('aria-label', `${f.name} — could not be converted`);
+      li.setAttribute('aria-label', `${f.name}: could not be converted`);
     }
     frag.appendChild(li);
   });
@@ -1694,7 +1694,7 @@ async function encodeFile(idx, overrideFmt){
     entry.timer = setTimeout(() => {
       if (ENCODE.pending[id] === entry) {
         delete ENCODE.pending[id];
-        reject(new Error('Encoding timed out (>60s) — try a different format or smaller image'));
+        reject(new Error('Encoding timed out (>60s): try a different format or smaller image'));
       }
     }, 60000);
     ENCODE.pending[id] = entry;
@@ -2889,7 +2889,7 @@ function ensureEditor(){
 function piEdit(){
   ensureEditor().then(function(){
     if (typeof _openEditFromPi === 'function') _openEditFromPi();
-  }).catch(function(){ showErrorToast('Could not load the editor — please check your connection and retry.'); });
+  }).catch(function(){ showErrorToast('Could not load the editor, please check your connection and retry.'); });
 }
 /* ===== Clear all (with confirm) ===== */
 function _setConfirmText(title, body, btnLabel){
@@ -2919,7 +2919,7 @@ function askLeaveHome(){
   window._confirmAction = function(){ try { doClear(); } catch(_){} window.location.href = '/'; };
   _setConfirmText(
     'Heading home?',
-    "Going back clears your current batch. Your images stayed on your device the whole time — nothing's uploaded — so once you leave, they're gone for good.",
+    "Going back clears your current batch. Your images stayed on your device the whole time, nothing's uploaded, so once you leave, they're gone for good.",
     'Leave anyway');
   document.body.dataset.confirm = 'open';
 }
@@ -3048,7 +3048,7 @@ function cancelConfirm(){ document.body.dataset.confirm = 'closed'; }
     if (h) {
       var r = Math.round(next);
       h.setAttribute('aria-valuenow', String(r));
-      h.setAttribute('aria-valuetext', r + '% — ' + (r <= 2 ? 'showing the result' :
+      h.setAttribute('aria-valuetext', r + '%: ' + (r <= 2 ? 'showing the result' :
         r >= 98 ? 'showing the original' : r + '% original, ' + (100 - r) + '% result'));
     }
   }
@@ -4019,7 +4019,7 @@ if (!window._navMenuOutsideClick) {
     });
   }
   function _closeQualityMenu(){
-    /* Helper because the menu's portalled to body — both the wrapper's
+    /* Helper because the menu's portalled to body: both the wrapper's
        and the menu's own .open class need clearing. */
     const dd = document.querySelector('.quality-dropdown');
     const menu = document.querySelector('.quality-menu');
@@ -4616,7 +4616,7 @@ function _ensureWDO(){
   _wdo.innerHTML = '<div class="wd-card">' +
     '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
     '<div class="wd-title">Drop anywhere</div>' +
-    '<div class="wd-sub">Stays on your device — never uploaded</div>' +
+    '<div class="wd-sub">Stays on your device, never uploaded</div>' +
   '</div>';
   document.body.appendChild(_wdo);
   return _wdo;
