@@ -30,8 +30,8 @@
 <link rel="preload" href="/imgready-worker.js" as="script">
 <link rel="prefetch" href="/vendor/UPNG.min.js">
 <link rel="prefetch" href="/vendor/pako.min.js">
-<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <!-- Google AdSense loader (deferred for FCP). Loads on first user
      interaction OR after window.onload + 1.5s idle. See index.html for the
@@ -71,10 +71,10 @@
 })();
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
+.nav-brand{font-family:'Fredoka',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
 .nav-brand .g{color:var(--accent,var(--accent));}
 .nav-sep{color:var(--border);}
 .topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
@@ -85,7 +85,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',syste
 .crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
 .hero{padding:24px 0 32px;}
-.hero h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
+.hero h1{font-family:'Fredoka',ui-serif,Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
 .hero h1 em{font-style:normal;color:var(--accent);}
 .hero p.lede{font-size:1.02rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
 .hero-cta{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
@@ -95,7 +95,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',syste
 .feat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:6px;}
 .feat p{font-size:.8rem;color:var(--muted);line-height:1.5;}
-h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:var(--text);margin:36px 0 12px;}
+h2{font-family:'Fredoka',ui-serif,Georgia,serif;font-size:1.35rem;font-weight:700;color:var(--text);margin:36px 0 12px;}
 h3.sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
 p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
@@ -570,7 +570,7 @@ tr:nth-child(even) td{background:var(--surface);}
   </div>
 
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:var(--text2);">img<span style="color:var(--accent)">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fredoka',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:var(--text2);">img<span style="color:var(--accent)">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>

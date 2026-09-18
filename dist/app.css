@@ -1,19 +1,25 @@
-/* R88 — Self-hosted brand fonts (Fraunces display serif, Inter body sans).
+/* Self-hosted brand fonts: Fredoka for display, Nunito for body — both
+   rounded, soft-terminalled faces, chosen to read as friendly rather
+   than technical. Both are the variable cuts (weight axis present and
+   verified by rendering 400 vs 700 to a canvas and comparing ink
+   coverage: +44%. Measuring advance WIDTH says they are static, because
+   these two hold width almost constant across weights — a misleading
+   test that nearly sent me chasing files that were already correct).
    Defined site-wide via app.css so landing pages get them without the
    homepage's inline <style>. font-display:swap means we render with
    the system fallback (Segoe UI / -apple-system) first, then swap to
    the woff2 once it arrives — no FOIT. */
 @font-face{
-  font-family:'Fraunces';
-  src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),
-      url('/fonts/fraunces-latin.woff2') format('woff2');
+  font-family:'Fredoka';
+  src:url('/fonts/fredoka-latin.woff2') format('woff2-variations'),
+      url('/fonts/fredoka-latin.woff2') format('woff2');
   font-weight:400 700;font-style:normal;font-display:swap;
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;
 }
 @font-face{
-  font-family:'Inter';
-  src:url('/fonts/inter-latin.woff2') format('woff2-variations'),
-      url('/fonts/inter-latin.woff2') format('woff2');
+  font-family:'Nunito';
+  src:url('/fonts/nunito-latin.woff2') format('woff2-variations'),
+      url('/fonts/nunito-latin.woff2') format('woff2');
   font-weight:400 700;font-style:normal;font-display:swap;
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;
 }
@@ -28,8 +34,8 @@
    has its own inline tokens; this block matches the light defaults so
    var(--font-body) etc. resolve even without the data-theme attr). */
 :root{
-  --font-display:'Fraunces',ui-serif,Georgia,'Times New Roman',serif;
-  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --font-display:'Fredoka',ui-rounded,'Segoe UI',system-ui,sans-serif;
+  --font-body:'Nunito',ui-rounded,-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
   --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
 
@@ -158,8 +164,8 @@
   --shadow:rgba(80,50,30,.12);
   --card-shadow:0 2px 12px rgba(80,50,30,.10);
   --radius:12px;
-  --font-display:'Fraunces',ui-serif,Georgia,'Times New Roman',serif;
-  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --font-display:'Fredoka',ui-rounded,'Segoe UI',system-ui,sans-serif;
+  --font-body:'Nunito',ui-rounded,-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
 }
 /* An explicit light theme is the same as the default. Kept because every
    landing page ships data-theme="light" in its markup. */

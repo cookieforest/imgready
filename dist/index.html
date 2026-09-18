@@ -107,13 +107,13 @@
      The heavy two load on demand. -->
 <link rel="prefetch" href="/samples/demo_2.jpg">
 <link rel="prefetch" href="/home-editor.js">
-<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/app.css">
 <link rel="preload" href="/editor.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/editor.css"></noscript>
 <style>
   /* R24 — Brand type system. Three self-hosted OFL variable fonts:
-     - Fraunces (display): Adobe Fonts/Google Fonts via OFL, opsz+wght axes.
+     - Fredoka (display): Google Fonts, OFL, variable weight axis.
        Used for hero headings, modal titles, the wordmark italic.
      - Inter (body): rsms.me/inter, OFL, 400..700 wght axis. UI workhorse.
      - JetBrains Mono (mono accent): jetbrains.com/lp/mono, OFL.
@@ -121,18 +121,18 @@
      All Latin-only subsets, total ~147KB woff2. Loaded with display:swap
      so first paint never blocks on font load. */
   @font-face{
-    font-family:'Fraunces';
-    src:url('/fonts/fraunces-latin.woff2') format('woff2-variations'),
-        url('/fonts/fraunces-latin.woff2') format('woff2');
+    font-family:'Fredoka';
+    src:url('/fonts/fredoka-latin.woff2') format('woff2-variations'),
+        url('/fonts/fredoka-latin.woff2') format('woff2');
     font-weight:400 700;
     font-style:normal;
     font-display:swap;
     unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
   @font-face{
-    font-family:'Inter';
-    src:url('/fonts/inter-latin.woff2') format('woff2-variations'),
-        url('/fonts/inter-latin.woff2') format('woff2');
+    font-family:'Nunito';
+    src:url('/fonts/nunito-latin.woff2') format('woff2-variations'),
+        url('/fonts/nunito-latin.woff2') format('woff2');
     font-weight:400 700;
     font-style:normal;
     font-display:swap;
@@ -174,10 +174,11 @@
        The dark workspace palette below (body[data-state=solo|multi])
        still overrides them deliberately — that inversion is the design,
        not an accident, and it measures 6.2:1 to 16.4:1. */
-    /* R24 — type tokens. Body via Inter; display via Fraunces (warm serif
-       with opsz + wght axes); mono via JetBrains Mono for byte-count strings. */
-    --font-display:"Fraunces",ui-serif,Georgia,"Times New Roman",serif;
-    --font-body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    /* Type tokens. Body via Nunito, display via Fredoka — both rounded
+       and soft-terminalled, for a friendly rather than technical voice.
+       Mono stays JetBrains Mono for byte-count strings. */
+    --font-display:"Fredoka",ui-rounded,"Segoe UI",system-ui,sans-serif;
+    --font-body:"Nunito",ui-rounded,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
     --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     --brand-h:48px;
     --card-bg:rgba(20,20,20,.75);--card-border:rgba(255,255,255,.12);--card-radius:12px;
@@ -238,7 +239,7 @@
   body{font-family:var(--font-body);
     color:var(--text);background:var(--bg);}
   /* R24 — display type for hero headings + brand wordmark + Edit modal
-     title. Fraunces opsz axis auto-adjusts at large sizes to read warmer. */
+     title. Fredoka is already soft at display sizes, no optical axis. */
   h1,h2,.brand,.hero h2,.edit-modal .edit-header h2,.edit-modal .edit-brand-link,.tc-brand-name,.footer-brand{
     font-family:var(--font-display);
     font-feature-settings:"ss01" on;
