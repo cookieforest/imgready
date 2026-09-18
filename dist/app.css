@@ -44,35 +44,37 @@
    has its own inline tokens; this block matches the light defaults so
    var(--font-body) etc. resolve even without the data-theme attr). */
 :root{
-  /* Layout widths. There were seven different values across the site
-     (680, 720, 760, 780, 820, 880, 900) with no rule behind them, so
-     the same kind of prose read at a different measure depending on
-     which page you landed on. Three tiers, by what the page is for:
+  /* Layout: ONE shell, and a separate reading measure.
 
-       --w-app   the tool. Needs room for file rows, the compare bar
-                 and the thumbnail grid.
-       --w-page  a tool page with content under it. The 62 converter
-                 landing pages already agreed on this one.
-       --w-read  prose-only pages. Narrower on purpose: 4.1 puts body
-                 copy at 65ch, which is about here at 16px. Wider is
-                 not more generous, it is harder to read. */
-  /* Section rhythm. 63 of 68 pages already agreed on 1.35rem / 36px;
-     five had drifted to 1.05, 1.1, 1.3 and 1.4rem with gaps of 28, 30,
-     32 and 44px, so the same kind of section heading changed size
-     depending on which page you were reading. One scale now.
+     Three fixed tiers (900/780/720) were the wrong model. They were an
+     attempt to control line length by shrinking the whole container,
+     which is why the pages still did not look like each other: the
+     tool and the prose were sharing one box and pulling it in opposite
+     directions.
 
-     Fallbacks are not decoration: a var() that drives LAYOUT collapses
-     the page when it fails to resolve, which is exactly what happened
-     when the width tokens shipped ahead of a cached app.css. */
-  --pad-x:24px;        /* container side padding */
-  --pad-bottom:80px;   /* space under the last block, before the footer */
-  --h2-size:1.35rem;
-  --h2-gap:36px;
-  --h3-size:1.05rem;
-  --h3-gap:22px;
-  --w-app:900px;
-  --w-page:780px;
-  --w-read:720px;
+     Measured before changing anything: landing-page prose was running
+     at 83 characters per line. WCAG 1.4.8 caps at 80 and the cited
+     sweet spot is 66, so 780px was too WIDE for reading, while being
+     narrower than every comparable tool (TinyPNG 1440/960/800,
+     iLoveIMG ~1000, Stripe docs 1200).
+
+     So the two jobs are separated:
+
+       --shell    the page container. Fluid, so it uses the screen
+                  instead of leaving dead zones between breakpoints,
+                  and caps before it gets silly on a 4K monitor.
+       --measure  line length, in ch rather than px so it tracks the
+                  user's font size instead of breaking when they zoom
+                  text (WCAG 1.4.4). This is what actually controls
+                  readability; the container no longer has to.
+
+     The old --w-* names are kept as aliases so nothing breaks while
+     pages migrate. */
+  --shell:clamp(20rem, 92vw, 1040px);
+  --measure:68ch;
+  --w-app:var(--shell, 1040px);
+  --w-page:var(--shell, 1040px);
+  --w-read:var(--shell, 1040px);
   --font-display:'Poetsen One',ui-rounded,'Segoe UI',system-ui,sans-serif;
   --font-body:'Nunito',ui-rounded,-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
   --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -267,7 +269,7 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 /* A11y: skip-to-content link, hidden until focused (helps screen reader & keyboard users) */
 .skip-link{position:absolute;left:-9999px;top:6px;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:6px;font-weight:700;font-size:.84rem;text-decoration:none;z-index:9999;}
 .skip-link:focus{left:6px;}
-.app{max-width:var(--w-app, 900px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
+.app{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
 
 /* TOP NAV */
 /* Nav padding + a margin below pushes the dropzone down so it doesn't crowd
@@ -1179,6 +1181,33 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
 @media(max-width:560px){
   .engine-list{grid-template-columns:1fr;gap:2px;}
   .engine-list dd{margin:0 0 10px;padding-left:14px;border-left:2px solid var(--border);}
+}
+
+/* Reading measure. The container is now fluid and wide, so line length
+   has to be held here rather than by squeezing the whole page.
+
+   Descendant selectors, not child: the prose on a landing page sits
+   inside section.hero and similar, so `.wrap > p` matched almost
+   nothing (measured: it left paragraphs at 101ch).
+
+   ch rather than px on purpose. If someone raises their browser font
+   size, a px measure keeps the same pixel width and the line gets
+   LONGER in characters, which is backwards. ch tracks the font
+   (WCAG 1.4.4). */
+.wrap p, .wrap li, .wrap dd,
+.content-section p, .content-section li, .content-section dd{
+  max-width:var(--measure, 68ch);
+}
+/* Components that manage their own width. A grid cell, a table cell or
+   anything inside the tool is not running prose and must not be
+   clamped to a reading measure. */
+.dropzone p, .dropzone li,
+.fmt-grid li, .cap-list li, .use-cases li, .engine-list dd,
+td p, td li, th p,
+.feature-grid p, .feature-grid li,
+.cards p, .cards li,
+.fl-row p, .cmp-bar p{
+  max-width:none;
 }
 
 /* Capability list. This was six capabilities welded into one 55-word
