@@ -150,6 +150,11 @@
      colour against the page rather than the surface it actually lands
      on is an easy way to ship a near miss. */
   --bamboo-600:#4a6320;
+  /* Darker bamboo for green sitting on a TINTED surface. bamboo-600
+     measures 6.42 on --surface but only 4.10 on tan-200, under AA.
+     Same trap as before: judge a colour against the surface it
+     actually lands on, not the page. This one is 5.09 on tan-200. */
+  --bamboo-700:#3f541b;
   --bamboo-300:#a8cc5c;  /* 10.32 on the dark canvas */
   --amber-700:#8f6428;  /* warn    4.63 */
   --clay-600:#9c4636;   /* danger  5.57 */
@@ -183,6 +188,7 @@
   --muted:var(--ink-500);
 
   --success:var(--bamboo-600);
+  --success-strong:var(--bamboo-700);
   --warn:var(--amber-700);
   --danger:var(--clay-600);
 
@@ -1101,10 +1107,38 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
 .content-section ol{counter-reset:irol;}
 .content-section ol li{counter-increment:irol;}
 .content-section ol li::before{content:counter(irol)'.';position:absolute;left:0;top:0;color:var(--accent);font-weight:700;font-size:.88rem;}
-.content-section .use-cases{margin:14px 0 22px;}
-.content-section .use-cases li{padding:6px 0 6px 22px;font-size:.92rem;}
-.content-section .use-cases li::before{top:.95em;}
-.content-section .use-cases li strong{color:var(--text);font-weight:700;}
+/* Use cases. Four scenarios, each a bold lead plus an explanation, and
+   they were rendering as accent-dotted bullets at full width, the same
+   rhythm as every other block.
+
+   Deliberately NOT a card grid. 4.7's repetition ban spends the bento
+   family on the formats block above, and 4.7 also warns that a
+   cream-on-cream grid of pure-text cards is the boring AI default. So
+   this follows 4.4 instead: group with space, not boxes. Two columns,
+   no dot, the scenario promoted to a block label above its sentence.
+
+   Distinct from the three other list shapes on this page: cap-list is
+   single-line checks, engine-list is label/value pairs, fmt-grid is
+   cards. This one is heading + sentence. */
+.content-section .use-cases{
+  list-style:none;margin:16px 0 24px;padding:0;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:20px 30px;
+}
+.content-section .use-cases li::before{content:none;}
+.content-section .use-cases li{
+  position:static;padding:0;margin:0;
+  font-size:.88rem;line-height:1.6;color:var(--text2);
+}
+.content-section .use-cases li strong{
+  display:block;margin-bottom:3px;
+  font-family:var(--font-display);font-synthesis:none;font-weight:400;
+  font-size:1rem;color:var(--text);
+}
+/* 4.7: declare the collapse */
+@media(max-width:600px){
+  .content-section .use-cases{grid-template-columns:1fr;gap:16px;}
+}
 .content-section .content-foot{font-size:.8rem;color:var(--muted-strong);margin-top:32px;padding-top:18px;border-top:1px dashed var(--border);}
 .content-section .content-foot a{color:var(--accent);text-decoration:none;}
 .content-section .content-foot a:hover{text-decoration:underline;}
@@ -1185,7 +1219,9 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
 .fmt-name{font-family:var(--font-display);font-synthesis:none;font-weight:400;font-size:1.05rem;color:var(--text);}
 .fmt-best{font-size:.84rem;color:var(--text2);}
 .fmt-fig{font-size:.8rem;color:var(--text2);margin-top:2px;}
-.fmt-fig b{color:var(--success);font-weight:700;}
+/* success-strong, not success: this figure sits on the tinted hero
+   card where the lighter green drops to 4.10. */
+.fmt-fig b{color:var(--success-strong);font-weight:700;}
 /* 4.7: state the collapse, do not assume it */
 @media(max-width:560px){
   .fmt-grid{grid-template-columns:1fr;}
