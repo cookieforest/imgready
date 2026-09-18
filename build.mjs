@@ -123,9 +123,11 @@ const COPY_EXCLUDE = new Set([
   'app.js', 'app.css',                /* Phase 3: removed; mirrorDir won't see them */
   'index.html.bak', 'index.html.broken_truncated',
   'archive',                          /* R117: archived old versions + dev logs, not deployed */
-  'tools',                            /* icon generator + its throwaway raster page and
-                                         local server. Dev-only: shipping it would put a
-                                         POST /__save endpoint's source on the CDN. */
+  'scripts',                          /* icon generator, its throwaway raster page and
+                                         the local save server. Dev-only: shipping it would
+                                         put a POST /__save endpoint's source on the CDN.
+                                         NOT 'tools' — that is the real /tools/ page, in the
+                                         sitemap and linked from every footer. */
   '__pycache__',
   /* R132 — unreferenced legacy demo assets (~1.9 MB). Verified zero code
      references: demo-original.png is only named in a code comment.

@@ -1,4 +1,4 @@
-<!-- GENERATED from the brand mark by tools/genicons.py.
+<!-- GENERATED from the brand mark by scripts/genicons.py.
      Do not hand-edit. The art is the same 0 0 560 450 path data as
      panda-mark.svg / panda-mark-sm.svg, transformed into this tile, so
      the icons and the wordmark can never drift apart.
@@ -12,7 +12,7 @@
      rasterised, and a prefers-color-scheme rule bakes whichever scheme
      the rendering browser happened to be in. That shipped once: every
      PNG came out in the dark-mode salmon instead of the brand rust.
-     tools/_raster.html now asserts the rendered fur colour.
+     scripts/_raster.html now asserts the rendered fur colour.
   -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="imgready">
   <mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">

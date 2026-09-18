@@ -1,6 +1,6 @@
 """Assemble favicon.ico from the rendered favicon-16/32/48 PNGs.
 
-Run after tools/_raster.html has written those three files.
+Run after scripts/_raster.html has written those three files.
 
 PNG-payload ICO rather than BMP: every browser that matters reads it,
 the file is a third the size, and it avoids hand-rolling BMP with its
@@ -26,8 +26,8 @@ def build():
         path = os.path.join(ROOT, "favicon-%d.png" % s)
         if not os.path.exists(path):
             raise SystemExit(
-                "missing %s -- run tools/_raster.html first "
-                "(serve the repo with tools/iconserver.py)" % os.path.basename(path))
+                "missing %s -- run scripts/_raster.html first "
+                "(serve the repo with scripts/iconserver.py)" % os.path.basename(path))
         with open(path, "rb") as fh:
             data = fh.read()
         if data[:8] != PNG_MAGIC:
