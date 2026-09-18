@@ -645,6 +645,7 @@ async function addFilesFromList(fileList){
   CFLOW.prevSelected = -1;
   syncMainImage(true);
   renderFileList();
+  placeSettingsPanel();
 }
 
 /* ============================ BATCH LIST VIEW ============================
@@ -966,8 +967,28 @@ window.cmpStep = function(delta){
 };
 window.cmpDownload = function(btn){ flDownloadOne(CFLOW.selected, btn); };
 
+/* The settings bar lives in two places depending on the view: inline in
+   the list, directly under the button that opens it, and floating over
+   the canvas in compare. Same element and same state either way — only
+   its parent and its styling change, so there is no second copy of the
+   controls to drift. */
+function placeSettingsPanel(){
+  const wrap = document.getElementById('menuWrap');
+  if (!wrap) return;
+  const list = document.getElementById('fileListWrap');
+  const head = document.querySelector('.fl-head');
+  const stage = document.querySelector('.stage.multi');
+  if (document.body.dataset.view === 'list') {
+    if (list && head && wrap.parentElement !== list) head.insertAdjacentElement('afterend', wrap);
+  } else if (stage && wrap.parentElement !== stage) {
+    stage.appendChild(wrap);
+  }
+}
+window.placeSettingsPanel = placeSettingsPanel;
+
 window.showCompareView = function(idx){
   document.body.dataset.view = 'compare';
+  placeSettingsPanel();
   if (typeof selectIndex === 'function' && typeof idx === 'number') selectIndex(idx);
   if (typeof layoutCoverFlow === 'function') layoutCoverFlow();
   if (typeof syncMainImage === 'function') syncMainImage(true);
@@ -976,6 +997,7 @@ window.showCompareView = function(idx){
 window.showListView = function(){
   document.body.dataset.view = 'list';
   renderFileList();
+  placeSettingsPanel();
 };
 /* Settings are global, so they do NOT belong to one file. This opens
    the settings bar in place rather than dragging the visitor into the

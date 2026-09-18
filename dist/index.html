@@ -1561,7 +1561,13 @@
   /* Cover-flow has no container background — thumbs float freely
      against the full-screen image (like before the liquid-glass push). */
   body[data-state="multi"] .menu-wrap{left:24px;right:24px;bottom:18px;}
-  body[data-state="multi"] .menu-card{
+  /* Glass treatment for the bar FLOATING OVER THE IMAGE. Scoped to the
+     compare view: in the list the same element is an inline panel on a
+     light page, where a blurred dark slab with a heavy drop shadow is
+     wrong. The !important here is why re-skinning it for the list kept
+     failing no matter how specific the override got — the right fix was
+     to stop this rule applying there, not to escalate. */
+  body[data-state="multi"]:not([data-view="list"]) .menu-card{
     background:rgba(20,20,20,.55) !important;
     backdrop-filter:blur(11px) saturate(180%);
     -webkit-backdrop-filter:blur(11px) saturate(180%);
@@ -1863,6 +1869,82 @@
   /* Sticky, because on a 40-file batch the total and Download all
      scrolled away after about ten rows and there was no way back to
      them without returning to the top. */
+  /* ---- Settings as an inline control panel, in list view -------------
+     The floating pill is furniture for the FULL-SCREEN compare view: it
+     hovers over an image, it is horizontal because a wide canvas has
+     room along the bottom, and it is dark because it sits on a dark
+     canvas. Dropped onto the light list it was a dark bar floating over
+     a document, holding controls that belong to the batch.
+
+     My first attempt kept it floating and re-skinned it as a slide-in
+     side panel. That was the same mistake one step further on — still
+     bending a dark, horizontal, fixed-position component into something
+     it is not, and it came out with the wrong colours, wrong spacing and
+     content scrolled off the top.
+
+     In list view it is simply a block in the flow, directly under the
+     Edit settings button that opens it. No fixed positioning, no scrim,
+     no slide. The base component hardcodes a dark background and white
+     labels, so those are overridden explicitly rather than inherited. */
+  body[data-view="list"] .menu-wrap{
+    position:static;display:block;width:100%;
+    padding:0;margin:0 0 10px;pointer-events:auto;
+  }
+  body[data-view="list"][data-adjust="closed"] .menu-wrap{display:none;}
+  /* Both attributes, because body[data-state="multi"] .menu-card sets a
+     dark translucent background at the same specificity and later in the
+     file — a single-attribute selector here silently lost. */
+  body[data-state="multi"][data-view="list"] .menu-card{
+    flex-direction:column;align-items:stretch;
+    width:100%;overflow:visible;
+    background:var(--surface);color:var(--text);
+    border:1px solid var(--border);border-radius:12px;
+    padding:16px;gap:14px;
+  }
+  /* The Edit settings button IS the toggle here — the gear would be a
+     second control for the same thing. */
+  body[data-view="list"] .settings-toggle{display:none;}
+  body[data-view="list"] .bb-drawer{overflow:visible;width:100%;height:auto;max-height:none;opacity:1;}
+  body[data-view="list"] .bb-drawer-inner{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    align-items:start;gap:16px 20px;width:100%;padding:0;
+  }
+  body[data-view="list"] .bb-section{
+    display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+    width:100%;min-width:0;
+  }
+  /* Labels are white in the dark bar. */
+  body[data-view="list"] .bb-section-label{color:var(--muted);}
+  body[data-view="list"] .bb-divider{display:none;}
+  body[data-view="list"] .bb-row{width:100%;}
+  /* Every control inside the bar is painted for a dark surface —
+     rgba(255,255,255,.75) text, .06 fills, .18 hairlines. On the light
+     panel they vanished. Remapped to tokens here rather than changed at
+     source, because the compare view still needs the dark treatment. */
+  body[data-state="multi"][data-view="list"] #menuWrap :is(button,label,span,input,select){
+    color:var(--text);
+  }
+  body[data-state="multi"][data-view="list"] #menuWrap :is(button,select,.resize-input-wrap,.qtr-input){
+    background:var(--bg);
+    border-color:var(--border);
+  }
+  body[data-state="multi"][data-view="list"] #menuWrap .bb-section-label{color:var(--muted);}
+  /* Selected items keep the accent treatment and its paired text. */
+  body[data-state="multi"][data-view="list"] #menuWrap button.active{
+    background:var(--accent);border-color:var(--accent);color:var(--on-accent);
+  }
+  body[data-state="multi"][data-view="list"] #menuWrap .switch-track{background:var(--border);}
+  body[data-state="multi"][data-view="list"] #menuWrap input[type="range"]{accent-color:var(--accent);background:transparent;}
+  /* Portalled dropdown menus land on <body>, outside #menuWrap, so they
+     are matched by view alone. */
+  body[data-state="multi"][data-view="list"] :is(.format-menu,.quality-menu,.resize-menu,.crop-menu){
+    background:var(--surface);border:1px solid var(--border);color:var(--text);
+  }
+  body[data-state="multi"][data-view="list"] :is(.format-menu,.quality-menu,.resize-menu,.crop-menu) button{
+    color:var(--text);
+  }
+
+
   .fl-head{
     position:sticky;top:0;z-index:5;
     display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -2585,7 +2667,7 @@
     .top-chrome .tc-pct{font-size:.56rem;}
     .top-chrome .tc-section{gap:6px;}
     body[data-state="multi"] .menu-wrap{left:8px;right:8px;bottom:8px;}
-    body[data-state="multi"] .menu-card{border-radius:14px;}
+    body[data-state="multi"]:not([data-view="list"]) .menu-card{border-radius:14px;}
     /* Hide every span that isn't the title or savings % when collapsed */
     .compare-meta:not(.expanded) > span:not(.lbl-title):not(.pct){
       display:none;
@@ -6966,6 +7048,7 @@ async function addFilesFromList(fileList){
   CFLOW.prevSelected = -1;
   syncMainImage(true);
   renderFileList();
+  placeSettingsPanel();
 }
 
 /* ============================ BATCH LIST VIEW ============================
@@ -7287,8 +7370,28 @@ window.cmpStep = function(delta){
 };
 window.cmpDownload = function(btn){ flDownloadOne(CFLOW.selected, btn); };
 
+/* The settings bar lives in two places depending on the view: inline in
+   the list, directly under the button that opens it, and floating over
+   the canvas in compare. Same element and same state either way — only
+   its parent and its styling change, so there is no second copy of the
+   controls to drift. */
+function placeSettingsPanel(){
+  const wrap = document.getElementById('menuWrap');
+  if (!wrap) return;
+  const list = document.getElementById('fileListWrap');
+  const head = document.querySelector('.fl-head');
+  const stage = document.querySelector('.stage.multi');
+  if (document.body.dataset.view === 'list') {
+    if (list && head && wrap.parentElement !== list) head.insertAdjacentElement('afterend', wrap);
+  } else if (stage && wrap.parentElement !== stage) {
+    stage.appendChild(wrap);
+  }
+}
+window.placeSettingsPanel = placeSettingsPanel;
+
 window.showCompareView = function(idx){
   document.body.dataset.view = 'compare';
+  placeSettingsPanel();
   if (typeof selectIndex === 'function' && typeof idx === 'number') selectIndex(idx);
   if (typeof layoutCoverFlow === 'function') layoutCoverFlow();
   if (typeof syncMainImage === 'function') syncMainImage(true);
@@ -7297,6 +7400,7 @@ window.showCompareView = function(idx){
 window.showListView = function(){
   document.body.dataset.view = 'list';
   renderFileList();
+  placeSettingsPanel();
 };
 /* Settings are global, so they do NOT belong to one file. This opens
    the settings bar in place rather than dragging the visitor into the
