@@ -202,7 +202,17 @@
     --menu-anchor:18px;
     --action-w:240px;
   }
-  body[data-state="solo"],body[data-state="multi"]{
+  /* The workspace inverts to dark so a full-bleed image can own the
+     screen without the page competing with it. That is about VIEWING AN
+     IMAGE, not about being in the workspace — the batch list is a
+     document, rows of names and numbers, and it was flipping the whole
+     page from warm cream to near-black to show a table. The inversion
+     is scoped to the compare view; the list stays on the site palette.
+
+     Everything in the list is written against tokens, so it follows
+     without a second set of rules. */
+  body[data-state="solo"],
+  body[data-state="multi"]:not([data-view="list"]){
     --bg:#0d0d0d;--text:#ececea;--muted:#b8b5ac;
     --accent:#8aae8a;--accent-strong:#7a9a7a;--accent-ink:#b8d4b8;
   }
@@ -238,6 +248,9 @@
     overflow:hidden;height:100%;
     user-select:none;-webkit-user-select:none;
   }
+  /* Filenames and sizes are worth being able to select and copy; the
+     canvas is not. */
+  body[data-state="multi"][data-view="list"]{user-select:auto;-webkit-user-select:auto;}
 
   .brand-bar{height:var(--brand-h);display:flex;align-items:center;gap:14px;
     padding:0 16px;background:var(--bg);position:relative;z-index:10;}
@@ -289,6 +302,8 @@
 
   /* --- stage --- */
   .stage{display:none;position:relative;height:calc(100vh - var(--brand-h));background:#000;overflow:hidden;}
+  /* ...but not behind the list, which is page content. */
+  body[data-view="list"] .stage.multi{background:var(--bg);}
   body[data-state="solo"] .stage.solo{display:block;}
   /* Solo state has no cover-flow — image-canvas fills below the menu-bar */
   body[data-state="solo"] .stage.solo .image-canvas{
