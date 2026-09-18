@@ -33,47 +33,166 @@
   --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
 
-/* Light is the DEFAULT, not a variant.
-   These used to live only under [data-theme="light"]. Landing pages set
-   that attribute; the homepage never has, so it loaded this stylesheet
-   and got none of its tokens — it ran on a second, divergent set in its
-   own inline <style>, with different values for --accent, --muted,
-   --border and --text, and no --surface, --radius or --card-shadow at
-   all. Rules here that referenced those resolved to nothing: the same
-   .dropzone came out background:transparent / border-radius:0 on the
-   homepage and var(--surface) / 12px on a landing page. That divergence is
-   what made the two surfaces look like different products.
-   Binding them to bare :root as well means any page gets the palette
-   whether or not it opts in; [data-theme="dark"] still overrides. */
-:root,
-:root[data-theme="light"]{
-  --bg:#f5f0e8;--bg2:#ede7d9;--surface:#faf7f2;--surface2:#ede7d9;
-  --border:#d6cebb;--accent:#4f6f4f;--accent2:#7a9e7a;--accent-light:#e8f0e8;
-  /* Steps above --accent, for text that needs more weight than a fill. */
-  --accent-strong:#3f5a3f;--accent-ink:#3f5a3f;
-  --card:#fffefb;
-  /* All three failed AA as text on this background — success 3.53,
-     warn 3.17, danger 4.20 — and they are used for real messages, not
-     decoration ("92% smaller" is the demo's headline result). Darkened
-     to 5.14 / 4.60 / 5.54, same hues. The dark theme's equivalents
-     already pass (7.09 / 6.37 / 4.51) and are left alone. */
-  --success:#38704f;--warn:#8f6428;--danger:#9c4636;
-  --text:#2a2a26;--text2:#5a5448;--muted:#5e5c54;
-  --shadow:rgba(90,80,60,.12);--card-shadow:0 2px 12px rgba(90,80,60,.1);--radius:12px;
+/* ===========================================================================
+   DESIGN SYSTEM — colour
+   ===========================================================================
+   Three layers. Components only ever use layer 2.
+
+     1. PRIMITIVES  a raw ramp, named by hue and step. No meaning attached.
+     2. SEMANTIC    role tokens (--accent, --text, --border...) pointing at
+                    primitives. This is the only layer the rest of the CSS
+                    and all 70 pages reference.
+     3. CONTEXTS    :root[data-theme="dark"] and the workspace canvas remap
+                    the SAME semantic names to different primitives.
+
+   To rebrand, edit the primitives and nothing else. That is now true
+   because the pages were tokenised first: ~2870 hardcoded literals across
+   71 files became var(--token), so there is no longer a second copy of the
+   palette hiding in the markup.
+
+   Two brand colours still live outside CSS, because the platform gives no
+   choice: <meta name="theme-color"> and the manifest's theme_color are
+   plain attributes. site-checks fails if those two disagree, so they
+   cannot silently drift apart — but they DO have to be updated by hand
+   alongside --accent.
+
+   THE PALETTE IS THE MASCOT, and each colour has one job:
+
+     white / cream   the muzzle fur   -> ground: page and card surfaces
+     light brown     the cheek fur    -> structure: borders, dividers,
+                                          secondary surfaces
+     reddish brown   the coat         -> action: brand, links, primary
+                                          buttons. The one colour that
+                                          means "you can press this".
+     bamboo green    the leaf         -> success: savings figures and
+                                          positive states. Kept from the
+                                          old palette rather than dropped,
+                                          because "80% smaller" is the
+                                          app's core positive signal and
+                                          it appears on every single row.
+     dark brown      the eyes         -> text
+
+   Green is deliberately NOT an accent any more. When it was, it competed
+   with nothing and meant nothing in particular; now it only ever appears
+   where something went well, so it carries information.
+
+   Contrast is a constraint of the system, not an afterthought. Every
+   semantic colour used for text clears WCAG AA (4.5:1) against the
+   surfaces it appears on, and --accent additionally clears 4.5:1 for
+   white text placed ON it, so one token serves both text and fills. The
+   measured ratios are in the comments; if you change a primitive, re-check
+   them rather than assuming.
+   ------------------------------------------------------------------ */
+:root{
+  /* --- 1. PRIMITIVES ---------------------------------------------------
+     Red panda. Rust fur, warm sand field, warm ink. */
+  --rust-200:#e8865a;   /* on the dark canvas: 7.2:1                     */
+  --rust-300:#d05a28;   /* decorative only — 3.6:1, never text           */
+  --rust-500:#b84d1d;   /* text 4.52 on bg, 4.83 on surface, white on it 5.1 */
+  --rust-600:#9a4017;   /* 5.97 on bg                                    */
+  --rust-700:#7d3411;   /* 7.85 on bg                                    */
+
+  --sand-000:#fffdf9;   /* card                                          */
+  --sand-050:#fdf8f1;   /* surface                                       */
+  --sand-100:#f9f0e4;   /* page                                          */
+
+  --tan-200:#dcc6aa;    /* hairlines — decorative, no contrast floor     */
+  --tan-300:#d2b48c;    /* stronger dividers, secondary fills            */
+  --tan-700:#7d5f3f;    /* 5.2 on bg, if tan is ever needed as text      */
+
+  --ink-900:#2a211c;    /* 13.97 on bg                                   */
+  --ink-700:#4a3b31;    /* 9.49                                          */
+  --ink-500:#6b5a4c;    /* 5.83                                          */
+
+  --night-900:#14100e;  /* the image canvas                              */
+  --night-800:#1e1713;
+  --night-700:#261d18;
+  --night-600:#3a2f28;
+  --cream-050:#f2e8dc;  /* 15.63 on the canvas                           */
+  --cream-300:#b5a595;  /* 7.91                                          */
+
+  /* Bamboo. #547025 measured 5.0 against the page, but the savings
+     figure sits on a tinted row, and against that composited background
+     (rgb(237,228,216)) it fell to 4.47 — under AA by 0.03. Sized one
+     step darker so it clears on the tinted surface too: 5.37 on a row,
+     6.01 on the page, 6.42 on --surface, white on it 6.78. Judging a
+     colour against the page rather than the surface it actually lands
+     on is an easy way to ship a near miss. */
+  --bamboo-600:#4a6320;
+  --bamboo-300:#a8cc5c;  /* 10.32 on the dark canvas */
+  --amber-700:#8f6428;  /* warn    4.63 */
+  --clay-600:#9c4636;   /* danger  5.57 */
+
+  /* --- 2. SEMANTIC ------------------------------------------------------
+     Light is the DEFAULT, not a variant. These used to live only under
+     [data-theme="light"]; landing pages set that attribute and the
+     homepage never did, so it loaded this stylesheet and got none of the
+     palette — it ran on a divergent set in its own inline <style>, which
+     is what made the two surfaces look like different products. */
+  --bg:var(--sand-100);
+  --bg2:var(--tan-200);
+  --surface:var(--sand-050);
+  --surface2:var(--tan-200);
+  --border:var(--tan-200);
+  --border-strong:var(--tan-300);
+  --card:var(--sand-000);
+
+  --accent:var(--rust-500);
+  --accent2:var(--rust-300);
+  --accent-strong:var(--rust-600);
+  --accent-ink:var(--rust-700);
+  --accent-light:rgba(184,77,29,.10);
+  /* Text placed ON a filled accent. Paired with --accent so the two can
+     never drift: white works on the mid rust (5.1) but fails on the
+     light rust the dark contexts use (2.63). */
+  --on-accent:#ffffff;
+
+  --text:var(--ink-900);
+  --text2:var(--ink-700);
+  --muted:var(--ink-500);
+
+  --success:var(--bamboo-600);
+  --warn:var(--amber-700);
+  --danger:var(--clay-600);
+
+  --shadow:rgba(80,50,30,.12);
+  --card-shadow:0 2px 12px rgba(80,50,30,.10);
+  --radius:12px;
   --font-display:'Fraunces',ui-serif,Georgia,'Times New Roman',serif;
   --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
 }
+/* An explicit light theme is the same as the default. Kept because every
+   landing page ships data-theme="light" in its markup. */
+:root[data-theme="light"]{ color-scheme:light; }
+
+/* --- 3. CONTEXTS ------------------------------------------------------- */
 :root[data-theme="dark"]{
-  --bg:#1c2018;--bg2:#222820;--surface:#252b22;--surface2:#2e3629;
-  --border:#3a4535;--accent:#6e9e6e;--accent2:#8aba8a;--accent-light:#2a3828;
-  --success:#6aba8a;--warn:#c49a50;--danger:#c07060;
-  /* --muted was #7a8070, 4.06:1 on this background — under AA for body
-     text. #8f9583 keeps the same desaturated olive at 5.35:1. */
-  --text:#e8e4d8;--text2:#b0aa98;--muted:#8f9583;
-  --accent-strong:#8aba8a;--accent-ink:#b8d4b8;--card:#252b22;
-  --shadow:rgba(0,0,0,.3);--card-shadow:0 2px 14px rgba(0,0,0,.25);--radius:12px;
-  --font-display:'Fraunces',ui-serif,Georgia,'Times New Roman',serif;
-  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  color-scheme:dark;
+  --bg:var(--night-800);
+  --bg2:var(--night-700);
+  --surface:var(--night-700);
+  --surface2:var(--night-600);
+  --border:var(--night-600);
+  --card:var(--night-700);
+
+  --accent:var(--rust-200);
+  --accent2:var(--rust-300);
+  --accent-strong:var(--rust-200);
+  --accent-ink:#f0956b;
+  --accent-light:rgba(232,134,90,.14);
+  --on-accent:var(--night-900);   /* 7.2 on the light rust */
+
+  --text:var(--cream-050);
+  --text2:var(--cream-300);
+  --muted:var(--cream-300);
+
+  --success:var(--bamboo-300);   /* 10.32 on the canvas */
+  --border-strong:var(--night-600);
+  --warn:#c49a50;      /* 7.28 */
+  --danger:#d98a76;    /* 7.07 */
+
+  --shadow:rgba(0,0,0,.35);
+  --card-shadow:0 2px 14px rgba(0,0,0,.28);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 /* No transition on the page background.
@@ -95,7 +214,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
 :root[data-theme="dark"]{--muted-strong:#969a85;}
 header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 /* A11y: skip-to-content link, hidden until focused (helps screen reader & keyboard users) */
-.skip-link{position:absolute;left:-9999px;top:6px;background:var(--accent);color:#fff;padding:8px 14px;border-radius:6px;font-weight:700;font-size:.84rem;text-decoration:none;z-index:9999;}
+.skip-link{position:absolute;left:-9999px;top:6px;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:6px;font-weight:700;font-size:.84rem;text-decoration:none;z-index:9999;}
 .skip-link:focus{left:6px;}
 .app{max-width:900px;margin:0 auto;padding:0 20px 40px;}
 
@@ -109,7 +228,7 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 .topnav a.nav-link{font-size:.88rem;color:var(--accent);text-decoration:none;font-weight:600;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;align-items:center;}
-.topnav .nav-cta{padding:7px 16px;background:var(--accent);color:#fff;border-radius:8px;font-size:.84rem;font-weight:700;text-decoration:none;}
+.topnav .nav-cta{padding:7px 16px;background:var(--accent);color:var(--on-accent);border-radius:8px;font-size:.84rem;font-weight:700;text-decoration:none;}
 .topnav .nav-cta:hover{background:var(--accent2);}
 /* Desktop: .nav-links is display:contents so its children flow as direct
    children of .topnav — preserves the existing horizontal nav layout
@@ -275,14 +394,14 @@ header h1.brand-h1 .sr-tagline{position:absolute;width:1px;height:1px;padding:0;
 .format-toggle::-webkit-scrollbar{display:none;}
 .format-toggle button{padding:6px 14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:.84rem;font-weight:600;transition:all .2s;border-radius:7px;flex-shrink:0;white-space:nowrap;}
 .format-toggle button:hover:not(:disabled){border-color:var(--accent);}
-.format-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.format-toggle button.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
 .format-toggle button:disabled{opacity:.4;cursor:not-allowed;}
 .topbar-right{display:flex;gap:8px;align-items:center;margin-left:auto;}
 
 /* MULTI-FORMAT TOGGLE */
 .multi-output-wrap{position:relative;display:inline-flex;align-items:center;gap:8px;margin-left:14px;}
 .mo-label{font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
-.mo-count{display:none;background:var(--accent);color:#fff;font-size:.68rem;font-weight:700;border-radius:99px;padding:1px 7px;margin-left:4px;line-height:1.4;letter-spacing:0;text-transform:none;}
+.mo-count{display:none;background:var(--accent);color:var(--on-accent);font-size:.68rem;font-weight:700;border-radius:99px;padding:1px 7px;margin-left:4px;line-height:1.4;letter-spacing:0;text-transform:none;}
 .multi-output-wrap.on .mo-count{display:inline-block;}
 .multi-output-wrap.on .mo-label{color:var(--accent);}
 /* In multi mode, format buttons get checkbox affordance — scoped to #formatToggle so the crop ratio buttons (which also use .format-toggle class) are unaffected */
@@ -297,7 +416,7 @@ body.multi-mode #formatToggle button.active::before{background:var(--accent);bor
 .toggle-switch input:checked~.toggle-knob{transform:translateX(16px);}
 .advanced-toggle{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.84rem;font-weight:600;transition:all .2s;line-height:1;}
 .advanced-toggle:hover{border-color:var(--accent);color:var(--accent);}
-.advanced-toggle.open{background:var(--accent);color:#fff;border-color:var(--accent);}
+.advanced-toggle.open{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
 /* Settings pulse animation removed — restraint over decoration. The gear icon is
    self-evident; users will find it when they need it. */
 .arrow{transition:transform .22s;display:inline-block;font-size:.72rem;}
@@ -325,7 +444,7 @@ body.multi-mode #formatToggle button.active::before{background:var(--accent);bor
 .adv-group .row{display:flex;align-items:center;gap:10px;}
 .adv-group.disabled-group{opacity:.4;pointer-events:none;}
 input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer;}
-.val-badge{background:var(--accent);color:#fff;border-radius:6px;padding:2px 9px;font-size:.84rem;font-weight:700;min-width:38px;text-align:center;}
+.val-badge{background:var(--accent);color:var(--on-accent);border-radius:6px;padding:2px 9px;font-size:.84rem;font-weight:700;min-width:38px;text-align:center;}
 .adv-group input[type=number]{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 10px;width:180px;font-size:.88rem;max-width:100%;}
 @media(max-width:600px){.adv-group input[type=number]{width:100%;}}
 .adv-group input[type=number]:focus{outline:none;border-color:var(--accent);}
@@ -409,7 +528,7 @@ body.fs-open .window-drop-overlay{display:none;}
 .imgr-confirm-actions button{padding:9px 18px;border-radius:8px;font-size:.88rem;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .15s;}
 .imgr-confirm-actions button:hover{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);}
 .imgr-confirm-actions button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
-.imgr-confirm-actions .imgr-confirm-ok{background:var(--accent);color:#fff;border-color:var(--accent);}
+.imgr-confirm-actions .imgr-confirm-ok{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
 .imgr-confirm-actions .imgr-confirm-ok:hover{background:var(--accent2);border-color:var(--accent2);color:#fff;}
 /* When at least one image is in the grid, collapse the dropzone into a slim "Add more" bar.
    Saves vertical space, keeps drop functional, and reduces visual noise. */
@@ -422,7 +541,7 @@ body.has-images .dropzone .paste-hint{display:none;}
 body.has-images .dropzone.fresh::before{content:none;}
 .dropzone .dz-icon{display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:50%;background:var(--accent-light);margin-bottom:16px;color:var(--accent);}
 .dropzone .dz-icon svg{width:28px;height:28px;}
-.dropzone:hover .dz-icon,.dropzone.drag .dz-icon{background:var(--accent);color:#fff;transform:translateY(-2px);transition:all .2s;}
+.dropzone:hover .dz-icon,.dropzone.drag .dz-icon{background:var(--accent);color:var(--on-accent);transform:translateY(-2px);transition:all .2s;}
 .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-light);}
 .dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
 .dropzone h2{font-size:1.25rem;font-weight:600;margin-bottom:6px;color:var(--text);letter-spacing:-.2px;}
@@ -450,7 +569,7 @@ body.has-images .dropzone .dz-trust{display:none;}
 .action-bar.is-stuck{box-shadow:0 4px 14px var(--shadow);border-color:color-mix(in srgb,var(--border) 80%,transparent);}
 .action-left{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .btn{padding:9px 20px;border-radius:9px;font-size:.88rem;font-weight:700;border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 10px var(--shadow);}
+.btn-primary{background:var(--accent);color:var(--on-accent);box-shadow:0 2px 10px var(--shadow);}
 .btn-primary:hover:not(:disabled){background:var(--accent2);transform:translateY(-1px);}
 .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none;}
 .btn-ghost{background:transparent;color:var(--danger);border:1px solid color-mix(in srgb,var(--danger) 40%,transparent);padding:9px 20px;border-radius:9px;font-size:.88rem;font-weight:700;}
@@ -675,7 +794,7 @@ body.has-images .dropzone .dz-trust{display:none;}
    options. The previous version flipped this with Share as primary,
    but Download reads as the safer "every user can do this" path; the
    share sheet is wonderful when it works but it's not on every browser. */
-.card-action-btn.card-action-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.card-action-btn.card-action-primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
 .card-action-btn.card-action-primary:hover:not(:disabled){background:var(--accent2);border-color:var(--accent2);color:#fff;}
 
 /* Error-row replaces math + actions when this card's encode failed.
@@ -840,7 +959,7 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
 /* Download is the modal's terminal action — solid brand green so it
    reads as the obvious next step, not just another control among the
    format/quality buttons. Inverted styling vs the other .fe-dl pills. */
-.fs-editor .fe-dl#feDlBtn{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+.fs-editor .fe-dl#feDlBtn{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700;}
 .fs-editor .fe-dl#feDlBtn:hover{background:var(--accent2);border-color:var(--accent2);}
 .fs-editor .fe-spinner{width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;display:none;}
 

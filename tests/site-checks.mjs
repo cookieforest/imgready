@@ -384,6 +384,15 @@ for (const p of sitemapPaths) {
       if (metaTheme && mf.theme_color && metaTheme.toLowerCase() !== String(mf.theme_color).toLowerCase()) {
         fail('icons', `theme-color disagrees: HTML ${metaTheme} vs manifest ${mf.theme_color}`);
       }
+      /* Both are plain attributes, so they cannot use var(--accent) and
+         have to be updated by hand when the brand colour changes. Tie
+         them to the token so a rebrand cannot leave the browser chrome
+         and the install banner on the old colour. */
+      const cssSrc = existsSync(join(ROOT, 'src', 'app.css')) ? read(join(ROOT, 'src', 'app.css')) : '';
+      const rust = (cssSrc.match(/--rust-500:\s*(#[0-9a-fA-F]{6})/) || [])[1];
+      if (rust && metaTheme && metaTheme.toLowerCase() !== rust.toLowerCase()) {
+        fail('icons', `theme-color ${metaTheme} does not match --accent's primitive ${rust} — the brand colour moved and these did not`);
+      }
       /* Chrome needs a raster icon of at least 192px to treat the app as
          installable; SVG manifest icons are not enough on their own. */
       const pngs = (mf.icons || []).filter((i) => /png$/i.test(i.type || '') || /\.png$/i.test(i.src || ''));
@@ -487,6 +496,25 @@ for (const p of sitemapPaths) {
     }
     notes.push('batch list: default view, scrollable, sortable, per-row remove, Auto for mixed batches, failures retry');
   }
+}
+
+/* ---------- 16. accent fills use the paired text token ---------- */
+{
+  const home = existsSync(join(ROOT, 'index.html')) ? read(join(ROOT, 'index.html')) : '';
+  const css  = existsSync(join(ROOT, 'src', 'app.css')) ? read(join(ROOT, 'src', 'app.css')) : '';
+  /* White on the mid rust is 5.1:1, but the dark contexts remap --accent
+     to a LIGHT rust where white drops to 2.63. Anything filled with
+     --accent must take its text colour from --on-accent, which flips
+     with the context, rather than hardcoding #fff. */
+  for (const [label, src] of [['index.html', home], ['app.css', css]]) {
+    for (const m of src.matchAll(/\{[^{}]*background:\s*var\(--accent\)[^{}]*\}/g)) {
+      if (/color:\s*#fff/i.test(m[0])) {
+        fail('tokens', `${label}: an --accent fill hardcodes white text — use var(--on-accent), which flips for the dark canvas`);
+      }
+    }
+  }
+  if (css && !/--on-accent/.test(css)) fail('tokens', '--on-accent is gone; accent fills have no paired text colour');
+  notes.push('tokens: accent fills take their text colour from --on-accent');
 }
 
 /* ---------- 16. no page is orphaned ---------- */

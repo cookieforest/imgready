@@ -90,9 +90,9 @@
      to body[data-state]. -->
 <!-- PWA + theme parity with stable: manifest enables install-to-homescreen,
      theme-color tints the mobile address bar, apple-touch-icon for iOS. -->
-<meta name="theme-color" content="#4f6f4f">
+<meta name="theme-color" content="#b84d1d">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#cf5f28">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b84d1d">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="preconnect" href="https://esm.sh" crossorigin>
@@ -213,8 +213,22 @@
      without a second set of rules. */
   body[data-state="solo"],
   body[data-state="multi"]:not([data-view="list"]){
-    --bg:#0d0d0d;--text:#ececea;--muted:#b8b5ac;
-    --accent:#8aae8a;--accent-strong:#7a9a7a;--accent-ink:#b8d4b8;
+    /* Remaps the SAME semantic names to the dark primitives from
+       /app.css — see the design-system header there. Measured on this
+       canvas: text 15.63:1, muted 7.91, accent 7.2. */
+    --bg:var(--night-900);--text:var(--cream-050);--muted:var(--cream-300);
+    --accent:var(--rust-200);--accent-strong:var(--rust-200);--accent-ink:#f0956b;
+    /* Savings readouts on the canvas. Was a pale green (#bfe6bf) left
+       over from the old palette; this is the warm equivalent at 14.18:1. */
+    --saving-on-dark:var(--bamboo-300);
+    /* These were NOT remapped and fell through to the light values: the
+       savings figure rendered dark green on near-black at 2.74:1.
+       Semantic hues stay conventional (green/amber/red) across themes —
+       only their lightness follows the context. */
+    --success:var(--bamboo-300);   /* 10.32 on this canvas */
+    --warn:#c49a50;      /* 7.28 */
+    --danger:#d98a76;    /* 7.07 */
+    --on-accent:var(--night-900);
   }
   *,*::before,*::after{box-sizing:border-box;}
   /* Empty state = scrollable marketing page (mirrors stable homepage).
@@ -267,7 +281,7 @@
   .state-toggle button{border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);
     font-size:.72rem;padding:4px 8px;border-radius:5px;cursor:pointer;font-family:inherit;}
   body[data-state="empty"] .state-toggle button{border-color:var(--border);}
-  .state-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .state-toggle button.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
 
   /* --- empty state ---
      NOTE: must NOT use class name `.empty-state` — production app.css already
@@ -374,7 +388,7 @@
   .compare-meta.l{left:var(--s-3);align-items:flex-start;}
   .compare-meta.r{right:var(--s-3);align-items:flex-end;text-align:right;}
   .compare-meta .lbl-title{font-size:.92rem;font-weight:700;}
-  .compare-meta .pct{color:#bfe6bf;font-weight:700;font-size:.8rem;}
+  .compare-meta .pct{color:var(--saving-on-dark);font-weight:700;font-size:.8rem;}
   .compare-meta .gif-meta{
     font-size:.68rem;color:rgba(255,255,255,.65);
     margin-top:2px;font-style:italic;
@@ -877,7 +891,7 @@
   .pi-icon.confirmed{
     background:var(--accent) !important;
     border-color:var(--accent) !important;
-    color:#fff !important;
+    color:var(--on-accent) !important;
   }
   /* Hide original icon SVG when confirmed; show injected checkmark span */
   .pi-icon.confirmed > svg{visibility:hidden;}
@@ -1170,7 +1184,7 @@
     background:rgba(255,255,255,.08);color:#fff;
   }
   .adjust-pills button.active{
-    background:var(--accent);color:#fff;border-color:var(--accent);
+    background:var(--accent);color:var(--on-accent);border-color:var(--accent);
   }
   .quality-row{display:flex;align-items:center;gap:6px;}
   /* Quality slider — hand-styled.
@@ -1368,7 +1382,7 @@
     transition:background .12s ease,color .12s ease;
   }
   .resize-presets-menu button:hover{
-    background:var(--accent);color:#fff;
+    background:var(--accent);color:var(--on-accent);
   }
 
   /* Inline Custom px input row inside the resize dropdown.
@@ -1419,7 +1433,7 @@
   .resize-custom-row .resize-custom-set:hover{
     background:var(--accent);
     border-color:var(--accent);
-    color:#fff;
+    color:var(--on-accent);
   }
 
   .adjust-input,.adjust-select{padding:5px 7px;border:1px solid rgba(255,255,255,.18);
@@ -1434,7 +1448,7 @@
     border:1px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.92);
     cursor:pointer;white-space:nowrap;width:100%;}
   .btn:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4);}
-  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700;}
   .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
   .btn-clear{color:rgba(220,160,160,.7);border-color:rgba(255,255,255,.16);}
   .btn-clear:hover{color:#fff;background:rgba(220,160,160,.12);border-color:rgba(220,160,160,.45);}
@@ -1503,7 +1517,7 @@
     line-height:1;
   }
   .top-chrome .tc-pct{
-    font-size:.72rem;color:#bfe6bf;font-weight:700;
+    font-size:.72rem;color:var(--saving-on-dark);font-weight:700;
     line-height:1;margin-left:6px;
   }
   .top-chrome .tc-pct.bad{color:#ff8b8b;}
@@ -1612,7 +1626,7 @@
   .dz-format-pre .dz-pills button.active{
     background:var(--accent);
     border-color:var(--accent);
-    color:#fff;
+    color:var(--on-accent);
   }
   /* Six pills in a centered wrap break 5 + 1 on a phone, leaving ICO
      alone on its own row under a full line — reads like a mistake
@@ -1818,7 +1832,7 @@
   .cmp-btn[disabled]{opacity:.35;cursor:default;}
   .cmp-btn[disabled]:hover{background:transparent;}
   .cmp-icon{padding:7px 12px;min-width:36px;line-height:1;font-size:1rem;}
-  .cmp-dl{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .cmp-dl{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
   .cmp-dl:hover{background:var(--accent);filter:brightness(1.1);}
   @media (max-width:860px){
     /* The name goes before the numbers do — you just picked the file,
@@ -1885,7 +1899,7 @@
     min-height:38px;
   }
   .fl-btn:hover{background:color-mix(in srgb,var(--text) 10%,transparent);}
-  .fl-btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .fl-btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
   .fl-btn-primary:hover{background:var(--accent);filter:brightness(1.1);}
   .fl-btn-quiet{opacity:.72;}
 
@@ -2156,10 +2170,10 @@
     transition:background .12s ease,color .12s ease;
   }
   .format-menu button:hover{
-    background:var(--accent);color:#fff;
+    background:var(--accent);color:var(--on-accent);
   }
   .format-menu button.active{
-    background:var(--accent);color:#fff;
+    background:var(--accent);color:var(--on-accent);
   }
   /* Multi toggle row — sits at the top of the format dropdown menu.
      Visually distinct from format buttons (different bg + bottom
@@ -3025,7 +3039,7 @@
   /* Primary "Save" mirrors home .btn-primary exactly:
      bg var(--accent), border var(--accent), weight 700, hover accent-strong. */
   .edit-modal .edit-actions-cluster .btn-primary{
-    background:var(--accent);color:#fff;
+    background:var(--accent);color:var(--on-accent);
     border-color:var(--accent);
     font-weight:700;
     min-width:80px;
@@ -3203,8 +3217,8 @@
   .edit-section-toggle{
     flex:0 0 auto;
     width:10px;height:10px;border-radius:50%;
-    border:1.5px solid var(--accent, #7a9a7a);
-    background:var(--accent, #7a9a7a);
+    border:1.5px solid var(--accent);
+    background:var(--accent);
     margin-right:2px;
     cursor:pointer;
     transition:transform .12s ease,background .12s ease,opacity .12s ease;
@@ -3384,7 +3398,7 @@
     border-color:rgba(255,255,255,.20);
     color:#fff;
   }
-  .adj-icon-btn.selected .ico{color:var(--accent, #7a9a7a);}
+  .adj-icon-btn.selected .ico{color:var(--accent);}
   /* R48b — labels removed from carousel; Apple-Photos-style icon-only.
      The active label appears above the scrubber via .adj-scrubber-label. */
   .adj-icon-btn .adj-icon-label{display:none;}
@@ -3399,8 +3413,8 @@
     border-radius:50%;
     pointer-events:none;
     background:conic-gradient(from var(--r48-arc-from, -90deg),
-      var(--accent, #7a9a7a) 0deg,
-      var(--accent, #7a9a7a) var(--r48-arc-deg, 0deg),
+      var(--accent) 0deg,
+      var(--accent) var(--r48-arc-deg, 0deg),
       transparent var(--r48-arc-deg, 0deg) 360deg);
     -webkit-mask:radial-gradient(circle, transparent 56%, #000 58% 64%, transparent 66%);
             mask:radial-gradient(circle, transparent 56%, #000 58% 64%, transparent 66%);
@@ -3438,9 +3452,9 @@
     border-color:rgba(255,255,255,.20);
     color:#fff;
   }
-  .adj-flat-btn.selected .ico{color:var(--accent, #7a9a7a);}
+  .adj-flat-btn.selected .ico{color:var(--accent);}
   .adj-flat-btn.active{
-    background:var(--accent, #7a9a7a);color:#fff;border-color:var(--accent, #7a9a7a);
+    background:var(--accent);color:var(--on-accent);border-color:var(--accent);
   }
   .adj-flat-btn.active .ico{color:#fff;}
   .adj-icon-val{
@@ -3466,7 +3480,7 @@
   .adj-filter-btn:hover .adj-filter-swatch{transform:scale(1.05);}
   .adj-filter-btn.active .adj-filter-swatch{
     border-color:#fff;
-    box-shadow:0 0 0 2px var(--accent, #7a9a7a);
+    box-shadow:0 0 0 2px var(--accent);
   }
   .adj-filter-btn .adj-filter-name{
     font-size:.52rem;font-weight:600;letter-spacing:.02em;
@@ -3580,8 +3594,8 @@
     color:#fff !important;
   }
   .edit-modal .edit-top-save.has-edits{
-    background:var(--accent, #7a9a7a) !important;
-    border-color:var(--accent, #7a9a7a) !important;
+    background:var(--accent) !important;
+    border-color:var(--accent) !important;
   }
 
   /* ====================================================================
@@ -3628,14 +3642,14 @@
   }
   .edit-modal .edit-top-save:hover{background:rgba(255,255,255,.16);}
   .edit-modal .edit-top-save.has-edits{
-    background:var(--accent, #7a9a7a);
-    border-color:var(--accent, #7a9a7a);
-    color:#fff;
+    background:var(--accent);
+    border-color:var(--accent);
+    color:var(--on-accent);
     font-weight:700;
   }
   .edit-modal .edit-top-save.has-edits:hover{
-    background:var(--accent-strong, #6b8b6b);
-    border-color:var(--accent-strong, #6b8b6b);
+    background:var(--accent-strong);
+    border-color:var(--accent-strong);
   }
 
   /* Hide the now-unused action pill if any stray reference remains. */
@@ -3664,13 +3678,13 @@
   .edit-modal .edit-top-cancel{background:rgba(0,0,0,.55);}
   .edit-modal .edit-top-cancel:hover{background:rgba(255,255,255,.10);}
   .edit-modal .edit-top-save{
-    background:var(--accent, #7a9a7a);
-    border-color:var(--accent, #7a9a7a);
-    color:#fff;font-weight:700;
+    background:var(--accent);
+    border-color:var(--accent);
+    color:var(--on-accent);font-weight:700;
   }
   .edit-modal .edit-top-save:hover{
-    background:var(--accent-strong, #6b8b6b);
-    border-color:var(--accent-strong, #6b8b6b);
+    background:var(--accent-strong);
+    border-color:var(--accent-strong);
   }
   .edit-modal .edit-top-btn:disabled{opacity:.4;cursor:default;pointer-events:none;}
 
@@ -3773,7 +3787,7 @@
     box-shadow:0 1px 3px rgba(0,0,0,.22);
   }
   .edit-modal .edit-tool-surface .filter-thumb.active .filter-thumb-img{
-    box-shadow:0 0 0 2px var(--accent, #7a9a7a), 0 1px 3px rgba(0,0,0,.22);
+    box-shadow:0 0 0 2px var(--accent), 0 1px 3px rgba(0,0,0,.22);
     border-color:transparent;
   }
 
@@ -3920,7 +3934,7 @@
     transition:transform .12s ease;
     font-family:inherit;
   }
-  .edit-modal .ed-circle-btn:focus-visible{outline:2px solid var(--accent, #7a9a7a);outline-offset:3px;}
+  .edit-modal .ed-circle-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
   /* Ring overlay — transparent by default; only shows for selected /
      modified states (set by JS via CSS custom properties). */
   .edit-modal .ed-circle-btn .ed-circle-ring{
@@ -3950,8 +3964,8 @@
     transform:translateY(-1px);
   }
   .edit-modal .ed-circle-btn.active .ed-circle-inner{
-    background:var(--accent, #7a9a7a);
-    border-color:var(--accent, #7a9a7a);
+    background:var(--accent);
+    border-color:var(--accent);
   }
   .edit-modal .ed-circle-btn[disabled],
   .edit-modal .ed-circle-btn:disabled{opacity:.35;cursor:default;pointer-events:none;}
@@ -4041,7 +4055,7 @@
     border-radius:50%;
     transition:transform .12s ease;
   }
-  .edit-modal .adj-circle-btn:focus-visible{outline:2px solid var(--accent, #7a9a7a);outline-offset:3px;}
+  .edit-modal .adj-circle-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
   .edit-modal .adj-circle-btn .adj-circle-ring{
     position:absolute;inset:-3px;
     border-radius:50%;
@@ -4074,8 +4088,8 @@
   /* R68 — Selected = full accent ring overlay outside the pill. */
   .edit-modal .adj-circle-btn.selected .adj-circle-ring{
     background:conic-gradient(from -90deg,
-      var(--accent, #7a9a7a) 0deg,
-      var(--accent, #7a9a7a) 360deg);
+      var(--accent) 0deg,
+      var(--accent) 360deg);
     -webkit-mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
             mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
   }
@@ -4085,8 +4099,8 @@
   /* R68 — Modified = arc segment of the ring fills accent. */
   .edit-modal .adj-circle-btn.modified .adj-circle-ring{
     background:conic-gradient(from var(--r48-arc-from, -90deg),
-      var(--accent, #7a9a7a) 0deg,
-      var(--accent, #7a9a7a) var(--r48-arc-deg, 0deg),
+      var(--accent) 0deg,
+      var(--accent) var(--r48-arc-deg, 0deg),
       rgba(255,255,255,.12) var(--r48-arc-deg, 0deg) 360deg);
     -webkit-mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
             mask:radial-gradient(circle, transparent 73%, #000 75% 80%, transparent 82%);
@@ -4105,8 +4119,8 @@
   .edit-modal .adj-circle-btn.modified .adj-circle-val{opacity:1;}
 
   .edit-modal .adj-circle-btn.adj-auto-btn.active .adj-circle-inner{
-    background:var(--accent, #7a9a7a);
-    border-color:var(--accent, #7a9a7a);
+    background:var(--accent);
+    border-color:var(--accent);
   }
   .edit-modal .adj-circle-btn.adj-auto-btn.active .adj-circle-inner .ico{color:#fff;}
   .edit-modal .adj-circle-btn.busy .adj-circle-inner{
@@ -4269,8 +4283,8 @@
   .edit-modal .filter-thumb:hover .filter-thumb-img{transform:scale(1.04);}
   .edit-modal .filter-thumb.active{color:#fff;}
   .edit-modal .filter-thumb.active .filter-thumb-img{
-    border-color:var(--accent, #7a9a7a);
-    box-shadow:0 0 0 1px var(--accent, #7a9a7a);
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px var(--accent);
   }
   .edit-modal .filter-thumb-name{
     font-size:.64rem;font-weight:700;letter-spacing:.05em;
@@ -4397,7 +4411,7 @@
     background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25);
   }
   .edit-preset-btn.active{
-    background:var(--accent);color:#fff;border-color:var(--accent);
+    background:var(--accent);color:var(--on-accent);border-color:var(--accent);
   }
   /* R30 — Filter / Vignette dropdown chips. Mirrors home's
      .resize-presets-trigger pattern exactly: chevron chip on the bar,
@@ -4481,7 +4495,7 @@
     transition:background .12s ease,color .12s ease;
     white-space:nowrap;
   }
-  .edit-filter-dd-menu button:hover{background:var(--accent);color:#fff;}
+  .edit-filter-dd-menu button:hover{background:var(--accent);color:var(--on-accent);}
   .edit-filter-dd-menu button.active{
     background:rgba(138,174,138,.20);color:#fff;
   }
@@ -4722,7 +4736,7 @@
   }
   .edit-auto-enhance-btn:hover{background:rgba(255,255,255,.10);color:#fff;}
   .edit-auto-enhance-btn:disabled{opacity:.5;cursor:default;}
-  .edit-auto-enhance-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .edit-auto-enhance-btn.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
   .edit-auto-enhance-undo{
     padding:3px 6px;border-radius:4px;font-size:.64rem;
     background:transparent;color:rgba(255,255,255,.55);
@@ -5319,7 +5333,7 @@
   }
   .batch-progress-fill{
     display:block;height:100%;width:0%;
-    background:#bfe6bf;
+    background:var(--saving-on-dark);
     transition:width .3s ease;
   }
 
@@ -5455,8 +5469,8 @@
     background:rgba(50,50,50,.95);
   }
   .edit-modal .edit-tool-surface .edit-crop-presets .edit-preset-btn.active{
-    background:var(--accent, #7a9a7a);
-    border-color:var(--accent, #7a9a7a);
+    background:var(--accent);
+    border-color:var(--accent);
   }
   /* Crop instruction text — keep but make subtle */
   .edit-modal .edit-tool-surface #editBody > div + p {
@@ -5471,14 +5485,14 @@
     display:block;margin:8px auto 0;
     width:auto !important;min-width:120px;
     height:36px;padding:0 22px;
-    background:var(--accent, #7a9a7a);
-    color:#fff;font-weight:700;font-size:.84rem;
+    background:var(--accent);
+    color:var(--on-accent);font-weight:700;font-size:.84rem;
     border:none;border-radius:999px;
     cursor:pointer;
     box-shadow:0 1px 4px rgba(0,0,0,.3);
   }
   .edit-modal .edit-tool-surface .edit-frames-action-btn:hover{
-    background:var(--accent-strong, #6b8b6b);
+    background:var(--accent-strong);
   }
 
   /* (3) Push floating surface higher so it never clips into the dock. */
@@ -5534,7 +5548,7 @@
     color:#fff;background:transparent;
   }
   .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab.active .ico{
-    color:var(--accent, #7a9a7a);
+    color:var(--accent);
   }
   /* Move accent indicator below the label */
   .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab.active::before{
@@ -5543,7 +5557,7 @@
     bottom:1px;left:50%;transform:translateX(-50%);
     top:auto;
     width:4px;height:4px;border-radius:50%;
-    background:var(--accent, #7a9a7a);
+    background:var(--accent);
   }
   .edit-modal .edit-menu-card-thin .edit-tab-bar .edit-tab{position:relative;}
 
@@ -5553,7 +5567,7 @@
      accent dot ::before is the only "active" indicator. */
   .edit-modal .edit-tab-bar .edit-tab:focus{outline:none;}
   .edit-modal .edit-tab-bar .edit-tab:focus-visible{
-    outline:2px solid var(--accent, #7a9a7a);outline-offset:2px;border-radius:8px;
+    outline:2px solid var(--accent);outline-offset:2px;border-radius:8px;
   }
 
 
@@ -6062,8 +6076,8 @@
          scales/pans the whole compare composition. The compare-after still
          clips correctly because clip-path applies to the inner element. -->
     <div class="compare-zoom" id="compareZoom">
-      <div class="mock-image large compare-before" id="cbBefore" style="background:linear-gradient(135deg,#446644,#8aba8a)">photo-1.jpg</div>
-      <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,var(--accent),#a8d5a8)">photo-1.jpg</div></div>
+      <div class="mock-image large compare-before" id="cbBefore" style="background:linear-gradient(135deg,var(--rust-600),var(--rust-300))">photo-1.jpg</div>
+      <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,var(--accent),var(--rust-200))">photo-1.jpg</div></div>
       <!-- Divider lives INSIDE compare-zoom because it must align with
            the clip-path edge of compare-after, which IS scaled/translated
            by the zoom transform. -->
