@@ -484,8 +484,21 @@ for (const p of sitemapPaths) {
        screen. The list inherited that and became 2900px of rows inside
        a 720px box with no scrollbar: on a 40-file batch thirty files
        were simply unreachable. List view has to restore scrolling. */
-    if (!/body\[data-state="multi"\]\[data-view="list"\] \.stage\.multi\{[^}]*overflow-y:auto/.test(home)) {
-      fail('batch list', 'list view does not restore scrolling — rows past the fold are unreachable in the locked workspace');
+    /* Scrolling moved from the stage to the body when the marketing
+       content came back below the list, so this checks the invariant
+       (the lock is lifted in list view) rather than one implementation
+       of it. */
+    /* matchAll, not match: two rules share this selector (the other sets
+       user-select) and taking only the first reported a false failure. */
+    const listBlocks = [...home.matchAll(/body\[data-state="multi"\]\[data-view="list"\]\{([^}]*)\}/g)].map((m) => m[1]);
+    const scrolls = listBlocks.some((b) => /overflow-y:\s*auto/.test(b) && /height:\s*auto/.test(b));
+    if (!scrolls) {
+      fail('batch list', 'list view does not lift the locked 100vh viewport — rows past the fold become unreachable');
+    }
+    /* And the page content has to come back with it, or a long batch is
+       a blank wait with nothing to read. */
+    if (!/body\[data-state="multi"\]\[data-view="list"\] \.beta-empty\{[^}]*display:block/.test(home)) {
+      fail('batch list', 'the page content stays hidden in list view — nothing to read while a batch runs');
     }
     /* Removing one file has to remap the index-keyed ENCODE maps, or a
        file's results end up displayed against another file's name. */
