@@ -67,7 +67,7 @@
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:780px;margin:0 auto;padding:0 24px 80px;}
+.wrap{max-width:var(--w-page);margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
 .nav-brand .g{color:var(--accent,var(--accent));}
@@ -96,10 +96,20 @@ p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
 ul,ol{padding-left:22px;margin-bottom:16px;}
 li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
 .callout{background:var(--accent-light);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:var(--text2);line-height:1.75;}
-table{border-collapse:collapse;width:100%;margin:14px 0 22px;font-size:.88rem;}
-th,td{text-align:left;padding:9px 12px;border:1px solid var(--border);color:var(--text2);vertical-align:top;}
-th{background:var(--surface2);color:var(--text);font-weight:700;}
-tr:nth-child(even) td{background:var(--surface);}
+/* Quiet data table. Was a full 1px box around every cell plus zebra
+   striping: the heavy grid the design skill objects to (9.F), which
+   says pick ONE rule direction and use it sparsely.
+   These stay tables. They are genuine multi-column comparisons with
+   real measurements ("Format / Compression vs JPG / Browser support /
+   Encoding speed"), not a spec list pretending to be one, and a card
+   grid cannot carry a four-way comparison. Only the weight changes:
+   one hairline under each row, no vertical rules, no stripes. The
+   columns are held by alignment, which is what alignment is for. */
+table{border-collapse:collapse;width:100%;margin:16px 0 24px;font-size:.88rem;}
+th,td{text-align:left;padding:10px 18px 10px 0;border:0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
+th{color:var(--text);font-weight:700;border-bottom-color:var(--text2);}
+tr:last-child td{border-bottom:0;}
+@media(max-width:600px){th,td{padding:8px 10px 8px 0;font-size:.84rem;}}
 .faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}
 .faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;list-style:none;}
 .faq-item summary::after{content:'+';float:right;color:var(--accent);font-weight:700;}

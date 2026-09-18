@@ -44,6 +44,21 @@
    has its own inline tokens; this block matches the light defaults so
    var(--font-body) etc. resolve even without the data-theme attr). */
 :root{
+  /* Layout widths. There were seven different values across the site
+     (680, 720, 760, 780, 820, 880, 900) with no rule behind them, so
+     the same kind of prose read at a different measure depending on
+     which page you landed on. Three tiers, by what the page is for:
+
+       --w-app   the tool. Needs room for file rows, the compare bar
+                 and the thumbnail grid.
+       --w-page  a tool page with content under it. The 62 converter
+                 landing pages already agreed on this one.
+       --w-read  prose-only pages. Narrower on purpose: 4.1 puts body
+                 copy at 65ch, which is about here at 16px. Wider is
+                 not more generous, it is harder to read. */
+  --w-app:900px;
+  --w-page:780px;
+  --w-read:720px;
   --font-display:'Poetsen One',ui-rounded,'Segoe UI',system-ui,sans-serif;
   --font-body:'Nunito',ui-rounded,-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
   --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -232,7 +247,7 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 /* A11y: skip-to-content link, hidden until focused (helps screen reader & keyboard users) */
 .skip-link{position:absolute;left:-9999px;top:6px;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:6px;font-weight:700;font-size:.84rem;text-decoration:none;z-index:9999;}
 .skip-link:focus{left:6px;}
-.app{max-width:900px;margin:0 auto;padding:0 20px 40px;}
+.app{max-width:var(--w-app);margin:0 auto;padding:0 20px 40px;}
 
 /* TOP NAV */
 /* Nav padding + a margin below pushes the dropzone down so it doesn't crowd
