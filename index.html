@@ -5856,7 +5856,15 @@
   <div class="content-section">
 
     <h2>What imgready does</h2>
-    <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use. WebP, AVIF, JPG, PNG and GIF on the way out; HEIC, HEIF, TIFF, BMP, SVG on the way in. Batch any number of files. Output multiple formats in a single pass. Drop a folder. Strip EXIF. Compare before/after with a live slider.</p>
+    <p>Compress, convert and resize images with the same WebAssembly encoders professional tools use.</p>
+    <ul class="cap-list">
+      <li>Batch any number of files at once</li>
+      <li>Output several formats in a single pass</li>
+      <li>Drop a whole folder</li>
+      <li>Strip EXIF on the way through</li>
+      <li>Compare before and after with a live slider</li>
+      <li>Reads HEIC, HEIF, TIFF, BMP and SVG</li>
+    </ul>
     <p>Encoding runs in your browser. The <a href="/why/">thinking behind it</a> goes deeper into what that means for speed and file-size limits.</p>
 
     <h3>Supported formats</h3>
@@ -5896,7 +5904,14 @@
     </div>
 
     <h3>How it actually works</h3>
-    <p>When you drop a file, imgready runs the same WebAssembly encoders Squoosh ships, but locally, on your machine. <strong>HEIC and HEIF</strong> decode through libheif (the C++ library Apple uses). <strong>WebP and AVIF</strong> encode with jsquash, Google's reference encoders ported to WebAssembly. <strong>PNG</strong> compression uses OxiPNG and UPNG for size, the browser's canvas for lossless. Resizing and cropping run on the HTML5 canvas API. None of this requires a server because none of it needs one, your machine has the compute.</p>
+    <p>Drop a file and imgready runs the same WebAssembly encoders Squoosh ships, locally, on your machine.</p>
+    <dl class="engine-list">
+      <dt>HEIC and HEIF</dt><dd>decode through libheif, the C++ library Apple uses</dd>
+      <dt>WebP and AVIF</dt><dd>encode with jsquash, Google's reference encoders ported to WebAssembly</dd>
+      <dt>PNG</dt><dd>OxiPNG and UPNG for size, the browser's canvas for lossless</dd>
+      <dt>Resize and crop</dt><dd>the HTML5 canvas API</dd>
+    </dl>
+    <p>None of it needs a server. Your machine has the compute.</p>
 
     <h3>Frequently asked</h3>
     <details class="faq-item"><summary>Are my images uploaded?</summary><p>No. Encoding runs in your browser. If you'd like to see for yourself, open DevTools and watch the Network tab while you drop a file, no requests carry image data.</p></details>

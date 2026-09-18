@@ -1093,6 +1093,52 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
 .content-section .content-foot{font-size:.8rem;color:var(--muted-strong);margin-top:32px;padding-top:18px;border-top:1px dashed var(--border);}
 .content-section .content-foot a{color:var(--accent);text-decoration:none;}
 .content-section .content-foot a:hover{text-decoration:underline;}
+/* Engine list. Four encoder-to-library mappings were written as one
+   80-word paragraph, so the thing a reader actually wants (which
+   library handles my format) had to be dug out of prose. A definition
+   list is what this data always was.
+
+   Also the third layout family in the content area, after the prose
+   and the formats grid. 4.7 asks for variety across sections and the
+   page previously had one shape repeated all the way down. */
+.engine-list{
+  margin:14px 0 16px;padding:0;
+  display:grid;grid-template-columns:auto 1fr;
+  gap:8px 18px;align-items:baseline;
+  font-size:.9rem;
+}
+.engine-list dt{
+  font-weight:700;color:var(--text);white-space:nowrap;
+}
+.engine-list dd{margin:0;color:var(--text2);line-height:1.5;}
+/* 4.7: declare the collapse. Two columns of "label / value" become a
+   stacked pair per item, with the value indented under its label. */
+@media(max-width:560px){
+  .engine-list{grid-template-columns:1fr;gap:2px;}
+  .engine-list dd{margin:0 0 10px;padding-left:14px;border-left:2px solid var(--border);}
+}
+
+/* Capability list. This was six capabilities welded into one 55-word
+   paragraph, which 4.9 calls the wrong shape twice over: the section
+   sub-paragraph should be under 25 words, and a list belongs in a list
+   component rather than in longer prose.
+
+   Two columns so it reads as a scan rather than a column of bullets,
+   and it gives the content area a second layout family, which it badly
+   needed: every block below the hero was the same full-width stack. */
+.cap-list{
+  list-style:none;margin:14px 0 22px;padding:0;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px 26px;
+}
+.content-section .cap-list li::before{content:none;}
+.cap-list li{
+  position:static;padding:0 0 0 20px;
+  font-size:.9rem;color:var(--text2);line-height:1.5;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%234a6320' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") left .25em/13px 13px no-repeat;
+}
+@media(max-width:560px){.cap-list{grid-template-columns:1fr;}}
+
 /* Formats grid. Was a 6-row table with a hairline on every cell, which
    the design skill calls the laziest possible layout for a spec sheet
    (9.F, and 4.9 names the replacement: a card per spec carrying the
