@@ -73,7 +73,7 @@
 </script>
 <style>*{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--w-page);margin:0 auto;padding:0 24px 80px;}
+.wrap{max-width:var(--w-page, 780px);margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
 .nav-brand .g{color:var(--accent,var(--accent));}
@@ -167,7 +167,7 @@ tr:last-child td{border-bottom:0;}
        directly below; the dropzone is just below the panel either way. -->
   <button class="settings-trigger" id="advToggle" onclick="toggleAdvanced()" aria-expanded="false" aria-controls="advPanel">
     <span class="settings-trigger-arrow" aria-hidden="true">&#9654;</span>
-    <span class="settings-trigger-label">Output settings</span><span class="settings-trigger-summary" id="advSummary"></span>
+    <span >Output settings</span><span class="settings-trigger-summary" id="advSummary"></span>
   </button>
 
   <!-- FINE-TUNE PANEL -->
@@ -211,7 +211,7 @@ tr:last-child td{border-bottom:0;}
          output format. Live Photo detection is input-driven not
          output-driven, and the user might select WebP for the still
          while still wanting the video. */
-    <div class="adv-group adv-group-livephoto">
+    <div class="adv-group">
       <label class="toggle-pill">
         <input type="checkbox" id="livePhotoExtract" onchange="onLivePhotoToggle(this.checked)">
         Save Live Photo videos as MP4
@@ -330,7 +330,7 @@ tr:last-child td{border-bottom:0;}
        calmer and frees the hero zone. The savedStatus element is kept
        in the DOM for backward compatibility with any code that still
        targets it, but hidden via CSS.) -->
-  <div class="saved-status saved-status-legacy" id="savedStatus" aria-live="polite" hidden></div>
+  <div class="saved-status" id="savedStatus" aria-live="polite" hidden></div>
 
   <!-- ACTION BAR
        In pending state: Process button is the only action visible.

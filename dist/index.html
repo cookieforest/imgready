@@ -6002,7 +6002,7 @@
           </div>
           </div>
         <div class="adjust-section"><span class="adjust-label">Privacy</span>
-          <span class="privacy-note" title="EXIF, GPS and other metadata are removed automatically when the image is re-encoded, nothing leaves your device.">Metadata removed automatically</span></div>
+          <span  title="EXIF, GPS and other metadata are removed automatically when the image is re-encoded, nothing leaves your device.">Metadata removed automatically</span></div>
         <!-- R23 Advanced encoder section: surfaces codec params already
              loaded in WASM. Defaults preserve current behavior (no
              behavior change unless user opens & changes). Native
@@ -6121,7 +6121,7 @@
             <option value="leastsaved">Least saved first</option>
           </select>
         </label>
-        <button type="button" class="fl-btn fl-btn-ghost" id="flEditBtn" onclick="flOpenSettings()">
+        <button type="button" class="fl-btn" id="flEditBtn" onclick="flOpenSettings()">
           Edit settings
         </button>
         <button type="button" class="fl-btn fl-btn-primary" id="flDlAll" onclick="downloadAll()">
@@ -6131,8 +6131,8 @@
     </div>
     <ul class="fl-rows" id="flRows"></ul>
     <div class="fl-foot">
-      <button type="button" class="fl-btn fl-btn-ghost" onclick="document.getElementById('moreInput').click()">Add more</button>
-      <button type="button" class="fl-btn fl-btn-ghost fl-btn-quiet" onclick="askClear()">Clear all</button>
+      <button type="button" class="fl-btn" onclick="document.getElementById('moreInput').click()">Add more</button>
+      <button type="button" class="fl-btn fl-btn-quiet" onclick="askClear()">Clear all</button>
     </div>
   </div>
   <!-- Bottom-fade overlay improves readability of cover-flow thumbnails over

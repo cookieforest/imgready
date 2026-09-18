@@ -253,7 +253,7 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 /* A11y: skip-to-content link, hidden until focused (helps screen reader & keyboard users) */
 .skip-link{position:absolute;left:-9999px;top:6px;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:6px;font-weight:700;font-size:.84rem;text-decoration:none;z-index:9999;}
 .skip-link:focus{left:6px;}
-.app{max-width:var(--w-app);margin:0 auto;padding:0 20px 40px;}
+.app{max-width:var(--w-app, 900px);margin:0 auto;padding:0 20px 40px;}
 
 /* TOP NAV */
 /* Nav padding + a margin below pushes the dropzone down so it doesn't crowd
