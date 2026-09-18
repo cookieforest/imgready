@@ -238,6 +238,34 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 /* Nav padding + a margin below pushes the dropzone down so it doesn't crowd
    the brand row. The visual rhythm becomes nav → breath → big dropzone. */
 .topnav{display:flex;align-items:center;gap:14px;padding:18px 0;margin-bottom:28px;flex-wrap:wrap;}
+/* Brand mark — the mascot as a flat single-tone silhouette, sitting
+   between "img" and "ready" in the wordmark.
+
+   Delivered as a CSS mask over currentColor, not an <img>. One file
+   then serves every context: it picks up --accent on the cream pages
+   and the remapped lighter --accent on the dark canvas, with no second
+   asset and no inline <symbol> duplicated into 70 pages.
+
+   Hidden by default and only shown inside @supports, so a browser
+   without mask-image renders the wordmark as plain text rather than a
+   solid rust rectangle. */
+.brand-mark{display:none;}
+@supports ((-webkit-mask-image:url("/panda-mark-sm.svg")) or (mask-image:url("/panda-mark-sm.svg"))){
+  .brand-mark{
+    display:inline-block;
+    width:1.269em;height:1.02em;      /* 56:45 viewBox ratio */
+    margin:0 .22em;               /* the "gap 22" spacing */
+    vertical-align:-.17em;            /* ignored in the flex wordmarks */
+    background-color:var(--accent);
+    /* SMALL CUT, deliberately. The wordmark only ever renders at 16, 22
+       and 42px, and the expressive cut's mouth is 1.5px even at 42 while
+       its winking eye dissolves before the open one does — giving a
+       one-eyed panda, not a soft one. panda-mark.svg keeps the wink and
+       tongue for any placement at 64px or more. */
+    -webkit-mask:url("/panda-mark-sm.svg") center/contain no-repeat;
+            mask:url("/panda-mark-sm.svg") center/contain no-repeat;
+  }
+}
 .topnav .brand{display:inline-flex;align-items:center;gap:0;font-size:22px;font-weight:400;letter-spacing:-.2px;text-decoration:none;color:var(--text);}
 .topnav .brand span{color:var(--accent);}
 .topnav .nav-sep{color:var(--border);}
