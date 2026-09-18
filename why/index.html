@@ -74,49 +74,49 @@
 @font-face{font-family:'Inter';src:url('/fonts/inter-latin.woff2') format('woff2-variations'),url('/fonts/inter-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
 
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#2e2a22;font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
+body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
 .wrap{max-width:680px;margin:0 auto;padding:0 24px 80px;}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:#2e2a22;}
-.nav-brand .g{color:var(--accent,#4f6f4f);}
-.nav-sep{color:#d6cebb;}
-.topnav a.nav-link{font-size:.84rem;color:#4f6f4f;text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
+.nav-brand{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
+.nav-brand .g{color:var(--accent,var(--accent));}
+.nav-sep{color:var(--border);}
+.topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
 .topnav a.nav-link:hover{text-decoration:underline;}
 .topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
 @media(max-width:600px){.topnav .hide-mobile{display:none;}}
-.crumbs{font-size:.8rem;color:#5e5c54;margin:6px 0 4px;}
-.crumbs a{color:#4f6f4f;text-decoration:none;padding:4px 2px;display:inline-block;}
+.crumbs{font-size:.8rem;color:var(--muted);margin:6px 0 4px;}
+.crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
 .crumbs a:hover{text-decoration:underline;}
-h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:2.4rem;font-weight:700;letter-spacing:-1.2px;line-height:1.1;margin:32px 0 12px;color:#2e2a22;max-width:540px;}
-h1 em{font-style:normal;color:#4f6f4f;}
-.lede{font-size:1.05rem;color:#5a5448;line-height:1.7;margin-bottom:30px;max-width:560px;}
-.byline{font-size:.8rem;color:#5e5c54;letter-spacing:.04em;text-transform:uppercase;margin-bottom:42px;}
-.byline a{color:#4f6f4f;text-decoration:none;}
-h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.4rem;margin:44px 0 14px;color:#2e2a22;letter-spacing:-.4px;}
+h1{font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:"ss01" on;font-size:2.4rem;font-weight:700;letter-spacing:-1.2px;line-height:1.1;margin:32px 0 12px;color:var(--text);max-width:540px;}
+h1 em{font-style:normal;color:var(--accent);}
+.lede{font-size:1.05rem;color:var(--text2);line-height:1.7;margin-bottom:30px;max-width:560px;}
+.byline{font-size:.8rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:42px;}
+.byline a{color:var(--accent);text-decoration:none;}
+h2{font-family:'Fraunces',ui-serif,Georgia,serif;font-size:1.4rem;margin:44px 0 14px;color:var(--text);letter-spacing:-.4px;}
 p{font-size:1rem;line-height:1.78;color:#3e3a32;margin-bottom:18px;}
-p strong{color:#2e2a22;}
+p strong{color:var(--text);}
 ul{padding-left:0;list-style:none;margin:0 0 22px;}
 ul li{padding-left:22px;position:relative;margin-bottom:10px;font-size:1rem;line-height:1.75;color:#3e3a32;}
-ul li::before{content:'';position:absolute;left:4px;top:.7em;width:6px;height:6px;border-radius:50%;background:#4f6f4f;}
-blockquote{margin:24px 0;padding:14px 22px;border-left:3px solid #4f6f4f;background:#faf7f2;color:#5a5448;font-style:italic;font-size:.96rem;line-height:1.7;}
-a{color:#4f6f4f;}
-.cta-strip{margin:48px 0 16px;padding:24px 28px;background:#e8f0e8;border:1px solid #b8d4b8;border-radius:14px;}
-.cta-strip h3{font-size:1.1rem;font-weight:700;color:#2e2a22;margin-bottom:6px;letter-spacing:-.3px;}
-.cta-strip p{font-size:.92rem;color:#5a5448;margin-bottom:14px;}
-.cta-strip a.btn{display:inline-block;padding:11px 24px;background:#4f6f4f;color:#fff;border-radius:9px;font-weight:700;font-size:.92rem;text-decoration:none;}
-.cta-strip a.btn:hover{background:#7a9e7a;}
+ul li::before{content:'';position:absolute;left:4px;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);}
+blockquote{margin:24px 0;padding:14px 22px;border-left:3px solid var(--accent);background:var(--surface);color:var(--text2);font-style:italic;font-size:.96rem;line-height:1.7;}
+a{color:var(--accent);}
+.cta-strip{margin:48px 0 16px;padding:24px 28px;background:var(--accent-light);border:1px solid #b8d4b8;border-radius:14px;}
+.cta-strip h3{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-.3px;}
+.cta-strip p{font-size:.92rem;color:var(--text2);margin-bottom:14px;}
+.cta-strip a.btn{display:inline-block;padding:11px 24px;background:var(--accent);color:#fff;border-radius:9px;font-weight:700;font-size:.92rem;text-decoration:none;}
+.cta-strip a.btn:hover{background:var(--accent2);}
 .faq-item{margin-bottom:18px;}
-.faq-item summary{font-size:.96rem;font-weight:700;color:#2e2a22;cursor:pointer;padding:12px 0;border-bottom:1px solid #d6cebb;}
-.faq-item summary:hover{color:#4f6f4f;}
-.faq-item p{font-size:.88rem;color:#5a5448;line-height:1.7;margin-top:10px;padding-left:4px;}
-.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid #d6cebb;text-align:center;font-size:.76rem;color:#5e5c54;line-height:1.8;}
-.site-footer a{color:#4f6f4f;text-decoration:none;margin:0 8px;}
+.faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;border-bottom:1px solid var(--border);}
+.faq-item summary:hover{color:var(--accent);}
+.faq-item p{font-size:.88rem;color:var(--text2);line-height:1.7;margin-top:10px;padding-left:4px;}
+.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
+.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
 .site-footer a:hover{text-decoration:underline;}
 @media(max-width:600px){h1{font-size:1.7rem;letter-spacing:-.6px;}.lede{font-size:.96rem;}}
   .related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:14px 0 28px;}
-  .related a{display:block;background:#faf7f2;border:1px solid #d6cebb;border-radius:8px;padding:12px 14px;text-decoration:none;color:#2e2a22;font-weight:600;font-size:.88rem;transition:border-color .15s;}
-  .related a:hover{border-color:#4f6f4f;}
-  .related a small{display:block;color:#5e5c54;font-weight:400;font-size:.76rem;margin-top:2px;}
+  .related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
+  .related a:hover{border-color:var(--accent);}
+  .related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Why imgready Never Uploads Your Images | imgready","description":"Most online image compressors upload your photos to a server you don't control. imgready doesn't.","url":"https://imgready.app/why/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does imgready ever touch a server?","acceptedAnswer":{"@type":"Answer","text":"Your image files never leave your device. The only network requests imgready makes are for the page assets, optional WebAssembly decoders (downloaded once and cached), and ad/analytics scripts — none of which carry your image data."}},{"@type":"Question","name":"Can I verify that files aren't uploaded?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open your browser's DevTools (F12), go to the Network tab, drop a file, and click Process. You'll see no outbound requests carrying image data."}},{"@type":"Question","name":"Why does it matter if images are uploaded?","acceptedAnswer":{"@type":"Answer","text":"Professional photos, personal documents, medical images, and business materials carry sensitive information. Uploading them to a third-party server means accepting their privacy policy, storage practices, and data retention. In-browser processing avoids that entirely."}},{"@type":"Question","name":"Does imgready strip EXIF data and other metadata?","acceptedAnswer":{"@type":"Answer","text":"Yes — imgready removes all metadata including EXIF, IPTC, XMP, and embedded color profiles when converting images. Location data, camera model, timestamps, and other sensitive embedded information are automatically discarded during processing."}},{"@type":"Question","name":"Is imgready GDPR compliant?","acceptedAnswer":{"@type":"Answer","text":"Yes. Since image processing happens entirely in-browser with no data transmission to servers, GDPR requirements around personal data processing don't apply in the traditional sense. No personal data is collected, stored, or processed server-side."}},{"@type":"Question","name":"Could a government force imgready to log or access user images?","acceptedAnswer":{"@type":"Answer","text":"No. There is no backend infrastructure that holds image data. The developer cannot access, log, or decrypt user images because they never leave the user's device. The tool has no servers, no databases, and no ability to surveil — making it impossible for third parties to subpoena image data."}}]}</script>
@@ -205,7 +205,7 @@ a{color:#4f6f4f;}
   </div>
 
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:#5a5448;">img<span style="color:#4f6f4f">ready</span></div>
+    <div class="footer-brand" style="font-family:'Fraunces',ui-serif,Georgia,serif;font-feature-settings:'ss01' on;font-style:italic;font-weight:700;letter-spacing:-.3px;color:var(--text2);">img<span style="color:var(--accent)">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
       <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
@@ -215,7 +215,7 @@ a{color:#4f6f4f;}
     </div>
     <div style="margin-top:8px;">
       <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:#d6cebb;margin:0 4px" aria-hidden="true">|</span>
+      <span style="color:var(--border);margin:0 4px" aria-hidden="true">|</span>
       <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
     <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>

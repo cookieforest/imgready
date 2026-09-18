@@ -41,7 +41,7 @@
    --border and --text, and no --surface, --radius or --card-shadow at
    all. Rules here that referenced those resolved to nothing: the same
    .dropzone came out background:transparent / border-radius:0 on the
-   homepage and #faf7f2 / 12px on a landing page. That divergence is
+   homepage and var(--surface) / 12px on a landing page. That divergence is
    what made the two surfaces look like different products.
    Binding them to bare :root as well means any page gets the palette
    whether or not it opts in; [data-theme="dark"] still overrides. */
@@ -84,7 +84,7 @@
    cross-fade of the whole page. It was also a hazard: with animation
    frames throttled the background can stall part-way, which is exactly
    what showed up under test, computing #0d0d0d while --bg had already
-   resolved to #f5f0e8. */
+   resolved to var(--bg). */
 body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 /* A11y: visible focus rings in brand color, replacing browser default */
 :focus{outline:none;}

@@ -6063,7 +6063,7 @@
          clips correctly because clip-path applies to the inner element. -->
     <div class="compare-zoom" id="compareZoom">
       <div class="mock-image large compare-before" id="cbBefore" style="background:linear-gradient(135deg,#446644,#8aba8a)">photo-1.jpg</div>
-      <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,#4f6f4f,#a8d5a8)">photo-1.jpg</div></div>
+      <div class="compare-after"><div class="mock-image large" id="cbAfter" style="background:linear-gradient(135deg,var(--accent),#a8d5a8)">photo-1.jpg</div></div>
       <!-- Divider lives INSIDE compare-zoom because it must align with
            the clip-path edge of compare-after, which IS scaled/translated
            by the zoom transform. -->
