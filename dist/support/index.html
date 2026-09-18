@@ -64,7 +64,7 @@
 
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;}
-  .wrap{max-width:var(--w-read, 720px);margin:0 auto;padding:0 24px 80px;}
+  .wrap{max-width:var(--w-read, 720px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
   nav{padding:18px 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
   .nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
   .nav-brand .g{color:var(--accent,var(--accent));}
@@ -87,12 +87,12 @@
 
   .what-you-help{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:36px 0;}
   .help-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;}
-  h2{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:1.3rem;font-weight:400;letter-spacing:-.3px;margin:28px 0 12px;color:var(--text);}
+  h2{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:var(--h2-size, 1.35rem);font-weight:400;letter-spacing:-.3px;margin:var(--h2-gap, 36px) 0 12px;color:var(--text);}
   .help-item h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:5px;}
   .help-item p{font-size:.8rem;color:var(--muted);line-height:1.5;}
   .help-item .icon{color:var(--accent);font-weight:700;margin-right:4px;}
 
-  h2.section{font-size:1.2rem;font-weight:700;color:var(--text);margin:36px 0 14px;}
+  h2.section{font-size:var(--h2-size, 1.35rem);font-weight:700;color:var(--text);margin:36px 0 14px;}
   .faq-item{margin-bottom:18px;}
   .faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;border-bottom:1px solid var(--border);}
   .faq-item summary:hover{color:var(--accent);}

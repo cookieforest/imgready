@@ -66,7 +66,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--w-page, 780px);margin:0 auto;padding:0 24px 80px;}
+.wrap{max-width:var(--w-page, 780px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
 .nav-brand .g{color:var(--accent,var(--accent));}
@@ -106,7 +106,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',syst
 .feat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
 .feat h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:6px;}
 .feat p{font-size:.8rem;color:var(--muted);line-height:1.5;}
-h2{font-family:var(--font-display);font-synthesis:none;font-size:1.35rem;font-weight:400;color:var(--text);margin:36px 0 12px;}
+h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin:var(--h2-gap, 36px) 0 12px;}
 .sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
 p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
 .faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}

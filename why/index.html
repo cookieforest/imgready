@@ -75,7 +75,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--w-read, 720px);margin:0 auto;padding:0 24px 80px;}
+.wrap{max-width:var(--w-read, 720px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
 .topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
 .nav-brand .g{color:var(--accent,var(--accent));}
@@ -92,7 +92,7 @@ h1 em{font-style:normal;color:var(--accent);}
 .lede{font-size:1.05rem;color:var(--text2);line-height:1.7;margin-bottom:30px;max-width:560px;}
 .byline{font-size:.8rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:42px;}
 .byline a{color:var(--accent);text-decoration:none;}
-h2{font-family:var(--font-display);font-synthesis:none;font-weight:400;font-size:1.4rem;margin:44px 0 14px;color:var(--text);letter-spacing:-.4px;}
+h2{font-family:var(--font-display);font-synthesis:none;font-weight:400;font-size:var(--h2-size, 1.35rem);margin:var(--h2-gap, 36px) 0 12px;color:var(--text);letter-spacing:-.4px;}
 p{font-size:1rem;line-height:1.78;color:#3e3a32;margin-bottom:18px;}
 p strong{color:var(--text);}
 ul{padding-left:0;list-style:none;margin:0 0 22px;}

@@ -56,6 +56,20 @@
        --w-read  prose-only pages. Narrower on purpose: 4.1 puts body
                  copy at 65ch, which is about here at 16px. Wider is
                  not more generous, it is harder to read. */
+  /* Section rhythm. 63 of 68 pages already agreed on 1.35rem / 36px;
+     five had drifted to 1.05, 1.1, 1.3 and 1.4rem with gaps of 28, 30,
+     32 and 44px, so the same kind of section heading changed size
+     depending on which page you were reading. One scale now.
+
+     Fallbacks are not decoration: a var() that drives LAYOUT collapses
+     the page when it fails to resolve, which is exactly what happened
+     when the width tokens shipped ahead of a cached app.css. */
+  --pad-x:24px;        /* container side padding */
+  --pad-bottom:80px;   /* space under the last block, before the footer */
+  --h2-size:1.35rem;
+  --h2-gap:36px;
+  --h3-size:1.05rem;
+  --h3-gap:22px;
   --w-app:900px;
   --w-page:780px;
   --w-read:720px;
@@ -253,7 +267,7 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 /* A11y: skip-to-content link, hidden until focused (helps screen reader & keyboard users) */
 .skip-link{position:absolute;left:-9999px;top:6px;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:6px;font-weight:700;font-size:.84rem;text-decoration:none;z-index:9999;}
 .skip-link:focus{left:6px;}
-.app{max-width:var(--w-app, 900px);margin:0 auto;padding:0 20px 40px;}
+.app{max-width:var(--w-app, 900px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
 
 /* TOP NAV */
 /* Nav padding + a margin below pushes the dropzone down so it doesn't crowd
@@ -1097,7 +1111,7 @@ body.fs-open{overflow:hidden;position:fixed;width:100%;}
    page. The h1 above + the "What imgready does" h2 below are sibling
    sections of the same lede, not visually separated marketing + content. */
 .content-section{margin-top:36px;padding-top:0;}
-.content-section h2{font-size:1.3rem;font-weight:400;color:var(--text);margin-bottom:16px;}
+.content-section h2{font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin-bottom:16px;}
 .content-section h3{font-size:1.05rem;font-weight:700;color:var(--accent);margin:28px 0 10px;}
 .content-section p{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:14px;}
 .content-section a{color:var(--accent);}
