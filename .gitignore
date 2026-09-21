@@ -21,3 +21,7 @@ __pycache__/
 # build_pages.py renders into every page.
 build/out/
 build/pages.json
+
+# build/fixtures holds the hand-built EXIF test JPEG. Kept in the repo
+# (it is 335 bytes and the parser is meaningless without it) but build/
+# is excluded from the deploy so it never ships.

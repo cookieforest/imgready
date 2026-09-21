@@ -1651,4 +1651,48 @@ td p, td li, th p,
 .pg-hint{font-size:.72rem;color:var(--muted);}
 .pg-field .pg-note{margin-top:2px;}
 
+/* ---------- EXIF viewer  /exif-viewer/ ---------- */
+.ex{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:20px;
+  margin:24px 0 8px;align-items:start;}
+@media(max-width:860px){ .ex{grid-template-columns:1fr;} }
+.ex-drop{display:grid;gap:6px;justify-items:center;text-align:center;
+  padding:38px 24px;border:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);
+  border-radius:16px;background:var(--surface);cursor:pointer;
+  transition:background .16s,border-color .16s;}
+.ex-drop:hover,.ex-drop.is-drag{border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 6%,var(--surface));}
+.ex-drop-title{font-family:var(--font-display);font-synthesis:none;font-weight:400;
+  font-size:1.2rem;color:var(--text);}
+.ex-drop-sub{font-size:.88rem;color:var(--text2);}
+.ex-drop-safe{font-size:.78rem;font-weight:700;color:var(--accent);margin-top:6px;}
+
+.ex-out{border:1px solid var(--border);border-radius:14px;background:var(--surface);
+  padding:18px;min-height:220px;}
+.ex-idle{font-size:.9rem;color:var(--muted);line-height:1.6;margin:0;max-width:none;}
+.ex-file{font-size:.86rem;color:var(--text2);margin:0 0 12px;}
+.ex-clean{font-size:.9rem;color:var(--text2);line-height:1.6;margin:0;}
+.ex-h{font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:16px 0 6px;}
+.ex-table{width:100%;border-collapse:collapse;font-size:.84rem;}
+.ex-table th,.ex-table td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--border);
+  vertical-align:top;}
+.ex-table th{font-weight:600;color:var(--text2);width:42%;}
+.ex-table td{color:var(--text);font-family:var(--font-mono);font-size:.78rem;word-break:break-word;}
+.ex-table tr.ex-hot th{color:var(--danger);font-weight:700;}
+.ex-table tr.ex-hot td{color:var(--danger);}
+
+/* The GPS block is the whole argument of the page, so it is allowed to
+   shout where the rest of the table stays quiet. */
+.ex-gps{border:1px solid color-mix(in srgb,var(--danger) 40%,transparent);
+  background:color-mix(in srgb,var(--danger) 7%,transparent);
+  border-radius:11px;padding:14px 16px;margin:0 0 14px;}
+.ex-gps-title{font-weight:700;color:var(--danger);margin:0 0 4px;font-size:.9rem;}
+.ex-gps-coord{font-family:var(--font-mono);font-size:1.02rem;color:var(--text);margin:0 0 8px;}
+.ex-gps p{font-size:.84rem;margin:0 0 6px;max-width:none;}
+.ex-note{font-size:.76rem !important;color:var(--muted);}
+
+.ex-actions{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.ex-count{font-size:.8rem;color:var(--text2);margin:0 0 10px;}
+.ex-strip-note{font-size:.78rem;color:var(--muted);line-height:1.55;margin:10px 0 0;}
+
 /* CSS_EOF_MARKER */
