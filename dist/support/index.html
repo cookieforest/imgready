@@ -10,152 +10,58 @@
 <meta property="og:title" content="Support imgready. Help Keep It Free">
 <meta property="og:description" content="imgready is free and always will be. If it saved you time, consider supporting the developer.">
 <meta property="og:image" content="https://imgready.app/og/support.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/support/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://imgready.app/og/support.png">
 <link rel="canonical" href="https://imgready.app/support/">
-<!-- AdSense: uncomment when slot ID is approved
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
--->
-<style>:root{--shell:clamp(20rem, 92vw, 1040px);--measure:68ch;--w-app:900px;--w-page:780px;--w-read:720px;--font-display:'Poetsen One',ui-rounded,'Segoe UI',system-ui,sans-serif;}@font-face{font-family:'Poetsen One';src:url('/fonts/poetsenone-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-@font-face{font-family:'Nunito';src:url('/fonts/nunito-latin.woff2') format('woff2-variations'),url('/fonts/nunito-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;}
-  .wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-  nav{padding:18px 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-  .nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-  .nav-brand .g{color:var(--accent,var(--accent));}
-  nav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;}
-  nav a.nav-link:hover{text-decoration:underline;}
-  .nav-sep{color:var(--border);}
-  .nav-cta{margin-left:auto;padding:9px 22px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-size:.88rem;font-weight:700;text-decoration:none;transition:all .2s;white-space:nowrap;}
-  .nav-cta:hover{background:var(--accent2);transform:translateY(-1px);}
-
-  .hero{text-align:center;padding:48px 0 24px;}
-  .hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:12px;}
-  .hero h1 em{font-style:normal;color:var(--accent);}
-  .hero p{font-size:1rem;color:var(--text2);max-width:500px;margin:0 auto;line-height:1.7;}
-
-  .kofi-card{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:36px 32px;margin:32px auto;text-align:center;box-shadow:0 4px 24px rgba(90,80,60,.12);}
-  .kofi-card p{font-size:.92rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-  .kofi-btn{display:inline-block;padding:14px 40px;background:#FF5E5B;color:#fff;border-radius:11px;font-size:1.05rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(255,94,91,.25);}
-  .kofi-btn:hover{background:#e04e4b;transform:translateY(-1px);}
-  .kofi-note{font-size:.8rem;color:var(--muted);margin-top:14px;}
-
-  .what-you-help{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:36px 0;}
-  .help-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;}
-  h2{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:var(--h2-size, 1.35rem);font-weight:400;letter-spacing:-.3px;margin:var(--h2-gap, 36px) 0 12px;color:var(--text);}
-  .help-item h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:5px;}
-  .help-item p{font-size:.8rem;color:var(--muted);line-height:1.5;}
-  .help-item .icon{color:var(--accent);font-weight:700;margin-right:4px;}
-
-  h2.section{font-size:var(--h2-size, 1.35rem);font-weight:700;color:var(--text);margin:36px 0 14px;}
-  .faq-item{margin-bottom:18px;}
-  .faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;border-bottom:1px solid var(--border);}
-  .faq-item summary:hover{color:var(--accent);}
-  .faq-item p{font-size:.88rem;color:var(--text2);line-height:1.7;margin-top:10px;padding-left:4px;}
-
-  .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
-  .site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-  .site-footer a:hover{text-decoration:underline;}
-  @media(max-width:600px){.what-you-help{grid-template-columns:1fr;}.hero h1{font-size:1.6rem;}.kofi-card{padding:24px 18px;}}
-  .related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:14px 0 28px;}
-  .related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-  .related a:hover{border-color:var(--accent);}
-  .related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-/* Reading measure. Mirrors app.css; this page does not load it. ch not px so it tracks the user's font size (WCAG 1.4.4). */.wrap p,.wrap li,.wrap dd{max-width:var(--measure, 68ch);}.dropzone p,.dropzone li,td p,td li,th p,.feature-grid p,.feature-grid li,.cards p,.cards li{max-width:none;}</style>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#b84d1d">
+<link rel="stylesheet" href="/app.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"Support","item":"https://imgready.app/support/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Support imgready. Help Keep It Free","description":"imgready is free forever, no paywalls, no locked features. Support the developer with a small contribution to keep it running.","url":"https://imgready.app/support/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does paying remove ads?","acceptedAnswer":{"@type":"Answer","text":"Not currently, ads are the primary funding mechanism. A contribution helps cover hosting and development time but doesn't change the ad experience."}},{"@type":"Question","name":"Is imgready at risk of shutting down?","acceptedAnswer":{"@type":"Answer","text":"The running costs are low (static hosting plus CDN). As long as there's any traffic at all, it will stay online. Contributions help but aren't what keep the lights on."}},{"@type":"Question","name":"Can I request features?","acceptedAnswer":{"@type":"Answer","text":"Yes, email hello@imgready.app or use the support form. Feature requests that help the most users get prioritised."}},{"@type":"Question","name":"I found a bug or something isn't working, how do I report it?","acceptedAnswer":{"@type":"Answer","text":"The best way to report issues is via the imgready GitHub repository, open an issue describing what you were doing, which browser you're using, and what happened."}},{"@type":"Question","name":"Can I request a new feature or format?","acceptedAnswer":{"@type":"Answer","text":"Yes, feature requests are welcome. Open a GitHub issue with the label feature request and describe the conversion or tool you'd like added. The most commonly requested formats and features rise to the top of the development queue."}},{"@type":"Question","name":"How do I report a conversion quality issue or bug with a specific format?","acceptedAnswer":{"@type":"Answer","text":"Open a GitHub issue on the imgready repository with details: the original file format, what you were converting to, what the problem was, and your browser/OS. Attach a problematic sample image if possible (without sensitive data). This helps the developer reproduce and fix the issue quickly."}}]}</script>
 </head>
 <body>
+
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
-    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
-    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
-    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
     <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-
-  <div class="hero">
-    <h1>imgready is free.<br><em>It always will be.</em></h1>
-    <p>No subscriptions, no paywalls, no locked features. Compress, convert, resize, batch: all free, all in your browser. If imgready saved you time, a small contribution keeps it running.</p>
-  </div>
-
-  <div class="kofi-card">
+  <main>
+    <header class="page-head">
+      <h1>imgready is free.<br><em>It always will be.</em></h1>
+      <p>No subscriptions, no paywalls, no locked features. Compress, convert, resize, batch: all free, all in your browser. If imgready saved you time, a small contribution keeps it running.</p>
+    </header>
+    <section class="prose">
+<div class="kofi-card">
     <p>imgready is built by one person, after-hours. Contributions cover hosting, CDN, and domain, and fund the next round of features. Pay whatever feels right.</p>
     <a class="kofi-btn" href="https://ko-fi.com/imgready" target="_blank" rel="noopener">☕ Support on Ko-fi</a>
     <div class="kofi-note">Opens Ko-fi: pay any amount, one time. No account required.</div>
   </div>
-
-  <h2 class="section">Your contribution helps</h2>
-  <div class="what-you-help">
+<h2 class="section">Your contribution helps</h2>
+<div class="what-you-help">
     <div class="help-item"><h3><span class="icon">♥</span>Keep it free</h3><p>Free forever, no asterisks.</p></div>
     <div class="help-item"><h3><span class="icon">♥</span>Pay the bills</h3><p>Hosting, CDN, and domain: real costs your support covers.</p></div>
     <div class="help-item"><h3><span class="icon">♥</span>Better encoders</h3><p>New format support and faster encoding, funded by you.</p></div>
     <div class="help-item"><h3><span class="icon">♥</span>Less ads</h3><p>More support means a smaller ad footprint, or none at all.</p></div>
   </div>
-
-    <h2>Frequently asked questions</h2>
-  <details class="faq-item"><summary>Does paying remove ads?</summary><p>Not currently: ads are the primary funding mechanism. A contribution helps cover hosting and development time but doesn't change the ad experience.</p></details>
-  <details class="faq-item"><summary>Is imgready at risk of shutting down?</summary><p>The running costs are low (static hosting plus CDN). As long as there's any traffic at all, it will stay online. Contributions help but aren't what keep the lights on.</p></details>
-  <details class="faq-item"><summary>Can I request features?</summary><p>Yes. Email hello@imgready.app or use the support form. Feature requests that help the most users get prioritised.</p></details>
-  <details class="faq-item"><summary>I found a bug or something isn't working, how do I report it?</summary><p>The best way to report issues is via the imgready GitHub repository, open an issue describing what you were doing, which browser you're using, and what happened.</p></details>
-  <details class="faq-item"><summary>Can I request a new feature or format?</summary><p>Yes. Feature requests are welcome. Open a GitHub issue with the label feature request and describe the conversion or tool you'd like added. The most commonly requested formats and features rise to the top of the development queue.</p></details>
-  <details class="faq-item"><summary>How do I report a conversion quality issue or bug with a specific format?</summary><p>Open a GitHub issue on the imgready repository with details: the original file format, what you were converting to, what the problem was, and your browser/OS. Attach a problematic sample image if possible (without sensitive data). This helps the developer reproduce and fix the issue quickly.</p></details>
-  
-  <h2>Related</h2>
-  <div class="related">
+<h2>Frequently asked questions</h2>
+<details class="faq-item"><summary>Does paying remove ads?</summary><p>Not currently: ads are the primary funding mechanism. A contribution helps cover hosting and development time but doesn't change the ad experience.</p></details>
+<details class="faq-item"><summary>Is imgready at risk of shutting down?</summary><p>The running costs are low (static hosting plus CDN). As long as there's any traffic at all, it will stay online. Contributions help but aren't what keep the lights on.</p></details>
+<details class="faq-item"><summary>Can I request features?</summary><p>Yes. Email hello@imgready.app or use the support form. Feature requests that help the most users get prioritised.</p></details>
+<details class="faq-item"><summary>I found a bug or something isn't working, how do I report it?</summary><p>The best way to report issues is via the imgready GitHub repository, open an issue describing what you were doing, which browser you're using, and what happened.</p></details>
+<details class="faq-item"><summary>Can I request a new feature or format?</summary><p>Yes. Feature requests are welcome. Open a GitHub issue with the label feature request and describe the conversion or tool you'd like added. The most commonly requested formats and features rise to the top of the development queue.</p></details>
+<details class="faq-item"><summary>How do I report a conversion quality issue or bug with a specific format?</summary><p>Open a GitHub issue on the imgready repository with details: the original file format, what you were converting to, what the problem was, and your browser/OS. Attach a problematic sample image if possible (without sensitive data). This helps the developer reproduce and fix the issue quickly.</p></details>
+<h2>Related</h2>
+<div class="related">
     <a href="/about/">About imgready<small>How it works and who built it</small></a>
     <a href="/why/">Why imgready never uploads<small>The privacy thesis</small></a>
     <a href="/developers/">Developer SDK<small>Embed the tool in your app</small></a>
@@ -163,23 +69,30 @@
     <a href="/heic-to-jpg/">HEIC to JPG converter<small>iPhone photos in your browser</small></a>
     <a href="/webp-converter/">WebP converter<small>Modern format, smaller files</small></a>
   </div>
-
+    </section>
+  </main>
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:var(--font-display);font-feature-settings:'ss01' on;letter-spacing:-.3px;color:var(--text2);">img<i class="brand-mark" aria-hidden="true"></i><span style="color:var(--accent)">ready</span></div>
-    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
     <div>
-      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
     </div>
-    <div style="margin-top:4px;">
-      <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
     </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:var(--border);margin:0 4px" aria-hidden="true">|</span>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
       <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
-    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
   </footer>
 </div>
+<script src="/app.js" defer></script>
 </body>
 </html>

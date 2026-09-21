@@ -66,13 +66,16 @@
      Console credit always printed (developer-facing only).
   ============================================================ */
   // Key format: IR-<TIER>-<16 hex (random)>-<8 hex (HMAC-SHA256 truncated)>
-  // TIER: P (Personal $9) | D (Developer $29) | C (Commercial $99)
+  // TIER: M (Commercial $149) | U (Unlimited $449) | E (Enterprise)
+  //       legacy, still valid: P (Personal $9) | D (Developer $29)
+  //                            C (Commercial $99, agency / SaaS)
   // The HMAC is computed server-side over `${TIER}.${RANDOM}` using a secret
   // known only to the imgready key-issuance server. Browser-side validation
   // is OPTIONAL and shape-only; real validation requires a /api/verify-key
   // round-trip (use {validateOnline: true} in init).
-  var TIER_MAP = { P: 'personal', D: 'developer', C: 'commercial' };
-  var KEY_RE = /^IR-([PDC])-([0-9A-Fa-f]{16})-([0-9A-Fa-f]{8})$/;
+  var TIER_MAP = { M: 'commercial', U: 'unlimited', E: 'enterprise',
+                   P: 'personal', D: 'developer', C: 'commercial' };
+  var KEY_RE = /^IR-([MUEPDC])-([0-9A-Fa-f]{16})-([0-9A-Fa-f]{8})$/;
   var VERIFY_ENDPOINT = 'https://imgready.app/api/verify-key';
   var VERIFY_CACHE_TTL = 24 * 60 * 60 * 1000; // 24h
 

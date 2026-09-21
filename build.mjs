@@ -129,6 +129,15 @@ const COPY_EXCLUDE = new Set([
                                          NOT 'tools' — that is the real /tools/ page, in the
                                          sitemap and linked from every footer. */
   '__pycache__',
+  /* The page generator's working directory. build/out/ holds a staging
+     copy of all 70 pages and build/pages.json holds every page's content
+     as data. Shipping it would publish a second, crawlable copy of the
+     whole site at /build/out/** and hand over the content model. Caught
+     before the first deploy: dist/build/out already had 69 pages in it. */
+  'build',
+  /* Internal docs. VOICE.md is the copy style guide, SITEMAP.md is the IA
+     and pricing rationale. Useful in the repo, not content for the CDN. */
+  'SITEMAP.md', 'VOICE.md',
   /* R132 — unreferenced legacy demo assets (~1.9 MB). Verified zero code
      references: demo-original.png is only named in a code comment.
      Kept in the repo, excluded from the deploy. */

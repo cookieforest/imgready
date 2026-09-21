@@ -58,9 +58,12 @@
     <h2>Mint a new key</h2>
     <label for="tier">Tier</label>
     <select id="tier">
-      <option value="personal">Personal ($9: non-commercial)</option>
-      <option value="developer" selected>Developer ($29: commercial / client)</option>
-      <option value="commercial">Commercial ($99: agency / SaaS)</option>
+      <option value="commercial" selected>Commercial ($149: one product)</option>
+      <option value="unlimited">Unlimited ($449: every product, client work)</option>
+      <option value="enterprise">Enterprise (custom terms)</option>
+      <option value="personal">Personal ($9: LEGACY, not sold)</option>
+      <option value="developer">Developer ($29: LEGACY, not sold)</option>
+      <option value="commercialV1">Commercial v1 ($99: LEGACY, not sold)</option>
     </select>
 
     <label for="email">Customer email</label>
@@ -176,7 +179,8 @@ $('copyBtn').addEventListener('click', () => {
 });
 
 $('copyEmailBtn').addEventListener('click', () => {
-  const tierName = { personal: 'Personal', developer: 'Developer', commercial: 'Commercial' }[lastTier] || lastTier;
+  const tierName = { commercial: 'Commercial', unlimited: 'Unlimited', enterprise: 'Enterprise',
+                         personal: 'Personal', developer: 'Developer', commercialV1: 'Commercial' }[lastTier] || lastTier;
   const tmpl = `Hi,
 
 Thanks for supporting imgready! Here's your ${tierName} license key:

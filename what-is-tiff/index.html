@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#b84d1d">
 <title>What Is a TIFF File? Pro Image Format Explained | imgready</title>
 <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -11,177 +10,53 @@
 <meta property="og:title" content="What Is a TIFF File? Pro Image Format Explained | imgready">
 <meta property="og:description" content="TIFF is the gold-standard archival format for photography, scanning, and print. Learn what TIFF is, why files are so large, and how to convert TIFF free.">
 <meta property="og:image" content="https://imgready.app/og/what-is-tiff.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://imgready.app/what-is-tiff/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="What Is a TIFF File? Pro Image Format Explained | imgready">
-<meta name="twitter:description" content="TIFF is the professional archival format. Learn what TIFF is, why files are huge, and convert TIFF to JPG free.">
-<meta name="twitter:image" content="https://imgready.app/og/what-is-tiff.png">
 <link rel="canonical" href="https://imgready.app/what-is-tiff/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b84d1d">
 <link rel="manifest" href="/manifest.webmanifest">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
-<style>:root{--shell:clamp(20rem, 92vw, 1040px);--measure:68ch;--w-app:900px;--w-page:780px;--w-read:720px;--font-display:'Poetsen One',ui-rounded,'Segoe UI',system-ui,sans-serif;}@font-face{font-family:'Poetsen One';src:url('/fonts/poetsenone-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-@font-face{font-family:'Nunito';src:url('/fonts/nunito-latin.woff2') format('woff2-variations'),url('/fonts/nunito-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-.nav-brand .g{color:var(--accent,var(--accent));}
-.nav-sep{color:var(--border);}
-.topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
-.topnav a.nav-link:hover{text-decoration:underline;}
-.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
-@media(max-width:600px){.topnav .hide-mobile{display:none;}}
-.crumbs{font-size:.8rem;color:var(--muted);margin:6px 0 4px;}
-.crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
-.crumbs a:hover{text-decoration:underline;}
-.hero{padding:24px 0 32px;}
-.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
-.hero h1 em{font-style:normal;color:var(--accent);}
-.hero p.lede{font-size:1.02rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-.callout{background:var(--accent-light);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:var(--text2);line-height:1.75;}
-/* Quiet data table. Was a full 1px box around every cell plus zebra
-   striping: the heavy grid the design skill objects to (9.F), which
-   says pick ONE rule direction and use it sparsely.
-   These stay tables. They are genuine multi-column comparisons with
-   real measurements ("Format / Compression vs JPG / Browser support /
-   Encoding speed"), not a spec list pretending to be one, and a card
-   grid cannot carry a four-way comparison. Only the weight changes:
-   one hairline under each row, no vertical rules, no stripes. The
-   columns are held by alignment, which is what alignment is for. */
-table{border-collapse:collapse;width:100%;margin:16px 0 24px;font-size:.88rem;}
-th,td{text-align:left;padding:10px 18px 10px 0;border:0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
-th{color:var(--text);font-weight:700;border-bottom-color:var(--text2);}
-tr:last-child td{border-bottom:0;}
-@media(max-width:600px){th,td{padding:8px 10px 8px 0;font-size:.84rem;}}
-.winner{color:var(--accent);font-weight:700;}
-h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin:var(--h2-gap, 36px) 0 12px;}
-h3.sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
-p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
-ul,ol{padding-left:22px;margin-bottom:16px;}
-li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
-.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 30px;}
-.verdict-box{border:2px solid var(--border);border-radius:10px;padding:16px;}
-.verdict-box.avif{border-color:var(--accent2);}
-.verdict-box h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:10px;}
-.verdict-box ul{padding-left:16px;}
-.verdict-box li{font-size:.84rem;color:var(--text2);margin-bottom:5px;}
-@media(max-width:540px){.verdict-grid{grid-template-columns:1fr;}}
-.faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}
-.faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;list-style:none;}
-.faq-item summary::after{content:'+';float:right;color:var(--accent);font-weight:700;}
-.faq-item[open] summary::after{content:'\2212';}
-.faq-item p{font-size:.92rem;color:var(--text2);line-height:1.75;padding:0 0 14px;}
-.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
-.related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-.related a:hover{border-color:var(--accent);}
-.related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-.hero-cta{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
-.hero-cta:hover{background:var(--accent2);transform:translateY(-2px);}
-.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid var(--border);}
-.bottom-cta p{color:var(--muted);margin-bottom:14px;}
-.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
-.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-.site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}
-
-/* Reading measure. Mirrors app.css; this page does not load it. ch not px so it tracks the user's font size (WCAG 1.4.4). */.wrap p,.wrap li,.wrap dd{max-width:var(--measure, 68ch);}.dropzone p,.dropzone li,td p,td li,th p,.feature-grid p,.feature-grid li,.cards p,.cards li{max-width:none;}</style>
+<meta name="theme-color" content="#b84d1d">
+<link rel="stylesheet" href="/app.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"What is TIFF","item":"https://imgready.app/what-is-tiff/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"What Is a TIFF File? The Professional Image Format Explained","description":"TIFF is the gold-standard lossless format for professional photography, scanning, and print preparation. Learn why TIFF files are so large, when to use them, and how to convert TIFF to JPG or other formats.","url":"https://imgready.app/what-is-tiff/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-06","dateModified":"2026-05-06","image":"https://imgready.app/og/what-is-tiff.png","publisher":{"@type":"Organization","name":"imgready","url":"https://imgready.app/","logo":{"@type":"ImageObject","url":"https://imgready.app/favicon.svg"}}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a TIFF file?","acceptedAnswer":{"@type":"Answer","text":"TIFF (Tagged Image File Format) is a lossless image format created in 1986 as the professional standard for high-quality photography, document scanning, and print preparation. TIFF files preserve every pixel of image data without compression loss, supporting 8-bit, 16-bit, and 32-bit color depth. This makes TIFF ideal for archival and professional work, but files are much larger than JPEG or PNG."}},{"@type":"Question","name":"Why are TIFF files so large?","acceptedAnswer":{"@type":"Answer","text":"TIFF uses lossless compression (or no compression at all), meaning every pixel is stored with full detail. A 4000x3000 pixel photograph as TIFF with no compression would be roughly 36 MB (4000 × 3000 × 3 bytes for RGB). As JPEG, the same image might be 2-5 MB. TIFF's size is the trade-off for preserving absolute image fidelity, making it unsuitable for web use but essential for professional archives."}},{"@type":"Question","name":"Can I open TIFF in Windows?","acceptedAnswer":{"@type":"Answer","text":"Windows 10 and 11 can open TIFF files with the built-in Photos app. Most image viewers, Photoshop, GIMP, and professional software support TIFF natively. However, web browsers cannot display TIFF directly, you must convert to JPG, PNG, or WebP to view online. For sharing TIFF files, recipients need compatible desktop software."}},{"@type":"Question","name":"Is TIFF lossless?","acceptedAnswer":{"@type":"Answer","text":"Yes, TIFF is primarily used as a lossless format. It can store images with zero quality loss, preserving every pixel of detail from the original. TIFF can also use lossless compression (like LZW) to reduce file size while maintaining perfect image quality. This is the opposite of JPEG, which uses lossy compression and discards data to save space."}},{"@type":"Question","name":"What's better: TIFF or JPG?","acceptedAnswer":{"@type":"Answer","text":"For professional and archival use, TIFF is better, it preserves absolute image quality and is the industry standard for photography, scanning, and print. For web use and everyday sharing, JPEG is better, it's much smaller, universally compatible, and perfectly adequate for most purposes. The choice depends on your workflow: TIFF for editing and archiving, JPEG for distribution."}},{"@type":"Question","name":"How do I convert TIFF to JPG?","acceptedAnswer":{"@type":"Answer","text":"Use a free online converter like imgready, upload your TIFF file and download as JPG. No software installation needed. For batch conversion, use command-line tools like ImageMagick or FFmpeg. Desktop software like Photoshop, GIMP, and XnConvert also handle TIFF to JPEG conversion easily."}}]}</script>
 </head>
 <body>
+
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
-    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
-    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
-    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
     <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-
-  <p class="crumbs"><a href="/">Home</a> › What is TIFF</p>
-
-  <div class="hero">
-    <h1>What is a TIFF file? The <em>professional</em> image format explained</h1>
-    <p class="lede">TIFF (Tagged Image File Format) is the gold-standard format for professional photography, document scanning, and print preparation. Created in 1986, TIFF remains the archival format of choice because it's lossless, every pixel of image data is preserved perfectly, with no quality loss. TIFF files are much larger than JPEG or PNG, but that size is the trade-off for absolute fidelity. Here's what TIFF is, why professionals use it, when to convert to other formats, and how to work with TIFF files.</p>
-  </div>
-
-  <h2>Quick answer</h2>
-  <p>TIFF stands for Tagged Image File Format. It's a lossless format that preserves every pixel of image data perfectly. TIFF files are huge: a 4 MB photo as JPEG might be 30 MB as TIFF, but they're the industry standard for archival, professional photography, and print preparation. For web use and sharing, convert TIFF to JPEG or PNG. For editing and long-term storage, TIFF is the right choice.</p>
-
-  <div class="callout">
+  <div class="crumbs"><a href="/">Home</a> » <span aria-current="page">What is TIFF</span></div>
+  <main>
+    <header class="page-head">
+      <h1>What is a TIFF file? The <em>professional</em> image format explained</h1>
+      <p class="lede">TIFF (Tagged Image File Format) is the gold-standard format for professional photography, document scanning, and print preparation. Created in 1986, TIFF remains the archival format of choice because it's lossless, every pixel of image data is preserved perfectly, with no quality loss. TIFF files are much larger than JPEG or PNG, but that size is the trade-off for absolute fidelity. Here's what TIFF is, why professionals use it, when to convert to other formats, and how to work with TIFF files.</p>
+    </header>
+    <section class="prose">
+<h2>Quick answer</h2>
+<p>TIFF stands for Tagged Image File Format. It's a lossless format that preserves every pixel of image data perfectly. TIFF files are huge: a 4 MB photo as JPEG might be 30 MB as TIFF, but they're the industry standard for archival, professional photography, and print preparation. For web use and sharing, convert TIFF to JPEG or PNG. For editing and long-term storage, TIFF is the right choice.</p>
+<div class="callout">
     <strong>The core principle:</strong> TIFF trades file size for quality. If you need pixel-perfect image data that won't degrade through edits and re-saves, TIFF is uncompromising. If you need to share files over the internet, TIFF is impractical.
   </div>
-
-  <h2>History and origin</h2>
-
-  <p>TIFF was created in 1986 by Aldus Corporation (now Adobe) as a flexible, lossless format for document scanning and professional imaging. Before TIFF, there was no widely-accepted standard for high-quality image archival. TIFF filled that gap and became the gold standard for photographers, archivists, and print professionals. In 2026, decades later, TIFF remains the default format for scanner output and professional workflows.</p>
-
-  <h3 class="sub">Why it persists</h3>
-  <p>TIFF's longevity is remarkable because it solved a real problem: preserving image quality over time. Museums, libraries, government archives, and professional photographers still use TIFF because the format is stable, well-documented, and truly lossless. A TIFF file from 1995 can be opened and edited in 2026 without any quality loss.</p>
-
-  <h2>How TIFF stores image data</h2>
-
-  <p>TIFF can store image data in several ways. The most common for photography is uncompressed RGB or CMYK at 8-bit or 16-bit per channel. An uncompressed RGB TIFF of a 4000x3000 pixel photograph would be roughly 36 MB (4000 × 3000 × 3 bytes). TIFF can also use lossless compression like LZW or ZIP to reduce size while maintaining perfect quality, a 36 MB uncompressed TIFF might compress to 15-20 MB with LZW, still vastly larger than a 2-5 MB JPEG.</p>
-
-  <h3 class="sub">Why not just use JPEG compression?</h3>
-  <p>TIFF is deliberately designed to avoid JPEG's lossy compression. Lossy compression discards image data to achieve smaller files. TIFF rejects that trade-off. Every time you save a JPEG, quality is lost. Every time you save a TIFF, quality is preserved. For photographers, editors, and archivists, this distinction is critical.</p>
-
-  <h2>TIFF specifications at a glance</h2>
-
-  <table>
+<h2>History and origin</h2>
+<p>TIFF was created in 1986 by Aldus Corporation (now Adobe) as a flexible, lossless format for document scanning and professional imaging. Before TIFF, there was no widely-accepted standard for high-quality image archival. TIFF filled that gap and became the gold standard for photographers, archivists, and print professionals. In 2026, decades later, TIFF remains the default format for scanner output and professional workflows.</p>
+<h3 class="sub">Why it persists</h3>
+<p>TIFF's longevity is remarkable because it solved a real problem: preserving image quality over time. Museums, libraries, government archives, and professional photographers still use TIFF because the format is stable, well-documented, and truly lossless. A TIFF file from 1995 can be opened and edited in 2026 without any quality loss.</p>
+<h2>How TIFF stores image data</h2>
+<p>TIFF can store image data in several ways. The most common for photography is uncompressed RGB or CMYK at 8-bit or 16-bit per channel. An uncompressed RGB TIFF of a 4000x3000 pixel photograph would be roughly 36 MB (4000 × 3000 × 3 bytes). TIFF can also use lossless compression like LZW or ZIP to reduce size while maintaining perfect quality, a 36 MB uncompressed TIFF might compress to 15-20 MB with LZW, still vastly larger than a 2-5 MB JPEG.</p>
+<h3 class="sub">Why not just use JPEG compression?</h3>
+<p>TIFF is deliberately designed to avoid JPEG's lossy compression. Lossy compression discards image data to achieve smaller files. TIFF rejects that trade-off. Every time you save a JPEG, quality is lost. Every time you save a TIFF, quality is preserved. For photographers, editors, and archivists, this distinction is critical.</p>
+<h2>TIFF specifications at a glance</h2>
+<table>
     <thead>
       <tr><th>Attribute</th><th>Details</th></tr>
     </thead>
@@ -199,20 +74,13 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
       <tr><td>Desktop app support</td><td>Photoshop, GIMP, Capture One, all pro software</td></tr>
     </tbody>
   </table>
-
-  <h2>16-bit and 32-bit color depth</h2>
-
-  <p>TIFF's greatest advantage over JPEG is support for 16-bit and 32-bit color depth. Standard digital images are 8-bit per channel (256 levels per color), which is adequate for most viewing. Professional photographers and retouchers work in 16-bit (65,536 levels per color) to preserve subtle tonal gradations and avoid banding in large areas of similar color. A 16-bit TIFF file can be edited and re-saved repeatedly without visible quality loss, even with aggressive adjustments.</p>
-
-  <p>JPEG only supports 8-bit. Once you save as JPEG, you lose the ability to work with 16-bit data. This is why professionals always edit in TIFF or PSD and export to JPEG only at the very end.</p>
-
-  <h2>Multi-page TIFF files</h2>
-
-  <p>TIFF can store multiple images in a single file. Document scanning produces multi-page TIFFs (one file = one scanned document with 10, 50, or 100 pages). This makes TIFF ideal for archival scanning and batch processing. Web browsers and most consumer software cannot handle multi-page TIFFs, so these files are strictly professional tools.</p>
-
-  <h2>When to use TIFF</h2>
-
-  <ul>
+<h2>16-bit and 32-bit color depth</h2>
+<p>TIFF's greatest advantage over JPEG is support for 16-bit and 32-bit color depth. Standard digital images are 8-bit per channel (256 levels per color), which is adequate for most viewing. Professional photographers and retouchers work in 16-bit (65,536 levels per color) to preserve subtle tonal gradations and avoid banding in large areas of similar color. A 16-bit TIFF file can be edited and re-saved repeatedly without visible quality loss, even with aggressive adjustments.</p>
+<p>JPEG only supports 8-bit. Once you save as JPEG, you lose the ability to work with 16-bit data. This is why professionals always edit in TIFF or PSD and export to JPEG only at the very end.</p>
+<h2>Multi-page TIFF files</h2>
+<p>TIFF can store multiple images in a single file. Document scanning produces multi-page TIFFs (one file = one scanned document with 10, 50, or 100 pages). This makes TIFF ideal for archival scanning and batch processing. Web browsers and most consumer software cannot handle multi-page TIFFs, so these files are strictly professional tools.</p>
+<h2>When to use TIFF</h2>
+<ul>
     <li>Professional photography workflows and editing</li>
     <li>Long-term archival and storage</li>
     <li>Document scanning and OCR preparation</li>
@@ -221,10 +89,8 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
     <li>Any workflow where image quality must be preserved through multiple edits</li>
     <li>Museum, library, and government archival</li>
   </ul>
-
-  <h2>When to convert to JPEG or PNG</h2>
-
-  <ul>
+<h2>When to convert to JPEG or PNG</h2>
+<ul>
     <li>Sharing photos via email or messaging</li>
     <li>Web publishing and online galleries</li>
     <li>Social media (Facebook, Instagram, etc.)</li>
@@ -233,38 +99,29 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
     <li>Printing from consumer devices (most assume JPEG)</li>
     <li>Any situation where the recipient doesn't need 16-bit data</li>
   </ul>
-
-  <h2>TIFF vs JPEG: The trade-off</h2>
-
-  <p>TIFF is objectively superior for professional work and archival. JPEG is practically superior for sharing and web use. A photographer's workflow typically looks like this:</p>
-
-  <ol>
+<h2>TIFF vs JPEG: The trade-off</h2>
+<p>TIFF is objectively superior for professional work and archival. JPEG is practically superior for sharing and web use. A photographer's workflow typically looks like this:</p>
+<ol>
     <li>Capture RAW files from the camera</li>
     <li>Edit in 16-bit TIFF or PSD (lossless)</li>
     <li>Archive the edited TIFF for long-term storage</li>
     <li>Export final image as JPEG for client delivery or web</li>
   </ol>
-
-  <p>This workflow protects image quality at every stage. Exporting to JPEG directly from the camera or from an 8-bit source means quality is lost forever.</p>
-
-  <h2>Opening and converting TIFF files</h2>
-
-  <p>On Windows, the built-in Photos app can open TIFF files. On Mac, Preview handles TIFF natively. For editing, use Photoshop, GIMP (free), Capture One, or Lightroom. To convert TIFF to JPEG, PNG, or WebP for sharing, use a free online tool like imgready or command-line tools like ImageMagick and FFmpeg.</p>
-
-  <div class="callout">
+<p>This workflow protects image quality at every stage. Exporting to JPEG directly from the camera or from an 8-bit source means quality is lost forever.</p>
+<h2>Opening and converting TIFF files</h2>
+<p>On Windows, the built-in Photos app can open TIFF files. On Mac, Preview handles TIFF natively. For editing, use Photoshop, GIMP (free), Capture One, or Lightroom. To convert TIFF to JPEG, PNG, or WebP for sharing, use a free online tool like imgready or command-line tools like ImageMagick and FFmpeg.</p>
+<div class="callout">
     <strong>For archivists:</strong> TIFF is the recommended format for digitizing historical photographs and documents. The Library of Congress, National Archives, and UNESCO all recommend TIFF for digital preservation because of its stability and lossless nature.
   </div>
-
-  <h2>Convert your TIFF files now</h2>
-  <div class="related">
+<h2>Convert your TIFF files now</h2>
+<div class="related">
     <a href="/tiff-to-jpg/"><strong>TIFF to JPG</strong><small>Convert TIFF to JPEG for sharing</small></a>
     <a href="/tiff-to-png/"><strong>TIFF to PNG</strong><small>Lossless TIFF to PNG</small></a>
     <a href="/tiff-to-webp/"><strong>TIFF to WebP</strong><small>Convert to modern format</small></a>
     <a href="/compress/"><strong>Compress Images</strong><small>Reduce any format for free</small></a>
   </div>
-
-  <h2>Frequently asked questions</h2>
-  <section>
+<h2>Frequently asked questions</h2>
+<section>
   <details class="faq-item">
     <summary>What is a TIFF file?</summary>
     <p>TIFF (Tagged Image File Format) is a lossless image format created in 1986 as the professional standard for high-quality photography, document scanning, and print preparation. TIFF files preserve every pixel of image data without compression loss, supporting 8-bit, 16-bit, and 32-bit color depth. This makes TIFF ideal for archival and professional work, but files are much larger than JPEG or PNG.</p>
@@ -290,30 +147,40 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
     <p>Use a free online converter like imgready, upload your TIFF file and download as JPG. No software installation needed. For batch conversion, use command-line tools like ImageMagick or FFmpeg. Desktop software like Photoshop, GIMP, and XnConvert also handle TIFF to JPEG conversion easily.</p>
   </details>
   </section>
-
-  <h2>Further reading</h2>
-  <div class="related">
+<h2>Further reading</h2>
+<div class="related">
     <a href="/tiff-vs-jpg/"><strong>TIFF vs JPG</strong><small>Detailed format comparison</small></a>
     <a href="/compress/"><strong>Compress Images</strong><small>Reduce any format for free</small></a>
     <a href="/resize/"><strong>Resize Images</strong><small>Set exact pixel dimensions</small></a>
   </div>
-
-  <div class="bottom-cta">
+<div class="bottom-cta">
     <p>Need to convert TIFF to JPEG, PNG, or WebP? imgready is free, instant, and nothing ever uploads.</p>
     <a href="/tiff-to-jpg/" class="hero-cta">Convert TIFF now →</a>
   </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
+    </div>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
+    </div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
 </div>
-
-<footer class="site-footer">
-  <a href="/">imgready</a>
-  <a href="/why/">Why imgready</a>
-  <a href="/about/">About</a>
-  <a href="/privacy/">Privacy</a>
-  <a href="/terms/">Terms</a>
-  <a href="/support/">Support</a>
-  <a href="/developers/">Developers</a>
-  <br>© 2026 imgready. Free in-browser image tools.
-</footer>
-</div>
+<script src="/app.js" defer></script>
 </body>
 </html>

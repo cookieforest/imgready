@@ -14,13 +14,35 @@
  * Stripe price-ID → tier map (edit when you create new prices):
  */
 const PRICE_TO_TIER = {
-  // From the Payment Links you already have on /developers/
+  // CURRENT. Paste the Payment Link price IDs here after creating them
+  // in Stripe. Until then the amount_total fallback below still routes
+  // them correctly, so a purchase never mints the wrong tier.
+  'PRICE_ID_COMMERCIAL_149': 'commercial',  // $149
+  'PRICE_ID_UNLIMITED_449': 'unlimited',    // $449
+
+  // LEGACY. These links are retired but keys already sold stay valid.
   '7sY28s0dF6LV3o3c480kE00': 'personal',    // $9
   '9B69AU1hJ3zJ7Ej0lq0kE01': 'developer',   // $29
-  '7sY5kE5xZgmv5wb6JO0kE02': 'commercial',  // $99
+  '7sY5kE5xZgmv5wb6JO0kE02': 'commercialV1' // $99
 };
 
-const TIER_CODE = { personal: 'P', developer: 'D', commercial: 'C' };
+/* The tier letter is baked into the key string AND into its HMAC, so a
+   letter can never be reused for different terms without invalidating
+   every key already issued under it. Old letters therefore keep their
+   old meaning forever and new tiers get new letters.
+
+   Every paid tier does exactly the same thing at runtime: it removes the
+   attribution badge. The tier is a legal label, not a feature gate, so
+   the terms a buyer got are the terms printed at the time they bought.
+
+     currently sold        legacy, still honoured, no longer sold
+     commercial  M  $149   personal      P  $9
+     unlimited   U  $449   developer     D  $29
+     enterprise  E  custom commercialV1  C  $99  (agency / SaaS, broad) */
+const TIER_CODE = {
+  commercial: 'M', unlimited: 'U', enterprise: 'E',
+  personal: 'P', developer: 'D', commercialV1: 'C',
+};
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -50,11 +72,12 @@ async function mintKey(tier, secret) {
   return `IR-${code}-${random}-${sig}`;
 }
 async function verifyShape(key, secret) {
-  const m = key && key.match(/^IR-([PDC])-([0-9a-f]{16})-([0-9a-f]{8})$/);
+  const m = key && key.match(/^IR-([MUEPDC])-([0-9a-f]{16})-([0-9a-f]{8})$/);
   if (!m) return null;
   const expected = (await hmac(secret, m[1] + '.' + m[2])).slice(0, 8);
   return expected === m[3].toLowerCase()
-    ? { tier: { P: 'personal', D: 'developer', C: 'commercial' }[m[1]] }
+    ? { tier: { M: 'commercial', U: 'unlimited', E: 'enterprise',
+                P: 'personal', D: 'developer', C: 'commercialV1' }[m[1]] }
     : null;
 }
 
@@ -122,11 +145,16 @@ async function handleStripeWebhook(req, env) {
     if (priceId && PRICE_TO_TIER[priceId]) tier = PRICE_TO_TIER[priceId];
   }
   if (!tier) {
-    if (session.amount_total === 900) tier = 'personal';
+    if (session.amount_total === 14900) tier = 'commercial';
+    else if (session.amount_total === 44900) tier = 'unlimited';
+    // legacy amounts, in case an old link is still live somewhere
+    else if (session.amount_total === 900) tier = 'personal';
     else if (session.amount_total === 2900) tier = 'developer';
-    else if (session.amount_total === 9900) tier = 'commercial';
+    else if (session.amount_total === 9900) tier = 'commercialV1';
   }
-  if (!tier) tier = 'developer'; // safe default
+  // Safe default is the NARROWEST paid tier. Defaulting wide would hand
+  // out an unlimited licence whenever Stripe sends something unexpected.
+  if (!tier) tier = 'commercial';
 
   const key = await mintKey(tier, env.IMGREADY_KEY_SECRET);
   await env.KEYS.put(key, JSON.stringify({ tier, email, issued: Date.now(), stripeSession: session.id }));

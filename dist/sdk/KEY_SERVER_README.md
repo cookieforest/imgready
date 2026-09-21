@@ -6,7 +6,7 @@ endpoint. You need to deploy two things on Cloudflare:
 1. **/api/issue-key** — called by your Stripe webhook after a successful
    payment. Mints a key and stores it in Workers KV.
 2. **/api/verify-key** — called by the SDK in users' browsers. Returns
-   `{valid: true, tier: "developer"}` if the key exists in KV.
+   `{valid: true, tier: "commercial"}` if the key exists in KV.
 
 Both share an HMAC secret (`IMGREADY_KEY_SECRET`).
 
@@ -18,7 +18,15 @@ IR-<TIER>-<RANDOM 16 hex>-<HMAC-SHA256(TIER + "." + RANDOM, secret) [first 8 hex
 
 Example: `IR-D-1a2b3c4d5e6f7890-abcd1234`
 
-`<TIER>` = `P` (Personal $9) | `D` (Developer $29) | `C` (Commercial $99)
+`<TIER>` = `M` (Commercial $149) | `U` (Unlimited $449) | `E` (Enterprise)
+
+Legacy letters, still honoured, no longer sold:
+`P` (Personal $9) | `D` (Developer $29) | `C` (Commercial $99, agency / SaaS)
+
+The letter is part of the key string AND part of its HMAC, so a letter can
+never be reused for different terms without invalidating every key already
+issued under it. New tiers therefore get new letters. See `TIER_CODE` in
+`worker.js`, which is the source of truth and must match `mint-key.js`.
 
 ## Cloudflare Worker template
 
@@ -58,7 +66,8 @@ async function verifyShape(key, secret) {
   if (!m) return null;
   const expected = (await hmac(secret, m[1] + '.' + m[2])).slice(0, 8);
   return expected === m[3].toLowerCase()
-    ? { tier: { P: 'personal', D: 'developer', C: 'commercial' }[m[1]] }
+    ? { tier: { M: 'commercial', U: 'unlimited', E: 'enterprise',
+                P: 'personal', D: 'developer', C: 'commercialV1' }[m[1]] }
     : null;
 }
 
@@ -77,7 +86,7 @@ export default {
       const auth = req.headers.get('authorization') || '';
       if (auth !== 'Bearer ' + env.IMGREADY_ISSUE_TOKEN) return new Response('forbidden', { status: 403 });
       const body = await req.json();
-      const tier = body.tier || 'developer';
+      const tier = body.tier || 'commercial';
       const email = body.email;
       const domain = body.domain || null;
       const key = await mintKey(tier, env.IMGREADY_KEY_SECRET);
@@ -115,7 +124,7 @@ export default {
 2. Stripe sends a `checkout.session.completed` webhook to your endpoint
    (Cloudflare Worker, Vercel, or any host).
 3. Your handler reads `customer_email`, looks up the price ID to determine
-   the tier (`personal` / `developer` / `commercial`), POSTs to
+   the tier (`commercial` / `unlimited` / `enterprise`), POSTs to
    `/api/issue-key` with `Authorization: Bearer <IMGREADY_ISSUE_TOKEN>`.
 4. The Worker mints a key, stores it in KV with the customer's email and
    any domain restriction, and returns it.

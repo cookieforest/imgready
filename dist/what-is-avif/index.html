@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#b84d1d">
 <title>What Is AVIF? The Next-Gen Image Format Explained | imgready</title>
 <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -11,177 +10,53 @@
 <meta property="og:title" content="What Is AVIF? The Next-Gen Image Format Explained | imgready">
 <meta property="og:description" content="AVIF is the latest image format, 50% smaller than JPEG with no visible quality loss. Learn what AVIF is, browser support, and how to create AVIF files free.">
 <meta property="og:image" content="https://imgready.app/og/what-is-avif.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://imgready.app/what-is-avif/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="What Is AVIF? The Next-Gen Image Format Explained | imgready">
-<meta name="twitter:description" content="AVIF is the next-generation image format, 50% smaller than JPEG. Learn what AVIF is and how to create and convert AVIF files free.">
-<meta name="twitter:image" content="https://imgready.app/og/what-is-avif.png">
 <link rel="canonical" href="https://imgready.app/what-is-avif/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b84d1d">
 <link rel="manifest" href="/manifest.webmanifest">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
-<style>:root{--shell:clamp(20rem, 92vw, 1040px);--measure:68ch;--w-app:900px;--w-page:780px;--w-read:720px;--font-display:'Poetsen One',ui-rounded,'Segoe UI',system-ui,sans-serif;}@font-face{font-family:'Poetsen One';src:url('/fonts/poetsenone-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-@font-face{font-family:'Nunito';src:url('/fonts/nunito-latin.woff2') format('woff2-variations'),url('/fonts/nunito-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-.nav-brand .g{color:var(--accent,var(--accent));}
-.nav-sep{color:var(--border);}
-.topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
-.topnav a.nav-link:hover{text-decoration:underline;}
-.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
-@media(max-width:600px){.topnav .hide-mobile{display:none;}}
-.crumbs{font-size:.8rem;color:var(--muted);margin:6px 0 4px;}
-.crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
-.crumbs a:hover{text-decoration:underline;}
-.hero{padding:24px 0 32px;}
-.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
-.hero h1 em{font-style:normal;color:var(--accent);}
-.hero p.lede{font-size:1.02rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-.callout{background:var(--accent-light);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:var(--text2);line-height:1.75;}
-/* Quiet data table. Was a full 1px box around every cell plus zebra
-   striping: the heavy grid the design skill objects to (9.F), which
-   says pick ONE rule direction and use it sparsely.
-   These stay tables. They are genuine multi-column comparisons with
-   real measurements ("Format / Compression vs JPG / Browser support /
-   Encoding speed"), not a spec list pretending to be one, and a card
-   grid cannot carry a four-way comparison. Only the weight changes:
-   one hairline under each row, no vertical rules, no stripes. The
-   columns are held by alignment, which is what alignment is for. */
-table{border-collapse:collapse;width:100%;margin:16px 0 24px;font-size:.88rem;}
-th,td{text-align:left;padding:10px 18px 10px 0;border:0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
-th{color:var(--text);font-weight:700;border-bottom-color:var(--text2);}
-tr:last-child td{border-bottom:0;}
-@media(max-width:600px){th,td{padding:8px 10px 8px 0;font-size:.84rem;}}
-.winner{color:var(--accent);font-weight:700;}
-h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin:var(--h2-gap, 36px) 0 12px;}
-h3.sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
-p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
-ul,ol{padding-left:22px;margin-bottom:16px;}
-li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
-.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 30px;}
-.verdict-box{border:2px solid var(--border);border-radius:10px;padding:16px;}
-.verdict-box.avif{border-color:var(--accent2);}
-.verdict-box h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:10px;}
-.verdict-box ul{padding-left:16px;}
-.verdict-box li{font-size:.84rem;color:var(--text2);margin-bottom:5px;}
-@media(max-width:540px){.verdict-grid{grid-template-columns:1fr;}}
-.faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}
-.faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;list-style:none;}
-.faq-item summary::after{content:'+';float:right;color:var(--accent);font-weight:700;}
-.faq-item[open] summary::after{content:'\2212';}
-.faq-item p{font-size:.92rem;color:var(--text2);line-height:1.75;padding:0 0 14px;}
-.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
-.related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-.related a:hover{border-color:var(--accent);}
-.related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-.hero-cta{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
-.hero-cta:hover{background:var(--accent2);transform:translateY(-2px);}
-.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid var(--border);}
-.bottom-cta p{color:var(--muted);margin-bottom:14px;}
-.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
-.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-.site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}
-
-/* Reading measure. Mirrors app.css; this page does not load it. ch not px so it tracks the user's font size (WCAG 1.4.4). */.wrap p,.wrap li,.wrap dd{max-width:var(--measure, 68ch);}.dropzone p,.dropzone li,td p,td li,th p,.feature-grid p,.feature-grid li,.cards p,.cards li{max-width:none;}</style>
+<meta name="theme-color" content="#b84d1d">
+<link rel="stylesheet" href="/app.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"What is AVIF","item":"https://imgready.app/what-is-avif/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"What Is AVIF? The Next-Generation Image Format Explained","description":"AVIF is the latest image format developed by the Alliance for Open Media, offering 50% compression compared to JPEG with superior quality. Learn about browser support, when to use AVIF, and how to create AVIF files.","url":"https://imgready.app/what-is-avif/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-06","dateModified":"2026-05-06","image":"https://imgready.app/og/what-is-avif.png","publisher":{"@type":"Organization","name":"imgready","url":"https://imgready.app/","logo":{"@type":"ImageObject","url":"https://imgready.app/favicon.svg"}}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is AVIF?","acceptedAnswer":{"@type":"Answer","text":"AVIF (AV1 Image File Format) is a modern image format developed by the Alliance for Open Media. It's based on the AV1 video codec and typically produces files 50% smaller than JPEG at equivalent quality. AVIF supports lossy and lossless compression, transparency, HDR photography, animation, and wide color gamut, making it the most feature-complete image format available in 2026."}},{"@type":"Question","name":"Which browsers support AVIF?","acceptedAnswer":{"@type":"Answer","text":"As of 2026, AVIF is supported by Chrome 85+ (2020), Firefox 93+ (2021), Edge 121+ (2024), and Safari 16+ (2022). In total, approximately 93% of global browser traffic supports AVIF. The remaining gap consists mainly of older iOS Safari versions and legacy browsers. For maximum compatibility, serve AVIF with WebP or JPEG fallback using the HTML picture element."}},{"@type":"Question","name":"Is AVIF better than WebP?","acceptedAnswer":{"@type":"Answer","text":"AVIF offers superior compression, typically 20-30% smaller files than WebP at the same quality. However, WebP has broader browser support (97% vs 93%) and much faster encoding speed. For photographic content and maximum compression, AVIF wins. For speed and universal compatibility, WebP is more practical. The best approach is using both with fallbacks."}},{"@type":"Question","name":"Can Photoshop open AVIF?","acceptedAnswer":{"@type":"Answer","text":"Photoshop (2022 and later) supports AVIF opening and export. Older versions of Photoshop do not support AVIF natively. For desktop image editors, most modern software including Affinity Photo, GIMP, and Krita now support AVIF. For online viewing and conversion, use imgready or other browser-based tools."}},{"@type":"Question","name":"How do I create an AVIF file?","acceptedAnswer":{"@type":"Answer","text":"The easiest approach for individuals is using a free online converter like imgready, just upload a JPG or PNG and download the AVIF. For developers, use command-line tools like ImageMagick, libavif, or online APIs. Most modern image processing libraries in JavaScript, Python, and Node.js now include AVIF support natively."}},{"@type":"Question","name":"Is AVIF good for all images?","acceptedAnswer":{"@type":"Answer","text":"AVIF excels with photographs and high-detail images where its 50% compression advantage is most visible. For flat graphics, logos, and illustrations, AVIF's advantage narrows significantly, lossless PNG may remain the better choice. AVIF is not ideal for very small images where file size overhead barely matters. For most websites with photographic content, AVIF is the optimal choice."}}]}</script>
 </head>
 <body>
+
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
-    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
-    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
-    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
     <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-
-  <p class="crumbs"><a href="/">Home</a> › What is AVIF</p>
-
-  <div class="hero">
-    <h1>What is AVIF? The <em>next-generation</em> image format explained</h1>
-    <p class="lede">AVIF is the newest image format, developed by the Alliance for Open Media and based on the AV1 video codec. It's a dramatic leap forward from JPEG, files are typically 50% smaller at the same visual quality, with no discernible loss in detail. AVIF supports transparency, HDR photography, animation, and wide color gamut. Here's what AVIF is, why it matters, which browsers support it, and when to use it for your images and websites.</p>
-  </div>
-
-  <h2>Quick answer</h2>
-  <p>AVIF stands for AV1 Image File Format. It's built on the AV1 video codec and produces images roughly 50% smaller than JPEG with superior quality. Browser support is excellent but not universal: about 93% of browsers can display AVIF as of 2026. For public websites, serve AVIF with WebP and JPEG fallbacks using the HTML picture element to ensure compatibility.</p>
-
-  <div class="callout">
+  <div class="crumbs"><a href="/">Home</a> » <span aria-current="page">What is AVIF</span></div>
+  <main>
+    <header class="page-head">
+      <h1>What is AVIF? The <em>next-generation</em> image format explained</h1>
+      <p class="lede">AVIF is the newest image format, developed by the Alliance for Open Media and based on the AV1 video codec. It's a dramatic leap forward from JPEG, files are typically 50% smaller at the same visual quality, with no discernible loss in detail. AVIF supports transparency, HDR photography, animation, and wide color gamut. Here's what AVIF is, why it matters, which browsers support it, and when to use it for your images and websites.</p>
+    </header>
+    <section class="prose">
+<h2>Quick answer</h2>
+<p>AVIF stands for AV1 Image File Format. It's built on the AV1 video codec and produces images roughly 50% smaller than JPEG with superior quality. Browser support is excellent but not universal: about 93% of browsers can display AVIF as of 2026. For public websites, serve AVIF with WebP and JPEG fallbacks using the HTML picture element to ensure compatibility.</p>
+<div class="callout">
     <strong>The real advantage:</strong> AVIF offers the best compression-to-quality ratio of any image format. For websites where bandwidth and page speed matter, AVIF can meaningfully reduce transfer sizes. The catch: encoding is slow, and you need fallback formats for older browsers.
   </div>
-
-  <h2>Where AVIF came from</h2>
-
-  <p>AVIF was developed by the Alliance for Open Media (AOM) starting around 2016, with the specification finalized in 2019. The AOM includes Google, Apple, Microsoft, Amazon, Meta, Intel, and dozens of other tech companies. The goal was to create a next-generation image format superior to both JPEG and WebP, while remaining royalty-free and open-source. AVIF is based on the AV1 video codec, which means it leverages decades of video compression research.</p>
-
-  <h3 class="sub">Why AV1 for images?</h3>
-  <p>Video codecs like AV1 are far more sophisticated than image codecs because they need to compress 24-60 frames per second efficiently. By adapting AV1 for still images, AVIF inherited that sophistication. The result is compression that rivals proprietary, patent-heavy formats while remaining completely free and open.</p>
-
-  <h2>AVIF compression: 50% smaller than JPEG</h2>
-
-  <p>A typical photograph that's 200 KB as JPEG might be just 100 KB as AVIF. For a page with 10 hero images, that's 1 MB saved in transfer size. For a photography portfolio or e-commerce site with hundreds of product photos, the cumulative savings are enormous. This compression comes from AVIF's more sophisticated algorithms, not from reducing image quality.</p>
-
-  <h3 class="sub">Quality at low file sizes</h3>
-  <p>AVIF's biggest advantage over WebP shows up when you're aggressively compressing images. A 50 KB AVIF file retains far more detail than a 50 KB WebP or JPEG. This is especially useful for thumbnails, mobile hero images, and bandwidth-constrained environments.</p>
-
-  <h2>Browser support in 2026</h2>
-
-  <table>
+<h2>Where AVIF came from</h2>
+<p>AVIF was developed by the Alliance for Open Media (AOM) starting around 2016, with the specification finalized in 2019. The AOM includes Google, Apple, Microsoft, Amazon, Meta, Intel, and dozens of other tech companies. The goal was to create a next-generation image format superior to both JPEG and WebP, while remaining royalty-free and open-source. AVIF is based on the AV1 video codec, which means it leverages decades of video compression research.</p>
+<h3 class="sub">Why AV1 for images?</h3>
+<p>Video codecs like AV1 are far more sophisticated than image codecs because they need to compress 24-60 frames per second efficiently. By adapting AV1 for still images, AVIF inherited that sophistication. The result is compression that rivals proprietary, patent-heavy formats while remaining completely free and open.</p>
+<h2>AVIF compression: 50% smaller than JPEG</h2>
+<p>A typical photograph that's 200 KB as JPEG might be just 100 KB as AVIF. For a page with 10 hero images, that's 1 MB saved in transfer size. For a photography portfolio or e-commerce site with hundreds of product photos, the cumulative savings are enormous. This compression comes from AVIF's more sophisticated algorithms, not from reducing image quality.</p>
+<h3 class="sub">Quality at low file sizes</h3>
+<p>AVIF's biggest advantage over WebP shows up when you're aggressively compressing images. A 50 KB AVIF file retains far more detail than a 50 KB WebP or JPEG. This is especially useful for thumbnails, mobile hero images, and bandwidth-constrained environments.</p>
+<h2>Browser support in 2026</h2>
+<table>
     <thead>
       <tr><th>Browser</th><th>Support from</th><th>2026 Coverage</th></tr>
     </thead>
@@ -193,26 +68,19 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
       <tr><td><strong>Global average</strong></td><td>: </td><td class="winner">~93% of browser traffic</td></tr>
     </tbody>
   </table>
-
-  <p>The 7% gap is mostly older iOS Safari versions (pre-iOS 16), legacy Android browsers, and some enterprise systems locked to outdated versions. For consumer-facing websites, 93% coverage is excellent. Using the HTML picture element with WebP and JPEG fallbacks covers the remaining 7%.</p>
-
-  <h3 class="sub">Progressive enhancement with picture element</h3>
-  <p>Serve AVIF as the primary format to modern browsers and fall back automatically for older ones:</p>
-  <pre style="background:var(--surface2);border-radius:8px;padding:14px;font-size:.84rem;overflow-x:auto;margin-bottom:14px;line-height:1.7;">&lt;picture&gt;
+<p>The 7% gap is mostly older iOS Safari versions (pre-iOS 16), legacy Android browsers, and some enterprise systems locked to outdated versions. For consumer-facing websites, 93% coverage is excellent. Using the HTML picture element with WebP and JPEG fallbacks covers the remaining 7%.</p>
+<h3 class="sub">Progressive enhancement with picture element</h3>
+<p>Serve AVIF as the primary format to modern browsers and fall back automatically for older ones:</p>
+<pre>&lt;picture&gt;
   &lt;source srcset="image.avif" type="image/avif"&gt;
   &lt;source srcset="image.webp" type="image/webp"&gt;
   &lt;img src="image.jpg" alt="Your image"&gt;
 &lt;/picture&gt;</pre>
-
-  <h2>AVIF vs WebP: The encoding speed trade-off</h2>
-
-  <p>AVIF encoding is significantly slower than WebP, typically 5 to 20 times slower depending on quality settings. A batch conversion that would take 5 minutes in WebP might take 30-60 minutes in AVIF. For pre-processed static websites, this one-time cost is acceptable. For real-time image generation (e.g., a CDN resizing uploaded photos on the fly), the encoding overhead can be problematic.</p>
-
-  <p>WebP is the pragmatic choice for systems that generate images on-demand. AVIF is the better choice for static assets processed once at build time.</p>
-
-  <h2>Features AVIF supports</h2>
-
-  <ul>
+<h2>AVIF vs WebP: The encoding speed trade-off</h2>
+<p>AVIF encoding is significantly slower than WebP, typically 5 to 20 times slower depending on quality settings. A batch conversion that would take 5 minutes in WebP might take 30-60 minutes in AVIF. For pre-processed static websites, this one-time cost is acceptable. For real-time image generation (e.g., a CDN resizing uploaded photos on the fly), the encoding overhead can be problematic.</p>
+<p>WebP is the pragmatic choice for systems that generate images on-demand. AVIF is the better choice for static assets processed once at build time.</p>
+<h2>Features AVIF supports</h2>
+<ul>
     <li><strong>Lossy and lossless modes</strong>: Choose between maximum compression or absolute quality preservation</li>
     <li><strong>Transparency (alpha channel)</strong>: Like PNG, but with AVIF's superior compression</li>
     <li><strong>HDR photography</strong>: 10-bit and 12-bit color depth for high-dynamic-range images</li>
@@ -221,47 +89,37 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
     <li><strong>Multiple images per file</strong>: Can store image sequences in a single file</li>
     <li><strong>Depth maps</strong>: Stores 3D depth information for computational photography</li>
   </ul>
-
-  <h2>When to use AVIF</h2>
-
-  <p>AVIF is ideal for websites and applications where bandwidth and performance are critical. It's especially effective for photography-heavy sites, e-commerce product catalogs, and any project where maximum compression matters. AVIF makes sense when:</p>
-
-  <ul>
+<h2>When to use AVIF</h2>
+<p>AVIF is ideal for websites and applications where bandwidth and performance are critical. It's especially effective for photography-heavy sites, e-commerce product catalogs, and any project where maximum compression matters. AVIF makes sense when:</p>
+<ul>
     <li>Your audience primarily uses modern browsers (Chrome, Firefox, Safari 16+, Edge)</li>
     <li>You can implement a WebP/JPEG fallback stack</li>
     <li>Images are processed once at build time, not dynamically generated</li>
     <li>Photographic content dominates your site (not flat graphics or logos)</li>
     <li>Bandwidth savings and page speed are top priorities</li>
   </ul>
-
-  <h2>When to stick with WebP or JPEG</h2>
-
-  <ul>
+<h2>When to stick with WebP or JPEG</h2>
+<ul>
     <li>Your audience includes significant legacy browser traffic (IE, old Safari, Android)</li>
     <li>You generate images in real-time and need fast encoding</li>
     <li>Your site is mostly flat graphics, icons, and logos</li>
     <li>You're migrating from JPEG and want simplicity without multiple fallbacks</li>
     <li>Animated images dominate your content</li>
   </ul>
-
-  <h2>Creating AVIF files</h2>
-
-  <p>For individual images, use a free online tool like imgready. Upload any JPG or PNG and download the AVIF. For batch processing or integration into a build pipeline, use command-line tools like ImageMagick, libavif, or FFmpeg. Most modern web development frameworks (Next.js, Gatsby, etc.) now have built-in AVIF support through plugins.</p>
-
-  <div class="callout">
+<h2>Creating AVIF files</h2>
+<p>For individual images, use a free online tool like imgready. Upload any JPG or PNG and download the AVIF. For batch processing or integration into a build pipeline, use command-line tools like ImageMagick, libavif, or FFmpeg. Most modern web development frameworks (Next.js, Gatsby, etc.) now have built-in AVIF support through plugins.</p>
+<div class="callout">
     <strong>For developers:</strong> Node.js packages like sharp, ImageMagick, and libomp all support AVIF conversion. Python has Pillow and AVIF-PIL. Most major programming languages have AVIF support through these libraries.
   </div>
-
-  <h2>Convert your images now</h2>
-  <div class="related">
+<h2>Convert your images now</h2>
+<div class="related">
     <a href="/avif-converter/"><strong>AVIF Converter</strong><small>Batch convert to AVIF</small></a>
     <a href="/jpg-to-avif/"><strong>JPG to AVIF</strong><small>Convert photos to AVIF</small></a>
     <a href="/png-to-avif/"><strong>PNG to AVIF</strong><small>PNG to AVIF with transparency</small></a>
     <a href="/avif-vs-webp/"><strong>AVIF vs WebP</strong><small>Detailed format comparison</small></a>
   </div>
-
-  <h2>Frequently asked questions</h2>
-  <section>
+<h2>Frequently asked questions</h2>
+<section>
   <details class="faq-item">
     <summary>What is AVIF?</summary>
     <p>AVIF (AV1 Image File Format) is a modern image format developed by the Alliance for Open Media. It's based on the AV1 video codec and typically produces files 50% smaller than JPEG at equivalent quality. AVIF supports lossy and lossless compression, transparency, HDR photography, animation, and wide color gamut, making it the most feature-complete image format available in 2026.</p>
@@ -287,30 +145,40 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
     <p>AVIF excels with photographs and high-detail images where its 50% compression advantage is most visible. For flat graphics, logos, and illustrations, AVIF's advantage narrows significantly, lossless PNG may remain the better choice. AVIF is not ideal for very small images where file size overhead barely matters. For most websites with photographic content, AVIF is the optimal choice.</p>
   </details>
   </section>
-
-  <h2>Further reading</h2>
-  <div class="related">
+<h2>Further reading</h2>
+<div class="related">
     <a href="/avif-vs-webp/"><strong>AVIF vs WebP</strong><small>Detailed format comparison</small></a>
     <a href="/compress/"><strong>Compress Images</strong><small>Reduce any format for free</small></a>
     <a href="/resize/"><strong>Resize Images</strong><small>Set exact pixel dimensions</small></a>
   </div>
-
-  <div class="bottom-cta">
+<div class="bottom-cta">
     <p>Ready to convert your images to AVIF? imgready is free, instant, and nothing ever uploads.</p>
     <a href="/avif-converter/" class="hero-cta">Create AVIF files now →</a>
   </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
+    </div>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
+    </div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
 </div>
-
-<footer class="site-footer">
-  <a href="/">imgready</a>
-  <a href="/why/">Why imgready</a>
-  <a href="/about/">About</a>
-  <a href="/privacy/">Privacy</a>
-  <a href="/terms/">Terms</a>
-  <a href="/support/">Support</a>
-  <a href="/developers/">Developers</a>
-  <br>© 2026 imgready. Free in-browser image tools.
-</footer>
-</div>
+<script src="/app.js" defer></script>
 </body>
 </html>

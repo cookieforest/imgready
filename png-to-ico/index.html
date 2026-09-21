@@ -1,171 +1,56 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#b84d1d">
 <title>PNG to ICO Converter: Free Favicon Generator | imgready</title>
+<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="description" content="Convert PNG to ICO free and make a real multi-size favicon (16, 32, 48 px) in one file. Transparency preserved, nothing uploaded, works offline in your browser.">
 <meta property="og:title" content="PNG to ICO Converter. Free Favicon Generator | imgready">
 <meta property="og:description" content="Convert PNG to ICO free and make a real multi-size favicon (16, 32, 48 px) in one file. Transparency preserved, nothing uploaded, works offline in your browser.">
 <meta property="og:image" content="https://imgready.app/og/png-to-ico.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/png-to-ico/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PNG to ICO Converter. Free Favicon Generator | imgready">
-<meta name="twitter:description" content="Convert PNG to ICO free and make a real multi-size favicon (16, 32, 48 px) in one file. Transparency preserved, nothing uploaded, works offline in your browser.">
-<meta name="twitter:image" content="https://imgready.app/og/png-to-ico.png">
 <link rel="canonical" href="https://imgready.app/png-to-ico/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b84d1d">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="preconnect" href="https://esm.sh" crossorigin>
-<link rel="dns-prefetch" href="https://esm.sh">
-<link rel="preload" href="/imgready-worker.js" as="script">
-<link rel="prefetch" href="/vendor/UPNG.min.js">
-<link rel="prefetch" href="/vendor/pako.min.js">
-<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#b84d1d">
 <link rel="stylesheet" href="/app.css">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
-<style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-.nav-brand .g{color:var(--accent,var(--accent));}
-.nav-sep{color:var(--border);}
-.topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
-.topnav a.nav-link:hover{text-decoration:underline;}
-.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
-@media(max-width:600px){.topnav .hide-mobile{display:none;}}
-.crumbs{font-size:.8rem;color:var(--muted);margin:6px 0 4px;}
-.crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
-.crumbs a:hover{text-decoration:underline;}
-.hero{padding:24px 0 32px;}
-.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
-.hero h1 em{font-style:normal;color:var(--accent);}
-.hero p.lede{font-size:1.02rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-.hero-cta{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
-.hero-cta:hover{background:var(--accent2);transform:translateY(-2px);}
-.hero-sub{font-size:.84rem;color:var(--muted);margin-top:10px;}
-.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin:22px 0 30px;}
-.feat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
-.feat h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:6px;}
-.feat p{font-size:.8rem;color:var(--muted);line-height:1.5;}
-h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin:var(--h2-gap, 36px) 0 12px;}
-h3.sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
-p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
-ul,ol{padding-left:22px;margin-bottom:16px;}
-li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
-.callout{background:var(--accent-light);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:var(--text2);line-height:1.75;}
-/* Quiet data table. Was a full 1px box around every cell plus zebra
-   striping: the heavy grid the design skill objects to (9.F), which
-   says pick ONE rule direction and use it sparsely.
-   These stay tables. They are genuine multi-column comparisons with
-   real measurements ("Format / Compression vs JPG / Browser support /
-   Encoding speed"), not a spec list pretending to be one, and a card
-   grid cannot carry a four-way comparison. Only the weight changes:
-   one hairline under each row, no vertical rules, no stripes. The
-   columns are held by alignment, which is what alignment is for. */
-table{border-collapse:collapse;width:100%;margin:16px 0 24px;font-size:.88rem;}
-th,td{text-align:left;padding:10px 18px 10px 0;border:0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
-th{color:var(--text);font-weight:700;border-bottom-color:var(--text2);}
-tr:last-child td{border-bottom:0;}
-@media(max-width:600px){th,td{padding:8px 10px 8px 0;font-size:.84rem;}}
-.faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}
-.faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;list-style:none;}
-.faq-item summary::after{content:'+';float:right;color:var(--accent);font-weight:700;}
-.faq-item[open] summary::after{content:'\2212';}
-.faq-item p{font-size:.92rem;color:var(--text2);line-height:1.75;padding:0 0 14px;}
-.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
-.related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-.related a:hover{border-color:var(--accent);}
-.related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid var(--border);}
-.bottom-cta p{color:var(--muted);margin-bottom:14px;}
-.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
-.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-.site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}
-</style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready: PNG to ICO favicon generator", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/png-to-ico/", "browserRequirements": "Requires a modern browser with WebAssembly support", "description": "Convert PNG to ICO free and make a real multi-size favicon (16, 32, 48 px) in one file. Transparency preserved, nothing uploaded, works offline in your browser.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["PNG to ICO conversion", "Multi-size favicon output (16, 32, 48 px)", "Full Windows icon set to 256 px", "Alpha transparency preserved", "Runs fully client-side, no upload", "Also accepts JPG, WebP, SVG, HEIC, TIFF"], "permissions": "No file upload; all processing happens locally in the browser"}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "PNG to ICO", "item": "https://imgready.app/png-to-ico/"}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this create a multi-size favicon or just one image?", "acceptedAnswer": {"@type": "Answer", "text": "A proper multi-size ICO. The Favicon set writes 16, 32 and 48 px into a single file, and the Full Windows Icon set writes 16, 32, 48, 64, 128 and 256 px. Browsers then choose the right bitmap for a tab, a bookmark bar or a Windows shortcut instead of scaling one image badly. Sizes larger than your source are skipped so nothing gets upscaled."}}, {"@type": "Question", "name": "What size PNG should I start from?", "acceptedAnswer": {"@type": "Answer", "text": "A square PNG of at least 256 px, ideally 512 px, with transparency and a bold simple mark. At 16 px a favicon has only 256 pixels in total, so fine detail and small lettering will not survive, if your full logo turns to mush at that size, use just the symbol or initial instead."}}, {"@type": "Question", "name": "Is transparency preserved in the ICO?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. PNG bitmaps are stored inside the ICO container with their alpha channel intact, so a transparent background stays transparent and the icon sits correctly on both light and dark browser chrome. Note that JPG sources have no transparency at all, so a white background will remain a visible white box."}}, {"@type": "Question", "name": "Where do I put favicon.ico on my site?", "acceptedAnswer": {"@type": "Answer", "text": "Placing it at the site root as /favicon.ico is enough on its own, browsers still look there automatically with no HTML changes required. For explicit control you can also reference it from the document head alongside a PNG icon and an Apple touch icon; browsers use the best candidate they understand and ignore the others."}}, {"@type": "Question", "name": "I replaced my favicon but the old one still shows. Why?", "acceptedAnswer": {"@type": "Answer", "text": "Favicon caching is unusually aggressive, often more persistent than page caching. Try a hard reload, an incognito window, or add a version query like ?v=2 to the icon URL. This is nearly always caching rather than a bad conversion, so check in a clean browser profile before re-exporting."}}, {"@type": "Question", "name": "Are my logo files uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Conversion runs entirely in your browser using WebAssembly, so the artwork never leaves your device, which matters when the logo belongs to an unreleased product. You can verify it by opening the Network tab in developer tools and watching that no file is transmitted during conversion."}}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "PNG to ICO Converter: Free Favicon Generator | imgready", "description": "Convert PNG to ICO free and make a real multi-size favicon (16, 32, 48 px) in one file. Transparency preserved, nothing uploaded, works offline in your browser.", "url": "https://imgready.app/png-to-ico/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "https://imgready.app/og/png-to-ico.png"}, "inLanguage": "en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":["SoftwareApplication","WebApplication"],"name":"imgready: PNG to ICO favicon generator","applicationCategory":"MultimediaApplication","operatingSystem":"Any (browser-based)","url":"https://imgready.app/png-to-ico/","browserRequirements":"Requires a modern browser with WebAssembly support","description":"Convert PNG to ICO free and make a real multi-size favicon (16, 32, 48 px) in one file. Transparency preserved, nothing uploaded, works offline in your browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["PNG to ICO conversion","Multi-size favicon output (16, 32, 48 px)","Full Windows icon set to 256 px","Alpha transparency preserved","Runs fully client-side, no upload","Also accepts JPG, WebP, SVG, HEIC, TIFF"],"permissions":"No file upload; all processing happens locally in the browser"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"PNG to ICO","item":"https://imgready.app/png-to-ico/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this create a multi-size favicon or just one image?","acceptedAnswer":{"@type":"Answer","text":"A proper multi-size ICO. The Favicon set writes 16, 32 and 48 px into a single file, and the Full Windows Icon set writes 16, 32, 48, 64, 128 and 256 px. Browsers then choose the right bitmap for a tab, a bookmark bar or a Windows shortcut instead of scaling one image badly. Sizes larger than your source are skipped so nothing gets upscaled."}},{"@type":"Question","name":"What size PNG should I start from?","acceptedAnswer":{"@type":"Answer","text":"A square PNG of at least 256 px, ideally 512 px, with transparency and a bold simple mark. At 16 px a favicon has only 256 pixels in total, so fine detail and small lettering will not survive, if your full logo turns to mush at that size, use just the symbol or initial instead."}},{"@type":"Question","name":"Is transparency preserved in the ICO?","acceptedAnswer":{"@type":"Answer","text":"Yes. PNG bitmaps are stored inside the ICO container with their alpha channel intact, so a transparent background stays transparent and the icon sits correctly on both light and dark browser chrome. Note that JPG sources have no transparency at all, so a white background will remain a visible white box."}},{"@type":"Question","name":"Where do I put favicon.ico on my site?","acceptedAnswer":{"@type":"Answer","text":"Placing it at the site root as /favicon.ico is enough on its own, browsers still look there automatically with no HTML changes required. For explicit control you can also reference it from the document head alongside a PNG icon and an Apple touch icon; browsers use the best candidate they understand and ignore the others."}},{"@type":"Question","name":"I replaced my favicon but the old one still shows. Why?","acceptedAnswer":{"@type":"Answer","text":"Favicon caching is unusually aggressive, often more persistent than page caching. Try a hard reload, an incognito window, or add a version query like ?v=2 to the icon URL. This is nearly always caching rather than a bad conversion, so check in a clean browser profile before re-exporting."}},{"@type":"Question","name":"Are my logo files uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Conversion runs entirely in your browser using WebAssembly, so the artwork never leaves your device, which matters when the logo belongs to an unreleased product. You can verify it by opening the Network tab in developer tools and watching that no file is transmitted during conversion."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"PNG to ICO Converter: Free Favicon Generator | imgready","description":"Convert PNG to ICO free and make a real multi-size favicon (16, 32, 48 px) in one file. Transparency preserved, nothing uploaded, works offline in your browser.","url":"https://imgready.app/png-to-ico/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://imgready.app/og/png-to-ico.png"},"inLanguage":"en"}</script>
 </head>
 <body>
+
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
-    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
-    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
-    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
     <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-  <div class="crumbs"><a href="/">Home</a> &raquo; PNG to ICO</div>
-
-  <section class="hero">
-    <h1>PNG to ICO,<br><em>a favicon that stays sharp</em></h1>
-    <p class="lede">Turn a PNG into a proper multi-image <code>favicon.ico</code>: 16, 32 and 48&nbsp;px packaged in one file so browsers never have to scale your logo badly. Transparency is preserved and the artwork never leaves your device.</p>
-    <!-- =============== imgready tool (lifted from homepage) ===============-->
-<div class="app">
+  <div class="crumbs"><a href="/">Home</a> » <span aria-current="page">PNG to ICO</span></div>
+  <main>
+    <header class="page-head">
+      <h1>PNG to ICO,<br><em>a favicon that stays sharp</em></h1>
+      <p class="lede">Turn a PNG into a proper multi-image <code>favicon.ico</code>: 16, 32 and 48 px packaged in one file so browsers never have to scale your logo badly. Transparency is preserved and the artwork never leaves your device.</p>
+    </header>
+    <div class="app">
 <!-- SETTINGS TRIGGER: full-width pill right above the dropzone, on
        both mobile and desktop. The label calls out what's inside so power
        users self-identify ("custom output, quality, resize") rather than
        relying on the generic word "Settings." Click expands the panel
        directly below; the dropzone is just below the panel either way. -->
   <button class="settings-trigger" id="advToggle" onclick="toggleAdvanced()" aria-expanded="false" aria-controls="advPanel">
-    <span class="settings-trigger-arrow" aria-hidden="true">&#9654;</span>
-    <span >Output settings</span><span class="settings-trigger-summary" id="advSummary"></span>
+    <span class="settings-trigger-arrow" aria-hidden="true">▶</span>
+    <span>Output settings</span><span class="settings-trigger-summary" id="advSummary"></span>
   </button>
 
   <!-- FINE-TUNE PANEL -->
@@ -279,7 +164,7 @@ tr:last-child td{border-bottom:0;}
           <option value="dim" selected>Longest side (px)</option>
           <option value="pct">Percent (%)</option>
         </select>
-        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
+        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput='if(typeof updateChargePreview==="function")updateChargePreview()'>
       </div>
       <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
@@ -299,7 +184,7 @@ tr:last-child td{border-bottom:0;}
   <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
     <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif" multiple aria-label="Choose image files to compress">
     <span class="dz-icon" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
     </span>
     <h2>Drop your images here</h2>
     <p>or click to browse. JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
@@ -310,7 +195,7 @@ tr:last-child td{border-bottom:0;}
          compact "Add more images" mode (body.has-images) since returning
          users don't need re-reassurance mid-batch. -->
     <div class="dz-trust" aria-hidden="false">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
       <span>Stays on your device, never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
@@ -346,7 +231,7 @@ tr:last-child td{border-bottom:0;}
            API support, Copy on single-result mode + clipboard support. -->
       <div class="action-cluster" id="actionCluster">
         <button class="btn btn-share" id="shareAllBtn" style="display:none" onclick="shareAll()" aria-label="Share all results via your device">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <svg width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
           <span class="btn-share-label">Share all</span>
         </button>
         <button class="btn btn-dl" id="dlAllBtn" style="display:none" onclick="downloadAll()">Download all</button>
@@ -377,7 +262,7 @@ tr:last-child td{border-bottom:0;}
   <div class="nudge-banner" id="nudgeBanner">
     <span class="nudge-heart">♥</span>
     <span class="nudge-text" id="nudgeText"></span>
-    <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">&#x2715;</button>
+    <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">✕</button>
   </div>
 
   <!-- INSTALL PROMPT: surfaced only after the user's first successful run -->
@@ -401,7 +286,7 @@ tr:last-child td{border-bottom:0;}
 <div class="undo-toast" id="undoToast" role="status" aria-live="polite">
   <span id="undoToastMsg">Image removed</span>
   <button class="undo-toast-btn" onclick="undoRemove()" aria-label="Undo removal">Undo</button>
-  <button class="undo-toast-x" onclick="dismissUndoToast()" aria-label="Dismiss">&#x2715;</button>
+  <button class="undo-toast-x" onclick="dismissUndoToast()" aria-label="Dismiss">✕</button>
 </div>
 
 <!-- FULLSCREEN COMPARE MODAL -->
@@ -416,7 +301,7 @@ tr:last-child td{border-bottom:0;}
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
-    <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
+    <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"></path></svg></div>
     <!-- Stacked label structure:
            Row 1 (.fs-lbl-title), large title: "Before" / "After"
            Row 2 (.fs-lbl-info), size · format
@@ -482,11 +367,11 @@ tr:last-child td{border-bottom:0;}
                navigator.canShare with files is supported). Download
                stays the visually primary one to match the cards. -->
           <button class="fe-dl fe-action fe-action-ghost" id="feShareBtn" onclick="feLiveShare()" title="Share" style="display:none" aria-label="Share current result">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
             <span class="fe-action-label">Share</span>
           </button>
           <button class="fe-dl fe-action fe-action-ghost" id="feCopyBtn" onclick="feLiveCopy(this)" title="Copy to clipboard" aria-label="Copy current result to clipboard">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
             <span class="fe-action-label">Copy</span>
           </button>
           <button class="fe-dl" id="feDlBtn" onclick="feLiveDl()">Download</button>
@@ -494,13 +379,13 @@ tr:last-child td{border-bottom:0;}
       </div>
     </div>
   </div>
-  <button class="fs-close" onclick="closeFullscreen()" aria-label="Close fullscreen comparison">&#x2715;</button>
+  <button class="fs-close" onclick="closeFullscreen()" aria-label="Close fullscreen comparison">✕</button>
 </div>
 
 <!-- TIP JAR MODAL -->
 <div class="sup-modal-overlay" id="supModalOverlay" onclick="if(event.target===this)closeSupModal()" role="dialog" aria-modal="true" aria-labelledby="supModalTitle">
   <div class="sup-modal">
-    <button class="sup-modal-close" onclick="closeSupModal()" aria-label="Close support dialog">&#x2715;</button>
+    <button class="sup-modal-close" onclick="closeSupModal()" aria-label="Close support dialog">✕</button>
     <div id="supDefaultState">
       <h2 id="supModalTitle">Support imgready</h2>
       <p class="sup-desc">imgready is free and always will be. It's built and maintained by one person. If it saved you time, a small contribution helps keep it running and improving.</p>
@@ -510,40 +395,41 @@ tr:last-child td{border-bottom:0;}
   </div>
 </div>
 </div>
-</section>
-
-<div class="features"><div class="feat"><h3>Real multi-size ICO</h3><p>16, 32 and 48&nbsp;px in one file, or the full Windows set to 256.</p></div><div class="feat"><h3>Transparency preserved</h3><p>PNG alpha survives, so the icon sits on light or dark chrome.</p></div><div class="feat"><h3>No upscaling</h3><p>Sizes larger than your source are skipped automatically.</p></div><div class="feat"><h3>Logos stay private</h3><p>Assembled in your browser. Unreleased branding is never uploaded.</p></div></div>
-
-  <h2>What a favicon file actually needs to contain</h2>
-  <p>A favicon is not one image. The classic <code>favicon.ico</code> is a container format that holds several bitmaps at different resolutions inside a single file, and the browser picks whichever one suits the context it is drawing: 16&nbsp;px for a browser tab, 32&nbsp;px for a bookmark bar or a high-density tab, 48&nbsp;px for Windows shortcuts and taskbar pins. A single-size icon technically works, but the browser then has to scale it, and downscaling a 256&nbsp;px logo to 16&nbsp;px in a tab produces exactly the muddy, unreadable smudge you have probably seen on other people's sites.</p>
-  <p>That is why this converter writes a proper multi-image ICO. Choose the <strong>Favicon set</strong> and you get 16, 32 and 48&nbsp;px in one file; choose the <strong>Full Windows Icon set</strong> and you get 16, 32, 48, 64, 128 and 256&nbsp;px for desktop application icons and pinned shortcuts. Sizes larger than your source image are skipped automatically, because upscaling a small logo only adds blur and bytes.</p>
-  <h3>Start from a square, high-contrast source</h3>
-  <p>The single biggest determinant of favicon quality is the artwork, not the converter. A 512&nbsp;&times;&nbsp;512 square PNG with transparency, a bold simple mark and generous padding will produce a crisp icon at every size. A detailed logo with fine lettering will not, at 16&nbsp;px you have 256 pixels in total to work with, which is roughly enough for one letter or one simple glyph. If your full logo does not survive the shrink, use just its symbol or initial for the favicon.</p>
-  <p>Transparency is preserved through the conversion, so a logo with a transparent background stays transparent in the ICO and will sit correctly on both light and dark browser chrome.</p>
-  <h2>Where to put the file and how to reference it</h2>
-  <p>Historically browsers looked for <code>/favicon.ico</code> at the site root automatically, and they still do, dropping the file there is genuinely enough for the basics, with no HTML changes at all. That automatic lookup is the reason ICO remains worth generating even though modern browsers also accept PNG and SVG icons.</p>
-  <p>For explicit control, reference it in the document head alongside modern formats: an ICO for the traditional path and broad compatibility, a PNG for high-density displays, and an Apple touch icon for iOS home-screen bookmarks. Browsers pick the best candidate they understand and ignore the rest, so listing several is safe rather than wasteful.</p>
-  <h3>Why the file sometimes appears not to update</h3>
-  <p>Favicons are cached unusually aggressively, often more stubbornly than the pages that reference them. If you replace the icon and the old one persists, that is almost always caching rather than a broken file: try a hard reload, an incognito window, or appending a version query such as <code>?v=2</code> to the icon URL. Do not assume the conversion failed; check in a fresh browser profile before re-cutting the artwork.</p>
-  <h2>PNG to ICO conversion, and the alternatives</h2>
-  <p>PNG is the ideal source for an icon because it is lossless and supports an alpha channel, so the edges of a logo stay clean and the background stays transparent. imgready packages the PNG bitmaps directly inside the ICO container, the modern approach, which Windows, every current browser and standard favicon parsers all accept, and which produces substantially smaller files than the legacy BMP-in-ICO layout.</p>
-  <p>You can also convert from JPG, WebP, AVIF, HEIC, TIFF, BMP or SVG. The caveat with JPG sources is that JPG has no transparency: a white background stays a white box in the icon. If your logo needs to sit on a transparent field, start from a PNG or SVG.</p>
-  <h3>ICO is not the only icon you need</h3>
-  <p>A complete set today usually means an ICO for <code>/favicon.ico</code>, a 180&nbsp;px PNG for Apple touch icons, and 192/512&nbsp;px PNGs referenced from a web app manifest for Android and installable web apps. This tool produces all of those: generate the ICO here, then convert the same source to PNG at the sizes you need using the resize option.</p>
-  <h2>Nothing is uploaded: including unreleased branding</h2>
-  <p>Logo files are frequently confidential before a launch, and a favicon is usually cut from the same artwork. Every step here runs inside your browser tab through WebAssembly, so the source file is read from your disk locally and the ICO is assembled locally. Nothing is transmitted, which you can confirm by watching the Network panel in your browser's developer tools while it works.</p>
-  <p>Practical consequences: it works offline after the first load, there is no upload queue or file-size ceiling imposed by a server, and you can convert a whole set of brand marks in one batch without any of them touching a third party.</p>
-
-  <h2>Frequently asked questions</h2>
-    <details class="faq-item"><summary>Does this create a multi-size favicon or just one image?</summary><p>A proper multi-size ICO. The Favicon set writes 16, 32 and 48 px into a single file, and the Full Windows Icon set writes 16, 32, 48, 64, 128 and 256 px. Browsers then choose the right bitmap for a tab, a bookmark bar or a Windows shortcut instead of scaling one image badly. Sizes larger than your source are skipped so nothing gets upscaled.</p></details>
-    <details class="faq-item"><summary>What size PNG should I start from?</summary><p>A square PNG of at least 256 px, ideally 512 px, with transparency and a bold simple mark. At 16 px a favicon has only 256 pixels in total, so fine detail and small lettering will not survive, if your full logo turns to mush at that size, use just the symbol or initial instead.</p></details>
-    <details class="faq-item"><summary>Is transparency preserved in the ICO?</summary><p>Yes. PNG bitmaps are stored inside the ICO container with their alpha channel intact, so a transparent background stays transparent and the icon sits correctly on both light and dark browser chrome. Note that JPG sources have no transparency at all, so a white background will remain a visible white box.</p></details>
-    <details class="faq-item"><summary>Where do I put favicon.ico on my site?</summary><p>Placing it at the site root as /favicon.ico is enough on its own, browsers still look there automatically with no HTML changes required. For explicit control you can also reference it from the document head alongside a PNG icon and an Apple touch icon; browsers use the best candidate they understand and ignore the others.</p></details>
-    <details class="faq-item"><summary>I replaced my favicon but the old one still shows. Why?</summary><p>Favicon caching is unusually aggressive, often more persistent than page caching. Try a hard reload, an incognito window, or add a version query like ?v=2 to the icon URL. This is nearly always caching rather than a bad conversion, so check in a clean browser profile before re-exporting.</p></details>
-    <details class="faq-item"><summary>Are my logo files uploaded anywhere?</summary><p>No. Conversion runs entirely in your browser using WebAssembly, so the artwork never leaves your device, which matters when the logo belongs to an unreleased product. You can verify it by opening the Network tab in developer tools and watching that no file is transmitted during conversion.</p></details>
-
-  <h2>Related tools and guides</h2>
-  <div class="related">
+    <ul class="highlights">
+      <li><b>Real multi-size ICO</b> 16, 32 and 48 px in one file, or the full Windows set to 256.</li>
+      <li><b>Transparency preserved</b> PNG alpha survives, so the icon sits on light or dark chrome.</li>
+      <li><b>No upscaling</b> Sizes larger than your source are skipped automatically.</li>
+      <li><b>Logos stay private</b> Assembled in your browser. Unreleased branding is never uploaded.</li>
+    </ul>
+    <section class="prose">
+<h2>What a favicon file actually needs to contain</h2>
+<p>A favicon is not one image. The classic <code>favicon.ico</code> is a container format that holds several bitmaps at different resolutions inside a single file, and the browser picks whichever one suits the context it is drawing: 16 px for a browser tab, 32 px for a bookmark bar or a high-density tab, 48 px for Windows shortcuts and taskbar pins. A single-size icon technically works, but the browser then has to scale it, and downscaling a 256 px logo to 16 px in a tab produces exactly the muddy, unreadable smudge you have probably seen on other people's sites.</p>
+<p>That is why this converter writes a proper multi-image ICO. Choose the <strong>Favicon set</strong> and you get 16, 32 and 48 px in one file; choose the <strong>Full Windows Icon set</strong> and you get 16, 32, 48, 64, 128 and 256 px for desktop application icons and pinned shortcuts. Sizes larger than your source image are skipped automatically, because upscaling a small logo only adds blur and bytes.</p>
+<h3>Start from a square, high-contrast source</h3>
+<p>The single biggest determinant of favicon quality is the artwork, not the converter. A 512 × 512 square PNG with transparency, a bold simple mark and generous padding will produce a crisp icon at every size. A detailed logo with fine lettering will not, at 16 px you have 256 pixels in total to work with, which is roughly enough for one letter or one simple glyph. If your full logo does not survive the shrink, use just its symbol or initial for the favicon.</p>
+<p>Transparency is preserved through the conversion, so a logo with a transparent background stays transparent in the ICO and will sit correctly on both light and dark browser chrome.</p>
+<h2>Where to put the file and how to reference it</h2>
+<p>Historically browsers looked for <code>/favicon.ico</code> at the site root automatically, and they still do, dropping the file there is genuinely enough for the basics, with no HTML changes at all. That automatic lookup is the reason ICO remains worth generating even though modern browsers also accept PNG and SVG icons.</p>
+<p>For explicit control, reference it in the document head alongside modern formats: an ICO for the traditional path and broad compatibility, a PNG for high-density displays, and an Apple touch icon for iOS home-screen bookmarks. Browsers pick the best candidate they understand and ignore the rest, so listing several is safe rather than wasteful.</p>
+<h3>Why the file sometimes appears not to update</h3>
+<p>Favicons are cached unusually aggressively, often more stubbornly than the pages that reference them. If you replace the icon and the old one persists, that is almost always caching rather than a broken file: try a hard reload, an incognito window, or appending a version query such as <code>?v=2</code> to the icon URL. Do not assume the conversion failed; check in a fresh browser profile before re-cutting the artwork.</p>
+<h2>PNG to ICO conversion, and the alternatives</h2>
+<p>PNG is the ideal source for an icon because it is lossless and supports an alpha channel, so the edges of a logo stay clean and the background stays transparent. imgready packages the PNG bitmaps directly inside the ICO container, the modern approach, which Windows, every current browser and standard favicon parsers all accept, and which produces substantially smaller files than the legacy BMP-in-ICO layout.</p>
+<p>You can also convert from JPG, WebP, AVIF, HEIC, TIFF, BMP or SVG. The caveat with JPG sources is that JPG has no transparency: a white background stays a white box in the icon. If your logo needs to sit on a transparent field, start from a PNG or SVG.</p>
+<h3>ICO is not the only icon you need</h3>
+<p>A complete set today usually means an ICO for <code>/favicon.ico</code>, a 180 px PNG for Apple touch icons, and 192/512 px PNGs referenced from a web app manifest for Android and installable web apps. This tool produces all of those: generate the ICO here, then convert the same source to PNG at the sizes you need using the resize option.</p>
+<h2>Nothing is uploaded: including unreleased branding</h2>
+<p>Logo files are frequently confidential before a launch, and a favicon is usually cut from the same artwork. Every step here runs inside your browser tab through WebAssembly, so the source file is read from your disk locally and the ICO is assembled locally. Nothing is transmitted, which you can confirm by watching the Network panel in your browser's developer tools while it works.</p>
+<p>Practical consequences: it works offline after the first load, there is no upload queue or file-size ceiling imposed by a server, and you can convert a whole set of brand marks in one batch without any of them touching a third party.</p>
+<h2>Frequently asked questions</h2>
+<details class="faq-item"><summary>Does this create a multi-size favicon or just one image?</summary><p>A proper multi-size ICO. The Favicon set writes 16, 32 and 48 px into a single file, and the Full Windows Icon set writes 16, 32, 48, 64, 128 and 256 px. Browsers then choose the right bitmap for a tab, a bookmark bar or a Windows shortcut instead of scaling one image badly. Sizes larger than your source are skipped so nothing gets upscaled.</p></details>
+<details class="faq-item"><summary>What size PNG should I start from?</summary><p>A square PNG of at least 256 px, ideally 512 px, with transparency and a bold simple mark. At 16 px a favicon has only 256 pixels in total, so fine detail and small lettering will not survive, if your full logo turns to mush at that size, use just the symbol or initial instead.</p></details>
+<details class="faq-item"><summary>Is transparency preserved in the ICO?</summary><p>Yes. PNG bitmaps are stored inside the ICO container with their alpha channel intact, so a transparent background stays transparent and the icon sits correctly on both light and dark browser chrome. Note that JPG sources have no transparency at all, so a white background will remain a visible white box.</p></details>
+<details class="faq-item"><summary>Where do I put favicon.ico on my site?</summary><p>Placing it at the site root as /favicon.ico is enough on its own, browsers still look there automatically with no HTML changes required. For explicit control you can also reference it from the document head alongside a PNG icon and an Apple touch icon; browsers use the best candidate they understand and ignore the others.</p></details>
+<details class="faq-item"><summary>I replaced my favicon but the old one still shows. Why?</summary><p>Favicon caching is unusually aggressive, often more persistent than page caching. Try a hard reload, an incognito window, or add a version query like ?v=2 to the icon URL. This is nearly always caching rather than a bad conversion, so check in a clean browser profile before re-exporting.</p></details>
+<details class="faq-item"><summary>Are my logo files uploaded anywhere?</summary><p>No. Conversion runs entirely in your browser using WebAssembly, so the artwork never leaves your device, which matters when the logo belongs to an unreleased product. You can verify it by opening the Network tab in developer tools and watching that no file is transmitted during conversion.</p></details>
+<h2>Related tools and guides</h2>
+<div class="related">
     <a href="/svg-to-png/">SVG to PNG<small>Rasterize vector logos first</small></a>
     <a href="/png-to-webp/">PNG to WebP<small>Smaller icons for the web</small></a>
     <a href="/resize/">Resize images<small>Make 180, 192 and 512 px app icons</small></a>
@@ -553,27 +439,32 @@ tr:last-child td{border-bottom:0;}
     <a href="/optimize-images-for-web/">Optimize for web<small>Format and size guidance</small></a>
     <a href="/ico-to-png/">ICO to PNG<small>Extract an icon back out</small></a>
   </div>
-
-  <div class="bottom-cta">
-    <p>Make a favicon that reads at 16&nbsp;px.</p>
+<div class="bottom-cta">
+    <p>Make a favicon that reads at 16 px.</p>
     <a class="hero-cta" href="#dropzone">Convert PNG to ICO: FREE</a>
   </div>
-
+    </section>
+  </main>
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:var(--font-display);font-feature-settings:'ss01' on;letter-spacing:-.3px;color:var(--text2);">img<i class="brand-mark" aria-hidden="true"></i><span style="color:var(--accent)">ready</span></div>
-    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
     <div>
-      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
     </div>
-    <div style="margin-top:4px;">
-      <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
     </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:var(--border);margin:0 4px" aria-hidden="true">|</span>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
       <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
-    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
   </footer>
 </div>
 <script src="/app.js" defer></script>

@@ -3,192 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>imgready for Developers: Free Image Optimization SDK & API</title>
+<title>imgready SDK for Developers: Client-Side Image Optimization</title>
 <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
-<meta name="description" content="Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. No server required: compresses client-side.">
-<meta property="og:title" content="imgready for Developers. SDK & API">
-<meta property="og:description" content="Free JavaScript SDK for image optimization. WebP, AVIF, HEIC, PNG-8 quantization. Drop-in script tag, no backend required.">
-<meta property="og:type" content="website">
+<meta name="description" content="Add browser-based image optimization to any website. JavaScript SDK with WebP, AVIF, HEIC and PNG support. No server required, it compresses client-side. Free with a badge, $149 to ship commercially.">
+<meta property="og:title" content="imgready for Developers. SDK &amp; API">
+<meta property="og:description" content="JavaScript SDK for image optimization. WebP, AVIF, HEIC, PNG-8 quantization. Drop-in script tag, no backend required.">
 <meta property="og:image" content="https://imgready.app/og/developers.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
+<meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/developers/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://imgready.app/og/developers.png">
 <link rel="canonical" href="https://imgready.app/developers/">
-<style>:root{--shell:clamp(20rem, 92vw, 1040px);--measure:68ch;--w-app:900px;--w-page:780px;--w-read:720px;--font-display:'Poetsen One',ui-rounded,'Segoe UI',system-ui,sans-serif;}@font-face{font-family:'Poetsen One';src:url('/fonts/poetsenone-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-@font-face{font-family:'Nunito';src:url('/fonts/nunito-latin.woff2') format('woff2-variations'),url('/fonts/nunito-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-
-/* NAV */
-nav{padding:18px 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-.nav-brand .g{color:var(--accent,var(--accent));}
-nav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;}
-nav a.nav-link:hover{text-decoration:underline;}
-.nav-sep{color:var(--border);}
-.nav-cta{margin-left:auto;padding:9px 22px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-size:.88rem;font-weight:700;text-decoration:none;transition:all .2s;white-space:nowrap;}
-.nav-cta:hover{background:var(--accent2);transform:translateY(-1px);}
-
-/* HERO */
-.hero{padding:52px 0 44px;border-bottom:1px solid var(--border);}
-.hero-badge{display:inline-block;background:var(--accent-light);color:var(--accent);border:1px solid #b8d4b8;border-radius:99px;font-size:.76rem;font-weight:700;padding:4px 14px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:18px;}
-.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:16px;color:var(--text);}
-.hero h1 em{font-style:normal;color:var(--accent);}
-.hero p{font-size:1rem;color:var(--text2);max-width:580px;line-height:1.75;margin-bottom:28px;}
-.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;}
-.pill{background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:.8rem;color:var(--text2);font-weight:600;}
-.pill.green{background:var(--accent-light);border-color:#b8d4b8;color:var(--accent);}
-
-/* TWO COL */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:36px 0;}
-.option-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;}
-.option-card.featured{border-color:var(--accent);background:#fff;}
-.option-card .tag{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);background:var(--accent-light);border-radius:99px;padding:3px 10px;display:inline-block;margin-bottom:12px;}
-.option-card .tag.soon{color:var(--muted);background:var(--surface2);}
-.option-card h3{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:8px;}
-.option-card p{font-size:.84rem;color:var(--text2);line-height:1.65;margin-bottom:14px;}
-.option-card ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
-.option-card ul li{font-size:.92rem;color:var(--text2);padding-left:18px;position:relative;}
-.option-card ul li::before{content:'✓';position:absolute;left:0;color:var(--accent);font-weight:700;}
-.option-card ul li.soon-item::before{content:'·';color:var(--muted);}
-.option-card ul li.soon-item{color:var(--muted);}
-
-/* SECTION */
-section{margin-top:52px;}
-section h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin-bottom:6px;letter-spacing:-.5px;}
-.section-sub{font-size:.88rem;color:var(--muted);margin-bottom:28px;}
-
-/* CODE BLOCKS */
-.code-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;}
-.code-wrap{position:relative;margin-bottom:16px;}
-pre{background:var(--text);color:#e8e4d8;border-radius:10px;padding:20px 24px;font-size:.84rem;line-height:1.7;overflow-x:auto;font-family:'Cascadia Code','Fira Code','Consolas',monospace;}
-.copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);border-radius:6px;padding:4px 12px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;}
-.copy-btn:hover{background:rgba(255,255,255,.2);color:#fff;}
-.copy-btn.copied{background:var(--accent);border-color:var(--accent);color:#fff;}
-
-/* SYNTAX COLOURS */
-.c-comment{color:var(--accent2);}
-.c-key{color:#c9a96e;}
-.c-str{color:#a8c8a8;}
-.c-fn{color:#8ab4c8;}
-.c-num{color:#c8a8a8;}
-.c-kw{color:#c8a8e8;}
-
-/* STEP LIST */
-.steps{display:flex;flex-direction:column;gap:20px;margin:24px 0;}
-.step{display:flex;gap:16px;align-items:flex-start;}
-.step-num{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:.88rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
-.step-body h4{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:4px;}
-.step-body p{font-size:.84rem;color:var(--text2);line-height:1.65;}
-.step-body code{background:var(--surface2);border-radius:4px;padding:1px 6px;font-size:.8rem;font-family:'Cascadia Code','Consolas',monospace;color:var(--accent);}
-
-/* OPTIONS TABLE */
-.opts-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.84rem;}
-/* Same quiet treatment as the comparison tables on the other pages:
-   one hairline per row, no cell boxes, no stripes (skill 9.F). */
-.opts-table th{text-align:left;padding:10px 18px 10px 0;color:var(--text);font-weight:700;border:0;border-bottom:1px solid var(--text2);}
-.opts-table td{padding:10px 18px 10px 0;border:0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
-.opts-table tr:last-child td{border-bottom:0;}
-.opts-table td code{background:var(--surface2);border-radius:4px;padding:1px 5px;font-family:'Cascadia Code','Consolas',monospace;font-size:.8rem;color:var(--accent);}
-
-/* ATTRIBUTION EXPLAINER */
-.attr-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:20px 0;display:flex;gap:20px;align-items:flex-start;}
-.attr-preview{flex-shrink:0;background:#fff;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);font-family:system-ui,sans-serif;white-space:nowrap;}
-.attr-preview a{color:var(--accent);font-weight:600;text-decoration:none;}
-.attr-body{font-size:.84rem;color:var(--text2);line-height:1.65;}
-.attr-body strong{color:var(--text);}
-
-/* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0;}
-.price-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
-.price-card.featured{border-color:var(--accent);background:#fff;position:relative;}
-.price-card .price-tag{display:inline-block;background:var(--accent-light);color:var(--accent);border-radius:99px;font-size:.68rem;font-weight:700;padding:2px 10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
-.price-card .price-tag.soon{background:var(--surface2);color:var(--muted);}
-.price-card h4{font-size:.96rem;font-weight:700;color:var(--text);margin-bottom:4px;}
-.price-card .amount{font-size:1.6rem;font-weight:700;color:var(--text);letter-spacing:-1px;margin-bottom:2px;}
-.price-card .amount span{font-size:.84rem;font-weight:400;color:var(--muted);}
-.price-card .price-desc{font-size:.8rem;color:var(--muted);margin-bottom:14px;}
-.price-card ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
-.price-card ul li{font-size:.8rem;color:var(--text2);padding-left:16px;position:relative;}
-.price-card ul li::before{content:'✓';position:absolute;left:0;color:var(--accent);font-weight:700;}
-.price-card ul li.muted{color:var(--muted);}
-.price-card ul li.muted::before{content:', ';color:var(--border);}
-.locked-badge{display:inline-block;background:#fff3cd;border:1px solid #e6c84a;color:#7a6020;border-radius:4px;font-size:.64rem;font-weight:700;padding:1px 6px;margin-left:4px;vertical-align:middle;}
-
-/* WAITLIST */
-.waitlist-wrap{background:var(--surface);border:1px solid var(--accent);border-radius:12px;overflow:hidden;margin:24px 0;}
-.waitlist-header{background:var(--accent);padding:20px 24px;}
-.waitlist-header h3{color:#fff;font-size:1rem;font-weight:700;margin-bottom:4px;}
-.waitlist-header p{color:rgba(255,255,255,.8);font-size:.84rem;}
-.waitlist-embed{padding:0;}
-.waitlist-embed iframe{display:block;width:100%;border:none;min-height:420px;}
-
-/* CALLOUT */
-.callout{background:var(--accent-light);border:1px solid #b8d4b8;border-radius:10px;padding:14px 18px;font-size:.92rem;color:var(--text2);line-height:1.65;margin:20px 0;}
-.callout strong{color:var(--text);}
-
-/* FOOTER */
-.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
-.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-.site-footer a:hover{text-decoration:underline;}
-
-@media(max-width:640px){
-  .hero h1{font-size:1.6rem;}
-  .two-col{grid-template-columns:1fr;}
-  .pricing-grid{grid-template-columns:1fr;}
-  .attr-box{flex-direction:column;}
-}
-  .related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:14px 0 28px;}
-  .related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-  .related a:hover{border-color:var(--accent);}
-  .related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-/* Reading measure. Mirrors app.css; this page does not load it. ch not px so it tracks the user's font size (WCAG 1.4.4). */.wrap p,.wrap li,.wrap dd{max-width:var(--measure, 68ch);}.dropzone p,.dropzone li,td p,td li,th p,.feature-grid p,.feature-grid li,.cards p,.cards li{max-width:none;}</style>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#b84d1d">
+<link rel="stylesheet" href="/app.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"Developers","item":"https://imgready.app/developers/"}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"imgready for Developers \u2014 Free Image Optimization SDK & API","description":"Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. REST API coming soon.","url":"https://imgready.app/developers/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the imgready SDK free?","acceptedAnswer":{"@type":"Answer","text":"The SDK is free to use with the imgready attribution badge visible. A paid licence removes the badge and is available via Ko-fi."}},{"@type":"Question","name":"What formats does the SDK support?","acceptedAnswer":{"@type":"Answer","text":"WebP, AVIF, JPG, PNG, and GIF output. HEIC and TIFF input via optional lazy-loaded decoders. The SDK exposes the same encoder pipeline as the imgready UI."}},{"@type":"Question","name":"Can I use imgready in a Node.js or server environment?","acceptedAnswer":{"@type":"Answer","text":"No \u2014 the SDK relies on the browser's Canvas API and WebAssembly runtime. It is a client-side only library. For server-side image processing, consider sharp or libvips."}},{"@type":"Question","name":"Where is the SDK documentation?","acceptedAnswer":{"@type":"Answer","text":"Full API reference, options object, and code examples are on this page. The SDK is also available as an ES module import \u2014 see the Quickstart section above."}},{"@type":"Question","name":"Does the SDK work with React, Vue, Angular, and other frameworks?","acceptedAnswer":{"@type":"Answer","text":"Yes. The SDK works in any framework \u2014 React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in."}},{"@type":"Question","name":"What's the bundle size impact of the SDK?","acceptedAnswer":{"@type":"Answer","text":"The main SDK script is ~2 KB minified. WebAssembly encoders (WebP, AVIF, HEIC) are lazy-loaded on demand, adding ~1.5 MB each only when needed and cached after first use. Pages using only PNG/JPG output have zero encoder overhead until a user actually compresses."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"imgready for Developers, Free Image Optimization SDK & API","description":"Add browser-based image optimization to any website. Free JavaScript SDK with WebP, AVIF, HEIC and PNG support. REST API coming soon.","url":"https://imgready.app/developers/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the imgready SDK free?","acceptedAnswer":{"@type":"Answer","text":"Free to use with the imgready attribution badge visible, including for open source. Shipping it commercially without the badge needs a licence, from $149 paid once. Full terms are at imgready.app/developers/pricing/."}},{"@type":"Question","name":"What formats does the SDK support?","acceptedAnswer":{"@type":"Answer","text":"WebP, AVIF, JPG, PNG, and GIF output. HEIC and TIFF input via optional lazy-loaded decoders. The SDK exposes the same encoder pipeline as the imgready UI."}},{"@type":"Question","name":"Can I use imgready in a Node.js or server environment?","acceptedAnswer":{"@type":"Answer","text":"No. The SDK relies on the browser's Canvas API and WebAssembly runtime. It is a client-side only library. For server-side image processing, consider sharp or libvips."}},{"@type":"Question","name":"Where is the SDK documentation?","acceptedAnswer":{"@type":"Answer","text":"Full API reference, options object, and code examples are on this page. The SDK is also available as an ES module import: see the Quickstart section above."}},{"@type":"Question","name":"Does the SDK work with React, Vue, Angular, and other frameworks?","acceptedAnswer":{"@type":"Answer","text":"Yes. The SDK works in any framework: React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in."}},{"@type":"Question","name":"What's the bundle size impact of the SDK?","acceptedAnswer":{"@type":"Answer","text":"The main SDK script is ~2 KB minified. WebAssembly encoders (WebP, AVIF, HEIC) are lazy-loaded on demand, adding ~1.5 MB each only when needed and cached after first use. Pages using only PNG/JPG output have zero encoder overhead until a user actually compresses."}}]}</script>
 </head>
 <body>
-<div class="wrap">
 
+<div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
-    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
-    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
-    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
     <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-badge">For Developers</div>
-    <h1>Add image optimization<br>to <em>any website</em> in minutes</h1>
-    <p>The imgready SDK is a free JavaScript library that brings the same compression engine powering imgready.app directly into your own projects, no server, no uploads, no backend required.</p>
-    <div class="hero-pills">
-      <span class="pill green">Free forever</span>
+  <main>
+    <header class="page-head">
+      <h1>Add image optimization<br>to <em>any website</em> in minutes</h1>
+      <div class="hero-badge">For Developers</div>
+<p>The imgready SDK is a free JavaScript library that brings the same compression engine powering imgready.app directly into your own projects, no server, no uploads, no backend required.</p>
+<div class="hero-pills">
+      <span class="pill green">Free with a badge</span>
       <span class="pill green">No backend needed</span>
       <span class="pill green">WebP · AVIF · HEIC · PNG-8</span>
       <span class="pill">Batch support</span>
       <span class="pill">One script tag</span>
       <span class="pill">Privacy-first</span>
     </div>
-  </div>
-
-  <!-- SDK vs API -->
-  <div class="two-col">
+    </header>
+    <ul class="highlights">
+      <li><b>JavaScript SDK</b> Built for user-facing flows. A visitor uploads a photo, your site compresses it instantly in their browser before it ever hits your server. No backend, no infrastructure, no cost.</li>
+    </ul>
+    <section class="prose">
+<div class="two-col">
     <div class="option-card featured">
       <span class="tag">Available now</span>
       <h3>JavaScript SDK</h3>
@@ -216,9 +81,7 @@ pre{background:var(--text);color:#e8e4d8;border-radius:10px;padding:20px 24px;fo
       </ul>
     </div>
   </div>
-
-  <!-- QUICKSTART -->
-  <section>
+<section>
     <h2>Quickstart: SDK</h2>
     <p class="section-sub">Three steps, no account needed.</p>
 
@@ -276,9 +139,7 @@ a.<span class="c-fn">click</span>();</pre>
       </div>
     </div>
   </section>
-
-  <!-- REAL WORLD EXAMPLES -->
-  <section>
+<section>
     <h2>Common use cases</h2>
     <p class="section-sub">Copy-paste examples for the most common integration patterns.</p>
 
@@ -342,7 +203,7 @@ results.<span class="c-fn">forEach</span>((blob, i) =&gt; {
       <pre id="code-key"><span class="c-comment">// Call init() once at the top of your app</span>
 <span class="c-comment">// with the license key emailed to you after purchase.</span>
 imgready.<span class="c-fn">init</span>({
-  <span class="c-key">licenseKey</span>: <span class="c-str">'IR-D-1a2b3c4d5e6f7890-abcd1234'</span>
+  <span class="c-key">licenseKey</span>: <span class="c-str">'IR-M-1a2b3c4d5e6f7890-abcd1234'</span>
 });
 
 <span class="c-comment">// All subsequent compress() calls inherit the key</span>
@@ -350,127 +211,76 @@ imgready.<span class="c-fn">init</span>({
       <button class="copy-btn" onclick="copyCode('code-key',this)">Copy</button>
     </div>
   </section>
-
-  <!-- OPTIONS -->
-  <section>
+<section>
     <h2>All options</h2>
-    <p class="section-sub">Every parameter accepted by <code style="font-size:.88rem;background:var(--surface2);border-radius:4px;padding:1px 6px;">imgready.compress(file, options)</code></p>
+    <p class="section-sub">Every parameter accepted by <code>imgready.compress(file, options)</code></p>
     <table class="opts-table">
       <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
       <tr><td><code>format</code></td><td>string</td><td><code>'webp'</code></td><td>Output format: <code>webp</code>, <code>avif</code>, <code>png</code>, <code>jpg</code>, <code>gif</code></td></tr>
       <tr><td><code>quality</code></td><td>number</td><td><code>82</code></td><td>1-100. At 100 PNG is lossless; below 100 PNG uses indexed color (PNG-8). JPG/WebP/AVIF are always lossy.</td></tr>
       <tr><td><code>maxDim</code></td><td>number</td><td><code>0</code></td><td>Resize longest side to this value in px. <code>0</code> = no resize. Aspect ratio always preserved.</td></tr>
       <tr><td><code>crop</code></td><td>string</td><td><code>'none'</code></td><td>Crop from center: <code>none</code>, <code>1:1</code>, <code>4:3</code>, <code>3:4</code>, <code>16:9</code>, <code>9:16</code></td></tr>
-      <tr><td><code>licenseKey</code></td><td>string</td><td><code>null</code></td><td>Your license key. Removes the "Optimized by imgready" footer badge. Auto-emailed after purchase below; <a href="mailto:hello@imgready.app" style="color:var(--accent);">contact us</a> if you need it resent.</td></tr>
+      <tr><td><code>licenseKey</code></td><td>string</td><td><code>null</code></td><td>Your license key. Removes the "Optimized by imgready" footer badge. Auto-emailed after purchase below; <a href="mailto:hello@imgready.app">contact us</a> if you need it resent.</td></tr>
       <tr><td><code>validateOnline</code></td><td>boolean</td><td><code>true</code></td><td>Pass to <code>imgready.init()</code> to control license verification. Default <code>true</code> performs a one-time check against our key server (cached 24h). Set <code>false</code> only if your app must run fully offline; the badge will stay visible.</td></tr>
     </table>
   </section>
-
-  <!-- ATTRIBUTION + LICENSE PRICING -->
-  <section>
+<section>
     <h2>Attribution &amp; licensing</h2>
-    <p class="section-sub">The SDK is free to use. A license key removes the attribution badge and covers commercial use.</p>
+    <p class="section-sub">Free to use with the attribution badge visible. A licence removes the badge and covers commercial use. Full terms, and what counts as one product, are on the <a href="/developers/pricing/">pricing page</a>.</p>
 
     <div class="attr-box">
       <div>
-        <div class="code-label" style="margin-bottom:8px;">What the badge looks like</div>
+        <div class="code-label">What the badge looks like</div>
         <div class="attr-preview">Images optimized by <a href="https://imgready.app">imgready</a></div>
       </div>
       <div class="attr-body">
         <strong>Without a license key</strong>, a small badge appears fixed in the bottom-right corner of pages using the SDK. Unobtrusive, links to imgready.app.<br><br>
-        <strong>With a license key</strong>, the badge is removed once verified. Call <code style="background:var(--surface2);border-radius:4px;padding:1px 5px;font-size:.8rem;">imgready.init({ licenseKey: 'IR-D-…' })</code> once at the top of your app. Verification is a single round-trip to our key server on first call, then cached locally for 24 hours.
+        <strong>With a license key</strong>, the badge is removed once verified. Call <code>imgready.init({ licenseKey: 'IR-M-…' })</code> once at the top of your app. Verification is a single round-trip to our key server on first call, then cached locally for 24 hours.
       </div>
     </div>
 
-    <div class="callout" style="margin-top:18px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);">
+    <div class="callout">
       <strong>How license delivery works.</strong> Pay through any of the buttons below. Within a minute Stripe sends a notification to our license server, which mints a key bound to your purchase, stores it, and emails it to the address you used at checkout. The email comes from <a href="mailto:hello@imgready.app">hello@imgready.app</a>. Keys are HMAC-signed and verified server-side, they are not derivable from the SDK source. If you don't see the email within five minutes, check spam, then reply to any email from us and we'll resend.
     </div>
 
-    <!-- LICENSE TIERS -->
-    <div class="pricing-grid" style="margin-top:24px;">
-      <div class="price-card" style="display:flex;flex-direction:column;">
-        <div class="price-tag">Personal</div>
-        <h4>Hobby &amp; portfolio</h4>
-        <div class="amount">$9<span> one-time</span></div>
-        <div class="price-desc">Non-commercial projects</div>
-        <ul style="flex:1;">
-          <li>Badge removed</li>
-          <li>1 personal project</li>
-          <li>Portfolio, hobby sites</li>
-          <li class="muted">Not for client work</li>
-          <li class="muted">Not for commercial use</li>
-        </ul>
-        <a href="https://buy.stripe.com/7sY28s0dF6LV3o3c480kE00" target="_blank" rel="noopener"
-          style="display:block;margin-top:16px;text-align:center;padding:9px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:.84rem;font-weight:700;color:var(--accent);text-decoration:none;">
-          Buy Personal: $9
-        </a>
-      </div>
-      <div class="price-card featured" style="display:flex;flex-direction:column;">
-        <div class="price-tag">Developer</div>
-        <h4>Freelance &amp; client work</h4>
-        <div class="amount">$29<span> one-time</span></div>
-        <div class="price-desc">Commercial projects</div>
-        <ul style="flex:1;">
-          <li>Badge removed</li>
-          <li>Unlimited client projects</li>
-          <li>Commercial use permitted</li>
-          <li>Priority REST API access <span class="locked-badge">REST API</span></li>
-          <li>Email support</li>
-        </ul>
-        <a href="https://buy.stripe.com/9B69AU1hJ3zJ7Ej0lq0kE01" target="_blank" rel="noopener"
-          style="display:block;margin-top:16px;text-align:center;padding:9px;background:var(--accent);border:1px solid var(--accent);border-radius:8px;font-size:.84rem;font-weight:700;color:#fff;text-decoration:none;">
-          Buy Developer: $29
-        </a>
-      </div>
-      <div class="price-card" style="display:flex;flex-direction:column;">
-        <div class="price-tag">Commercial</div>
-        <h4>Agency &amp; production</h4>
-        <div class="amount">$99<span> one-time</span></div>
-        <div class="price-desc">Company &amp; team use</div>
-        <ul style="flex:1;">
-          <li>Badge removed</li>
-          <li>Unlimited projects &amp; team</li>
-          <li>SaaS &amp; product use</li>
-          <li>Priority REST API access <span class="locked-badge">REST API</span></li>
-          <li>Priority support</li>
-        </ul>
-        <a href="https://buy.stripe.com/7sY5kE5xZgmv5wb6JO0kE02" target="_blank" rel="noopener"
-          style="display:block;margin-top:16px;text-align:center;padding:9px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:.84rem;font-weight:700;color:var(--accent);text-decoration:none;">
-          Buy Commercial: $99
-        </a>
-      </div>
+    <!-- LICENSE TIERS. Deliberately NOT three cards any more.
+     Prices live in exactly one place now, /developers/pricing/, because
+     they were previously stated here, in sdk/mint-tool.html and on the
+     homepage, and the three had already drifted apart. -->
+    <div class="pricing-summary">
+      <p><strong>Free</strong> for personal, open source and non-commercial work,
+         with a small imgready badge.
+         <strong>$149</strong> paid once for one commercial product.
+         <strong>$449</strong> for every product you ship, client work included.
+         Both perpetual, both with twelve months of updates.</p>
+      <p><a class="pricing-link" href="/developers/pricing/">See what the licence
+         covers</a></p>
     </div>
 
-    <div class="callout" style="margin-top:20px;">
-      <strong>For open source projects:</strong> Attribution is always required unless a license key is present. Link back to imgready.app in your README, no key needed. Questions? <a href="mailto:hello@imgready.app" style="color:var(--accent);">hello@imgready.app</a>
+    <div class="callout">
+      <strong>For open source projects:</strong> Attribution is always required unless a license key is present. Link back to imgready.app in your README, no key needed. Questions? <a href="mailto:hello@imgready.app">hello@imgready.app</a>
     </div>
   </section>
-
-  <!-- SECURITY & VALIDATION -->
-  <section>
+<section>
     <h2>How license validation works</h2>
     <p class="section-sub">Short version, for technical buyers wondering if they can trust the system.</p>
-    <ul style="list-style:none;padding-left:0;">
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Each key is signed with HMAC-SHA256 against a server-side secret. Keys cannot be forged from the SDK source.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>On <code>imgready.init()</code>, the SDK calls our verification endpoint exactly once. Result is cached in <code>localStorage</code> for 24 hours, so subsequent page loads are instant and offline-tolerant.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>The verification call is a single POST to our Cloudflare Worker, returns in milliseconds, and contains only the key, never image data, never user data. <a href="/privacy/">Privacy policy</a> covers this in detail.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>If verification fails (bad key, network outage, server down), the badge stays visible, the SDK is fail-safe, never fail-open. Your image processing continues uninterrupted; only the attribution display is gated.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Personal-tier keys are domain-bound on request, tell us the domain at purchase or after, and the key will only validate on that origin. Developer and Commercial keys are unrestricted across your project portfolio.</li>
-      <li style="padding:8px 0 8px 22px;position:relative;font-size:.92rem;color:var(--text2);line-height:1.7;"><span style="position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Lost your key? Email <a href="mailto:hello@imgready.app">hello@imgready.app</a> from the address you used at purchase, we'll look it up in our records and resend.</li>
+    <ul>
+      <li><span></span>Each key is signed with HMAC-SHA256 against a server-side secret. Keys cannot be forged from the SDK source.</li>
+      <li><span></span>On <code>imgready.init()</code>, the SDK calls our verification endpoint exactly once. Result is cached in <code>localStorage</code> for 24 hours, so subsequent page loads are instant and offline-tolerant.</li>
+      <li><span></span>The verification call is a single POST to our Cloudflare Worker, returns in milliseconds, and contains only the key, never image data, never user data. <a href="/privacy/">Privacy policy</a> covers this in detail.</li>
+      <li><span></span>If verification fails (bad key, network outage, server down), the badge stays visible, the SDK is fail-safe, never fail-open. Your image processing continues uninterrupted; only the attribution display is gated.</li>
+      <li><span></span>Personal-tier keys are domain-bound on request, tell us the domain at purchase or after, and the key will only validate on that origin. Developer and Commercial keys are unrestricted across your project portfolio.</li>
+      <li><span></span>Lost your key? Email <a href="mailto:hello@imgready.app">hello@imgready.app</a> from the address you used at purchase, we'll look it up in our records and resend.</li>
     </ul>
   </section>
-
-  <!-- REST API COMING SOON -->
-  <section>
+<section>
     <h2>REST API: coming soon</h2>
     <p class="section-sub">Server-side optimization for any language or pipeline. Pricing and tier details will be announced at launch, join the waitlist below to be first to know and lock in early access rates.</p>
     <div class="callout">
       <strong>What's coming:</strong> A simple REST endpoint you POST an image to and get back an optimized file, from Python, PHP, Node, Ruby, or any HTTP client. Full HEIC &amp; TIFF support, WebP &amp; AVIF output, resize and crop, API key dashboard, and CI/CD pipeline ready. Early access members get preferential pricing locked in at signup.
     </div>
   </section>
-
-  <!-- WAITLIST -->
-  <section>
+<section>
     <h2>Join the REST API waitlist</h2>
     <p class="section-sub">Be first to know when the server-side API launches. Early access members get 3 months of Pro free.</p>
     <div class="waitlist-wrap">
@@ -479,40 +289,26 @@ imgready.<span class="c-fn">init</span>({
         <p>We'll email you at launch, no spam, one email.</p>
       </div>
       <div class="waitlist-embed">
-        <iframe
-          src="https://tally.so/embed/7RvLVP?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
-          loading="lazy"
-          width="100%"
-          height="420"
-          frameborder="0"
-          marginheight="0"
-          marginwidth="0"
-          title="imgready API waitlist"
-        ></iframe>
+        <iframe src="https://tally.so/embed/7RvLVP?alignLeft=1&amp;hideTitle=1&amp;transparentBackground=1&amp;dynamicHeight=1" loading="lazy" width="100%" height="420" frameborder="0" marginheight="0" marginwidth="0" title="imgready API waitlist"></iframe>
       </div>
     </div>
   </section>
-
-  <!-- QUESTIONS -->
-  <section>
+<section>
     <h2>Questions?</h2>
     <p class="section-sub">The SDK is new. If something's broken or unclear, reach out directly.</p>
     <div class="callout">
-      Email <a href="mailto:hello@imgready.app" style="color:var(--accent);font-weight:600;">hello@imgready.app</a>: for bug reports, license key requests, or REST API early access enquiries. Response within 24 hours.
+      Email <a href="mailto:hello@imgready.app">hello@imgready.app</a>: for bug reports, license key requests, or REST API early access enquiries. Response within 24 hours.
     </div>
   </section>
-
-  
-    <h2>Frequently asked questions</h2>
-  <details class="faq-item"><summary>Is the imgready SDK free?</summary><p>The SDK is free to use with the imgready attribution badge visible. A paid licence removes the badge and is available via Ko-fi.</p></details>
-  <details class="faq-item"><summary>What formats does the SDK support?</summary><p>WebP, AVIF, JPG, PNG, and GIF output. HEIC and TIFF input via optional lazy-loaded decoders. The SDK exposes the same encoder pipeline as the imgready UI.</p></details>
-  <details class="faq-item"><summary>Can I use imgready in a Node.js or server environment?</summary><p>No. The SDK relies on the browser's Canvas API and WebAssembly runtime. It is a client-side only library. For server-side image processing, consider sharp or libvips.</p></details>
-  <details class="faq-item"><summary>Where is the SDK documentation?</summary><p>Full API reference, options object, and code examples are on this page. The SDK is also available as an ES module import, see the Quickstart section above.</p></details>
-  <details class="faq-item"><summary>Does the SDK work with React, Vue, Angular, and other frameworks?</summary><p>Yes. The SDK works in any framework. React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in.</p></details>
-  <details class="faq-item"><summary>What's the bundle size impact of the SDK?</summary><p>The main SDK script is ~2 KB minified. WebAssembly encoders (WebP, AVIF, HEIC) are lazy-loaded on demand, adding ~1.5 MB each only when needed and cached after first use. Pages using only PNG/JPG output have zero encoder overhead until a user actually compresses.</p></details>
-  
-  <h2>Related</h2>
-  <div class="related">
+<h2>Frequently asked questions</h2>
+<details class="faq-item"><summary>Is the imgready SDK free?</summary><p>Free to use with the imgready attribution badge visible, including for open source. Shipping it commercially without the badge needs a licence, from $149 paid once. See <a href="/developers/pricing/">pricing</a>.</p></details>
+<details class="faq-item"><summary>What formats does the SDK support?</summary><p>WebP, AVIF, JPG, PNG, and GIF output. HEIC and TIFF input via optional lazy-loaded decoders. The SDK exposes the same encoder pipeline as the imgready UI.</p></details>
+<details class="faq-item"><summary>Can I use imgready in a Node.js or server environment?</summary><p>No. The SDK relies on the browser's Canvas API and WebAssembly runtime. It is a client-side only library. For server-side image processing, consider sharp or libvips.</p></details>
+<details class="faq-item"><summary>Where is the SDK documentation?</summary><p>Full API reference, options object, and code examples are on this page. The SDK is also available as an ES module import, see the Quickstart section above.</p></details>
+<details class="faq-item"><summary>Does the SDK work with React, Vue, Angular, and other frameworks?</summary><p>Yes. The SDK works in any framework. React, Vue, Angular, Svelte, or plain HTML/JavaScript. It's a simple async function that takes a File or Blob and returns a Blob. No dependencies, no framework lock-in.</p></details>
+<details class="faq-item"><summary>What's the bundle size impact of the SDK?</summary><p>The main SDK script is ~2 KB minified. WebAssembly encoders (WebP, AVIF, HEIC) are lazy-loaded on demand, adding ~1.5 MB each only when needed and cached after first use. Pages using only PNG/JPG output have zero encoder overhead until a user actually compresses.</p></details>
+<h2>Related</h2>
+<div class="related">
     <a href="/about/">About imgready<small>The story behind the tool</small></a>
     <a href="/why/">Why never uploading matters<small>The privacy thesis</small></a>
     <a href="/privacy/">Privacy policy<small>What the SDK collects (nothing)</small></a>
@@ -520,23 +316,30 @@ imgready.<span class="c-fn">init</span>({
     <a href="/webp-converter/">WebP converter<small>The format the SDK favors</small></a>
     <a href="/support/">Support imgready<small>Help keep the SDK free</small></a>
   </div>
-
+    </section>
+  </main>
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:var(--font-display);font-feature-settings:'ss01' on;letter-spacing:-.3px;color:var(--text2);">img<i class="brand-mark" aria-hidden="true"></i><span style="color:var(--accent)">ready</span></div>
-    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
     <div>
-      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
     </div>
-    <div style="margin-top:4px;">
-      <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
     </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:var(--border);margin:0 4px" aria-hidden="true">|</span>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
       <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
-    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
   </footer>
 </div>
+<script src="/app.js" defer></script>
 </body>
 </html>

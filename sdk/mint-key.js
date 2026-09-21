@@ -13,7 +13,12 @@
 'use strict';
 const crypto = require('crypto');
 
-const TIER_CODE = { personal: 'P', developer: 'D', commercial: 'C' };
+// Must stay identical to TIER_CODE in sdk/worker.js. See the note there
+// on why legacy letters are never reused.
+const TIER_CODE = {
+  commercial: 'M', unlimited: 'U', enterprise: 'E',
+  personal: 'P', developer: 'D', commercialV1: 'C',
+};
 
 function hmacHex(secret, msg) {
   return crypto.createHmac('sha256', secret).update(msg).digest('hex');
@@ -25,7 +30,7 @@ function randomHex(n) {
 
 function mintKey(tier, secret) {
   const code = TIER_CODE[tier];
-  if (!code) throw new Error('Bad tier (use personal | developer | commercial)');
+  if (!code) throw new Error('Bad tier (use commercial | unlimited | enterprise)');
   const random = randomHex(8); // 16 hex chars
   const sig = hmacHex(secret, code + '.' + random).slice(0, 8);
   return `IR-${code}-${random}-${sig}`;
@@ -39,7 +44,7 @@ if (!secret) {
   process.exit(2);
 }
 if (!tierArg) {
-  console.error('USAGE: IMGREADY_KEY_SECRET=... node mint-key.js <personal|developer|commercial> [email] [domain]');
+  console.error('USAGE: IMGREADY_KEY_SECRET=... node mint-key.js <commercial|unlimited|enterprise> [email] [domain]');
   process.exit(2);
 }
 

@@ -269,7 +269,20 @@ header p,.dropzone p,.faq-item p,.empty-state{color:var(--muted-strong);}
 /* A11y: skip-to-content link, hidden until focused (helps screen reader & keyboard users) */
 .skip-link{position:absolute;left:-9999px;top:6px;background:var(--accent);color:var(--on-accent);padding:8px 14px;border-radius:6px;font-weight:700;font-size:.84rem;text-decoration:none;z-index:9999;}
 .skip-link:focus{left:6px;}
+/* .wrap is the landing-page container. It was defined only in each page's
+   own inline <style>, 70 copies of one rule, so any page written without
+   that block rendered full bleed. Two new pages did exactly that. The
+   shared container belongs in the shared stylesheet. */
+.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
 .app{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
+/* .app is the top-level container on the HOMEPAGE, where it has to supply
+   the page gutter itself. On the 52 landing pages it sits inside .wrap,
+   which already applied the same max-width and the same 24px, so the tool
+   was double-guttered: H1, breadcrumb, nav brand and footer all sat on the
+   page edge at 136px while the settings bar and the dropzone started at
+   160px. The primary element on the page was the one thing out of line.
+   Horizontal only: the 80px bottom padding still belongs to .app. */
+.wrap .app{max-width:none;padding-left:0;padding-right:0;}
 
 /* TOP NAV */
 /* Nav padding + a margin below pushes the dropzone down so it doesn't crowd
@@ -473,7 +486,10 @@ header h1.brand-h1 .sr-tagline{position:absolute;width:1px;height:1px;padding:0;
    group that reads as broken. Scrollbar hidden on touch surfaces. */
 .format-toggle{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .format-toggle::-webkit-scrollbar{display:none;}
-.format-toggle button{padding:6px 14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:.84rem;font-weight:600;transition:all .2s;border-radius:7px;flex-shrink:0;white-space:nowrap;}
+/* --text2, not --muted: --muted on --surface2 measures 3.98:1, which
+   fails AA on an interactive control. --text2 gives 6.48:1 and stays
+   theme-aware, unlike hard-coding the ink token. */
+.format-toggle button{padding:6px 14px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:.84rem;font-weight:600;transition:all .2s;border-radius:7px;flex-shrink:0;white-space:nowrap;}
 .format-toggle button:hover:not(:disabled){border-color:var(--accent);}
 .format-toggle button.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
 .format-toggle button:disabled{opacity:.4;cursor:not-allowed;}
@@ -1276,6 +1292,15 @@ td p, td li, th p,
 .faq-item p{font-size:.88rem;color:var(--text2);line-height:1.7;margin-top:6px;padding-left:4px;}
 
 /* FOOTER */
+/* The footer sits inside .wrap on 60 pages and outside it on 11, so its
+   border-top hairline stopped at 992px on most pages and ran the full
+   viewport on the rest. Give it its own alignment so nesting stops
+   mattering, then cancel that wherever a padded container already
+   supplied the gutter, or it double-gutters the way .app did. */
+/* Plain rule again. The footer now sits inside .wrap or .app on every
+   page, so the container supplies the gutter and the hairline lands on the
+   same edge as the H1. The self-sizing width() version this replaced was
+   CSS compensating for inconsistent markup, which is the wrong fix. */
 .site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
 /* WCAG 2.2 SC 2.5.8 wants a 24x24 CSS-px target. These were 14px tall —
    a bare 14px line box with no padding — and there are two dozen of them
@@ -1428,4 +1453,126 @@ td p, td li, th p,
   .fs-lbl.r{right:50px;}
   .fs-close{top:12px;right:12px;width:32px;height:32px;font-size:.92rem;}
 }
+/* ===========================================================================
+   LANDING PAGES
+
+   Every rule below used to live in each page's own inline <style>, 70
+   copies of the same declarations totalling 607KB. Because an inline
+   <style> comes after the <link>, those copies beat this file, so fixing
+   anything here silently did nothing on the pages that redeclared it.
+   Three separate alignment bugs came out of that. The pages are now
+   generated with no inline CSS, so this is the only definition.
+
+   scripts/extract_pages.py  ->  build/pages.json
+   scripts/build_pages.py    ->  the pages
+   scripts/verify_pages.py   ->  proves no content was lost
+   =========================================================================== */
+
+.crumbs{font-size:.8rem;color:var(--muted);margin:14px 0 2px;}
+.crumbs a{color:var(--muted);text-decoration:none;}
+.crumbs a:hover{color:var(--accent);text-decoration:underline;}
+.crumbs [aria-current]{color:var(--text2);}
+
+/* .nav-brand existed only in the inline styles, so the wordmark rendered
+   as a default underlined link once those were deleted. */
+.topnav .nav-brand{font-family:var(--font-display);font-synthesis:none;
+  font-feature-settings:"ss01" on;font-size:22px;font-weight:400;
+  letter-spacing:-.01em;text-decoration:none;color:var(--text);
+  display:inline-flex;align-items:center;}
+.topnav .nav-brand .g{color:var(--accent);}
+.topnav .nav-brand:hover{text-decoration:none;}
+
+/* app.css line 442 styles bare `header` as the HOMEPAGE hero: flex column,
+   centred, centred text. A landing page's <header class="page-head"> picks
+   that up and the H1 and lede come out centred. Undo it here rather than
+   avoiding the element, since (0,1,0) beats (0,0,1) cleanly. */
+.page-head{display:block;text-align:left;align-items:initial;gap:0;
+  margin:0 0 26px;}
+.page-head h1{font-family:var(--font-display);font-synthesis:none;font-weight:400;
+  font-size:clamp(1.9rem, 1.15rem + 2.1vw, 3rem);letter-spacing:-1px;
+  line-height:1.1;margin:0 0 14px;color:var(--text);}
+/* The em in a landing-page H1 is the accent clause, the same job the rust
+   word does in a section heading. */
+.page-head h1 em{font-style:normal;color:var(--accent);}
+.page-head .lede{font-size:clamp(1rem, .95rem + .2vw, 1.1rem);color:var(--text2);
+  line-height:1.7;margin:0 0 10px;max-width:var(--measure, 68ch);}
+.page-head .hero-sub,.page-head > p{font-size:.95rem;color:var(--text2);
+  line-height:1.7;margin:0 0 10px;max-width:var(--measure, 68ch);}
+
+/* Was a row of four identical bordered cards on 54 pages, which is the
+   filler pattern the design rules single out. The claims inside are real
+   and page-specific, so they stay; the boxes do not. Dividers and space
+   carry the grouping instead. */
+.highlights{list-style:none;margin:22px 0 34px;padding:18px 0 0;
+  border-top:1px solid var(--border);
+  display:grid;gap:14px 34px;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+.highlights li{font-size:.9rem;line-height:1.6;color:var(--text2);margin:0;}
+.highlights b{display:block;color:var(--text);font-weight:700;margin-bottom:2px;}
+
+.prose h2{font-family:var(--font-display);font-synthesis:none;font-weight:400;
+  font-size:var(--h2-size, 1.45rem);color:var(--text);
+  margin:var(--h2-gap, 40px) 0 12px;letter-spacing:-.3px;line-height:1.2;}
+.prose h3,.prose h3.sub{font-size:var(--h3-size, 1.05rem);font-weight:700;
+  color:var(--accent);margin:var(--h3-gap, 26px) 0 8px;line-height:1.35;}
+.prose p,.prose li,.prose dd{max-width:var(--measure, 68ch);}
+.prose p{margin:0 0 14px;line-height:1.75;color:var(--text2);}
+.prose ul,.prose ol{margin:0 0 16px;padding-left:22px;}
+.prose li{margin:0 0 7px;line-height:1.7;color:var(--text2);}
+.prose > section{margin:0;}
+
+.prose .callout{background:var(--accent-light);border-left:3px solid var(--accent);
+  padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;
+  font-size:.92rem;color:var(--text2);line-height:1.75;}
+.prose .callout p{margin:0;max-width:none;}
+
+.prose pre{background:var(--night-900,#14100e);color:#ecdfcc;border-radius:10px;
+  padding:14px 18px;overflow-x:auto;font-family:var(--font-mono);
+  font-size:.8rem;line-height:1.75;margin:0 0 18px;max-width:none;}
+.prose code{font-family:var(--font-mono);font-size:.86em;}
+.prose p code,.prose li code{background:var(--surface2);border-radius:4px;padding:1px 5px;}
+
+/* Related links.
+   The markup is a <div> of <a>, each holding <strong> (the name) and
+   <small> (what it does). Both are inline elements, so with no rule the
+   two ran together: "WebP to JPG ConverterFree browser-based conversion".
+   The name goes on its own line and the description sits under it. */
+.related{margin:22px 0 8px;}
+.related ul{list-style:none;margin:0;padding:0;}
+.related ul,.related:not(:has(ul)){display:grid;gap:10px 24px;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+.related li{margin:0;}
+.related a{display:block;text-decoration:none;color:var(--accent);
+  font-size:.92rem;font-weight:700;line-height:1.4;
+  padding:10px 12px;border-radius:9px;border:1px solid transparent;}
+.related a:hover{border-color:var(--border);background:var(--surface);}
+.related a strong{display:block;font-weight:700;}
+.related a small{display:block;margin-top:2px;font-size:.82rem;font-weight:400;
+  color:var(--text2);line-height:1.5;}
+
+/* The closing call to action. .hero-cta existed only in the inline styles,
+   so once those went it rendered as a default underlined blue link. */
+.hero-cta{display:inline-block;margin-top:12px;padding:11px 22px;
+  background:var(--accent);color:var(--on-accent);border-radius:10px;
+  font-size:.92rem;font-weight:700;text-decoration:none;}
+.hero-cta:hover{background:var(--accent2);text-decoration:none;}
+
+.bottom-cta{text-align:center;padding:30px 0 6px;margin-top:26px;
+  border-top:1px solid var(--border);}
+.bottom-cta p{margin:0 auto;max-width:var(--measure, 68ch);color:var(--text2);}
+
+.footer-brand{font-family:var(--font-display);font-synthesis:none;
+  letter-spacing:-.3px;color:var(--text2);}
+.footer-brand .g{color:var(--accent);}
+.footer-row2{margin-top:6px;}
+/* --border measured 1.47:1, all but invisible, which defeats the point
+   of a separator even though aria-hidden exempts it from 1.4.3. */
+.footer-sep{color:var(--muted);margin:0 4px;}
+
+@media(max-width:760px){
+  .page-head h1{letter-spacing:-.5px;}
+  .highlights{gap:12px 20px;margin:18px 0 26px;}
+  .prose pre{font-size:.74rem;}
+}
+
 /* CSS_EOF_MARKER */

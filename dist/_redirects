@@ -52,3 +52,30 @@
 /image-converter/       /tools/         301
 /convert                /tools/         301
 /convert/               /tools/         301
+
+# Legacy .html URLs, one hop.
+#
+# Without an explicit rule the edge strips the extension first
+# (/privacy.html -> /privacy) and only then normalises the slash
+# (/privacy -> /privacy/). Two hops. Google leaks signal through a
+# chain and reports it separately, and Search Console has both
+# /privacy.html and /about.html sitting in 'Page with redirect'.
+# These send them straight to the canonical URL in one hop.
+
+/privacy.html              /privacy/       301
+/about.html                /about/         301
+/terms.html                /terms/         301
+/support.html              /support/       301
+/developers.html           /developers/    301
+/compress.html             /compress/      301
+/resize.html               /resize/        301
+/tools.html                /tools/         301
+/why.html                  /why/           301
+/heic-to-jpg.html          /heic-to-jpg/   301
+/webp-converter.html       /webp-converter/ 301
+/avif-converter.html       /avif-converter/ 301
+/png-to-jpg.html           /png-to-jpg/    301
+/jpg-to-png.html           /jpg-to-png/    301
+/webp-to-jpg.html          /webp-to-jpg/   301
+/webp-vs-png-vs-jpg.html   /webp-vs-png-vs-jpg/ 301
+/index.html                /              301

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help: imgready Troubleshooting and Browser Support</title>
+<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="description" content="Fixes for the things that actually go wrong: a file that will not open, a tab that runs out of memory, transparency lost on conversion, nothing downloading.">
+<meta property="og:title" content="imgready help and troubleshooting">
+<meta property="og:description" content="What to do when a file will not open, a tab runs out of memory, or the output does not look right.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://imgready.app/help/">
+<meta property="og:site_name" content="imgready">
+<link rel="canonical" href="https://imgready.app/help/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#b84d1d">
+<link rel="stylesheet" href="/app.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"My HEIC file will not open","acceptedAnswer":{"@type":"Answer","text":"HEIC needs a decoder that no browser except Safari ships, so imgready downloads one the first time you drop a HEIC. It is a large download, so on a slow connection the first file can take a few seconds before anything appears. If it fails, reload once so the decoder can be fetched again."}},{"@type":"Question","name":"The tab froze or ran out of memory","acceptedAnswer":{"@type":"Answer","text":"Everything runs on your own device, so a very large image or a very large batch uses your RAM rather than a server's. Try fewer files at once, and close other heavy tabs. A phone will manage a smaller batch than a laptop."}},{"@type":"Question","name":"My transparent PNG came out with a white background","acceptedAnswer":{"@type":"Answer","text":"JPG has no transparency. Anything see-through has to become a solid colour when you convert to JPG, and white is the default. Convert to WebP, AVIF or PNG instead if you need to keep transparency."}},{"@type":"Question","name":"Which browsers work?","acceptedAnswer":{"@type":"Answer","text":"Current Chrome, Edge, Firefox and Safari, on desktop and mobile. The tool needs WebAssembly and modern Canvas, so it will not work in Internet Explorer or a very old Android browser."}},{"@type":"Question","name":"Are my images uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Open your browser developer tools, go to the Network tab, and drop a file. You will see the page load and the decoder download, and no request carrying your image."}}]}</script>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="topnav" aria-label="Primary">
+    <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
+    <span class="nav-grow">
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
+    </span>
+  </nav>
+  <main>
+    <header class="page-head">
+      <h1>When it <span class="hl">does not</span> work</h1>
+      <p class="eyebrow">Help</p>
+<p class="lede">Everything here runs on your own device, which means the failures
+      look different from a normal web app. Nothing is queued on a server, so there is
+      nothing to wait for and nothing we can retry for you. These are the things that
+      actually go wrong.</p>
+<h2>A file <span class="hl">will not</span> open</h2>
+<details class="faq-item"><summary>It is a HEIC or HEIF from an iPhone</summary>
+      <p>No browser except Safari can decode HEIC on its own, so imgready fetches a
+      decoder the first time you drop one. It is a big download. On a slow connection
+      the first HEIC can sit there for a few seconds before anything happens, and the
+      ones after it are instant because the decoder is cached.</p>
+      <p>If it fails outright, reload the page once and try again so the decoder can
+      be fetched cleanly.</p></details>
+<details class="faq-item"><summary>It is a RAW file, like CR2, NEF or ARW</summary>
+      <p>Not supported, and not planned. RAW is camera-specific and each maker does it
+      differently. Export a JPG, TIFF or HEIC from your photo app first.</p></details>
+<details class="faq-item"><summary>It is a PDF</summary>
+      <p>Not an image format, so it will not load here. Export the page you want as
+      PNG or JPG first.</p></details>
+<details class="faq-item"><summary>The file is fine everywhere else</summary>
+      <p>Check the extension matches the actual contents. A file renamed from .webp to
+      .jpg is still a WebP, and some apps will open it anyway while a strict decoder
+      will not. Renaming it back usually fixes it.</p></details>
+<h2>The tab <span class="hl">froze</span></h2>
+<p>Compression happens in your browser using your own memory, so a very large
+      image or a very large batch competes with everything else the machine is doing.
+      A server-based tool hides this by making it someone else's problem; the trade for
+      not uploading your files is that the work happens here.</p>
+<p>Three things help, in order: drop fewer files at once, close other heavy tabs,
+      and use a laptop rather than a phone for a big batch. If one specific file kills
+      the tab every time, it is usually enormous in pixel dimensions rather than in
+      megabytes, so resize it before compressing.</p>
+<h2>The output looks <span class="hl">wrong</span></h2>
+<details class="faq-item"><summary>My transparent PNG has a white background now</summary>
+      <p>JPG cannot store transparency. Anything see-through has to become a solid
+      colour, and that colour is white. If you need transparency, convert to WebP, AVIF
+      or PNG instead.</p></details>
+<details class="faq-item"><summary>The colours shifted slightly</summary>
+      <p>Usually an embedded colour profile. Images saved from professional tools can
+      carry a profile that browsers handle differently from desktop software. The pixel
+      data is intact; the interpretation changed.</p></details>
+<details class="faq-item"><summary>My SVG came out blurry or the wrong size</summary>
+      <p>SVG is vector, so it has no natural pixel size. Converting to PNG or JPG has
+      to pick one. Set the width you want in the resize field before converting rather
+      than scaling the result up afterwards.</p></details>
+<details class="faq-item"><summary>The file got bigger, not smaller</summary>
+      <p>Already-compressed images have nothing left to remove, and re-encoding adds
+      overhead. This is common when converting a small JPG to PNG, which is lossless
+      and stores every pixel. Check that the output format suits the image: photos
+      want JPG, WebP or AVIF, flat graphics want PNG.</p></details>
+<h2>Nothing <span class="hl">downloads</span></h2>
+<p>Downloading a batch triggers several saves at once, and browsers sometimes block
+      that after the first one. Look for a blocked-download notice in the address bar
+      and allow it for this site. Downloading the batch as a ZIP avoids the problem
+      entirely.</p>
+<h2>Browser support</h2>
+<p>Current Chrome, Edge, Firefox and Safari, on desktop and mobile. The tool needs
+      WebAssembly and a modern Canvas, so Internet Explorer and very old Android
+      browsers will not work. Private windows are fine. Extensions that block scripts
+      will stop it, because the whole tool is a script.</p>
+<h2>Checking the <span class="hl">privacy</span> claim yourself</h2>
+<p>Do not take our word for it. Open your browser developer tools, go to the
+      Network tab, and drop a file. You will see the page load and, the first time, a
+      decoder download. You will not see a request carrying your image, because there
+      is not one.</p>
+<p><a href="/why/">More on why it works this way</a></p>
+<h2>Still stuck</h2>
+<p>Email <a href="mailto:hello@imgready.app">hello@imgready.app</a> with the format
+      you were converting from and to, the rough file size, and your browser. If a
+      specific file fails, saying which format it came out of is usually enough to
+      identify it. Do not send the file itself.</p>
+<h2>Related</h2>
+<ul class="related">
+      <li><a href="/tools/">Every tool on one page</a></li>
+      <li><a href="/why/">Why nothing is ever uploaded</a></li>
+      <li><a href="/developers/">SDK documentation</a></li>
+      <li><a href="/privacy/">Privacy policy</a></li>
+    </ul>
+    </header>
+    <section class="prose">
+<p class="eyebrow">Help</p>
+    <h2>A file <span class="hl">will not</span> open</h2>
+    <details class="faq-item"><summary>It is a HEIC or HEIF from an iPhone</summary>
+      <p>No browser except Safari can decode HEIC on its own, so imgready fetches a
+      decoder the first time you drop one. It is a big download. On a slow connection
+      the first HEIC can sit there for a few seconds before anything happens, and the
+      ones after it are instant because the decoder is cached.</p>
+      <p>If it fails outright, reload the page once and try again so the decoder can
+      be fetched cleanly.</p></details>
+    <details class="faq-item"><summary>It is a RAW file, like CR2, NEF or ARW</summary>
+      <p>Not supported, and not planned. RAW is camera-specific and each maker does it
+      differently. Export a JPG, TIFF or HEIC from your photo app first.</p></details>
+    <details class="faq-item"><summary>It is a PDF</summary>
+      <p>Not an image format, so it will not load here. Export the page you want as
+      PNG or JPG first.</p></details>
+    <details class="faq-item"><summary>The file is fine everywhere else</summary>
+      <p>Check the extension matches the actual contents. A file renamed from .webp to
+      .jpg is still a WebP, and some apps will open it anyway while a strict decoder
+      will not. Renaming it back usually fixes it.</p></details>
+
+    <h2>The tab <span class="hl">froze</span></h2>
+    <p>Compression happens in your browser using your own memory, so a very large
+      image or a very large batch competes with everything else the machine is doing.
+      A server-based tool hides this by making it someone else's problem; the trade for
+      not uploading your files is that the work happens here.</p>
+    <p>Three things help, in order: drop fewer files at once, close other heavy tabs,
+      and use a laptop rather than a phone for a big batch. If one specific file kills
+      the tab every time, it is usually enormous in pixel dimensions rather than in
+      megabytes, so resize it before compressing.</p>
+
+    <h2>The output looks <span class="hl">wrong</span></h2>
+    <details class="faq-item"><summary>My transparent PNG has a white background now</summary>
+      <p>JPG cannot store transparency. Anything see-through has to become a solid
+      colour, and that colour is white. If you need transparency, convert to WebP, AVIF
+      or PNG instead.</p></details>
+    <details class="faq-item"><summary>The colours shifted slightly</summary>
+      <p>Usually an embedded colour profile. Images saved from professional tools can
+      carry a profile that browsers handle differently from desktop software. The pixel
+      data is intact; the interpretation changed.</p></details>
+    <details class="faq-item"><summary>My SVG came out blurry or the wrong size</summary>
+      <p>SVG is vector, so it has no natural pixel size. Converting to PNG or JPG has
+      to pick one. Set the width you want in the resize field before converting rather
+      than scaling the result up afterwards.</p></details>
+    <details class="faq-item"><summary>The file got bigger, not smaller</summary>
+      <p>Already-compressed images have nothing left to remove, and re-encoding adds
+      overhead. This is common when converting a small JPG to PNG, which is lossless
+      and stores every pixel. Check that the output format suits the image: photos
+      want JPG, WebP or AVIF, flat graphics want PNG.</p></details>
+
+    <h2>Nothing <span class="hl">downloads</span></h2>
+    <p>Downloading a batch triggers several saves at once, and browsers sometimes block
+      that after the first one. Look for a blocked-download notice in the address bar
+      and allow it for this site. Downloading the batch as a ZIP avoids the problem
+      entirely.</p>
+
+    <h2>Browser support</h2>
+    <p>Current Chrome, Edge, Firefox and Safari, on desktop and mobile. The tool needs
+      WebAssembly and a modern Canvas, so Internet Explorer and very old Android
+      browsers will not work. Private windows are fine. Extensions that block scripts
+      will stop it, because the whole tool is a script.</p>
+
+    <h2>Checking the <span class="hl">privacy</span> claim yourself</h2>
+    <p>Do not take our word for it. Open your browser developer tools, go to the
+      Network tab, and drop a file. You will see the page load and, the first time, a
+      decoder download. You will not see a request carrying your image, because there
+      is not one.</p>
+    <p><a href="/why/">More on why it works this way</a></p>
+
+    <h2>Still stuck</h2>
+    <p>Email <a href="mailto:hello@imgready.app">hello@imgready.app</a> with the format
+      you were converting from and to, the rough file size, and your browser. If a
+      specific file fails, saying which format it came out of is usually enough to
+      identify it. Do not send the file itself.</p>
+
+    <h2>Related</h2>
+    <ul class="related">
+      <li><a href="/tools/">Every tool on one page</a></li>
+      <li><a href="/why/">Why nothing is ever uploaded</a></li>
+      <li><a href="/developers/">SDK documentation</a></li>
+      <li><a href="/privacy/">Privacy policy</a></li>
+    </ul>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
+    </div>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
+    </div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
+</div>
+<script src="/app.js" defer></script>
+</body>
+</html>

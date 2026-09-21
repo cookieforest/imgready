@@ -20,10 +20,18 @@ const SKIP_DIRS = new Set(['dist', 'node_modules', 'archive', 'beta', 'src', 've
                            'fonts', 'og', 'samples', 'sdk', 'tests', '.git', '.github']);
 const pages = [];
 if (existsSync(join(ROOT, 'index.html'))) pages.push(['/', join(ROOT, 'index.html')]);
+/* Two levels deep, not one. /developers/pricing/ lives a level down and
+   was invisible to every check here, which also kept it out of the
+   internal-link target set below, so any link to it read as a 404. */
 for (const e of readdirSync(ROOT, { withFileTypes: true })) {
   if (!e.isDirectory() || SKIP_DIRS.has(e.name) || e.name.startsWith('.')) continue;
   const f = join(ROOT, e.name, 'index.html');
   if (existsSync(f)) pages.push(['/' + e.name + '/', f]);
+  for (const c of readdirSync(join(ROOT, e.name), { withFileTypes: true })) {
+    if (!c.isDirectory() || c.name.startsWith('.')) continue;
+    const cf = join(ROOT, e.name, c.name, 'index.html');
+    if (existsSync(cf)) pages.push(['/' + e.name + '/' + c.name + '/', cf]);
+  }
 }
 const read = (f) => readFileSync(f, 'utf8');
 const sitemap = existsSync(join(ROOT, 'sitemap.xml')) ? read(join(ROOT, 'sitemap.xml')) : '';
@@ -125,11 +133,15 @@ for (const p of sitemapPaths) {
       .map((l) => l.trim()).filter((l) => l && !l.startsWith('#'))
       .map((l) => l.split(/\s+/)[0]);
     const set = new Set(rules);
-    for (const r of rules) {
+    /* A .html source is a file path, not a directory shorthand. There is no
+       "/privacy.html/" form to pair it with, and the rule exists precisely
+       to collapse the edge's two-hop .html -> /x -> /x/ into one hop. */
+    const pathy = rules.filter((r) => !r.endsWith('.html'));
+    for (const r of pathy) {
       const other = r.endsWith('/') ? r.slice(0, -1) : r + '/';
       if (!set.has(other)) fail('_redirects', `${r} has no ${other} counterpart — the slash-less form 404s`);
     }
-    notes.push(`_redirects: ${rules.length} rules, both slash forms present`);
+    notes.push(`_redirects: ${rules.length} rules (${rules.length - pathy.length} legacy .html), both slash forms present where they apply`);
   }
 }
 
@@ -668,6 +680,115 @@ for (const p of sitemapPaths) {
     fail('em-dash', `${label}: ${(m ? m[0] : '').replace(/\s+/g, ' ').trim()}`);
   }
   if (!hits) notes.push('copy: no em-dash or en-dash in any visible string');
+}
+
+/* ---------- 21. no dash inside JSON-LD either ----------
+   Check 20 greps the raw HTML, so a dash written as a \u2014 escape slips
+   past it and still renders as a real em-dash in a rich result, which is
+   exactly where titles and FAQ answers get shown. Parse the JSON and look
+   at the decoded strings instead. Four pages were doing this. */
+{
+  const DASHY = /[\u2014\u2013]/;
+  const collect = (node, out) => {
+    if (typeof node === 'string') out.push(node);
+    else if (Array.isArray(node)) node.forEach((v) => collect(v, out));
+    else if (node && typeof node === 'object') Object.values(node).forEach((v) => collect(v, out));
+    return out;
+  };
+  let hits = 0;
+  for (const [slug, file] of pages) {
+    const html = read(file);
+    const blocks = html.match(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g) || [];
+    for (const block of blocks) {
+      const raw = block.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
+      let data;
+      try { data = JSON.parse(raw); } catch { continue; }
+      for (const str of collect(data, [])) {
+        if (!DASHY.test(str)) continue;
+        hits++;
+        fail('jsonld-dash', `${slug}: ${str.slice(0, 80)}`);
+      }
+    }
+  }
+  if (!hits) notes.push('JSON-LD: no dash reaches a rich result, escaped or literal');
+}
+
+/* ---------- 22. one price, stated once ----------
+   The price used to live on the homepage, on /developers/ and inside
+   sdk/mint-tool.html, and the three had already drifted apart. Prices may
+   still appear in prose anywhere, but a retired one has to be labelled as
+   retired, and only the canonical page may carry a Buy link. */
+{
+  const CANON = '/developers/pricing/';
+  const RETIRED = ['$9', '$29', '$99'];
+  let hits = 0;
+
+  for (const [slug, file] of pages) {
+    const html = read(file);
+    const visible = html.replace(/<!--[\s\S]*?-->/g, '');
+
+    for (const price of RETIRED) {
+      const re = new RegExp('\\' + price + '(?![0-9])');
+      if (!re.test(visible)) continue;
+      if (/LEGACY|retired|no longer sold|still valid/i.test(visible)) continue;
+      hits++;
+      fail('price', `${slug}: retired price ${price}, and nothing says it is retired`);
+    }
+
+    if (/buy\.stripe\.com/.test(html) && slug !== CANON) {
+      hits++;
+      fail('price', `${slug}: Buy link belongs on ${CANON}`);
+    }
+  }
+
+  const canon = pages.find(([slug]) => slug === CANON);
+  if (!canon) {
+    hits++;
+    fail('price', `${CANON} is missing, and it is the canonical price page`);
+  } else {
+    const html = read(canon[1]);
+    for (const need of ['$149', '$449']) {
+      if (!html.includes(need)) { hits++; fail('price', `${CANON} does not state ${need}`); }
+    }
+    if (/REPLACE_(COMMERCIAL_149|UNLIMITED_449)/.test(html)) {
+      hits++;
+      fail('price', `${CANON}: Stripe Payment Link placeholder still unreplaced`);
+    }
+    /* Not a failure: the page is shippable on mailto and converts by hand.
+       Surfaced on every run so it cannot be quietly forgotten. */
+    if (!/buy\.stripe\.com/.test(html)) {
+      notes.push('checkout: still on mailto, Stripe Payment Links not wired yet');
+    }
+  }
+  if (!hits) notes.push(`prices: consistent, Buy links only on ${CANON}`);
+}
+
+/* ---------- 23. sitemap namespaces are the documented ones ----------
+   The image namespace was written without the www, as
+   http://google.com/schemas/sitemap-image/1.1. It is a URI, not a URL, so
+   nothing fetches it and nothing fails locally: the file parses, the
+   entries look right, and every local check passed. Search Console
+   rejected it as "Incorrect namespace" and dropped the image data. Only
+   an exact string match catches this. */
+{
+  const f = join(ROOT, 'sitemap.xml');
+  if (existsSync(f)) {
+    const xml = read(f);
+    const NS = [
+      ['urlset', 'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'],
+      ['image', 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'],
+    ];
+    let hits = 0;
+    for (const [label, decl] of NS) {
+      const used = label === 'image' ? /<image:/.test(xml) : true;
+      if (!used) continue;
+      if (!xml.includes(decl)) {
+        hits++;
+        fail('sitemap-ns', `${label} namespace is not exactly ${decl}`);
+      }
+    }
+    if (!hits) notes.push('sitemap: namespaces match the documented URIs exactly');
+  }
 }
 
 /* ---------- report ---------- */

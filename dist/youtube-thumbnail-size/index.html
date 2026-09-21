@@ -1,171 +1,56 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#b84d1d">
 <title>YouTube Thumbnail Size: Resize to 1280x720 Free | imgready</title>
+<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="description" content="YouTube thumbnail size is 1280x720 (16:9), under 2MB. Resize any image to exactly that here, scale-to-fill, centre crop, size ceiling. Nothing uploaded.">
 <meta property="og:title" content="YouTube Thumbnail Size. Resize to 1280x720 Free | imgready">
 <meta property="og:description" content="YouTube thumbnail size is 1280x720 (16:9), under 2MB. Resize any image to exactly that here, scale-to-fill, centre crop, size ceiling. Nothing uploaded.">
 <meta property="og:image" content="https://imgready.app/og/youtube-thumbnail-size.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/youtube-thumbnail-size/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="YouTube Thumbnail Size. Resize to 1280x720 Free | imgready">
-<meta name="twitter:description" content="YouTube thumbnail size is 1280x720 (16:9), under 2MB. Resize any image to exactly that here, scale-to-fill, centre crop, size ceiling. Nothing uploaded.">
-<meta name="twitter:image" content="https://imgready.app/og/youtube-thumbnail-size.png">
 <link rel="canonical" href="https://imgready.app/youtube-thumbnail-size/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b84d1d">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="preconnect" href="https://esm.sh" crossorigin>
-<link rel="dns-prefetch" href="https://esm.sh">
-<link rel="preload" href="/imgready-worker.js" as="script">
-<link rel="prefetch" href="/vendor/UPNG.min.js">
-<link rel="prefetch" href="/vendor/pako.min.js">
-<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#b84d1d">
 <link rel="stylesheet" href="/app.css">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
-<style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-.nav-brand .g{color:var(--accent,var(--accent));}
-.nav-sep{color:var(--border);}
-.topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
-.topnav a.nav-link:hover{text-decoration:underline;}
-.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
-@media(max-width:600px){.topnav .hide-mobile{display:none;}}
-.crumbs{font-size:.8rem;color:var(--muted);margin:6px 0 4px;}
-.crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
-.crumbs a:hover{text-decoration:underline;}
-.hero{padding:24px 0 32px;}
-.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
-.hero h1 em{font-style:normal;color:var(--accent);}
-.hero p.lede{font-size:1.02rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-.hero-cta{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
-.hero-cta:hover{background:var(--accent2);transform:translateY(-2px);}
-.hero-sub{font-size:.84rem;color:var(--muted);margin-top:10px;}
-.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin:22px 0 30px;}
-.feat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
-.feat h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:6px;}
-.feat p{font-size:.8rem;color:var(--muted);line-height:1.5;}
-h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin:var(--h2-gap, 36px) 0 12px;}
-h3.sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
-p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
-ul,ol{padding-left:22px;margin-bottom:16px;}
-li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
-.callout{background:var(--accent-light);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:var(--text2);line-height:1.75;}
-/* Quiet data table. Was a full 1px box around every cell plus zebra
-   striping: the heavy grid the design skill objects to (9.F), which
-   says pick ONE rule direction and use it sparsely.
-   These stay tables. They are genuine multi-column comparisons with
-   real measurements ("Format / Compression vs JPG / Browser support /
-   Encoding speed"), not a spec list pretending to be one, and a card
-   grid cannot carry a four-way comparison. Only the weight changes:
-   one hairline under each row, no vertical rules, no stripes. The
-   columns are held by alignment, which is what alignment is for. */
-table{border-collapse:collapse;width:100%;margin:16px 0 24px;font-size:.88rem;}
-th,td{text-align:left;padding:10px 18px 10px 0;border:0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
-th{color:var(--text);font-weight:700;border-bottom-color:var(--text2);}
-tr:last-child td{border-bottom:0;}
-@media(max-width:600px){th,td{padding:8px 10px 8px 0;font-size:.84rem;}}
-.faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}
-.faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;list-style:none;}
-.faq-item summary::after{content:'+';float:right;color:var(--accent);font-weight:700;}
-.faq-item[open] summary::after{content:'\2212';}
-.faq-item p{font-size:.92rem;color:var(--text2);line-height:1.75;padding:0 0 14px;}
-.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
-.related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-.related a:hover{border-color:var(--accent);}
-.related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid var(--border);}
-.bottom-cta p{color:var(--muted);margin-bottom:14px;}
-.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
-.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-.site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}
-</style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready: YouTube thumbnail resizer", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/youtube-thumbnail-size/", "browserRequirements": "Requires a modern browser with WebAssembly support", "description": "YouTube thumbnail size is 1280x720 (16:9), under 2MB. Resize any image to exactly that here, scale-to-fill, centre crop, size ceiling. Nothing uploaded.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["Exact 1280x720 thumbnail output", "16:9 scale-to-fill with centre crop", "File-size ceiling under YouTube 2MB limit", "Runs fully client-side, no upload"], "permissions": "No file upload; all processing happens locally in the browser"}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "YouTube thumbnail size", "item": "https://imgready.app/youtube-thumbnail-size/"}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What size should a YouTube thumbnail be?", "acceptedAnswer": {"@type": "Answer", "text": "1280x720 pixels, 16:9, under 2 MB, as JPG, PNG, GIF or WebP. YouTube documents a minimum width of 640 px, but target the full 1280, the same image is shown everywhere from a large player-page preview to a tiny mobile row, and a 640 px thumbnail looks soft in the big slot."}}, {"@type": "Question", "name": "Why does my thumbnail get rejected for size?", "acceptedAnswer": {"@type": "Answer", "text": "Almost always because it was exported as a full-quality PNG. At 1280x720 a JPG lands well under 200 KB, far below the 2 MB cap. Switch a photographic thumbnail to JPG rather than compressing the PNG harder."}}, {"@type": "Question", "name": "My photo is not 16:9, what happens?", "acceptedAnswer": {"@type": "Answer", "text": "It is scaled to cover the 16:9 frame and the overflow is centre-cropped, so you get exactly 1280x720. A 16:9 source loses nothing, a 4:3 photo loses about a quarter of its height, and a vertical phone photo loses most of its height, so frame the subject centrally first."}}, {"@type": "Question", "name": "Is there anywhere I should avoid putting text?", "acceptedAnswer": {"@type": "Answer", "text": "The bottom-right corner, where the duration badge is overlaid in most surfaces. Also remember thumbnails are often viewed a couple of centimetres wide on a phone, so use few words at large size and crop tighter than looks right on a desktop monitor."}}, {"@type": "Question", "name": "JPG or PNG for thumbnails?", "acceptedAnswer": {"@type": "Answer", "text": "JPG for anything photographic: small, universal and visually identical at sensible quality. PNG only when the thumbnail is mostly flat graphics or large hard-edged text, where lossless keeps lettering crisp. WebP is also accepted and the most efficient, though that hardly matters this far under the cap."}}, {"@type": "Question", "name": "Are my thumbnails uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Resizing and encoding happen entirely in your browser via WebAssembly, so unreleased video assets never leave your device. You can confirm it in the Network tab of your browser's developer tools."}}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "YouTube Thumbnail Size: Resize to 1280x720 Free | imgready", "description": "YouTube thumbnail size is 1280x720 (16:9), under 2MB. Resize any image to exactly that here, scale-to-fill, centre crop, size ceiling. Nothing uploaded.", "url": "https://imgready.app/youtube-thumbnail-size/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "https://imgready.app/og/youtube-thumbnail-size.png"}, "inLanguage": "en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":["SoftwareApplication","WebApplication"],"name":"imgready: YouTube thumbnail resizer","applicationCategory":"MultimediaApplication","operatingSystem":"Any (browser-based)","url":"https://imgready.app/youtube-thumbnail-size/","browserRequirements":"Requires a modern browser with WebAssembly support","description":"YouTube thumbnail size is 1280x720 (16:9), under 2MB. Resize any image to exactly that here, scale-to-fill, centre crop, size ceiling. Nothing uploaded.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Exact 1280x720 thumbnail output","16:9 scale-to-fill with centre crop","File-size ceiling under YouTube 2MB limit","Runs fully client-side, no upload"],"permissions":"No file upload; all processing happens locally in the browser"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"YouTube thumbnail size","item":"https://imgready.app/youtube-thumbnail-size/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What size should a YouTube thumbnail be?","acceptedAnswer":{"@type":"Answer","text":"1280x720 pixels, 16:9, under 2 MB, as JPG, PNG, GIF or WebP. YouTube documents a minimum width of 640 px, but target the full 1280, the same image is shown everywhere from a large player-page preview to a tiny mobile row, and a 640 px thumbnail looks soft in the big slot."}},{"@type":"Question","name":"Why does my thumbnail get rejected for size?","acceptedAnswer":{"@type":"Answer","text":"Almost always because it was exported as a full-quality PNG. At 1280x720 a JPG lands well under 200 KB, far below the 2 MB cap. Switch a photographic thumbnail to JPG rather than compressing the PNG harder."}},{"@type":"Question","name":"My photo is not 16:9, what happens?","acceptedAnswer":{"@type":"Answer","text":"It is scaled to cover the 16:9 frame and the overflow is centre-cropped, so you get exactly 1280x720. A 16:9 source loses nothing, a 4:3 photo loses about a quarter of its height, and a vertical phone photo loses most of its height, so frame the subject centrally first."}},{"@type":"Question","name":"Is there anywhere I should avoid putting text?","acceptedAnswer":{"@type":"Answer","text":"The bottom-right corner, where the duration badge is overlaid in most surfaces. Also remember thumbnails are often viewed a couple of centimetres wide on a phone, so use few words at large size and crop tighter than looks right on a desktop monitor."}},{"@type":"Question","name":"JPG or PNG for thumbnails?","acceptedAnswer":{"@type":"Answer","text":"JPG for anything photographic: small, universal and visually identical at sensible quality. PNG only when the thumbnail is mostly flat graphics or large hard-edged text, where lossless keeps lettering crisp. WebP is also accepted and the most efficient, though that hardly matters this far under the cap."}},{"@type":"Question","name":"Are my thumbnails uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Resizing and encoding happen entirely in your browser via WebAssembly, so unreleased video assets never leave your device. You can confirm it in the Network tab of your browser's developer tools."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"YouTube Thumbnail Size: Resize to 1280x720 Free | imgready","description":"YouTube thumbnail size is 1280x720 (16:9), under 2MB. Resize any image to exactly that here, scale-to-fill, centre crop, size ceiling. Nothing uploaded.","url":"https://imgready.app/youtube-thumbnail-size/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://imgready.app/og/youtube-thumbnail-size.png"},"inLanguage":"en"}</script>
 </head>
 <body>
+
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
-    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
-    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
-    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
     <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-  <div class="crumbs"><a href="/">Home</a> &raquo; YouTube thumbnail size</div>
-
-  <section class="hero">
-    <h1>YouTube thumbnail size,<br><em>1280&nbsp;&times;&nbsp;720 exactly</em></h1>
-    <p class="lede">The spec is 1280&nbsp;&times;&nbsp;720 pixels, 16:9, under 2&nbsp;MB, in JPG, PNG, GIF or WebP. Drop any image and get exactly that, scaled to fill, centre-cropped, and capped under the limit if you want.</p>
-    <!-- =============== imgready tool (lifted from homepage) ===============-->
-<div class="app">
+  <div class="crumbs"><a href="/">Home</a> » <span aria-current="page">YouTube thumbnail size</span></div>
+  <main>
+    <header class="page-head">
+      <h1>YouTube thumbnail size,<br><em>1280 × 720 exactly</em></h1>
+      <p class="lede">The spec is 1280 × 720 pixels, 16:9, under 2 MB, in JPG, PNG, GIF or WebP. Drop any image and get exactly that, scaled to fill, centre-cropped, and capped under the limit if you want.</p>
+    </header>
+    <div class="app">
 <!-- SETTINGS TRIGGER: full-width pill right above the dropzone, on
        both mobile and desktop. The label calls out what's inside so power
        users self-identify ("custom output, quality, resize") rather than
        relying on the generic word "Settings." Click expands the panel
        directly below; the dropzone is just below the panel either way. -->
   <button class="settings-trigger" id="advToggle" onclick="toggleAdvanced()" aria-expanded="false" aria-controls="advPanel">
-    <span class="settings-trigger-arrow" aria-hidden="true">&#9654;</span>
-    <span >Output settings</span><span class="settings-trigger-summary" id="advSummary"></span>
+    <span class="settings-trigger-arrow" aria-hidden="true">▶</span>
+    <span>Output settings</span><span class="settings-trigger-summary" id="advSummary"></span>
   </button>
 
   <!-- FINE-TUNE PANEL -->
@@ -279,7 +164,7 @@ tr:last-child td{border-bottom:0;}
           <option value="dim" selected>Longest side (px)</option>
           <option value="pct">Percent (%)</option>
         </select>
-        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
+        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput='if(typeof updateChargePreview==="function")updateChargePreview()'>
       </div>
       <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
@@ -299,7 +184,7 @@ tr:last-child td{border-bottom:0;}
   <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
     <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif" multiple aria-label="Choose image files to compress">
     <span class="dz-icon" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
     </span>
     <h2>Drop your images here</h2>
     <p>or click to browse. JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
@@ -310,7 +195,7 @@ tr:last-child td{border-bottom:0;}
          compact "Add more images" mode (body.has-images) since returning
          users don't need re-reassurance mid-batch. -->
     <div class="dz-trust" aria-hidden="false">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
       <span>Stays on your device, never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
@@ -346,7 +231,7 @@ tr:last-child td{border-bottom:0;}
            API support, Copy on single-result mode + clipboard support. -->
       <div class="action-cluster" id="actionCluster">
         <button class="btn btn-share" id="shareAllBtn" style="display:none" onclick="shareAll()" aria-label="Share all results via your device">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <svg width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
           <span class="btn-share-label">Share all</span>
         </button>
         <button class="btn btn-dl" id="dlAllBtn" style="display:none" onclick="downloadAll()">Download all</button>
@@ -377,7 +262,7 @@ tr:last-child td{border-bottom:0;}
   <div class="nudge-banner" id="nudgeBanner">
     <span class="nudge-heart">♥</span>
     <span class="nudge-text" id="nudgeText"></span>
-    <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">&#x2715;</button>
+    <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">✕</button>
   </div>
 
   <!-- INSTALL PROMPT: surfaced only after the user's first successful run -->
@@ -401,7 +286,7 @@ tr:last-child td{border-bottom:0;}
 <div class="undo-toast" id="undoToast" role="status" aria-live="polite">
   <span id="undoToastMsg">Image removed</span>
   <button class="undo-toast-btn" onclick="undoRemove()" aria-label="Undo removal">Undo</button>
-  <button class="undo-toast-x" onclick="dismissUndoToast()" aria-label="Dismiss">&#x2715;</button>
+  <button class="undo-toast-x" onclick="dismissUndoToast()" aria-label="Dismiss">✕</button>
 </div>
 
 <!-- FULLSCREEN COMPARE MODAL -->
@@ -416,7 +301,7 @@ tr:last-child td{border-bottom:0;}
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
-    <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
+    <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"></path></svg></div>
     <!-- Stacked label structure:
            Row 1 (.fs-lbl-title), large title: "Before" / "After"
            Row 2 (.fs-lbl-info), size · format
@@ -482,11 +367,11 @@ tr:last-child td{border-bottom:0;}
                navigator.canShare with files is supported). Download
                stays the visually primary one to match the cards. -->
           <button class="fe-dl fe-action fe-action-ghost" id="feShareBtn" onclick="feLiveShare()" title="Share" style="display:none" aria-label="Share current result">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
             <span class="fe-action-label">Share</span>
           </button>
           <button class="fe-dl fe-action fe-action-ghost" id="feCopyBtn" onclick="feLiveCopy(this)" title="Copy to clipboard" aria-label="Copy current result to clipboard">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
             <span class="fe-action-label">Copy</span>
           </button>
           <button class="fe-dl" id="feDlBtn" onclick="feLiveDl()">Download</button>
@@ -494,13 +379,13 @@ tr:last-child td{border-bottom:0;}
       </div>
     </div>
   </div>
-  <button class="fs-close" onclick="closeFullscreen()" aria-label="Close fullscreen comparison">&#x2715;</button>
+  <button class="fs-close" onclick="closeFullscreen()" aria-label="Close fullscreen comparison">✕</button>
 </div>
 
 <!-- TIP JAR MODAL -->
 <div class="sup-modal-overlay" id="supModalOverlay" onclick="if(event.target===this)closeSupModal()" role="dialog" aria-modal="true" aria-labelledby="supModalTitle">
   <div class="sup-modal">
-    <button class="sup-modal-close" onclick="closeSupModal()" aria-label="Close support dialog">&#x2715;</button>
+    <button class="sup-modal-close" onclick="closeSupModal()" aria-label="Close support dialog">✕</button>
     <div id="supDefaultState">
       <h2 id="supModalTitle">Support imgready</h2>
       <p class="sup-desc">imgready is free and always will be. It's built and maintained by one person. If it saved you time, a small contribution helps keep it running and improving.</p>
@@ -510,36 +395,37 @@ tr:last-child td{border-bottom:0;}
   </div>
 </div>
 </div>
-</section>
-
-<div class="features"><div class="feat"><h3>Exactly 1280&nbsp;&times;&nbsp;720</h3><p>The recommended spec, not an approximation.</p></div><div class="feat"><h3>Well under 2&nbsp;MB</h3><p>Optionally cap the file size explicitly.</p></div><div class="feat"><h3>Fills the 16:9 frame</h3><p>Scale-to-fill and centre crop, no black bars.</p></div><div class="feat"><h3>Nothing uploaded</h3><p>Your unreleased thumbnails stay on your device.</p></div></div>
-
-  <h2>The actual spec</h2>
-  <p>YouTube's recommended custom thumbnail is <strong>1280&nbsp;&times;&nbsp;720 pixels</strong>: 16:9, with a documented minimum width of 640&nbsp;px, supplied as JPG, PNG, GIF or WebP and kept <strong>under 2&nbsp;MB</strong>. Those are the only hard requirements. Everything else you read about thumbnails is design advice, not specification.</p>
-  <p>1280&nbsp;&times;&nbsp;720 is the number to target rather than the 640&nbsp;px floor, because the same image is displayed at wildly different sizes: a large player-page preview, a mid-size sidebar suggestion, and a tiny mobile row. Supplying the full 1280 gives the platform room to downscale cleanly, whereas a 640&nbsp;px thumbnail looks soft in the large slot.</p>
-  <h3>Why 2&nbsp;MB is rarely the problem</h3>
-  <p>At 1280&nbsp;&times;&nbsp;720 a normal JPG lands well under 200&nbsp;KB, an order of magnitude below the cap. You only approach 2&nbsp;MB by exporting PNG at full quality, which is the common cause of a rejected upload. If that happens, switch to JPG rather than compressing the PNG harder; a photographic thumbnail has no reason to be lossless.</p>
-  <h2>Getting exactly 16:9 out of a source that isn't</h2>
-  <p>This is where most resizers get in the way. Ask them for 1280&nbsp;&times;&nbsp;720 and they preserve the aspect ratio, handing back 1280&nbsp;&times;&nbsp;960 from a 4:3 screenshot. Here the image is scaled until it covers the full 16:9 frame and the overflow is centre-cropped, so the output is exactly 1280&nbsp;&times;&nbsp;720.</p>
-  <p>What that costs depends on your source. A 16:9 screen capture or video still fits with no loss at all. A 4:3 photo loses roughly a quarter of its height from the top and bottom. A vertical phone photo loses most of its height, so if you are working from portrait footage, expect to crop hard, and frame the subject centrally before you resize.</p>
-  <h3>Design constraints worth knowing before you crop</h3>
-  <p>Two practical ones. First, the duration badge sits in the <strong>bottom-right corner</strong> of the thumbnail in most surfaces, so keep text and faces out of that area. Second, thumbnails are frequently viewed at a couple of centimetres wide on a phone, anything smaller than a few words of large text is unreadable there. Crop tighter than feels natural on a desktop monitor.</p>
-  <h2>Format choice</h2>
-  <p>Use <strong>JPG</strong> for anything photographic, which is nearly all thumbnails: small, universally accepted, and visually identical to PNG at sensible quality. Use <strong>PNG</strong> only if the thumbnail is mostly flat graphics or large text with hard edges, where lossless keeps the lettering crisp, and watch the file size. <strong>WebP</strong> is accepted too and is the most efficient of the three, though the gain is academic when you are this far below the size cap.</p>
-  <h2>Batch and privacy</h2>
-  <p>If you are preparing a series, an entire season of episodes, or A/B variants of the same thumbnail, drop up to 200 images and each comes back at exactly 1280&nbsp;&times;&nbsp;720. Download them individually or as a ZIP.</p>
-  <p>Nothing is uploaded. The resize and encode both happen inside your browser through WebAssembly, which matters for unreleased video assets: thumbnails often reveal the content of a video before it is public. You can verify no data leaves your device by watching the Network panel in developer tools, and the tool keeps working offline after the first load.</p>
-
-  <h2>Frequently asked questions</h2>
-    <details class="faq-item"><summary>What size should a YouTube thumbnail be?</summary><p>1280x720 pixels, 16:9, under 2 MB, as JPG, PNG, GIF or WebP. YouTube documents a minimum width of 640 px, but target the full 1280, the same image is shown everywhere from a large player-page preview to a tiny mobile row, and a 640 px thumbnail looks soft in the big slot.</p></details>
-    <details class="faq-item"><summary>Why does my thumbnail get rejected for size?</summary><p>Almost always because it was exported as a full-quality PNG. At 1280x720 a JPG lands well under 200 KB, far below the 2 MB cap. Switch a photographic thumbnail to JPG rather than compressing the PNG harder.</p></details>
-    <details class="faq-item"><summary>My photo is not 16:9, what happens?</summary><p>It is scaled to cover the 16:9 frame and the overflow is centre-cropped, so you get exactly 1280x720. A 16:9 source loses nothing, a 4:3 photo loses about a quarter of its height, and a vertical phone photo loses most of its height, so frame the subject centrally first.</p></details>
-    <details class="faq-item"><summary>Is there anywhere I should avoid putting text?</summary><p>The bottom-right corner, where the duration badge is overlaid in most surfaces. Also remember thumbnails are often viewed a couple of centimetres wide on a phone, so use few words at large size and crop tighter than looks right on a desktop monitor.</p></details>
-    <details class="faq-item"><summary>JPG or PNG for thumbnails?</summary><p>JPG for anything photographic: small, universal and visually identical at sensible quality. PNG only when the thumbnail is mostly flat graphics or large hard-edged text, where lossless keeps lettering crisp. WebP is also accepted and the most efficient, though that hardly matters this far under the cap.</p></details>
-    <details class="faq-item"><summary>Are my thumbnails uploaded anywhere?</summary><p>No. Resizing and encoding happen entirely in your browser via WebAssembly, so unreleased video assets never leave your device. You can confirm it in the Network tab of your browser's developer tools.</p></details>
-
-  <h2>Related tools and guides</h2>
-  <div class="related">
+    <ul class="highlights">
+      <li><b>Exactly 1280 × 720</b> The recommended spec, not an approximation.</li>
+      <li><b>Well under 2 MB</b> Optionally cap the file size explicitly.</li>
+      <li><b>Fills the 16:9 frame</b> Scale-to-fill and centre crop, no black bars.</li>
+      <li><b>Nothing uploaded</b> Your unreleased thumbnails stay on your device.</li>
+    </ul>
+    <section class="prose">
+<h2>The actual spec</h2>
+<p>YouTube's recommended custom thumbnail is <strong>1280 × 720 pixels</strong>: 16:9, with a documented minimum width of 640 px, supplied as JPG, PNG, GIF or WebP and kept <strong>under 2 MB</strong>. Those are the only hard requirements. Everything else you read about thumbnails is design advice, not specification.</p>
+<p>1280 × 720 is the number to target rather than the 640 px floor, because the same image is displayed at wildly different sizes: a large player-page preview, a mid-size sidebar suggestion, and a tiny mobile row. Supplying the full 1280 gives the platform room to downscale cleanly, whereas a 640 px thumbnail looks soft in the large slot.</p>
+<h3>Why 2 MB is rarely the problem</h3>
+<p>At 1280 × 720 a normal JPG lands well under 200 KB, an order of magnitude below the cap. You only approach 2 MB by exporting PNG at full quality, which is the common cause of a rejected upload. If that happens, switch to JPG rather than compressing the PNG harder; a photographic thumbnail has no reason to be lossless.</p>
+<h2>Getting exactly 16:9 out of a source that isn't</h2>
+<p>This is where most resizers get in the way. Ask them for 1280 × 720 and they preserve the aspect ratio, handing back 1280 × 960 from a 4:3 screenshot. Here the image is scaled until it covers the full 16:9 frame and the overflow is centre-cropped, so the output is exactly 1280 × 720.</p>
+<p>What that costs depends on your source. A 16:9 screen capture or video still fits with no loss at all. A 4:3 photo loses roughly a quarter of its height from the top and bottom. A vertical phone photo loses most of its height, so if you are working from portrait footage, expect to crop hard, and frame the subject centrally before you resize.</p>
+<h3>Design constraints worth knowing before you crop</h3>
+<p>Two practical ones. First, the duration badge sits in the <strong>bottom-right corner</strong> of the thumbnail in most surfaces, so keep text and faces out of that area. Second, thumbnails are frequently viewed at a couple of centimetres wide on a phone, anything smaller than a few words of large text is unreadable there. Crop tighter than feels natural on a desktop monitor.</p>
+<h2>Format choice</h2>
+<p>Use <strong>JPG</strong> for anything photographic, which is nearly all thumbnails: small, universally accepted, and visually identical to PNG at sensible quality. Use <strong>PNG</strong> only if the thumbnail is mostly flat graphics or large text with hard edges, where lossless keeps the lettering crisp, and watch the file size. <strong>WebP</strong> is accepted too and is the most efficient of the three, though the gain is academic when you are this far below the size cap.</p>
+<h2>Batch and privacy</h2>
+<p>If you are preparing a series, an entire season of episodes, or A/B variants of the same thumbnail, drop up to 200 images and each comes back at exactly 1280 × 720. Download them individually or as a ZIP.</p>
+<p>Nothing is uploaded. The resize and encode both happen inside your browser through WebAssembly, which matters for unreleased video assets: thumbnails often reveal the content of a video before it is public. You can verify no data leaves your device by watching the Network panel in developer tools, and the tool keeps working offline after the first load.</p>
+<h2>Frequently asked questions</h2>
+<details class="faq-item"><summary>What size should a YouTube thumbnail be?</summary><p>1280x720 pixels, 16:9, under 2 MB, as JPG, PNG, GIF or WebP. YouTube documents a minimum width of 640 px, but target the full 1280, the same image is shown everywhere from a large player-page preview to a tiny mobile row, and a 640 px thumbnail looks soft in the big slot.</p></details>
+<details class="faq-item"><summary>Why does my thumbnail get rejected for size?</summary><p>Almost always because it was exported as a full-quality PNG. At 1280x720 a JPG lands well under 200 KB, far below the 2 MB cap. Switch a photographic thumbnail to JPG rather than compressing the PNG harder.</p></details>
+<details class="faq-item"><summary>My photo is not 16:9, what happens?</summary><p>It is scaled to cover the 16:9 frame and the overflow is centre-cropped, so you get exactly 1280x720. A 16:9 source loses nothing, a 4:3 photo loses about a quarter of its height, and a vertical phone photo loses most of its height, so frame the subject centrally first.</p></details>
+<details class="faq-item"><summary>Is there anywhere I should avoid putting text?</summary><p>The bottom-right corner, where the duration badge is overlaid in most surfaces. Also remember thumbnails are often viewed a couple of centimetres wide on a phone, so use few words at large size and crop tighter than looks right on a desktop monitor.</p></details>
+<details class="faq-item"><summary>JPG or PNG for thumbnails?</summary><p>JPG for anything photographic: small, universal and visually identical at sensible quality. PNG only when the thumbnail is mostly flat graphics or large hard-edged text, where lossless keeps lettering crisp. WebP is also accepted and the most efficient, though that hardly matters this far under the cap.</p></details>
+<details class="faq-item"><summary>Are my thumbnails uploaded anywhere?</summary><p>No. Resizing and encoding happen entirely in your browser via WebAssembly, so unreleased video assets never leave your device. You can confirm it in the Network tab of your browser's developer tools.</p></details>
+<h2>Related tools and guides</h2>
+<div class="related">
     <a href="/resize-image-to-1920x1080/">Resize to 1920×1080<small>Exact Full HD frames</small></a>
     <a href="/resize-image-to-1080x1080/">Resize to 1080×1080<small>Exact square</small></a>
     <a href="/social-media-image-sizes/">Social media sizes<small>Every platform dimension</small></a>
@@ -548,27 +434,32 @@ tr:last-child td{border-bottom:0;}
     <a href="/png-to-jpg/">PNG to JPG<small>Fix an oversized PNG thumbnail</small></a>
     <a href="/resize/">Resize images<small>Longest side or percentage</small></a>
   </div>
-
-  <div class="bottom-cta">
+<div class="bottom-cta">
     <p>Make a thumbnail YouTube accepts first time.</p>
     <a class="hero-cta" href="#dropzone">Resize to 1280×720: FREE</a>
   </div>
-
+    </section>
+  </main>
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:var(--font-display);font-feature-settings:'ss01' on;letter-spacing:-.3px;color:var(--text2);">img<i class="brand-mark" aria-hidden="true"></i><span style="color:var(--accent)">ready</span></div>
-    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
     <div>
-      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
     </div>
-    <div style="margin-top:4px;">
-      <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
     </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:var(--border);margin:0 4px" aria-hidden="true">|</span>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
       <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
-    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
   </footer>
 </div>
 <script src="/app.js" defer></script>

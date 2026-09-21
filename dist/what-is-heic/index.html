@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#b84d1d">
 <title>What Is HEIC? iPhone Photo Format Explained | imgready</title>
 <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -11,230 +10,87 @@
 <meta property="og:title" content="What Is HEIC? iPhone Photo Format Explained | imgready">
 <meta property="og:description" content="HEIC is Apple's default iPhone photo format, half the size of JPG with better quality. Learn what HEIC is, how to open it, and how to convert it free.">
 <meta property="og:image" content="https://imgready.app/og/what-is-heic.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://imgready.app/what-is-heic/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="What Is HEIC? iPhone Photo Format Explained | imgready">
-<meta name="twitter:description" content="HEIC is Apple's iPhone photo format, half the size of JPEG. Learn what HEIC is, how to open it, and convert to JPG free.">
-<meta name="twitter:image" content="https://imgready.app/og/what-is-heic.png">
 <link rel="canonical" href="https://imgready.app/what-is-heic/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b84d1d">
 <link rel="manifest" href="/manifest.webmanifest">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
-<style>:root{--shell:clamp(20rem, 92vw, 1040px);--measure:68ch;--w-app:900px;--w-page:780px;--w-read:720px;--font-display:'Poetsen One',ui-rounded,'Segoe UI',system-ui,sans-serif;}@font-face{font-family:'Poetsen One';src:url('/fonts/poetsenone-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-@font-face{font-family:'Nunito';src:url('/fonts/nunito-latin.woff2') format('woff2-variations'),url('/fonts/nunito-latin.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-.nav-brand .g{color:var(--accent,var(--accent));}
-.nav-sep{color:var(--border);}
-.topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
-.topnav a.nav-link:hover{text-decoration:underline;}
-.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
-@media(max-width:600px){.topnav .hide-mobile{display:none;}}
-.crumbs{font-size:.8rem;color:var(--muted);margin:6px 0 4px;}
-.crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
-.crumbs a:hover{text-decoration:underline;}
-.hero{padding:24px 0 32px;}
-.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
-.hero h1 em{font-style:normal;color:var(--accent);}
-.hero p.lede{font-size:1.02rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-.callout{background:var(--accent-light);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:var(--text2);line-height:1.75;}
-/* Quiet data table. Was a full 1px box around every cell plus zebra
-   striping: the heavy grid the design skill objects to (9.F), which
-   says pick ONE rule direction and use it sparsely.
-   These stay tables. They are genuine multi-column comparisons with
-   real measurements ("Format / Compression vs JPG / Browser support /
-   Encoding speed"), not a spec list pretending to be one, and a card
-   grid cannot carry a four-way comparison. Only the weight changes:
-   one hairline under each row, no vertical rules, no stripes. The
-   columns are held by alignment, which is what alignment is for. */
-table{border-collapse:collapse;width:100%;margin:16px 0 24px;font-size:.88rem;}
-th,td{text-align:left;padding:10px 18px 10px 0;border:0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
-th{color:var(--text);font-weight:700;border-bottom-color:var(--text2);}
-tr:last-child td{border-bottom:0;}
-@media(max-width:600px){th,td{padding:8px 10px 8px 0;font-size:.84rem;}}
-.winner{color:var(--accent);font-weight:700;}
-h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin:var(--h2-gap, 36px) 0 12px;}
-h3.sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
-p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
-ul,ol{padding-left:22px;margin-bottom:16px;}
-li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
-.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0 30px;}
-.verdict-box{border:2px solid var(--border);border-radius:10px;padding:16px;}
-.verdict-box.avif{border-color:var(--accent2);}
-.verdict-box h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:10px;}
-.verdict-box ul{padding-left:16px;}
-.verdict-box li{font-size:.84rem;color:var(--text2);margin-bottom:5px;}
-@media(max-width:540px){.verdict-grid{grid-template-columns:1fr;}}
-.faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}
-.faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;list-style:none;}
-.faq-item summary::after{content:'+';float:right;color:var(--accent);font-weight:700;}
-.faq-item[open] summary::after{content:'\2212';}
-.faq-item p{font-size:.92rem;color:var(--text2);line-height:1.75;padding:0 0 14px;}
-.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
-.related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-.related a:hover{border-color:var(--accent);}
-.related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-.hero-cta{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
-.hero-cta:hover{background:var(--accent2);transform:translateY(-2px);}
-.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid var(--border);}
-.bottom-cta p{color:var(--muted);margin-bottom:14px;}
-.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
-.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-.site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}
-
-/* Reading measure. Mirrors app.css; this page does not load it. ch not px so it tracks the user's font size (WCAG 1.4.4). */.wrap p,.wrap li,.wrap dd{max-width:var(--measure, 68ch);}.dropzone p,.dropzone li,td p,td li,th p,.feature-grid p,.feature-grid li,.cards p,.cards li{max-width:none;}</style>
+<meta name="theme-color" content="#b84d1d">
+<link rel="stylesheet" href="/app.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"What is HEIC","item":"https://imgready.app/what-is-heic/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"What Is a HEIC File? iPhone Photo Format Explained","description":"HEIC is Apple's default iPhone photo format, half the size of JPG with better quality. Learn what HEIC is, how to open it, and how to convert it free.","url":"https://imgready.app/what-is-heic/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"},"author":{"@type":"Organization","name":"imgready"},"datePublished":"2026-05-06","dateModified":"2026-05-06","image":"https://imgready.app/og/what-is-heic.png","publisher":{"@type":"Organization","name":"imgready","url":"https://imgready.app/","logo":{"@type":"ImageObject","url":"https://imgready.app/favicon.svg"}}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is HEIC?","acceptedAnswer":{"@type":"Answer","text":"HEIC (High Efficiency Image Container) is Apple's default photo format for iPhones and iPads since 2017. It's built on the HEIF standard and uses H.265 video compression to create image files that are approximately 50% smaller than equivalent JPEG files while maintaining superior image quality. HEIC supports both lossy and lossless compression, transparency, and multiple images per file."}},{"@type":"Question","name":"Why can't Windows open HEIC files?","acceptedAnswer":{"@type":"Answer","text":"Windows didn't natively support HEIC until Windows 10 version 1803 (2018), and even then support is limited. Windows lacks built-in HEIC codecs, so older versions and many applications simply cannot open HEIC files. Android phones do not use HEIC, so the format was less critical for cross-platform compatibility. Today, Windows 11 has better HEIC support, but JPEG and PNG remain more universally compatible."}},{"@type":"Question","name":"How do I open HEIC on PC?","acceptedAnswer":{"@type":"Answer","text":"On Windows 10 (build 1803+) or Windows 11, install the free HEIC Image Extensions from the Microsoft Store. For older Windows versions or if the extension doesn't work, convert your HEIC files to JPEG or PNG using a free online tool like imgready, it works entirely in your browser without uploading anything. Most desktop image viewers now support HEIC, but conversion is the most reliable solution for universal compatibility."}},{"@type":"Question","name":"Can I turn off HEIC on iPhone?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open Settings > Camera > Formats and toggle 'Most Compatible' to switch back to JPEG. Choosing 'Most Compatible' will save all new photos as JPEG instead of HEIC, making them easier to share with non-Apple devices. This is useful if you regularly share photos with Android users or Windows PCs, though it means larger file sizes. HEIC can remain enabled while using this setting."}},{"@type":"Question","name":"Is HEIC better than JPG?","acceptedAnswer":{"@type":"Answer","text":"Yes, HEIC is technically superior to JPEG. HEIC files are approximately 50% smaller at the same visual quality, support modern features like transparency and HDR photography, and use more efficient compression algorithms. However, JPEG is more widely supported across all devices and platforms. For sharing and archiving, JPEG remains more practical. For iPhone storage, HEIC is the better choice."}},{"@type":"Question","name":"How do I convert HEIC to JPG?","acceptedAnswer":{"@type":"Answer","text":"Use a free online converter like imgready, just upload your HEIC file and download the JPG. The entire conversion happens in your browser, so your photos never leave your device. You can also use Apple's built-in sharing options, Windows 11's Photos app (on newer systems), or desktop software like XnConvert or ImageMagick for bulk conversion of multiple files."}}]}</script>
 </head>
 <body>
+
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
-    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
-    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
-    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
     <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-
-  <p class="crumbs"><a href="/">Home</a> › What is HEIC</p>
-
-  <div class="hero">
-    <h1>What is a HEIC file? The <em>iPhone photo format</em> explained</h1>
-    <p class="lede">HEIC is Apple's default photo format for iPhones, iPads, and Apple devices since 2017. It's remarkably efficient: typically half the file size of JPEG with better quality, but also frustratingly incompatible with Windows, Android, and many older systems. Here's what HEIC actually is, why Apple chose it, how to open HEIC files on your PC, and how to convert them when you need universal compatibility.</p>
-  </div>
-
-  <h2>Quick answer</h2>
-  <p>HEIC stands for High Efficiency Image Container. It's built on Apple's HEIF standard and uses H.265 video compression technology. HEIC files are about 50% smaller than JPEG at the same visual quality, but Windows 10 (and earlier), Android, and many apps don't support them natively. If you need to share HEIC photos with others or use them on non-Apple devices, convert them to JPEG or PNG.</p>
-
-  <div class="callout">
+  <div class="crumbs"><a href="/">Home</a> » <span aria-current="page">What is HEIC</span></div>
+  <main>
+    <header class="page-head">
+      <h1>What is a HEIC file? The <em>iPhone photo format</em> explained</h1>
+      <p class="lede">HEIC is Apple's default photo format for iPhones, iPads, and Apple devices since 2017. It's remarkably efficient: typically half the file size of JPEG with better quality, but also frustratingly incompatible with Windows, Android, and many older systems. Here's what HEIC actually is, why Apple chose it, how to open HEIC files on your PC, and how to convert them when you need universal compatibility.</p>
+    </header>
+    <section class="prose">
+<h2>Quick answer</h2>
+<p>HEIC stands for High Efficiency Image Container. It's built on Apple's HEIF standard and uses H.265 video compression technology. HEIC files are about 50% smaller than JPEG at the same visual quality, but Windows 10 (and earlier), Android, and many apps don't support them natively. If you need to share HEIC photos with others or use them on non-Apple devices, convert them to JPEG or PNG.</p>
+<div class="callout">
     <strong>The core problem:</strong> Apple invented HEIC for storage efficiency. It works great within the Apple ecosystem. But the rest of the world still uses JPEG, PNG, and WebP. That incompatibility gap is why HEIC remains frustrating in 2026.
   </div>
-
-  <h2>What HEIC actually is</h2>
-
-  <p>HEIC (High Efficiency Image Container) is a container format that wraps images compressed with the H.265 codec, the same codec used in modern video streaming. Apple adopted it in iOS 11 (2017) as the default format for all iPhone and iPad photos. The format can store multiple images, sequences, animated photos, depth maps, and metadata all in a single file.</p>
-
-  <h3 class="sub">HEIC vs HEIF: What's the difference?</h3>
-  <p>HEIF (High Efficiency Image Format) is the broader standard. HEIC is Apple's specific implementation of HEIF using H.265 compression. For practical purposes, the terms are often used interchangeably when discussing Apple photos, though HEIF is technically the standard and HEIC is Apple's container.</p>
-
-  <h2>Why is HEIC 50% smaller than JPEG?</h2>
-
-  <p>HEIC uses H.265 video compression, which is dramatically more efficient than JPEG's DCT algorithm from 1992. H.265 analyzes image data in more sophisticated ways, it looks at larger blocks, uses better prediction models, and applies adaptive entropy coding. The result: a typical iPhone photo that's 4 MB as JPEG might be just 2 MB as HEIC with visually identical or superior quality.</p>
-
-  <p>For iPhone storage, this matters enormously. Users with limited capacity get more photos per gigabyte. Cloud backup bandwidth shrinks. But that efficiency advantage only works if you're staying in Apple's ecosystem.</p>
-
-  <h3 class="sub">Quality trade-off</h3>
-  <p>HEIC's smaller file size doesn't come with quality loss, it actually preserves more detail at the same file size. Modern smartphones use HEIC's superior compression to capture photos with better quality while using less storage space.</p>
-
-  <h2>Why Windows and Android can't open HEIC</h2>
-
-  <p>H.265 and HEIF were patented technologies with significant licensing requirements. Microsoft and Google were slower to license and implement H.265 support in their platforms. Android phone manufacturers, which represent over 70% of the global smartphone market, don't use HEIC, they use JPEG. Windows had no built-in HEIC support until Windows 10 version 1803 (2018), and even then the support is incomplete and requires additional codec installation.</p>
-
-  <p>This incompatibility is less about technical capability and more about patent licensing, ecosystem preference, and the lack of industry-wide adoption. In 2026, while support has improved, HEIC remains an Apple ecosystem format.</p>
-
-  <h2>How to open HEIC files on Windows</h2>
-
-  <p>Windows 11 and Windows 10 (build 1803 and later) can open HEIC files if you install the free HEIC Image Extensions from the Microsoft Store. Search for "HEIC" in the Store and install the official extension. After installation, you can open HEIC files in the built-in Photos app and most modern image viewers.</p>
-
-  <p>For older Windows versions, or if the extension isn't working, the most reliable solution is to convert HEIC files to JPEG or PNG using a free online tool. This approach also works for apps that don't support HEIC at all.</p>
-
-  <h3 class="sub">Why not just use the converter?</h3>
-  <p>If you're regularly receiving HEIC files from iPhone users, converting to JPEG is simpler than troubleshooting codec installation. A free tool like imgready converts HEIC to JPEG directly in your browser, no uploads, no software installation, no compatibility worries.</p>
-
-  <h2>Can I turn off HEIC on my iPhone?</h2>
-
-  <p>Yes. Go to Settings > Camera > Formats and toggle the 'Most Compatible' option. This tells your iPhone to save all new photos as JPEG instead of HEIC. The change only applies to photos taken after the toggle, existing HEIC photos remain unchanged. You'll still be able to see and edit your HEIC photos, but new ones will be JPEG.</p>
-
-  <p>The trade-off: JPEG files are roughly twice as large as HEIC. If you're sharing frequently with non-Apple users, this is worth it. If you only share with other iPhone users, keep HEIC enabled for storage efficiency.</p>
-
-  <h2>Is HEIC better than JPEG?</h2>
-
-  <p>Technically, yes. HEIC provides superior compression, supports modern features like transparency and HDR, and delivers better quality at smaller file sizes. For photography and image archival, HEIC is objectively the better format. However, JPEG is more widely supported across all platforms, devices, and applications. So while HEIC is technically superior, JPEG remains more practical for sharing and collaboration.</p>
-
-  <h3 class="sub">When HEIC makes sense</h3>
-  <ul>
+<h2>What HEIC actually is</h2>
+<p>HEIC (High Efficiency Image Container) is a container format that wraps images compressed with the H.265 codec, the same codec used in modern video streaming. Apple adopted it in iOS 11 (2017) as the default format for all iPhone and iPad photos. The format can store multiple images, sequences, animated photos, depth maps, and metadata all in a single file.</p>
+<h3 class="sub">HEIC vs HEIF: What's the difference?</h3>
+<p>HEIF (High Efficiency Image Format) is the broader standard. HEIC is Apple's specific implementation of HEIF using H.265 compression. For practical purposes, the terms are often used interchangeably when discussing Apple photos, though HEIF is technically the standard and HEIC is Apple's container.</p>
+<h2>Why is HEIC 50% smaller than JPEG?</h2>
+<p>HEIC uses H.265 video compression, which is dramatically more efficient than JPEG's DCT algorithm from 1992. H.265 analyzes image data in more sophisticated ways, it looks at larger blocks, uses better prediction models, and applies adaptive entropy coding. The result: a typical iPhone photo that's 4 MB as JPEG might be just 2 MB as HEIC with visually identical or superior quality.</p>
+<p>For iPhone storage, this matters enormously. Users with limited capacity get more photos per gigabyte. Cloud backup bandwidth shrinks. But that efficiency advantage only works if you're staying in Apple's ecosystem.</p>
+<h3 class="sub">Quality trade-off</h3>
+<p>HEIC's smaller file size doesn't come with quality loss, it actually preserves more detail at the same file size. Modern smartphones use HEIC's superior compression to capture photos with better quality while using less storage space.</p>
+<h2>Why Windows and Android can't open HEIC</h2>
+<p>H.265 and HEIF were patented technologies with significant licensing requirements. Microsoft and Google were slower to license and implement H.265 support in their platforms. Android phone manufacturers, which represent over 70% of the global smartphone market, don't use HEIC, they use JPEG. Windows had no built-in HEIC support until Windows 10 version 1803 (2018), and even then the support is incomplete and requires additional codec installation.</p>
+<p>This incompatibility is less about technical capability and more about patent licensing, ecosystem preference, and the lack of industry-wide adoption. In 2026, while support has improved, HEIC remains an Apple ecosystem format.</p>
+<h2>How to open HEIC files on Windows</h2>
+<p>Windows 11 and Windows 10 (build 1803 and later) can open HEIC files if you install the free HEIC Image Extensions from the Microsoft Store. Search for "HEIC" in the Store and install the official extension. After installation, you can open HEIC files in the built-in Photos app and most modern image viewers.</p>
+<p>For older Windows versions, or if the extension isn't working, the most reliable solution is to convert HEIC files to JPEG or PNG using a free online tool. This approach also works for apps that don't support HEIC at all.</p>
+<h3 class="sub">Why not just use the converter?</h3>
+<p>If you're regularly receiving HEIC files from iPhone users, converting to JPEG is simpler than troubleshooting codec installation. A free tool like imgready converts HEIC to JPEG directly in your browser, no uploads, no software installation, no compatibility worries.</p>
+<h2>Can I turn off HEIC on my iPhone?</h2>
+<p>Yes. Go to Settings &gt; Camera &gt; Formats and toggle the 'Most Compatible' option. This tells your iPhone to save all new photos as JPEG instead of HEIC. The change only applies to photos taken after the toggle, existing HEIC photos remain unchanged. You'll still be able to see and edit your HEIC photos, but new ones will be JPEG.</p>
+<p>The trade-off: JPEG files are roughly twice as large as HEIC. If you're sharing frequently with non-Apple users, this is worth it. If you only share with other iPhone users, keep HEIC enabled for storage efficiency.</p>
+<h2>Is HEIC better than JPEG?</h2>
+<p>Technically, yes. HEIC provides superior compression, supports modern features like transparency and HDR, and delivers better quality at smaller file sizes. For photography and image archival, HEIC is objectively the better format. However, JPEG is more widely supported across all platforms, devices, and applications. So while HEIC is technically superior, JPEG remains more practical for sharing and collaboration.</p>
+<h3 class="sub">When HEIC makes sense</h3>
+<ul>
     <li>Photos on iPhones and iPads (Apple's ecosystem)</li>
     <li>Cloud backup to iCloud (HEIC support is built-in)</li>
     <li>Photo libraries where storage is the primary concern</li>
     <li>Internal archival where you control the viewing software</li>
   </ul>
-
-  <h3 class="sub">When JPEG is better</h3>
-  <ul>
+<h3 class="sub">When JPEG is better</h3>
+<ul>
     <li>Sharing photos with mixed iOS and Android friends</li>
     <li>Uploading to websites that may not support HEIC</li>
     <li>Sending via email or messaging apps with older users</li>
     <li>Working with Windows or Linux photo editing software</li>
   </ul>
-
-  <h2>How to convert HEIC to JPEG</h2>
-
-  <p>Use a free online converter like imgready. Simply upload your HEIC file (or drag-drop it), adjust quality if needed, and download the JPEG. The entire process happens in your browser, your photos never upload to any server and nothing is stored. This approach works on any device: Mac, Windows, iPhone, Android, or Linux.</p>
-
-  <p>For bulk conversion of many files, you can also use Apple's built-in share menu on iPhone or iPad, Windows 11's Photos app (if you've installed the HEIC codec), or desktop software like ImageMagick or XnConvert.</p>
-
-  <div class="callout">
+<h2>How to convert HEIC to JPEG</h2>
+<p>Use a free online converter like imgready. Simply upload your HEIC file (or drag-drop it), adjust quality if needed, and download the JPEG. The entire process happens in your browser, your photos never upload to any server and nothing is stored. This approach works on any device: Mac, Windows, iPhone, Android, or Linux.</p>
+<p>For bulk conversion of many files, you can also use Apple's built-in share menu on iPhone or iPad, Windows 11's Photos app (if you've installed the HEIC codec), or desktop software like ImageMagick or XnConvert.</p>
+<div class="callout">
     <strong>Pro tip:</strong> When sharing photos from iPhone via iCloud Drive or cloud storage, consider converting to JPEG before sharing, it saves recipients the compatibility headache.
   </div>
-
-  <h2>HEIC file specifications at a glance</h2>
-
-  <table>
+<h2>HEIC file specifications at a glance</h2>
+<table>
     <thead>
       <tr><th>Attribute</th><th>Details</th></tr>
     </thead>
@@ -255,17 +111,15 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
       <tr><td>Browser support</td><td>Safari, Chrome (newer versions)</td></tr>
     </tbody>
   </table>
-
-  <h2>Convert your HEIC files now</h2>
-  <div class="related">
+<h2>Convert your HEIC files now</h2>
+<div class="related">
     <a href="/heic-to-jpg/"><strong>HEIC to JPG</strong><small>Convert iPhone photos to JPEG</small></a>
     <a href="/heic-to-png/"><strong>HEIC to PNG</strong><small>HEIC to lossless PNG</small></a>
     <a href="/heic-to-webp/"><strong>HEIC to WebP</strong><small>Convert to modern WebP format</small></a>
     <a href="/heic-to-avif/"><strong>HEIC to AVIF</strong><small>Ultra-efficient AVIF conversion</small></a>
   </div>
-
-  <h2>Frequently asked questions</h2>
-  <section>
+<h2>Frequently asked questions</h2>
+<section>
   <details class="faq-item">
     <summary>What is HEIC?</summary>
     <p>HEIC (High Efficiency Image Container) is Apple's default photo format for iPhones and iPads since 2017. It's built on the HEIF standard and uses H.265 video compression to create image files that are approximately 50% smaller than equivalent JPEG files while maintaining superior image quality. HEIC supports both lossy and lossless compression, transparency, and multiple images per file.</p>
@@ -280,7 +134,7 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
   </details>
   <details class="faq-item">
     <summary>Can I turn off HEIC on iPhone?</summary>
-    <p>Yes. Open Settings > Camera > Formats and toggle 'Most Compatible' to switch back to JPEG. Choosing 'Most Compatible' will save all new photos as JPEG instead of HEIC, making them easier to share with non-Apple devices. This is useful if you regularly share photos with Android users or Windows PCs, though it means larger file sizes. HEIC can remain enabled while using this setting.</p>
+    <p>Yes. Open Settings &gt; Camera &gt; Formats and toggle 'Most Compatible' to switch back to JPEG. Choosing 'Most Compatible' will save all new photos as JPEG instead of HEIC, making them easier to share with non-Apple devices. This is useful if you regularly share photos with Android users or Windows PCs, though it means larger file sizes. HEIC can remain enabled while using this setting.</p>
   </details>
   <details class="faq-item">
     <summary>Is HEIC better than JPG?</summary>
@@ -291,30 +145,40 @@ li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
     <p>Use a free online converter like imgready, just upload your HEIC file and download the JPG. The entire conversion happens in your browser, so your photos never leave your device. You can also use Apple's built-in sharing options, Windows 11's Photos app (on newer systems), or desktop software like XnConvert or ImageMagick for bulk conversion of multiple files.</p>
   </details>
   </section>
-
-  <h2>Further reading</h2>
-  <div class="related">
+<h2>Further reading</h2>
+<div class="related">
     <a href="/heic-to-jpg/"><strong>HEIC to JPG Converter</strong><small>Free browser-based conversion</small></a>
     <a href="/compress/"><strong>Compress Images</strong><small>Reduce any format for free</small></a>
     <a href="/resize/"><strong>Resize Images</strong><small>Set exact pixel dimensions</small></a>
   </div>
-
-  <div class="bottom-cta">
+<div class="bottom-cta">
     <p>Need to convert HEIC to JPEG, PNG, WebP, or AVIF? imgready is free, instant, and nothing ever uploads.</p>
     <a href="/heic-to-jpg/" class="hero-cta">Convert HEIC now →</a>
   </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
+    </div>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
+    </div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
 </div>
-
-<footer class="site-footer">
-  <a href="/">imgready</a>
-  <a href="/why/">Why imgready</a>
-  <a href="/about/">About</a>
-  <a href="/privacy/">Privacy</a>
-  <a href="/terms/">Terms</a>
-  <a href="/support/">Support</a>
-  <a href="/developers/">Developers</a>
-  <br>© 2026 imgready. Free in-browser image tools.
-</footer>
-</div>
+<script src="/app.js" defer></script>
 </body>
 </html>

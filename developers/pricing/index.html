@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>imgready SDK Pricing and Licence Terms</title>
+<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="description" content="What the imgready SDK costs and what the licence covers. Free with an attribution badge. $149 for one product, $449 for every product. Paid once, not a subscription.">
+<meta property="og:title" content="imgready SDK pricing and licence terms">
+<meta property="og:description" content="Free with a badge. $149 one product, $449 unlimited. Paid once, perpetual, twelve months of updates.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://imgready.app/developers/pricing/">
+<meta property="og:site_name" content="imgready">
+<link rel="canonical" href="https://imgready.app/developers/pricing/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#b84d1d">
+<link rel="stylesheet" href="/app.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"imgready SDK","description":"Client-side image compression and conversion SDK. Reads HEIC, TIFF, AVIF and WebP in the browser with no server.","brand":{"@type":"Brand","name":"imgready"},"offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD","url":"https://imgready.app/developers/pricing/","description":"Personal, open source and non-commercial use. Attribution badge stays visible."},{"@type":"Offer","name":"Commercial","price":"149","priceCurrency":"USD","url":"https://imgready.app/developers/pricing/","description":"One product. Badge removed. Paid once, twelve months of updates."},{"@type":"Offer","name":"Unlimited","price":"449","priceCurrency":"USD","url":"https://imgready.app/developers/pricing/","description":"Every product you ship, client work included. Badge removed. Paid once, twelve months of updates."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as one product?","acceptedAnswer":{"@type":"Answer","text":"One application or site that you own, on any number of domains you control, including its staging and preview environments. A second product your company ships needs the Unlimited licence, as does work you deliver to a client."}},{"@type":"Question","name":"Is it per developer or per company?","acceptedAnswer":{"@type":"Answer","text":"Per company. There are no seats to count and nothing to install per machine. Everyone at the company can work on the licensed product."}},{"@type":"Question","name":"What happens after twelve months?","acceptedAnswer":{"@type":"Answer","text":"Nothing breaks. The licence is perpetual, so the version you have keeps working and stays licensed forever. You stop receiving new releases until you renew."}},{"@type":"Question","name":"Can I copy the code instead of paying?","acceptedAnswer":{"@type":"Answer","text":"Technically yes. It is JavaScript and WebAssembly served to a browser, so it can be read and self-hosted, and no client-side check can stop that. The licence is a legal agreement, not a lock. Using it commercially without one means running the attribution badge, and the badge is visible on your own site."}}]}</script>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="topnav" aria-label="Primary">
+    <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
+    <span class="nav-grow">
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
+    </span>
+  </nav>
+  <main>
+    <header class="page-head">
+      <h1>Free to try, <span class="hl">paid once</span> to ship</h1>
+      <p class="eyebrow">SDK pricing</p>
+<p class="lede">The web tool at imgready.app is free and always will be. This page
+      is about the SDK, the thing you put inside your own product. No subscription, no
+      per-image fee, no usage meter.</p>
+<h2>The tiers</h2>
+<div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tag">Free</div>
+        <h4>Personal and open source</h4>
+        <div class="amount">$0</div>
+        <div class="price-desc">Keeps the attribution badge</div>
+        <ul>
+          <li>Personal projects</li>
+          <li>Open source projects</li>
+          <li>Non-commercial work</li>
+          <li>Every format and option, nothing held back</li>
+          <li class="muted">Small imgready badge stays visible</li>
+        </ul>
+        <p class="buy-note">No key needed. Drop the script tag in.</p>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-tag">Commercial</div>
+        <h4>One product you ship</h4>
+        <div class="amount">$149<span> paid once</span></div>
+        <div class="price-desc">Badge removed</div>
+        <ul>
+          <li>One product, unlimited domains you own</li>
+          <li>Commercial use permitted</li>
+          <li>Perpetual: the version you buy is yours forever</li>
+          <li>Twelve months of updates</li>
+          <li>Email support</li>
+        </ul>
+        <!-- CHECKOUT. Swap this href for the Stripe Payment Link once it exists;
+     nothing else needs to change. Until then it is a mailto, which works
+     today, rather than a dead Stripe URL. sdk/worker.js already routes a
+     $149 purchase to the commercial tier by amount, so the link can be
+     created with no metadata and keys will still mint correctly. -->
+        <a class="buy" href="mailto:hello@imgready.app?subject=imgready%20Commercial%20licence%20(%24149)">Buy Commercial, $149</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tag">Unlimited</div>
+        <h4>Everything you ship</h4>
+        <div class="amount">$449<span> paid once</span></div>
+        <div class="price-desc">Badge removed</div>
+        <ul>
+          <li>Every product your company ships</li>
+          <li>Client work and work for hire</li>
+          <li>Perpetual, same terms</li>
+          <li>Twelve months of updates</li>
+          <li>Email support</li>
+        </ul>
+        <!-- CHECKOUT. Same as above: swap for the $449 Payment Link. -->
+        <a class="buy" href="mailto:hello@imgready.app?subject=imgready%20Unlimited%20licence%20(%24449)">Buy Unlimited, $449</a>
+      </div>
+    </div>
+<p class="fineprint">Renewing updates after the first year is optional: $59 for
+      Commercial, $179 for Unlimited. Need indemnity, an invoice, a purchase order or
+      custom terms, <a href="mailto:hello@imgready.app">email us</a> and we will sort
+      out an Enterprise licence.</p>
+<h2>What it <span class="hl">replaces</span></h2>
+<p>Handling images on a server means paying for transfer, processing and storage
+      every month, forever. Doing it in the visitor's browser means paying for none of
+      them.</p>
+<table>
+      <thead><tr><th>Doing it server side</th><th>Ongoing cost</th></tr></thead>
+      <tbody>
+        <tr><td>Cloudinary, Plus plan</td><td>$89 a month</td></tr>
+        <tr><td>ImageKit, Pro plan</td><td>$89 a month</td></tr>
+        <tr><td>Uploadcare, Pro plan</td><td>$66 a month</td></tr>
+        <tr><td><strong>imgready SDK, Commercial</strong></td><td><strong>$149, once</strong></td></tr>
+      </tbody>
+    </table>
+<p class="fineprint">Third-party prices as published in September 2026 and subject
+      to change. They show the shape of the alternative, not a feature comparison:
+      those products do plenty this SDK does not.</p>
+<h2>Why it costs <span class="hl">anything</span></h2>
+<p>The free image libraries stop exactly where the pain starts. The most widely
+      used one accepts JPEG, PNG, WebP and BMP, and no browser outside Safari decodes
+      HEIC on its own. So the format every iPhone produces is the one nothing handles,
+      and making it work took a compiled decoder, a fallback chain, and a lot of
+      testing against real phone output.</p>
+<p>That is what the licence pays for. Not compression, which is a solved problem
+      you could wire up yourself in an afternoon.</p>
+<h2>Yes, you can <span class="hl">read</span> the source</h2>
+<p>It ships as plain JavaScript and WebAssembly. Read it, self-host it, audit it,
+      diff it between versions. A tool whose entire claim is that nothing leaves your
+      device has no business shipping an obfuscated blob you cannot inspect.</p>
+<p>So the licence is a legal agreement, not a lock, and we are not going to pretend
+      otherwise. What enforces it is that the attribution badge shows on your own site.
+      If you are shipping a product to paying customers, you already know whether you
+      are licensed.</p>
+<h2>Before you buy</h2>
+<details class="faq-item"><summary>What counts as one product?</summary>
+      <p>One application or site that you own, on any number of domains you control,
+      including staging and preview environments. A second product your company ships
+      needs Unlimited, as does anything you build and hand to a client.</p></details>
+<details class="faq-item"><summary>Is it per developer or per company?</summary>
+      <p>Per company. There are no seats to count and nothing to install per machine.
+      Everyone at your company can work on the licensed product.</p></details>
+<details class="faq-item"><summary>What happens after twelve months?</summary>
+      <p>Nothing breaks. The licence is perpetual, so the version you have keeps
+      working and stays licensed forever. You stop receiving new releases until you
+      renew, and renewing is optional.</p></details>
+<details class="faq-item"><summary>I bought a $9, $29 or $99 key. Is it still valid?</summary>
+      <p>Yes, permanently, on the terms you bought it under. Those tiers are retired
+      and no longer sold, but the keys keep working and keep the badge off. You do not
+      need to buy again.</p></details>
+<details class="faq-item"><summary>Do you offer refunds?</summary>
+      <p>Within 30 days, for any reason, no questions. The SDK is free to try with the
+      badge on, so you can confirm it works on your own files before paying.</p></details>
+<details class="faq-item"><summary>Will the web tool start charging?</summary>
+      <p>No. imgready.app stays free, with no account, no cap and no watermark. The SDK
+      is what funds it.</p></details>
+<h2>Related</h2>
+<ul class="related">
+      <li><a href="/developers/">SDK documentation, install and options</a></li>
+      <li><a href="/why/">Why nothing is ever uploaded</a></li>
+      <li><a href="/terms/">Terms</a></li>
+    </ul>
+    </header>
+    <ul class="highlights">
+      <li><b>One product you ship</b> </li>
+      <li><b>One product you ship</b> </li>
+      <li><b>One product you ship</b> </li>
+    </ul>
+    <section class="prose">
+<p class="eyebrow">SDK pricing</p>
+    <h2>The tiers</h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tag">Free</div>
+        <h4>Personal and open source</h4>
+        <div class="amount">$0</div>
+        <div class="price-desc">Keeps the attribution badge</div>
+        <ul>
+          <li>Personal projects</li>
+          <li>Open source projects</li>
+          <li>Non-commercial work</li>
+          <li>Every format and option, nothing held back</li>
+          <li class="muted">Small imgready badge stays visible</li>
+        </ul>
+        <p class="buy-note">No key needed. Drop the script tag in.</p>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-tag">Commercial</div>
+        <h4>One product you ship</h4>
+        <div class="amount">$149<span> paid once</span></div>
+        <div class="price-desc">Badge removed</div>
+        <ul>
+          <li>One product, unlimited domains you own</li>
+          <li>Commercial use permitted</li>
+          <li>Perpetual: the version you buy is yours forever</li>
+          <li>Twelve months of updates</li>
+          <li>Email support</li>
+        </ul>
+        <!-- CHECKOUT. Swap this href for the Stripe Payment Link once it exists;
+     nothing else needs to change. Until then it is a mailto, which works
+     today, rather than a dead Stripe URL. sdk/worker.js already routes a
+     $149 purchase to the commercial tier by amount, so the link can be
+     created with no metadata and keys will still mint correctly. -->
+        <a class="buy" href="mailto:hello@imgready.app?subject=imgready%20Commercial%20licence%20(%24149)">Buy Commercial, $149</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tag">Unlimited</div>
+        <h4>Everything you ship</h4>
+        <div class="amount">$449<span> paid once</span></div>
+        <div class="price-desc">Badge removed</div>
+        <ul>
+          <li>Every product your company ships</li>
+          <li>Client work and work for hire</li>
+          <li>Perpetual, same terms</li>
+          <li>Twelve months of updates</li>
+          <li>Email support</li>
+        </ul>
+        <!-- CHECKOUT. Same as above: swap for the $449 Payment Link. -->
+        <a class="buy" href="mailto:hello@imgready.app?subject=imgready%20Unlimited%20licence%20(%24449)">Buy Unlimited, $449</a>
+      </div>
+    </div>
+
+    <p class="fineprint">Renewing updates after the first year is optional: $59 for
+      Commercial, $179 for Unlimited. Need indemnity, an invoice, a purchase order or
+      custom terms, <a href="mailto:hello@imgready.app">email us</a> and we will sort
+      out an Enterprise licence.</p>
+
+    <h2>What it <span class="hl">replaces</span></h2>
+    <p>Handling images on a server means paying for transfer, processing and storage
+      every month, forever. Doing it in the visitor's browser means paying for none of
+      them.</p>
+    <table>
+      <thead><tr><th>Doing it server side</th><th>Ongoing cost</th></tr></thead>
+      <tbody>
+        <tr><td>Cloudinary, Plus plan</td><td>$89 a month</td></tr>
+        <tr><td>ImageKit, Pro plan</td><td>$89 a month</td></tr>
+        <tr><td>Uploadcare, Pro plan</td><td>$66 a month</td></tr>
+        <tr><td><strong>imgready SDK, Commercial</strong></td><td><strong>$149, once</strong></td></tr>
+      </tbody>
+    </table>
+    <p class="fineprint">Third-party prices as published in September 2026 and subject
+      to change. They show the shape of the alternative, not a feature comparison:
+      those products do plenty this SDK does not.</p>
+
+    <h2>Why it costs <span class="hl">anything</span></h2>
+    <p>The free image libraries stop exactly where the pain starts. The most widely
+      used one accepts JPEG, PNG, WebP and BMP, and no browser outside Safari decodes
+      HEIC on its own. So the format every iPhone produces is the one nothing handles,
+      and making it work took a compiled decoder, a fallback chain, and a lot of
+      testing against real phone output.</p>
+    <p>That is what the licence pays for. Not compression, which is a solved problem
+      you could wire up yourself in an afternoon.</p>
+
+    <h2>Yes, you can <span class="hl">read</span> the source</h2>
+    <p>It ships as plain JavaScript and WebAssembly. Read it, self-host it, audit it,
+      diff it between versions. A tool whose entire claim is that nothing leaves your
+      device has no business shipping an obfuscated blob you cannot inspect.</p>
+    <p>So the licence is a legal agreement, not a lock, and we are not going to pretend
+      otherwise. What enforces it is that the attribution badge shows on your own site.
+      If you are shipping a product to paying customers, you already know whether you
+      are licensed.</p>
+
+    <h2>Before you buy</h2>
+    <details class="faq-item"><summary>What counts as one product?</summary>
+      <p>One application or site that you own, on any number of domains you control,
+      including staging and preview environments. A second product your company ships
+      needs Unlimited, as does anything you build and hand to a client.</p></details>
+    <details class="faq-item"><summary>Is it per developer or per company?</summary>
+      <p>Per company. There are no seats to count and nothing to install per machine.
+      Everyone at your company can work on the licensed product.</p></details>
+    <details class="faq-item"><summary>What happens after twelve months?</summary>
+      <p>Nothing breaks. The licence is perpetual, so the version you have keeps
+      working and stays licensed forever. You stop receiving new releases until you
+      renew, and renewing is optional.</p></details>
+    <details class="faq-item"><summary>I bought a $9, $29 or $99 key. Is it still valid?</summary>
+      <p>Yes, permanently, on the terms you bought it under. Those tiers are retired
+      and no longer sold, but the keys keep working and keep the badge off. You do not
+      need to buy again.</p></details>
+    <details class="faq-item"><summary>Do you offer refunds?</summary>
+      <p>Within 30 days, for any reason, no questions. The SDK is free to try with the
+      badge on, so you can confirm it works on your own files before paying.</p></details>
+    <details class="faq-item"><summary>Will the web tool start charging?</summary>
+      <p>No. imgready.app stays free, with no account, no cap and no watermark. The SDK
+      is what funds it.</p></details>
+
+    <h2>Related</h2>
+    <ul class="related">
+      <li><a href="/developers/">SDK documentation, install and options</a></li>
+      <li><a href="/why/">Why nothing is ever uploaded</a></li>
+      <li><a href="/terms/">Terms</a></li>
+    </ul>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
+    <div>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
+    </div>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
+    </div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
+  </footer>
+</div>
+<script src="/app.js" defer></script>
+</body>
+</html>

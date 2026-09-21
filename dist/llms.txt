@@ -110,6 +110,8 @@ imgready is a privacy-first image tool that runs 100% client-side using WebAssem
 - https://imgready.app/about/
 - https://imgready.app/why/
 - https://imgready.app/developers/
+- https://imgready.app/help/
+- https://imgready.app/developers/pricing/
 - https://imgready.app/support/
 - https://imgready.app/privacy/
 - https://imgready.app/terms/

@@ -1,172 +1,57 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#b84d1d">
 <title>TIFF to JPG Converter Free. No Software Needed | imgready</title>
-<meta name="description" content="Convert TIFF to JPG online free. Shrink 100 MB print files to 1-2 MB JPG instantly. Supports uncompressed, LZW & PackBits. Private, in-browser.">
+<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="description" content="Convert TIFF to JPG online free. Shrink 100 MB print files to 1-2 MB JPG instantly. Supports uncompressed, LZW &amp; PackBits. Private, in-browser.">
 <meta property="og:title" content="TIFF to JPG Converter Free. No Software Needed | imgready">
-<meta property="og:description" content="Convert TIFF to JPG online free. Shrink 100 MB print files to 1-2 MB JPG instantly. Supports uncompressed, LZW & PackBits. Private, in-browser.">
+<meta property="og:description" content="Convert TIFF to JPG online free. Shrink 100 MB print files to 1-2 MB JPG instantly. Supports uncompressed, LZW &amp; PackBits. Private, in-browser.">
 <meta property="og:image" content="https://imgready.app/og/tiff-to-jpg.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/tiff-to-jpg/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="TIFF to JPG Converter Free. No Software Needed | imgready">
-<meta name="twitter:description" content="Convert TIFF to JPG online free. Shrink 100 MB print files to 1-2 MB JPG instantly. Supports uncompressed, LZW & PackBits. Private, in-browser.">
-<meta name="twitter:image" content="https://imgready.app/og/tiff-to-jpg.png">
 <link rel="canonical" href="https://imgready.app/tiff-to-jpg/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b84d1d">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="preconnect" href="https://esm.sh" crossorigin>
-<link rel="dns-prefetch" href="https://esm.sh">
-<link rel="preload" href="/imgready-worker.js" as="script">
-<link rel="prefetch" href="/vendor/UPNG.min.js">
-<link rel="prefetch" href="/vendor/pako.min.js">
-<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#b84d1d">
 <link rel="stylesheet" href="/app.css">
-<!-- Google AdSense loader (deferred for FCP). Loads on first user
-     interaction OR after window.onload + 1.5s idle. See index.html for the
-     long form of this comment. -->
-<script>
-(function(){
-  if(window._adsenseLoading)return;
-  function loadAdsense(){
-    if(window._adsenseLoading)return;
-    window._adsenseLoading=true;
-    var s=document.createElement('script');
-    s.async=true;
-    s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7077185222114795';
-    document.head.appendChild(s);
-  }
-  var triggers=['pointerdown','keydown','touchstart','scroll'];
-  function onInteract(){
-    triggers.forEach(function(t){window.removeEventListener(t,onInteract);});
-    loadAdsense();
-  }
-  triggers.forEach(function(t){window.addEventListener(t,onInteract,{passive:true,once:true});});
-  function scheduleAfterIdle(){
-    setTimeout(function(){
-      if('requestIdleCallback' in window){
-        requestIdleCallback(loadAdsense,{timeout:3000});
-      } else {
-        setTimeout(loadAdsense,1500);
-      }
-    },1500);
-  }
-  if(document.readyState==='complete'){
-    scheduleAfterIdle();
-  } else {
-    window.addEventListener('load',scheduleAfterIdle,{once:true});
-  }
-})();
-</script>
-<style>*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-.nav-brand .g{color:var(--accent,var(--accent));}
-.nav-sep{color:var(--border);}
-.topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
-.topnav a.nav-link:hover{text-decoration:underline;}
-.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
-@media(max-width:600px){.topnav .hide-mobile{display:none;}}
-.crumbs{font-size:.8rem;color:var(--muted);margin:6px 0 4px;}
-.crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
-.crumbs a:hover{text-decoration:underline;}
-.hero{padding:24px 0 32px;}
-.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
-.hero h1 em{font-style:normal;color:var(--accent);}
-.hero p.lede{font-size:1.02rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-.hero-cta{display:inline-block;padding:14px 36px;background:var(--accent);color:#fff;border-radius:11px;font-size:1.02rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 12px rgba(90,80,60,.15);}
-.hero-cta:hover{background:var(--accent2);transform:translateY(-2px);}
-.hero-sub{font-size:.84rem;color:var(--muted);margin-top:10px;}
-.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin:22px 0 30px;}
-.feat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
-.feat h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:6px;}
-.feat p{font-size:.8rem;color:var(--muted);line-height:1.5;}
-h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin:var(--h2-gap, 36px) 0 12px;}
-h3.sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
-p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
-ul,ol{padding-left:22px;margin-bottom:16px;}
-li{font-size:.92rem;line-height:1.75;color:var(--text2);margin-bottom:8px;}
-.callout{background:var(--accent-light);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin:22px 0;font-size:.92rem;color:var(--text2);line-height:1.75;}
-/* Quiet data table. Was a full 1px box around every cell plus zebra
-   striping: the heavy grid the design skill objects to (9.F), which
-   says pick ONE rule direction and use it sparsely.
-   These stay tables. They are genuine multi-column comparisons with
-   real measurements ("Format / Compression vs JPG / Browser support /
-   Encoding speed"), not a spec list pretending to be one, and a card
-   grid cannot carry a four-way comparison. Only the weight changes:
-   one hairline under each row, no vertical rules, no stripes. The
-   columns are held by alignment, which is what alignment is for. */
-table{border-collapse:collapse;width:100%;margin:16px 0 24px;font-size:.88rem;}
-th,td{text-align:left;padding:10px 18px 10px 0;border:0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
-th{color:var(--text);font-weight:700;border-bottom-color:var(--text2);}
-tr:last-child td{border-bottom:0;}
-@media(max-width:600px){th,td{padding:8px 10px 8px 0;font-size:.84rem;}}
-.faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}
-.faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;list-style:none;}
-.faq-item summary::after{content:'+';float:right;color:var(--accent);font-weight:700;}
-.faq-item[open] summary::after{content:'\2212';}
-.faq-item p{font-size:.92rem;color:var(--text2);line-height:1.75;padding:0 0 14px;}
-.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
-.related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-.related a:hover{border-color:var(--accent);}
-.related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-.bottom-cta{text-align:center;padding:32px 0;margin-top:24px;border-top:1px solid var(--border);}
-.bottom-cta p{color:var(--muted);margin-bottom:14px;}
-.site-footer{margin-top:48px;padding:24px 0 12px;border-top:1px solid var(--border);text-align:center;font-size:.76rem;color:var(--muted);line-height:1.8;}
-.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-.site-footer a:hover{text-decoration:underline;}
-@media(max-width:600px){.hero h1{font-size:1.55rem;}}
-</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":["SoftwareApplication","WebApplication"],"name":"imgready. Convert TIFF to JPGand finally share that print-master","applicationCategory":"MultimediaApplication","operatingSystem":"Any (browser-based)","url":"https://imgready.app/tiff-to-jpg/","browserRequirements":"Requires a modern browser with WebAssembly support","description":"Convert TIFF to JPG online free. Shrink 100 MB print files to 1-2 MB JPG instantly. Supports uncompressed, LZW & PackBits. Private, in-browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Convert TIFF to JPG in the browser","Quality slider and target-size mode","Resize and crop in the same pass","Runs fully client-side, no upload","Batch up to 200 files","Free with no sign-up, watermark or file limit"],"permissions":"No file upload; all processing happens locally in the browser"}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Convert TIFF to JPG online for free","description":"Convert a TIFF file to JPG entirely in your browser using imgready. No upload, no sign-up.","totalTime":"PT10S","supply":[{"@type":"HowToSupply","name":"A TIFF file"}],"tool":[{"@type":"HowToTool","name":"A web browser (Chrome, Firefox, Safari, or Edge)"}],"step":[{"@type":"HowToStep","name":"Open imgready","text":"Go to imgready.app/tiff-to-jpg/ in your browser. Make sure JPG is selected as the output format.","url":"https://imgready.app/tiff-to-jpg/"},{"@type":"HowToStep","name":"Drop your TIFF","text":"Drag the TIFF into the drop zone or click to browse. imgready decodes it directly in your browser using WebAssembly."},{"@type":"HowToStep","name":"Download the JPG","text":"Adjust the quality slider if needed (default 82 is invisible loss). Click Download. A 100 MB TIFF becomes a 1-3 MB JPG."}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "TIFF to JPG", "item": "https://imgready.app/tiff-to-jpg/"}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What TIFF compressions does imgready support?", "acceptedAnswer": {"@type": "Answer", "text": "Uncompressed, LZW, and PackBits: the three most common. If your TIFF uses Deflate, JPEG-in-TIFF, or CCITT compression, you may need to re-save it in a more common format first using a desktop editor."}}, {"@type": "Question", "name": "Why is my TIFF file so huge?", "acceptedAnswer": {"@type": "Answer", "text": "TIFFs are designed for archival quality, not file-size efficiency. A 24-megapixel uncompressed TIFF is around 100 MB. LZW compression brings that down maybe 30%. JPG, by contrast, compresses the same image to 1-4 MB at a quality indistinguishable from the source."}}, {"@type": "Question", "name": "Will TIFF to JPG lose quality?", "acceptedAnswer": {"@type": "Answer", "text": "TIFFs are typically lossless and JPG is lossy, so technically yes. At imgready's default quality 82, the loss is invisible at typical viewing distances. For pixel-perfect output, convert to PNG instead."}}, {"@type": "Question", "name": "Is TIFF to JPG private?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. imgready decodes TIFF entirely in your browser. The file never reaches our servers. This matters for scanned documents, medical imaging, and other sensitive content."}}, {"@type": "Question", "name": "Can imgready handle multi-page TIFFs?", "acceptedAnswer": {"@type": "Answer", "text": "imgready converts the first image plane in a TIFF. Multi-page TIFFs (often used for fax or scanned documents) only have their first page converted. For all pages, use a desktop tool like ImageMagick to split the TIFF first."}}, {"@type": "Question", "name": "How can I convert TIFF to WebP instead of JPG?", "acceptedAnswer": {"@type": "Answer", "text": "Use the TIFF to WebP converter, or just toggle the format buttons after dropping a TIFF, imgready handles the same conversion to WebP, AVIF, or PNG."}}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "TIFF to JPG Converter Online Free. Convert TIFF Files Instantly | imgready", "description": "Convert TIFF to JPG online for free. Open and share print-quality TIFF files anywhere. Supports uncompressed, LZW, and PackBits TIFF. 100% in-browser: your files stay private.", "url": "https://imgready.app/tiff-to-jpg/", "isPartOf": {"@type": "WebSite", "name": "imgready", "url": "https://imgready.app/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"TIFF to JPG","item":"https://imgready.app/tiff-to-jpg/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What TIFF compressions does imgready support?","acceptedAnswer":{"@type":"Answer","text":"Uncompressed, LZW, and PackBits: the three most common. If your TIFF uses Deflate, JPEG-in-TIFF, or CCITT compression, you may need to re-save it in a more common format first using a desktop editor."}},{"@type":"Question","name":"Why is my TIFF file so huge?","acceptedAnswer":{"@type":"Answer","text":"TIFFs are designed for archival quality, not file-size efficiency. A 24-megapixel uncompressed TIFF is around 100 MB. LZW compression brings that down maybe 30%. JPG, by contrast, compresses the same image to 1-4 MB at a quality indistinguishable from the source."}},{"@type":"Question","name":"Will TIFF to JPG lose quality?","acceptedAnswer":{"@type":"Answer","text":"TIFFs are typically lossless and JPG is lossy, so technically yes. At imgready's default quality 82, the loss is invisible at typical viewing distances. For pixel-perfect output, convert to PNG instead."}},{"@type":"Question","name":"Is TIFF to JPG private?","acceptedAnswer":{"@type":"Answer","text":"Yes. imgready decodes TIFF entirely in your browser. The file never reaches our servers. This matters for scanned documents, medical imaging, and other sensitive content."}},{"@type":"Question","name":"Can imgready handle multi-page TIFFs?","acceptedAnswer":{"@type":"Answer","text":"imgready converts the first image plane in a TIFF. Multi-page TIFFs (often used for fax or scanned documents) only have their first page converted. For all pages, use a desktop tool like ImageMagick to split the TIFF first."}},{"@type":"Question","name":"How can I convert TIFF to WebP instead of JPG?","acceptedAnswer":{"@type":"Answer","text":"Use the TIFF to WebP converter, or just toggle the format buttons after dropping a TIFF, imgready handles the same conversion to WebP, AVIF, or PNG."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"TIFF to JPG Converter Online Free. Convert TIFF Files Instantly | imgready","description":"Convert TIFF to JPG online for free. Open and share print-quality TIFF files anywhere. Supports uncompressed, LZW, and PackBits TIFF. 100% in-browser: your files stay private.","url":"https://imgready.app/tiff-to-jpg/","isPartOf":{"@type":"WebSite","name":"imgready","url":"https://imgready.app/"}}</script>
 </head>
 <body>
+
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
-    <span class="nav-sep" aria-hidden="true">|</span>
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link hide-mobile" href="/compress/">Compress</a>
-    <a class="nav-link hide-mobile" href="/resize/">Resize</a>
-    <a class="nav-link hide-mobile" href="/webp-converter/">Convert</a>
-    <a class="nav-link hide-mobile" href="/heic-to-jpg/">HEIC</a>
     <span class="nav-grow">
-      <a class="nav-link" href="/about/">About</a>
-      <a class="nav-link" href="/support/">Support&nbsp;&hearts;</a>
+      <a class="nav-link" href="/tools/">Tools</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-  <div class="crumbs"><a href="/">Home</a> &raquo; TIFF to JPG</div>
-
-  <section class="hero">
-    <h1>Convert TIFF to JPG<br><em>and finally share that print-master</em></h1>
-    <p class="lede">TIFF is the gold-standard archival format for photography and print, but it's a hassle to share, files are huge and very few non-professional tools can open them. imgready decodes TIFF in your browser (uncompressed, LZW, and PackBits) and outputs JPG you can email, post, or upload anywhere.</p>
-    <!-- =============== imgready tool (lifted from homepage) ===============-->
-<div class="app">
+  <div class="crumbs"><a href="/">Home</a> » <span aria-current="page">TIFF to JPG</span></div>
+  <main>
+    <header class="page-head">
+      <h1>Convert TIFF to JPG<br><em>and finally share that print-master</em></h1>
+      <p class="lede">TIFF is the gold-standard archival format for photography and print, but it's a hassle to share, files are huge and very few non-professional tools can open them. imgready decodes TIFF in your browser (uncompressed, LZW, and PackBits) and outputs JPG you can email, post, or upload anywhere.</p>
+    </header>
+    <div class="app">
 <!-- SETTINGS TRIGGER: full-width pill right above the dropzone, on
        both mobile and desktop. The label calls out what's inside so power
        users self-identify ("custom output, quality, resize") rather than
        relying on the generic word "Settings." Click expands the panel
        directly below; the dropzone is just below the panel either way. -->
   <button class="settings-trigger" id="advToggle" onclick="toggleAdvanced()" aria-expanded="false" aria-controls="advPanel">
-    <span class="settings-trigger-arrow" aria-hidden="true">&#9654;</span>
-    <span >Output settings</span><span class="settings-trigger-summary" id="advSummary"></span>
+    <span class="settings-trigger-arrow" aria-hidden="true">▶</span>
+    <span>Output settings</span><span class="settings-trigger-summary" id="advSummary"></span>
   </button>
 
   <!-- FINE-TUNE PANEL -->
@@ -280,7 +165,7 @@ tr:last-child td{border-bottom:0;}
           <option value="dim" selected>Longest side (px)</option>
           <option value="pct">Percent (%)</option>
         </select>
-        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput="if(typeof updateChargePreview===&quot;function&quot;)updateChargePreview()">
+        <input type="number" id="resizeMax" placeholder="e.g. 1200" min="10" max="8000" oninput='if(typeof updateChargePreview==="function")updateChargePreview()'>
       </div>
       <span class="adv-hint" id="resizeHint">Aspect ratio is always preserved.</span>
     </div>
@@ -300,7 +185,7 @@ tr:last-child td{border-bottom:0;}
   <div class="dropzone" id="dropzone" role="region" aria-label="Image upload area" tabindex="0">
     <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.svg,.ico,.jfif,.jpe,.jif" multiple aria-label="Choose image files to compress">
     <span class="dz-icon" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
     </span>
     <h2>Drop your images here</h2>
     <p>or click to browse. JPG, PNG, HEIC, TIFF, WebP, AVIF and more</p>
@@ -311,7 +196,7 @@ tr:last-child td{border-bottom:0;}
          compact "Add more images" mode (body.has-images) since returning
          users don't need re-reassurance mid-batch. -->
     <div class="dz-trust" aria-hidden="false">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
       <span>Stays on your device, never uploaded</span>
     </div>
     <div class="paste-hint">Tip: paste from clipboard works too.</div>
@@ -347,7 +232,7 @@ tr:last-child td{border-bottom:0;}
            API support, Copy on single-result mode + clipboard support. -->
       <div class="action-cluster" id="actionCluster">
         <button class="btn btn-share" id="shareAllBtn" style="display:none" onclick="shareAll()" aria-label="Share all results via your device">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <svg width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
           <span class="btn-share-label">Share all</span>
         </button>
         <button class="btn btn-dl" id="dlAllBtn" style="display:none" onclick="downloadAll()">Download all</button>
@@ -378,7 +263,7 @@ tr:last-child td{border-bottom:0;}
   <div class="nudge-banner" id="nudgeBanner">
     <span class="nudge-heart">♥</span>
     <span class="nudge-text" id="nudgeText"></span>
-    <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">&#x2715;</button>
+    <button class="nudge-dismiss" onclick="dismissNudge()" title="Dismiss">✕</button>
   </div>
 
   <!-- INSTALL PROMPT: surfaced only after the user's first successful run -->
@@ -402,7 +287,7 @@ tr:last-child td{border-bottom:0;}
 <div class="undo-toast" id="undoToast" role="status" aria-live="polite">
   <span id="undoToastMsg">Image removed</span>
   <button class="undo-toast-btn" onclick="undoRemove()" aria-label="Undo removal">Undo</button>
-  <button class="undo-toast-x" onclick="dismissUndoToast()" aria-label="Dismiss">&#x2715;</button>
+  <button class="undo-toast-x" onclick="dismissUndoToast()" aria-label="Dismiss">✕</button>
 </div>
 
 <!-- FULLSCREEN COMPARE MODAL -->
@@ -417,7 +302,7 @@ tr:last-child td{border-bottom:0;}
       </div>
     </div>
     <div class="fs-divider" id="fsDiv"></div>
-    <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"/></svg></div>
+    <div class="fs-handle" id="fsHdl"><svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M8 4l-4 8 4 8M16 4l4 8-4 8"></path></svg></div>
     <!-- Stacked label structure:
            Row 1 (.fs-lbl-title), large title: "Before" / "After"
            Row 2 (.fs-lbl-info), size · format
@@ -483,11 +368,11 @@ tr:last-child td{border-bottom:0;}
                navigator.canShare with files is supported). Download
                stays the visually primary one to match the cards. -->
           <button class="fe-dl fe-action fe-action-ghost" id="feShareBtn" onclick="feLiveShare()" title="Share" style="display:none" aria-label="Share current result">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
             <span class="fe-action-label">Share</span>
           </button>
           <button class="fe-dl fe-action fe-action-ghost" id="feCopyBtn" onclick="feLiveCopy(this)" title="Copy to clipboard" aria-label="Copy current result to clipboard">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
             <span class="fe-action-label">Copy</span>
           </button>
           <button class="fe-dl" id="feDlBtn" onclick="feLiveDl()">Download</button>
@@ -495,13 +380,13 @@ tr:last-child td{border-bottom:0;}
       </div>
     </div>
   </div>
-  <button class="fs-close" onclick="closeFullscreen()" aria-label="Close fullscreen comparison">&#x2715;</button>
+  <button class="fs-close" onclick="closeFullscreen()" aria-label="Close fullscreen comparison">✕</button>
 </div>
 
 <!-- TIP JAR MODAL -->
 <div class="sup-modal-overlay" id="supModalOverlay" onclick="if(event.target===this)closeSupModal()" role="dialog" aria-modal="true" aria-labelledby="supModalTitle">
   <div class="sup-modal">
-    <button class="sup-modal-close" onclick="closeSupModal()" aria-label="Close support dialog">&#x2715;</button>
+    <button class="sup-modal-close" onclick="closeSupModal()" aria-label="Close support dialog">✕</button>
     <div id="supDefaultState">
       <h2 id="supModalTitle">Support imgready</h2>
       <p class="sup-desc">imgready is free and always will be. It's built and maintained by one person. If it saved you time, a small contribution helps keep it running and improving.</p>
@@ -511,29 +396,26 @@ tr:last-child td{border-bottom:0;}
   </div>
 </div>
 </div>
-</section>
-
-<div class="features"><div class="feat"><h3>Three TIFF compressions</h3><p>Uncompressed, LZW, PackBits: handled natively.</p></div><div class="feat"><h3>Massive file reduction</h3><p>Typical 50 MB TIFF becomes a 1-2 MB JPG.</p></div><div class="feat"><h3>Quality slider</h3><p>Pick exactly how much detail to keep.</p></div><div class="feat"><h3>Batch convert</h3><p>Drop a folder of scans, walk away.</p></div></div>
-
-  <div class="callout"><strong>16-bit TIFF note:</strong> Professional scanners and RAW converters often produce 16-bit-per-channel TIFF files. imgready converts these to standard 8-bit-per-channel JPG, which is the maximum JPG supports. This is lossless in terms of visible detail for most content, the human eye cannot distinguish 8-bit from 16-bit in a finished photo.</div>
-
-  <h2>What TIFF is and why you have one</h2>
-  <p>TIFF (Tagged Image File Format) was created in 1986 and has been the gold-standard archival format for professional photography, print pre-press, scientific imaging, and document scanning ever since. Unlike JPG, TIFF can store images losslessly, with 16- or 32-bit color depth, full alpha channel, multiple layers, and a wide variety of metadata. Almost every professional camera supports TIFF as an output option, every flatbed scanner produces TIFF by default, and most print workflows expect TIFF or PSD as input.</p>
-  <p>The downside is the same as PNG times ten: TIFF files are enormous. A 24-megapixel TIFF can easily be 80-150&nbsp;MB. Sharing one via email is impractical. Posting one on Instagram is impossible. Editing one in a non-professional tool can be tricky. Converting to JPG opens up everything.</p>
-
-  <h3 class="sub">TIFF compression types and what imgready supports</h3>
-  <p>TIFF technically supports a dozen different internal compression schemes, but in practice three dominate: <strong>uncompressed</strong> (the simplest), <strong>LZW</strong> (lossless, common in print), and <strong>PackBits</strong> (lossless, common in older scanners and Mac-origin TIFFs). imgready handles all three natively. If your browser supports <code>createImageBitmap()</code> with TIFF (Chrome does in many cases), imgready uses that fast path; otherwise it falls back to a hand-written TIFF parser that handles the three common compression types.</p>
-  <p>TIFFs that use less common compression (Deflate, JPEG-in-TIFF, CCITT for fax, etc.) may not decode. If you have one, the easiest fix is to open it in any image editor and re-save as uncompressed or LZW TIFF, then run it through imgready.</p>
-
-  <h3 class="sub">Quality and resize for TIFF&nbsp;→&nbsp;JPG</h3>
-  <p>Because TIFFs are usually high-resolution archival masters, you almost always want to resize during conversion. A 24-megapixel TIFF used as a hero image on a 1200-pixel-wide blog should be resized to 1600 pixels on the long side; the rest of the resolution is wasted bytes. Set the resize value in Settings (or pick a preset) before you process. Combined with quality 82, a 100&nbsp;MB TIFF typically becomes a 200-300&nbsp;KB JPG with no visible quality loss at the new size.</p>
-
-  <h3 class="sub">Privacy: where do TIFFs come from?</h3>
-  <p>TIFFs are often <em>scanned documents</em>: tax returns, ID cards, contracts, medical records. Uploading those to a random online converter is a real privacy risk. imgready does the conversion entirely in your browser, your scanned passport never leaves your laptop. Same goes for medical-imaging TIFFs from MRI/CT scanners and forensic-grade photography exports.</p>
-
-
-  <h3 class="sub">TIFF to JPG vs TIFF to PNG vs TIFF to WebP</h3>
-  <table>
+    <ul class="highlights">
+      <li><b>Three TIFF compressions</b> Uncompressed, LZW, PackBits: handled natively.</li>
+      <li><b>Massive file reduction</b> Typical 50 MB TIFF becomes a 1-2 MB JPG.</li>
+      <li><b>Quality slider</b> Pick exactly how much detail to keep.</li>
+      <li><b>Batch convert</b> Drop a folder of scans, walk away.</li>
+    </ul>
+    <section class="prose">
+<div class="callout"><strong>16-bit TIFF note:</strong> Professional scanners and RAW converters often produce 16-bit-per-channel TIFF files. imgready converts these to standard 8-bit-per-channel JPG, which is the maximum JPG supports. This is lossless in terms of visible detail for most content, the human eye cannot distinguish 8-bit from 16-bit in a finished photo.</div>
+<h2>What TIFF is and why you have one</h2>
+<p>TIFF (Tagged Image File Format) was created in 1986 and has been the gold-standard archival format for professional photography, print pre-press, scientific imaging, and document scanning ever since. Unlike JPG, TIFF can store images losslessly, with 16- or 32-bit color depth, full alpha channel, multiple layers, and a wide variety of metadata. Almost every professional camera supports TIFF as an output option, every flatbed scanner produces TIFF by default, and most print workflows expect TIFF or PSD as input.</p>
+<p>The downside is the same as PNG times ten: TIFF files are enormous. A 24-megapixel TIFF can easily be 80-150 MB. Sharing one via email is impractical. Posting one on Instagram is impossible. Editing one in a non-professional tool can be tricky. Converting to JPG opens up everything.</p>
+<h3 class="sub">TIFF compression types and what imgready supports</h3>
+<p>TIFF technically supports a dozen different internal compression schemes, but in practice three dominate: <strong>uncompressed</strong> (the simplest), <strong>LZW</strong> (lossless, common in print), and <strong>PackBits</strong> (lossless, common in older scanners and Mac-origin TIFFs). imgready handles all three natively. If your browser supports <code>createImageBitmap()</code> with TIFF (Chrome does in many cases), imgready uses that fast path; otherwise it falls back to a hand-written TIFF parser that handles the three common compression types.</p>
+<p>TIFFs that use less common compression (Deflate, JPEG-in-TIFF, CCITT for fax, etc.) may not decode. If you have one, the easiest fix is to open it in any image editor and re-save as uncompressed or LZW TIFF, then run it through imgready.</p>
+<h3 class="sub">Quality and resize for TIFF → JPG</h3>
+<p>Because TIFFs are usually high-resolution archival masters, you almost always want to resize during conversion. A 24-megapixel TIFF used as a hero image on a 1200-pixel-wide blog should be resized to 1600 pixels on the long side; the rest of the resolution is wasted bytes. Set the resize value in Settings (or pick a preset) before you process. Combined with quality 82, a 100 MB TIFF typically becomes a 200-300 KB JPG with no visible quality loss at the new size.</p>
+<h3 class="sub">Privacy: where do TIFFs come from?</h3>
+<p>TIFFs are often <em>scanned documents</em>: tax returns, ID cards, contracts, medical records. Uploading those to a random online converter is a real privacy risk. imgready does the conversion entirely in your browser, your scanned passport never leaves your laptop. Same goes for medical-imaging TIFFs from MRI/CT scanners and forensic-grade photography exports.</p>
+<h3 class="sub">TIFF to JPG vs TIFF to PNG vs TIFF to WebP</h3>
+<table>
     <thead><tr><th>Output</th><th>File size</th><th>Best use</th></tr></thead>
     <tbody>
       <tr><td>JPG (quality 82)</td><td>Small</td><td>Sharing, email, universal compatibility</td></tr>
@@ -541,17 +423,14 @@ tr:last-child td{border-bottom:0;}
       <tr><td>WebP (quality 82)</td><td>Smallest</td><td>Web publishing: blogs, e-commerce</td></tr>
     </tbody>
   </table>
-
-
-  <h3 class="sub">Color space and bit depth, what changes when TIFF becomes JPG</h3>
-  <p>TIFFs and JPGs handle color differently in two ways that matter for print and archival work.</p>
-  <p><strong>Bit depth.</strong> Many professional TIFFs use 16 bits per channel, that's 65,536 levels of red, green, and blue, giving a total of 281 trillion possible colors. JPG can only store 8 bits per channel (256 levels per color, 16.7 million total). When imgready converts, it intelligently dithers 16-bit data down to 8-bit. The visible result is identical for finished photos: the human eye can't resolve more than about 200 distinct shades of any color anyway. The reason to keep 16-bit is for further editing, not for viewing.</p>
-  <p><strong>Color space.</strong> Photographic TIFFs are usually in sRGB or Adobe RGB. Print-house TIFFs may be in CMYK. JPG can technically store CMYK, but in practice most software expects RGB. imgready converts CMYK TIFFs to sRGB on output so the resulting JPG opens correctly in browsers, phones, and photo apps. If your TIFF is in Adobe RGB, the colors may look slightly muted in the JPG, this is correct behavior for sRGB display, not a bug.</p>
-  <p><strong>ICC profiles.</strong> An ICC profile is a small color calibration block embedded in the file. imgready preserves the source profile when possible (sRGB on most browsers, ProPhoto on professional displays). For files destined for print, your printer may want the ICC profile embedded, check with them before converting.</p>
-
-  <h3 class="sub">Recommended JPG quality settings by use case</h3>
-  <p>imgready's quality slider goes from 1 to 100. Lower means smaller file, more compression artifacts. Here's what to pick for common scenarios.</p>
-  <table>
+<h3 class="sub">Color space and bit depth, what changes when TIFF becomes JPG</h3>
+<p>TIFFs and JPGs handle color differently in two ways that matter for print and archival work.</p>
+<p><strong>Bit depth.</strong> Many professional TIFFs use 16 bits per channel, that's 65,536 levels of red, green, and blue, giving a total of 281 trillion possible colors. JPG can only store 8 bits per channel (256 levels per color, 16.7 million total). When imgready converts, it intelligently dithers 16-bit data down to 8-bit. The visible result is identical for finished photos: the human eye can't resolve more than about 200 distinct shades of any color anyway. The reason to keep 16-bit is for further editing, not for viewing.</p>
+<p><strong>Color space.</strong> Photographic TIFFs are usually in sRGB or Adobe RGB. Print-house TIFFs may be in CMYK. JPG can technically store CMYK, but in practice most software expects RGB. imgready converts CMYK TIFFs to sRGB on output so the resulting JPG opens correctly in browsers, phones, and photo apps. If your TIFF is in Adobe RGB, the colors may look slightly muted in the JPG, this is correct behavior for sRGB display, not a bug.</p>
+<p><strong>ICC profiles.</strong> An ICC profile is a small color calibration block embedded in the file. imgready preserves the source profile when possible (sRGB on most browsers, ProPhoto on professional displays). For files destined for print, your printer may want the ICC profile embedded, check with them before converting.</p>
+<h3 class="sub">Recommended JPG quality settings by use case</h3>
+<p>imgready's quality slider goes from 1 to 100. Lower means smaller file, more compression artifacts. Here's what to pick for common scenarios.</p>
+<table>
     <thead><tr><th>Use case</th><th>Quality</th><th>Typical 50 MB TIFF → JPG</th></tr></thead>
     <tbody>
       <tr><td>Archival, print master</td><td>95-100</td><td>3-5 MB</td></tr>
@@ -561,46 +440,40 @@ tr:last-child td{border-bottom:0;}
       <tr><td>Thumbnail, preview</td><td>60-72</td><td>40-150 KB</td></tr>
     </tbody>
   </table>
-  <p>Default quality is 82: a balance point that's invisible to the eye at typical viewing distance but compresses to about 1-2% of the source TIFF size. Skip the "100" setting unless you have a specific archival reason; visually it's identical to 95 but the file is 30-50% larger.</p>
-
-  <h3 class="sub">TIFF flavors imgready can't handle yet</h3>
-  <p>TIFF is more of a container format than a single standard. imgready supports the three compressions that cover ~95% of real-world TIFFs: <strong>uncompressed</strong>, <strong>LZW</strong>, and <strong>PackBits</strong>. If your file uses something else, the conversion will fail with a clear error. Specifically not supported:</p>
-  <ul>
+<p>Default quality is 82: a balance point that's invisible to the eye at typical viewing distance but compresses to about 1-2% of the source TIFF size. Skip the "100" setting unless you have a specific archival reason; visually it's identical to 95 but the file is 30-50% larger.</p>
+<h3 class="sub">TIFF flavors imgready can't handle yet</h3>
+<p>TIFF is more of a container format than a single standard. imgready supports the three compressions that cover ~95% of real-world TIFFs: <strong>uncompressed</strong>, <strong>LZW</strong>, and <strong>PackBits</strong>. If your file uses something else, the conversion will fail with a clear error. Specifically not supported:</p>
+<ul>
     <li><strong>JPEG-in-TIFF</strong> (compression scheme 7): common in older Canon DSLR raw exports. Workaround: open in Photoshop or GIMP and re-save with no compression.</li>
     <li><strong>Deflate (compression scheme 8)</strong>: used by some professional scanners. Same workaround.</li>
     <li><strong>BigTIFF</strong>: a variant for files larger than 4 GB. Rare; mostly used in scientific imaging.</li>
     <li><strong>CCITT Group 3/4</strong>: fax and bilevel scan compression. The output is monochrome only; convert to PNG or use a desktop tool first.</li>
     <li><strong>Multi-page TIFFs</strong>: imgready extracts only the first page. For scanned multi-page documents, split with ImageMagick or Preview first.</li>
   </ul>
-  <p>If a TIFF refuses to open in imgready, the safest fallback is to open it in any desktop image editor and re-save as a standard uncompressed or LZW TIFF, then drop the new file into imgready.</p>
-
-  <h3 class="sub">Three real workflows for TIFF&nbsp;→&nbsp;JPG</h3>
-  <p><strong>Scanned old photos for sharing.</strong> Your scanner outputs 50-80 MB TIFFs at 600 DPI. For family group chats and email, convert to JPG at quality 80 and resize the longest side to 2000 px. Result: 200-400 KB files that still print sharply at 8&times;10. imgready does both in one drop.</p>
-  <p><strong>Print-master to client preview.</strong> You shoot in RAW, edit in Lightroom, export a 100 MB TIFF at 16-bit ProPhoto RGB. For client previews, convert to sRGB JPG at quality 88. The 2-3 MB result reviews fine on any phone or laptop while you keep the TIFF as the working master.</p>
-  <p><strong>Medical or legal scan for review.</strong> A document scanner produces multi-page TIFFs at 300 DPI grayscale. Privacy is non-negotiable: these can't go through any upload-based service. imgready converts the first page locally; for all pages, split the TIFF first with a desktop tool, then batch-convert in imgready. Files never leave the device.</p>
-
-  <h2>How to convert TIFF to JPG in three steps</h2>
-  <p>Converting TIFF to JPG with imgready takes about 10 seconds and requires no software installation.</p>
-  <ol>
+<p>If a TIFF refuses to open in imgready, the safest fallback is to open it in any desktop image editor and re-save as a standard uncompressed or LZW TIFF, then drop the new file into imgready.</p>
+<h3 class="sub">Three real workflows for TIFF → JPG</h3>
+<p><strong>Scanned old photos for sharing.</strong> Your scanner outputs 50-80 MB TIFFs at 600 DPI. For family group chats and email, convert to JPG at quality 80 and resize the longest side to 2000 px. Result: 200-400 KB files that still print sharply at 8×10. imgready does both in one drop.</p>
+<p><strong>Print-master to client preview.</strong> You shoot in RAW, edit in Lightroom, export a 100 MB TIFF at 16-bit ProPhoto RGB. For client previews, convert to sRGB JPG at quality 88. The 2-3 MB result reviews fine on any phone or laptop while you keep the TIFF as the working master.</p>
+<p><strong>Medical or legal scan for review.</strong> A document scanner produces multi-page TIFFs at 300 DPI grayscale. Privacy is non-negotiable: these can't go through any upload-based service. imgready converts the first page locally; for all pages, split the TIFF first with a desktop tool, then batch-convert in imgready. Files never leave the device.</p>
+<h2>How to convert TIFF to JPG in three steps</h2>
+<p>Converting TIFF to JPG with imgready takes about 10 seconds and requires no software installation.</p>
+<ol>
     <li><strong>Open imgready</strong>: go to imgready.app or click the button above. Make sure JPG is selected as the output format (it's the default).</li>
     <li><strong>Drop your TIFF file</strong>: drag the file into the dropzone or click to browse. imgready reads the TIFF directly in your browser. Files up to several hundred MB work fine.</li>
     <li><strong>Download the JPG</strong>: the conversion is instant. Use the quality slider to adjust size vs. sharpness, then click Download. Typical result: a 100 MB TIFF becomes a 1-3 MB JPG.</li>
   </ol>
-  <p>For batch conversion, drop multiple TIFFs at once. imgready processes them all in parallel and lets you download a ZIP of the results.</p>
-
-  <h3 class="sub">When to convert TIFF to JPG vs other formats</h3>
-  <p>JPG is the right choice when you need the file to open everywhere, email attachments, social media, client delivery, or printing at a lab. If you need to preserve transparency (TIFFs can have alpha channels), convert to PNG instead. If you're publishing to a website, WebP gives you 25-35% smaller files than JPG at the same quality. Use the table below as a quick reference.</p>
-
-  <h2>Frequently asked questions</h2>
-    <details class="faq-item"><summary>What TIFF compressions does imgready support?</summary><p>Uncompressed, LZW, and PackBits: the three most common. If your TIFF uses Deflate, JPEG-in-TIFF, or CCITT compression, you may need to re-save it in a more common format first using a desktop editor.</p></details>
-    <details class="faq-item"><summary>Why is my TIFF file so huge?</summary><p>TIFFs are designed for archival quality, not file-size efficiency. A 24-megapixel uncompressed TIFF is around 100 MB. LZW compression brings that down maybe 30%. JPG, by contrast, compresses the same image to 1-4 MB at a quality indistinguishable from the source.</p></details>
-    <details class="faq-item"><summary>Will TIFF to JPG lose quality?</summary><p>TIFFs are typically lossless and JPG is lossy, so technically yes. At imgready's default quality 82, the loss is invisible at typical viewing distances. For pixel-perfect output, convert to PNG instead.</p></details>
-    <details class="faq-item"><summary>Is TIFF to JPG private?</summary><p>Yes. imgready decodes TIFF entirely in your browser. The file never reaches our servers. This matters for scanned documents, medical imaging, and other sensitive content.</p></details>
-    <details class="faq-item"><summary>Can imgready handle multi-page TIFFs?</summary><p>imgready converts the first image plane in a TIFF. Multi-page TIFFs (often used for fax or scanned documents) only have their first page converted. For all pages, use a desktop tool like ImageMagick to split the TIFF first.</p></details>
-    <details class="faq-item"><summary>How can I convert TIFF to WebP instead of JPG?</summary><p>Use the TIFF to WebP converter, or just toggle the format buttons after dropping a TIFF, imgready handles the same conversion to WebP, AVIF, or PNG.</p></details>
-
-  <h2>Related tools and guides</h2>
-  <div class="related">
+<p>For batch conversion, drop multiple TIFFs at once. imgready processes them all in parallel and lets you download a ZIP of the results.</p>
+<h3 class="sub">When to convert TIFF to JPG vs other formats</h3>
+<p>JPG is the right choice when you need the file to open everywhere, email attachments, social media, client delivery, or printing at a lab. If you need to preserve transparency (TIFFs can have alpha channels), convert to PNG instead. If you're publishing to a website, WebP gives you 25-35% smaller files than JPG at the same quality. Use the table below as a quick reference.</p>
+<h2>Frequently asked questions</h2>
+<details class="faq-item"><summary>What TIFF compressions does imgready support?</summary><p>Uncompressed, LZW, and PackBits: the three most common. If your TIFF uses Deflate, JPEG-in-TIFF, or CCITT compression, you may need to re-save it in a more common format first using a desktop editor.</p></details>
+<details class="faq-item"><summary>Why is my TIFF file so huge?</summary><p>TIFFs are designed for archival quality, not file-size efficiency. A 24-megapixel uncompressed TIFF is around 100 MB. LZW compression brings that down maybe 30%. JPG, by contrast, compresses the same image to 1-4 MB at a quality indistinguishable from the source.</p></details>
+<details class="faq-item"><summary>Will TIFF to JPG lose quality?</summary><p>TIFFs are typically lossless and JPG is lossy, so technically yes. At imgready's default quality 82, the loss is invisible at typical viewing distances. For pixel-perfect output, convert to PNG instead.</p></details>
+<details class="faq-item"><summary>Is TIFF to JPG private?</summary><p>Yes. imgready decodes TIFF entirely in your browser. The file never reaches our servers. This matters for scanned documents, medical imaging, and other sensitive content.</p></details>
+<details class="faq-item"><summary>Can imgready handle multi-page TIFFs?</summary><p>imgready converts the first image plane in a TIFF. Multi-page TIFFs (often used for fax or scanned documents) only have their first page converted. For all pages, use a desktop tool like ImageMagick to split the TIFF first.</p></details>
+<details class="faq-item"><summary>How can I convert TIFF to WebP instead of JPG?</summary><p>Use the TIFF to WebP converter, or just toggle the format buttons after dropping a TIFF, imgready handles the same conversion to WebP, AVIF, or PNG.</p></details>
+<h2>Related tools and guides</h2>
+<div class="related">
     <a href="/tiff-to-webp/">TIFF to WebP<small>Smaller than JPG, broad support</small></a>
     <a href="/tiff-to-png/">TIFF to PNG<small>Lossless output, transparency kept</small></a>
     <a href="/tiff-vs-jpg/">TIFF vs JPG<small>Which format should you use?</small></a>
@@ -610,27 +483,32 @@ tr:last-child td{border-bottom:0;}
   
     <a href="/what-is-tiff/">What is TIFF?<small>Why scanners and print still use it</small></a>
   </div>
-
-  <div class="bottom-cta">
+<div class="bottom-cta">
     <p>Ready to try?</p>
     <a class="hero-cta" href="#dropzone">Convert TIFF to JPG: FREE</a>
   </div>
-
+    </section>
+  </main>
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:var(--font-display);font-feature-settings:'ss01' on;letter-spacing:-.3px;color:var(--text2);">img<i class="brand-mark" aria-hidden="true"></i><span style="color:var(--accent)">ready</span></div>
-    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
     <div>
-      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a><a href="/developers/">Developers</a>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
     </div>
-    <div style="margin-top:4px;">
-      <a href="/compress/">Compress</a><a href="/resize/">Resize</a><a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a><a href="/heic-to-jpg/">HEIC&rarr;JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
     </div>
-    <div style="margin-top:8px;">
-      <a href="#" onclick="event.preventDefault();window.googlefc&&window.googlefc.showRevocationMessage&&window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
-      <span style="color:var(--border);margin:0 4px" aria-hidden="true">|</span>
+    <div class="footer-row2">
+      <a href="#" onclick="event.preventDefault();window.googlefc&amp;&amp;window.googlefc.showRevocationMessage&amp;&amp;window.googlefc.showRevocationMessage();">Cookie &amp; ad settings</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
       <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
     </div>
-    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+    <div class="footer-row2">&copy; 2026 imgready. All rights reserved.</div>
   </footer>
 </div>
 <script src="/app.js" defer></script>
