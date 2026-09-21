@@ -19,6 +19,7 @@ imgready is a privacy-first image tool that runs 100% client-side using WebAssem
 ### Start here
 - Homepage / all-in-one tool: https://imgready.app/
 - Every tool, indexed: https://imgready.app/tools/
+- https://imgready.app/favicon-generator/
 - Strip EXIF and see a photo's GPS: https://imgready.app/exif-viewer/
 
 ### Convert to JPG

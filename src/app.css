@@ -1695,4 +1695,69 @@ td p, td li, th p,
 .ex-count{font-size:.8rem;color:var(--text2);margin:0 0 10px;}
 .ex-strip-note{font-size:.78rem;color:var(--muted);line-height:1.55;margin:10px 0 0;}
 
+/* ---------- favicon generator  /favicon-generator/ ---------- */
+.fv{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;
+  margin:24px 0 8px;align-items:start;}
+@media(max-width:860px){ .fv{grid-template-columns:1fr;} }
+.fv-left,.fv-right{display:grid;gap:16px;}
+.fv-drop{display:grid;gap:6px;justify-items:center;text-align:center;
+  padding:34px 22px;border:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);
+  border-radius:16px;background:var(--surface);cursor:pointer;
+  transition:background .16s,border-color .16s;}
+.fv-drop:hover,.fv-drop.is-drag{border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 6%,var(--surface));}
+.fv-drop-title{font-family:var(--font-display);font-synthesis:none;font-weight:400;
+  font-size:1.15rem;color:var(--text);}
+.fv-drop-sub{font-size:.86rem;color:var(--text2);}
+.fv-drop-safe{font-size:.76rem;font-weight:700;color:var(--accent);margin-top:4px;}
+.fv-controls{display:grid;gap:14px;padding:16px;border:1px solid var(--border);
+  border-radius:12px;background:var(--surface);}
+.fv-controls input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--border);
+  border-radius:9px;background:var(--bg);color:var(--text);font:inherit;font-size:.88rem;}
+.fv-controls input[type=color]{width:52px;height:34px;padding:0;border:1px solid var(--border);
+  border-radius:8px;background:none;cursor:pointer;}
+.fv-row{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;}
+.fv-col{flex:0 0 auto;}
+.fv-check{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--text2);
+  cursor:pointer;}
+.fv-h{font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:0;}
+.fv-preview{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;
+  padding:20px;border:1px solid var(--border);border-radius:12px;background:var(--surface);
+  min-height:120px;}
+.fv-idle{font-size:.88rem;color:var(--muted);margin:0;max-width:none;}
+.fv-chip{display:grid;justify-items:center;gap:6px;font-size:.7rem;color:var(--muted);}
+.fv-chip-img{border:1px solid var(--border);border-radius:4px;image-rendering:auto;}
+/* A real 16px icon in a mock tab. Scaling it up for the preview would be
+   flattery: 16px is where detailed marks turn to mud, so show the truth. */
+.fv-tab{display:flex;align-items:center;gap:7px;padding:7px 14px 7px 10px;
+  border:1px solid var(--border);border-bottom:none;border-radius:9px 9px 0 0;
+  background:var(--bg);font-size:.78rem;color:var(--text2);align-self:flex-end;}
+.fv-tab-ico{width:16px;height:16px;flex:0 0 16px;}
+.fv-status{font-size:.8rem;color:var(--text2);margin:0;min-height:1.2em;}
+.fv-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.fv-snippet pre{background:var(--night-900,#14100e);color:#ecdfcc;border-radius:10px;
+  padding:12px 14px;overflow-x:auto;font-family:var(--font-mono);font-size:.74rem;
+  line-height:1.8;margin:6px 0 0;}
+
+/* ---------- nav: the tool row ----------
+   .nav-tools is display:contents on desktop, so its links sit inline with
+   the brand as if they were direct children. Below 760 it becomes a real
+   full-width flex row, which is what actually forces the line break;
+   flex-wrap alone does not, because the first link still fits beside the
+   brand and only the rest wrap, giving a ragged nav. */
+.topnav .nav-tools{display:contents;}
+@media(max-width:760px){
+  .topnav{flex-wrap:wrap;row-gap:10px;}
+  .topnav .nav-tools{order:1;display:flex;width:100%;gap:6px;
+    padding-top:10px;border-top:1px solid var(--border);}
+  .topnav .nav-tools a.nav-link{flex:1 1 0;min-width:0;text-align:center;
+    font-size:.78rem;white-space:nowrap;}
+  .topnav .nav-grow{order:0;}
+}
+@media(max-width:400px){
+  .topnav .nav-brand{font-size:19px;}
+  .topnav .nav-tools a.nav-link{font-size:.72rem;}
+}
+
 /* CSS_EOF_MARKER */

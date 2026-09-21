@@ -34,10 +34,22 @@ os.chdir(ROOT)
 
 TOOL = io.open("build/parts/tool.html", encoding="utf-8").read().strip()
 
+# The nav now names the individual tools, which reverses an earlier call
+# for a reason that changed. Back then the links were Compress, Resize,
+# Convert and HEIC: four routes to the same dropzone as the page you were
+# already on, which is why they went. Favicons, EXIF and Patterns are
+# genuinely different destinations doing different jobs, so naming them
+# is navigation rather than decoration, and it puts the distinct tools
+# one click from every page instead of two.
 NAV = '''<nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
+    <span class="nav-tools">
+      <a class="nav-link" href="/tools/">All tools</a>
+      <a class="nav-link" href="/favicon-generator/">Favicons</a>
+      <a class="nav-link" href="/exif-viewer/">EXIF</a>
+      <a class="nav-link" href="/pattern-generator/">Patterns</a>
+    </span>
     <span class="nav-grow">
-      <a class="nav-link" href="/tools/">Tools</a>
       <a class="nav-link" href="/developers/">Developers</a>
       <a class="nav-link" href="/help/">Help</a>
     </span>
@@ -55,7 +67,7 @@ FOOTER = '''<footer class="site-footer">
     <div class="footer-row2">
       <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
       <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
-      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/exif-viewer/">EXIF remover</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/exif-viewer/">EXIF remover</a><a href="/favicon-generator/">Favicons</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
     </div>
     <div class="footer-row2">
       <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
@@ -162,8 +174,21 @@ def main():
 
     pages = json.load(io.open("build/pages.json", encoding="utf-8"))
     # The homepage and pattern-generator are hand-built and not landing pages.
-    EXCLUDE = {"/", "/pattern-generator/"}
+    # "/" is the hand-built homepage. Everything else that must not be
+    # regenerated says so in its own markup, so this never needs editing
+    # when a tool is added. The extractor already filters these out; the
+    # check here is belt and braces, because the failure mode is a tool
+    # page silently losing its tool.
+    EXCLUDE = {"/"}
     todo = [p for p in pages if p["slug"] not in EXCLUDE]
+    safe = []
+    for p in todo:
+        if os.path.exists(p["file"]):
+            with io.open(p["file"], encoding="utf-8") as fh:
+                if "<!-- imgready:standalone-tool -->" in fh.read():
+                    continue
+        safe.append(p)
+    todo = safe
     if args.only:
         todo = [p for p in todo if p["slug"] == args.only]
         if not todo:

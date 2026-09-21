@@ -50,7 +50,14 @@ const sitemapPaths = [...sitemap.matchAll(/<loc>https:\/\/imgready\.app([^<]*)<\
   const assetExists = (p) => GENERATED.has(p) || existsSync(join(ROOT, p.replace(/^\//, '')));
   let broken = 0;
   for (const [slug, file] of pages) {
-    const html = read(file);
+    /* Strip <script>, <pre> and <code> first. /favicon-generator/ prints a
+       copy-paste <head> snippet for the VISITOR's site, containing hrefs
+       like /favicon-96x96.png that are theirs to create, not ours to
+       serve. Scanning raw HTML read those as broken internal links. */
+    const html = read(file)
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<pre[\s\S]*?<\/pre>/gi, '')
+      .replace(/<code[\s\S]*?<\/code>/gi, '');
     for (const m of html.matchAll(/href="(\/[^"#?]*)"/g)) {
       const href = m[1];
       if (/\.[a-z0-9]{2,5}$/i.test(href)) { if (!assetExists(href)) { fail('internal links', `${slug} -> ${href} (missing asset)`); broken++; } continue; }
@@ -792,6 +799,44 @@ for (const p of sitemapPaths) {
     }
     if (!hits) notes.push('sitemap: namespaces match the documented URIs exactly');
   }
+}
+
+/* ---------- 24. standalone tool pages still carry their tool ----------
+   build_pages.py regenerates every page in build/pages.json from the
+   generic landing template. The moment /exif-viewer/ and
+   /favicon-generator/ existed they were in that list, and the next
+   --write replaced both with a tool-less shell: drop zone, controls and
+   engine all gone, page still 23KB of perfectly good prose, every other
+   check passing. Only opening the page in a browser revealed it.
+
+   Pages now mark themselves and both pipeline steps skip them. This
+   asserts the outcome rather than the mechanism: if a page says it owns
+   a tool, the tool has to be in the file. */
+{
+  const NEEDS = {
+    '/pattern-generator/': ['pgCanvas', 'pgRepeat', 'MOTIFS'],
+    '/exif-viewer/': ['exDrop', 'exStrip', 'stripJpeg'],
+    '/favicon-generator/': ['fvDrop', 'fvGo', 'buildIco'],
+  };
+  let hits = 0, marked = 0;
+  for (const [slug, file] of pages) {
+    const html = read(file);
+    const isTool = html.includes('<!-- imgready:standalone-tool -->');
+    if (isTool) marked++;
+    const need = NEEDS[slug];
+    if (!need) continue;
+    if (!isTool) {
+      hits++;
+      fail('tool-page', `${slug} is a tool page but carries no standalone marker, so the generator will overwrite it`);
+    }
+    for (const token of need) {
+      if (!html.includes(token)) {
+        hits++;
+        fail('tool-page', `${slug} is missing ${token}: the tool has been stripped`);
+      }
+    }
+  }
+  if (!hits) notes.push(`tool pages: ${marked} standalone, each still carrying its engine`);
 }
 
 /* ---------- report ---------- */

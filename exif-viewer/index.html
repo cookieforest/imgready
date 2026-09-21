@@ -24,11 +24,17 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is my photo uploaded to check it?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read inside this browser tab with the FileReader API and parsed in JavaScript. Open your browser developer tools, watch the Network tab, and drop a photo: you will not see a request carrying it. The only outbound link on the page is the optional map link, and that only sends coordinates, only if you click it."}},{"@type":"Question","name":"Does removing metadata reduce image quality?","acceptedAnswer":{"@type":"Answer","text":"Not for JPEG or PNG. The metadata is cut out of the container and the compressed image data is copied through unchanged, so the pixels are bit-for-bit identical. Tools that re-encode through a canvas do lose quality; this one does not."}},{"@type":"Question","name":"What about HEIC photos from an iPhone?","acceptedAnswer":{"@type":"Answer","text":"HEIC stores metadata inside an ISO base media container rather than in simple segments, so lossless stripping is not offered for it here. Converting a HEIC to JPG with the main tool removes the metadata as part of the conversion."}},{"@type":"Question","name":"Which tags count as identifying?","acceptedAnswer":{"@type":"Answer","text":"GPS latitude, longitude and altitude, GPS date and time, artist, copyright, camera owner, camera and lens serial numbers, the software that edited the file, and the capture timestamps. Serial numbers matter more than people expect: they link every photo from one camera together, even across accounts."}},{"@type":"Question","name":"Do social networks not already remove this?","acceptedAnswer":{"@type":"Answer","text":"Most large ones do strip EXIF when you upload. Email attachments, direct file transfers, cloud storage links, classified listings and most forums do not. The habit of assuming it is handled is exactly what makes it worth checking."}}]}</script>
 </head>
 <body>
+<!-- imgready:standalone-tool -->
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
+    <span class="nav-tools">
+      <a class="nav-link" href="/tools/">All tools</a>
+      <a class="nav-link" href="/favicon-generator/">Favicons</a>
+      <a class="nav-link" href="/exif-viewer/">EXIF</a>
+      <a class="nav-link" href="/pattern-generator/">Patterns</a>
+    </span>
     <span class="nav-grow">
-      <a class="nav-link" href="/tools/">Tools</a>
       <a class="nav-link" href="/developers/">Developers</a>
       <a class="nav-link" href="/help/">Help</a>
     </span>
@@ -123,7 +129,7 @@ has pixels identical to the one you put in, just smaller and without the metadat
     <div class="footer-row2">
       <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
       <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
-      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/exif-viewer/">EXIF remover</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/exif-viewer/">EXIF remover</a><a href="/favicon-generator/">Favicons</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
     </div>
     <div class="footer-row2">
       <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>

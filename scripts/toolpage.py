@@ -35,7 +35,7 @@ def esc(s):
 
 
 def build(slug, title, desc, h1, lede, tool, prose="", faqs=(), related=(),
-          script="", og_desc=None):
+          script="", og_desc=None, vendor=()):
     nav, footer = _chrome()
     url = "https://imgready.app/%s/" % slug
 
@@ -77,9 +77,9 @@ def build(slug, title, desc, h1, lede, tool, prose="", faqs=(), related=(),
             '  <a href="%s"><strong>%s</strong><small>%s</small></a>' % (h, esc(l), esc(b))
             for h, l, b in related) + "\n</div>"
 
-    js = ""
+    js = "".join('<script src="%s" defer></script>\n' % v for v in vendor)
     if script:
-        js = "<script>\n%s\n</script>" % io.open(
+        js += "<script>\n%s\n</script>" % io.open(
             os.path.join(ROOT, "scripts", script), encoding="utf-8").read()
 
     page = """<!DOCTYPE html>
@@ -106,6 +106,7 @@ def build(slug, title, desc, h1, lede, tool, prose="", faqs=(), related=(),
 {ld}
 </head>
 <body>
+<!-- imgready:standalone-tool -->
 <div class="wrap">
   {nav}
   <div class="crumbs"><a href="/">Home</a> &raquo; <a href="/tools/">Tools</a> &raquo; <span aria-current="page">{crumb}</span></div>

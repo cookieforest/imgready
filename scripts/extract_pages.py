@@ -137,6 +137,24 @@ def drop_header_dupes(node):
             parent.remove(el)
 
 
+STANDALONE = "<!-- imgready:standalone-tool -->"
+
+
+def is_standalone(path):
+    """A page that owns its own tool and must never be regenerated.
+
+    The marker is written by scripts/toolpage.py and by the pattern-page
+    builder. Detecting it on disk means adding a tool needs no edit here,
+    unlike the hardcoded EXCLUDE set it replaces, which silently ate two
+    tool pages the first time a new one was added.
+    """
+    # Read the whole file. A 4000-char window seemed generous until the
+    # FAQPage JSON-LD on /exif-viewer/ pushed <body> past it, so the
+    # marker was missed and the page was regenerated tool-less anyway.
+    with io.open(path, encoding="utf-8") as fh:
+        return STANDALONE in fh.read()
+
+
 def extract(path, slug):
     doc = LH.parse(path).getroot()
     out = {"slug": slug, "file": path}
@@ -357,8 +375,11 @@ def main():
             if os.path.isdir(os.path.join(name, sub)) and os.path.exists(sf):
                 pages.append((sf, "/%s/%s/" % (name, sub)))
 
-    data, bad = [], []
+    data, bad, skipped = [], [], []
     for f, slug in pages:
+        if is_standalone(f):
+            skipped.append(slug)
+            continue
         try:
             data.append(extract(f, slug))
         except Exception as e:                      # noqa: BLE001
@@ -369,6 +390,7 @@ def main():
         json.dumps(data, ensure_ascii=False, indent=1))
 
     print("extracted %d pages -> build/pages.json" % len(data))
+    print("standalone tool pages left alone:", skipped or "none")
     if bad:
         print("FAILED:")
         for f, e in bad:

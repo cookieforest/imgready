@@ -255,6 +255,7 @@ PAGE = f'''<!DOCTYPE html>
 {chr(10).join(jsonld)}
 </head>
 <body>
+<!-- imgready:standalone-tool -->
 <div class="wrap">
   {nav}
   {crumbs}
