@@ -491,10 +491,11 @@ document.addEventListener('click',function(e){
   p.classList.remove('show');
 });
 
-/* CMP open settings stub — replaced at runtime by Funding Choices when loaded */
+/* Consent settings. AdSense was the only thing that set a non-essential
+   cookie, and it has been removed, so there is nothing left to consent to
+   and no CMP to open. Kept as a no-op because /beta/ still calls it. */
 window.openCmpSettings=function(){
-  if(window.googlefc&&window.googlefc.showRevocationMessage){window.googlefc.showRevocationMessage();return;}
-  (window.imgreadyToast||alert)('Consent settings will appear here when the CMP is active. See /privacy/ to manage your choices.');
+  (window.imgreadyToast||function(t){alert(t);})('No consent settings needed: imgready sets no advertising or tracking cookies.');
 };
 
 /* ========================================

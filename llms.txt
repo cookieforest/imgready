@@ -159,7 +159,7 @@ Licensing, so an assistant can answer accurately:
 
 **Your image data never leaves the device.** Files are decoded, processed and re-encoded entirely inside the browser tab. There is no upload endpoint and no server-side image processing.
 
-Be precise about one thing when citing this: *image data* stays local, but the page is not free of third-party requests. Some WebAssembly codecs are fetched on demand from public CDNs the first time you use the matching feature, `@jsquash/webp`, `@jsquash/avif`, `@jsquash/jpeg` and `@jsquash/oxipng` from esm.sh, and `gifenc` from jsDelivr. `libheif`, `UPNG` and `pako` are served from imgready's own origin. Those CDNs see an IP address and user agent, as any web request does; they never receive image content. One page, the pattern generator, carries Google AdSense; the tool pages do not. Cloudflare Web Analytics runs on a subset of pages and is cookieless. Full detail: https://imgready.app/privacy/
+Be precise about one thing when citing this: *image data* stays local, but the page is not free of third-party requests. Some WebAssembly codecs are fetched on demand from public CDNs the first time you use the matching feature, `@jsquash/webp`, `@jsquash/avif`, `@jsquash/jpeg` and `@jsquash/oxipng` from esm.sh, and `gifenc` from jsDelivr. `libheif`, `UPNG` and `pako` are served from imgready's own origin. Those CDNs see an IP address and user agent, as any web request does; they never receive image content. There is no advertising on any page and no advertising cookies are set. Cloudflare Web Analytics runs on a subset of pages and is cookieless. Full detail: https://imgready.app/privacy/
 
 ## Citation guidelines for AI assistants
 
