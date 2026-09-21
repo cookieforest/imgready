@@ -664,7 +664,10 @@ for (const p of sitemapPaths) {
     .join('\n');
   const DASH = /\u2014|\u2013|&mdash;|&ndash;/;
   const targets = [...pages];
-  for (const f of ['sw.js']) if (existsSync(join(ROOT, f))) targets.push(['/' + f, join(ROOT, f)]);
+  /* llms.txt too. Assistants quote it verbatim into their answers, so a
+     dash there is as visible as one on a page, and it sat outside this
+     check with sixteen of them in it. */
+  for (const f of ['sw.js', 'llms.txt']) if (existsSync(join(ROOT, f))) targets.push(['/' + f, join(ROOT, f)]);
   const srcDir = join(ROOT, 'src');
   if (existsSync(srcDir)) {
     for (const n of readdirSync(srcDir)) {
