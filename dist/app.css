@@ -1575,4 +1575,80 @@ td p, td li, th p,
   .prose pre{font-size:.74rem;}
 }
 
+/* ===========================================================================
+   PATTERN STUDIO  /pattern-generator/
+
+   Two columns: a big stage that shows the pattern TILED, and a control
+   panel. The stage is the point. Every competitor shows one motif or an
+   untiled swatch and asks you to trust that it repeats; this one shows
+   the repeat and can draw the seams on top of it.
+   =========================================================================== */
+.pg{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,340px);
+  gap:22px;margin:24px 0 8px;align-items:start;}
+@media(max-width:900px){ .pg{grid-template-columns:1fr;} }
+
+.pg-stage{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface);}
+.pg-canvas{min-height:clamp(300px,42vw,520px);background-repeat:repeat;position:relative;}
+/* Seam overlay: a grid ruled at exactly one tile, so a mismatch at the
+   edge is visible instead of being a matter of opinion. */
+.pg-canvas.pg-seams::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(to right,color-mix(in srgb,var(--danger) 70%,transparent) 1px,transparent 1px),
+                   linear-gradient(to bottom,color-mix(in srgb,var(--danger) 70%,transparent) 1px,transparent 1px);
+  background-size:var(--tw,80px) var(--th,80px);}
+.pg-stagebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:10px 14px;border-top:1px solid var(--border);background:var(--bg);
+  font-size:.8rem;color:var(--text2);}
+.pg-toggle{display:inline-flex;align-items:center;gap:7px;cursor:pointer;}
+.pg-dims{margin-left:auto;color:var(--muted);font-family:var(--font-mono);font-size:.74rem;}
+
+.pg-panel{display:grid;gap:14px;padding:18px;border:1px solid var(--border);
+  border-radius:14px;background:var(--surface);}
+.pg-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.pg-row-top{margin-bottom:2px;}
+.pg-field{display:grid;gap:5px;}
+.pg-lab{display:flex;align-items:center;gap:7px;font-size:.78rem;font-weight:700;
+  color:var(--text2);letter-spacing:.02em;}
+.pg-lab b{color:var(--accent);font-variant-numeric:tabular-nums;}
+.pg-panel select,.pg-panel input[type=number]{width:100%;padding:8px 10px;
+  border:1px solid var(--border);border-radius:9px;background:var(--bg);
+  color:var(--text);font:inherit;font-size:.88rem;}
+.pg-slider{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center;}
+.pg-slider .pg-lab{grid-column:1/-1;}
+.pg-slider input[type=range]{width:100%;}
+
+.pg-lock{font:inherit;font-size:.66rem;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;padding:3px 8px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border);background:var(--bg);color:var(--muted);}
+.pg-lock.is-on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+
+.pg-colors{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.pg-colors label{display:grid;justify-items:center;gap:3px;font-size:.68rem;color:var(--muted);}
+.pg-colors input[type=color]{width:42px;height:32px;padding:0;border:1px solid var(--border);
+  border-radius:8px;background:none;cursor:pointer;}
+
+.pg-print{border:1px solid var(--border);border-radius:11px;padding:12px 14px;background:var(--bg);}
+.pg-print summary{cursor:pointer;font-size:.82rem;font-weight:700;color:var(--text);}
+.pg-print-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;}
+@media(max-width:420px){ .pg-print-grid{grid-template-columns:1fr;} }
+.pg-note{font-size:.76rem;color:var(--muted);line-height:1.5;margin:8px 0 0;}
+.pg-calc{font-size:.76rem;color:var(--text2);line-height:1.5;margin:10px 0 0;
+  font-family:var(--font-mono);}
+
+.pg-export{display:grid;gap:8px;padding-top:14px;border-top:1px solid var(--border);}
+.pg-export select{width:auto;flex:0 0 auto;}
+.pg-btn{font:inherit;font-size:.82rem;font-weight:700;padding:9px 14px;border-radius:9px;
+  border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;
+  flex:1 1 auto;}
+.pg-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pg-btn-go{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.pg-btn-go:hover{background:var(--accent2);border-color:var(--accent2);color:var(--on-accent);}
+.pg-btn-sm{flex:0 0 auto;padding:6px 10px;font-size:.72rem;}
+.pg-status{font-size:.76rem;color:var(--text2);margin:2px 0 0;min-height:1.2em;}
+.pg-help{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;
+  background:var(--surface2);color:var(--text2);font-size:.62rem;text-decoration:none;font-weight:700;}
+.pg-help:hover{background:var(--accent);color:var(--on-accent);}
+
+.pg-hint{font-size:.72rem;color:var(--muted);}
+.pg-field .pg-note{margin-top:2px;}
+
 /* CSS_EOF_MARKER */

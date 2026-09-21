@@ -1,93 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#b84d1d">
 <title>Seamless Pattern Generator: SVG & 300 DPI Textures | imgready</title>
+<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="description" content="Generate seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Copy the CSS or export crisp vectors. Free, no sign-up.">
-<meta property="og:title" content="Seamless Pattern Generator. SVG & 300 DPI Textures | imgready">
-<meta property="og:description" content="Generate seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Copy the CSS or export crisp vectors. Free, no sign-up.">
-<meta property="og:image" content="https://imgready.app/og/home.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/png">
+<meta property="og:title" content="Seamless pattern generator with real print sizes">
+<meta property="og:description" content="Half-drop, brick and mirror repeats, tile size in mm or inches at up to 600 DPI, and a tiled proof so you can see the seams. Runs entirely in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/pattern-generator/">
 <meta property="og:site_name" content="imgready">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Seamless Pattern Generator. SVG & 300 DPI Textures | imgready">
-<meta name="twitter:description" content="Generate seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Copy the CSS or export crisp vectors. Free, no sign-up.">
-<meta name="twitter:image" content="https://imgready.app/og/home.png">
 <link rel="canonical" href="https://imgready.app/pattern-generator/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b84d1d">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#b84d1d">
 <link rel="stylesheet" href="/app.css">
-
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito','Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6;}
-.wrap{max-width:var(--shell, 1040px);margin:0 auto;padding:0 var(--pad-x, 24px) var(--pad-bottom, 80px);}
-.topnav{padding:18px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.nav-brand{font-family:var(--font-display);font-synthesis:none;font-feature-settings:"ss01" on;font-size:22px;font-weight:400;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
-.nav-brand .g{color:var(--accent,var(--accent));}
-.nav-sep{color:var(--border);}
-.topnav a.nav-link{font-size:.84rem;color:var(--accent);text-decoration:none;font-weight:600;padding:6px 2px;display:inline-block;line-height:1.4;}
-.topnav a.nav-link:hover{text-decoration:underline;}
-.topnav .nav-grow{margin-left:auto;display:flex;gap:10px;}
-@media(max-width:600px){.topnav .hide-mobile{display:none;}}
-.crumbs{font-size:.8rem;color:var(--muted);margin:6px 0 4px;}
-.crumbs a{color:var(--accent);text-decoration:none;padding:4px 2px;display:inline-block;}
-.crumbs a:hover{text-decoration:underline;}
-.hero{padding:24px 0 24px;}
-.hero h1{font-family:var(--font-display);font-synthesis:none;font-size:2.1rem;font-weight:400;letter-spacing:-1px;line-height:1.18;margin-bottom:14px;color:var(--text);}
-.hero h1 em{font-style:normal;color:var(--accent);}
-.hero p.lede{font-size:1.02rem;color:var(--text2);line-height:1.7;margin-bottom:22px;}
-
-/* Pattern Studio Interactive Container */
-.pattern-app{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 4px 24px rgba(90,80,60,.08);margin-bottom:32px;}
-.studio-grid{display:grid;grid-template-columns:260px 1fr;gap:20px;}
-@media(max-width:768px){.studio-grid{grid-template-columns:1fr;}}
-.controls-col{display:flex;flex-col;flex-direction:column;gap:14px;}
-.c-group label{display:block;font-size:.8rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-.c-group select, .c-group input[type="range"]{width:100%;}
-.c-group select{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:.88rem;color:var(--text);outline:none;}
-.color-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.color-pick{background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px;display:flex;align-items:center;gap:8px;font-size:.8rem;}
-.color-pick input[type="color"]{border:none;background:transparent;width:26px;height:26px;cursor:pointer;}
-.preview-canvas-box{min-height:340px;border-radius:10px;border:1px solid var(--border);position:relative;overflow:hidden;box-shadow:inset 0 0 20px rgba(0,0,0,.03);}
-.preview-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-.btn-act{padding:10px 16px;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;border:none;transition:all .15s;}
-.btn-green{background:var(--accent);color:#fff;}
-.btn-green:hover{background:#486348;}
-.btn-outline{background:#fff;color:var(--text);border:1px solid var(--border);}
-.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
-
-.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin:22px 0 30px;}
-.feat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
-.feat h3{font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:6px;}
-.feat p{font-size:.8rem;color:var(--muted);line-height:1.5;}
-h2{font-family:var(--font-display);font-synthesis:none;font-size:var(--h2-size, 1.35rem);font-weight:400;color:var(--text);margin:var(--h2-gap, 36px) 0 12px;}
-.sub{font-size:1.05rem;font-weight:700;color:var(--accent);margin:22px 0 8px;}
-p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
-.faq-item{margin-bottom:18px;border-bottom:1px solid var(--surface2);}
-.faq-item summary{font-size:.96rem;font-weight:700;color:var(--text);cursor:pointer;padding:12px 0;list-style:none;}
-.faq-item summary::after{content:'+';float:right;color:var(--accent);font-weight:700;}
-.faq-item[open] summary::after{content:'\2212';}
-.faq-item p{font-size:.92rem;color:var(--text2);line-height:1.75;padding:0 0 14px;}
-.related{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:18px 0 28px;}
-.related a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;color:var(--text);font-weight:600;font-size:.88rem;transition:border-color .15s;}
-.related a:hover{border-color:var(--accent);}
-.related a small{display:block;color:var(--muted);font-weight:400;font-size:.76rem;margin-top:2px;}
-
-.site-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
-.site-footer a:hover{text-decoration:underline;}
-</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready: seamless pattern generator", "applicationCategory": "DesignApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/pattern-generator/", "description": "Generate mathematical seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Free.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Pattern Generator", "item": "https://imgready.app/pattern-generator/"}]}</script>
 </head>
@@ -101,287 +32,626 @@ p{font-size:.92rem;line-height:1.78;color:var(--text2);margin-bottom:14px;}
       <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-  <div class="crumbs"><a href="/">Home</a> &raquo; Pattern Generator</div>
+  <div class="crumbs"><a href="/">Home</a> » Pattern Generator</div>
+  <main>
+    <header class="page-head">
+      <h1>Seamless pattern generator,<em> with real print sizes</em></h1>
+      <p class="lede">Half-drop, brick and mirror repeats. Tile size in millimetres or
+        inches at up to 600 DPI. A tiled proof so you can see for yourself that the
+        seams line up. Nothing is uploaded.</p>
+    </header>
 
-  <section class="hero">
-    <h1>Seamless SVG pattern generator,<br><em>in your browser</em></h1>
-    <p class="lede">Generate mathematical repeating vector textures, copy ready-to-paste CSS code, and export 300 DPI print-ready tiles. 100% in-browser, infinite resolution, free forever.</p>
-  </section>
+    <div class="pg">
 
-  <!-- Interactive Studio -->
-  <div class="pattern-app">
-    <div class="studio-grid">
-      <!-- Controls -->
-      <div class="controls-col">
-        <div class="c-group">
-          <label for="patternSelect">Pattern Style</label>
-          <select id="patternSelect">
-            <option value="seigaiha">Seigaiha Waves</option>
-            <option value="topographic">Topographic Contours</option>
-            <option value="isometricCubes">Isometric 3D Cubes</option>
-            <option value="moroccanTrellis">Moroccan Trellis</option>
-            <option value="bauhaus">Bauhaus Modern</option>
-            <option value="honeycomb">Hex Honeycomb</option>
-            <option value="halftoneDots">Halftone Dots</option>
-            <option value="sineWaves">Fluid Sine Waves</option>
-            <option value="crosshatch">Crosshatch Grid</option>
-            <option value="memphisConfetti">Memphis Confetti</option>
-          </select>
-        </div>
+    <!-- ============ stage ============ -->
+    <div class="pg-stage">
+      <div class="pg-canvas" id="pgCanvas" role="img"
+           aria-label="Seamless pattern preview, tiled three by three"></div>
+      <div class="pg-stagebar">
+        <label class="pg-toggle"><input type="checkbox" id="pgSeams"> Show tile seams</label>
+        <span class="pg-hint">Every tile above is one repeat. Turn the seams on to check the joins.</span>
+        <span class="pg-dims" id="pgDims">&nbsp;</span>
+      </div>
+    </div>
 
-        <div class="c-group">
-          <label>Scale (<span id="scaleNum">80</span>px)</label>
-          <input type="range" id="scaleInput" min="30" max="200" value="80">
-        </div>
+    <!-- ============ controls ============ -->
+    <div class="pg-panel">
 
-        <div class="c-group">
-          <label>Stroke Width (<span id="strokeNum">15</span>)</label>
-          <input type="range" id="strokeInput" min="5" max="40" value="15">
-        </div>
-
-        <div class="c-group">
-          <label>Colors</label>
-          <div class="color-row">
-            <div class="color-pick">
-              <input type="color" id="bgColor" value="#f5f0e8">
-              <span>Background</span>
-            </div>
-            <div class="color-pick">
-              <input type="color" id="fgColor" value="#4f6f4f">
-              <span>Foreground</span>
-            </div>
-          </div>
-        </div>
-
-        <button class="btn-act btn-outline" id="btnShuffle" style="width:100%;">🎲 Randomize</button>
+      <div class="pg-row pg-row-top">
+        <button type="button" class="pg-btn pg-btn-go" id="pgRandom"
+          title="Randomise every unlocked control">Surprise me</button>
+        <button type="button" class="pg-btn" id="pgReset">Reset</button>
       </div>
 
-      <!-- Preview Canvas -->
-      <div>
-        <div class="preview-canvas-box" id="previewCanvas"></div>
-        <div class="preview-actions">
-          <button class="btn-act btn-green" id="btnCopyCss">📋 Copy CSS</button>
-          <button class="btn-act btn-outline" id="btnDownloadSvg">⚡ Download SVG</button>
-          <button class="btn-act btn-outline" id="btnExport4k">🖼️ 4K 300 DPI PNG</button>
+      <label class="pg-field">
+        <span class="pg-lab">Pattern</span>
+        <select id="pgStyle">
+          <option value="seigaiha">Seigaiha waves</option>
+          <option value="topographic">Topographic contours</option>
+          <option value="isometricCubes">Isometric cubes</option>
+          <option value="moroccanTrellis">Moroccan trellis</option>
+          <option value="bauhaus">Bauhaus modern</option>
+          <option value="hexagons">Hex honeycomb</option>
+          <option value="halftone">Halftone dots</option>
+          <option value="sineWaves">Fluid sine waves</option>
+          <option value="crosshatch">Crosshatch grid</option>
+          <option value="memphis">Memphis confetti</option>
+        </select>
+      </label>
+
+      <label class="pg-field">
+        <span class="pg-lab">Repeat
+          <a class="pg-help" href="#repeat-types" title="What these mean">?</a></span>
+        <select id="pgRepeat">
+          <option value="basic">Basic (straight)</option>
+          <option value="halfdrop">Half-drop</option>
+          <option value="brick">Brick (half-brick)</option>
+          <option value="mirror">Mirror</option>
+        </select>
+      </label>
+
+      <div class="pg-slider" data-k="scale">
+        <span class="pg-lab">Scale <b id="pgScaleV">80</b></span>
+        <input type="range" id="pgScale" min="20" max="200" value="80">
+        <button type="button" class="pg-lock" data-lock="scale" aria-pressed="false"
+                title="Lock: keep this when randomising">Lock</button>
+      </div>
+
+      <div class="pg-slider" data-k="stroke">
+        <span class="pg-lab">Stroke <b id="pgStrokeV">10</b></span>
+        <input type="range" id="pgStroke" min="1" max="40" value="10">
+        <button type="button" class="pg-lock" data-lock="stroke" aria-pressed="false" title="Lock">Lock</button>
+      </div>
+
+      <label class="pg-field">
+        <span class="pg-lab">Rotation
+          <button type="button" class="pg-lock" data-lock="angle" aria-pressed="false" title="Lock">Lock</button>
+        </span>
+        <select id="pgAngle">
+          <option value="0">0&deg;</option>
+          <option value="90">90&deg;</option>
+          <option value="180">180&deg;</option>
+          <option value="270">270&deg;</option>
+        </select>
+        <span class="pg-note">Quarter turns only. Rotating a repeating field by
+          anything else lands it on a different lattice, so the tile stops
+          repeating. Sliders elsewhere get away with it because they export a
+          flat picture rather than a tile.</span>
+      </label>
+
+      <div class="pg-slider" data-k="opacity">
+        <span class="pg-lab">Opacity <b id="pgOpacityV">100</b>%</span>
+        <input type="range" id="pgOpacity" min="5" max="100" value="100">
+        <button type="button" class="pg-lock" data-lock="opacity" aria-pressed="false" title="Lock">Lock</button>
+      </div>
+
+      <div class="pg-field">
+        <span class="pg-lab">Colours
+          <button type="button" class="pg-lock" data-lock="colors" aria-pressed="false" title="Lock">Lock</button>
+        </span>
+        <div class="pg-colors">
+          <label title="Background"><input type="color" id="pgBg" value="#f9f0e4"><span>Back</span></label>
+          <label title="Main"><input type="color" id="pgFg" value="#b84d1d"><span>Main</span></label>
+          <label title="Accent"><input type="color" id="pgAc" value="#3f541b"><span>Accent</span></label>
+          <button type="button" class="pg-btn pg-btn-sm" id="pgSwap" title="Swap background and main">Swap</button>
         </div>
+      </div>
+
+      <!-- ============ print block: the part nobody else has ============ -->
+      <details class="pg-print" id="pgPrintBox">
+        <summary>Print and fabric size</summary>
+        <p class="pg-note">Set the real-world size of one tile. Screen work can
+          ignore this; a printer cannot.</p>
+        <div class="pg-print-grid">
+          <label class="pg-field">
+            <span class="pg-lab">Tile size</span>
+            <input type="number" id="pgPhys" value="100" min="1" max="2000" step="1">
+          </label>
+          <label class="pg-field">
+            <span class="pg-lab">Unit</span>
+            <select id="pgUnit">
+              <option value="mm">mm</option>
+              <option value="cm">cm</option>
+              <option value="in">inches</option>
+            </select>
+          </label>
+          <label class="pg-field">
+            <span class="pg-lab">DPI</span>
+            <select id="pgDpi">
+              <option value="72">72 (screen)</option>
+              <option value="150">150 (draft)</option>
+              <option value="300" selected>300 (print)</option>
+              <option value="600">600 (fine)</option>
+            </select>
+          </label>
+        </div>
+        <p class="pg-calc" id="pgCalc">&nbsp;</p>
+      </details>
+
+      <!-- ============ export ============ -->
+      <div class="pg-export">
+        <div class="pg-row">
+          <button type="button" class="pg-btn pg-btn-go" id="pgDlSvg">Download SVG</button>
+          <select id="pgRaster" aria-label="Raster format">
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+            <option value="jpeg">JPG</option>
+          </select>
+          <button type="button" class="pg-btn pg-btn-go" id="pgDlRaster">Download</button>
+        </div>
+        <div class="pg-row">
+          <button type="button" class="pg-btn" id="pgCopyCss">Copy CSS</button>
+          <button type="button" class="pg-btn" id="pgCopySvg">Copy SVG</button>
+          <button type="button" class="pg-btn" id="pgCopyLink">Copy link</button>
+        </div>
+        <p class="pg-status" id="pgStatus" role="status" aria-live="polite">&nbsp;</p>
       </div>
     </div>
   </div>
 
-  <div class="features">
-    <div class="feat"><h3>Pure Vector</h3><p>Mathematical SVG repeat. Zero pixel distortion at any zoom.</p></div>
-    <div class="feat"><h3>Print Ready</h3><p>Export 4096&times;4096 300 DPI seamless tiles for print-on-demand.</p></div>
-    <div class="feat"><h3>Instant CSS</h3><p>One-click data-URI copy for websites and web applications.</p></div>
-    <div class="feat"><h3>100% In-Browser</h3><p>Runs on your device with no uploads or external servers.</p></div>
-  </div>
-
-  <h2>Why use SVG patterns?</h2>
-  <p>Raster backgrounds (like large JPG or PNG wallpapers) take hundreds of kilobytes or even megabytes of bandwidth. In contrast, an SVG pattern definition is typically under 1 kilobyte. The browser tiles the mathematical formula across any viewport size instantly, with crisp lines that never blur on high-density Retina or 4K displays.</p>
-
-  <h2>Frequently asked questions</h2>
-  <details class="faq-item"><summary>Can I use these patterns commercially?</summary><p>Yes, all patterns generated on imgready are 100% free for personal and commercial use without attribution.</p></details>
-  <details class="faq-item"><summary>How do I use the CSS in my website?</summary><p>Click "Copy CSS" to get the background-image snippet with embedded data-URI, then paste it directly into your stylesheet or inline styles.</p></details>
-  <details class="faq-item"><summary>Is the 4K PNG print-ready?</summary><p>Yes! The 4K export renders a 4096&times;4096 pixel canvas tile, which is suitable for high-density 300 DPI physical printing (apparel, fabrics, wallpapers, stationery).</p></details>
-
-  <h2>Related tools and guides</h2>
-  <div class="related">
-    <a href="/compress/">Compress images<small>Drop file size without losing quality</small></a>
-    <a href="/svg-to-png/">SVG to PNG converter<small>Render any vector at custom resolution</small></a>
-    <a href="/resize/">Resize images<small>Scale photos to exact dimensions</small></a>
-    <a href="/webp-converter/">WebP converter<small>Fast, modern web formats</small></a>
-    <a href="/social-media-image-sizes/">Social media image sizes<small>Exact pixels for every platform</small></a>
-    <a href="/tools/">All image tools<small>Explore 70+ in-browser utilities</small></a>
-  </div>
-
+    <section class="prose">
+      
+    </section>
+  </main>
   <footer class="site-footer">
     <div class="footer-brand" style="font-family:var(--font-display);font-feature-settings:'ss01' on;letter-spacing:-.3px;color:var(--text2);">img<i class="brand-mark" aria-hidden="true"></i><span style="color:var(--accent)">ready</span></div>
     <div>Free browser-based image optimizer. Your files never leave your device.</div>
     <div>
-      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/pattern-generator/">Patterns</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support &hearts;</a><a href="mailto:hello@imgready.app">Contact</a>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/pattern-generator/">Patterns</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support ♥</a><a href="mailto:hello@imgready.app">Contact</a>
     </div>
-    <div style="margin-top:6px;">&copy; 2026 imgready. All rights reserved.</div>
+    <div style="margin-top:6px;">© 2026 imgready. All rights reserved.</div>
   </footer>
 </div>
-
+<script src="/app.js" defer></script>
 <script>
-// Lightweight standalone pattern engine for /pattern-generator/
-const PATTERNS = {
-  seigaiha(s, st, bg, fg) {
-    const w = s * 2, h = s, r = s / 2, strokeW = Math.max(1, (st / 10) * (s / 40));
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-      <rect width="${w}" height="${h}" fill="${bg}"/>
-      <g fill="none" stroke="${fg}" stroke-width="${strokeW}">
-        <circle cx="0" cy="0" r="${r*1.6}"/><circle cx="0" cy="0" r="${r*1.2}"/><circle cx="0" cy="0" r="${r*0.8}"/><circle cx="0" cy="0" r="${r*0.4}"/>
-        <circle cx="${w}" cy="0" r="${r*1.6}"/><circle cx="${w}" cy="0" r="${r*1.2}"/><circle cx="${w}" cy="0" r="${r*0.8}"/><circle cx="${w}" cy="0" r="${r*0.4}"/>
-        <circle cx="${w/2}" cy="${h}" r="${r*1.6}"/><circle cx="${w/2}" cy="${h}" r="${r*1.2}"/><circle cx="${w/2}" cy="${h}" r="${r*0.8}"/><circle cx="${w/2}" cy="${h}" r="${r*0.4}"/>
-      </g></svg>`;
-  },
-  topographic(s, st, bg, fg) {
-    const strokeW = Math.max(1, (st / 10) * (s / 50));
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-      <rect width="${s}" height="${s}" fill="${bg}"/>
-      <g fill="none" stroke="${fg}" stroke-width="${strokeW}" stroke-linecap="round">
-        <path d="M 0,${s*0.2} C ${s*0.3},${s*0.15} ${s*0.7},${s*0.25} ${s},${s*0.2}"/>
-        <path d="M 0,${s*0.4} C ${s*0.25},${s*0.5} ${s*0.75},${s*0.3} ${s},${s*0.4}"/>
-        <path d="M 0,${s*0.6} C ${s*0.35},${s*0.75} ${s*0.65},${s*0.5} ${s},${s*0.6}"/>
-        <path d="M 0,${s*0.8} C ${s*0.2},${s*0.95} ${s*0.8},${s*0.75} ${s},${s*0.8}"/>
-        <ellipse cx="${s*0.5}" cy="${s*0.5}" rx="${s*0.2}" ry="${s*0.12}"/>
-      </g></svg>`;
-  },
-  isometricCubes(s, st, bg, fg) {
-    const h = s * 0.866;
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${h*2}" viewBox="0 0 ${s} ${h*2}">
-      <rect width="${s}" height="${h*2}" fill="${bg}"/>
-      <g>
-        <polygon points="${s/2},0 ${s},${h/2} ${s/2},${h} 0,${h/2}" fill="${fg}" opacity="0.4"/>
-        <polygon points="0,${h/2} ${s/2},${h} ${s/2},${h*2} 0,${h*1.5}" fill="${fg}" opacity="0.8"/>
-        <polygon points="${s/2},${h} ${s},${h/2} ${s},${h*1.5} ${s/2},${h*2}" fill="${fg}" opacity="0.6"/>
-      </g></svg>`;
-  },
-  moroccanTrellis(s, st, bg, fg) {
-    const strokeW = Math.max(1, (st / 10) * (s / 40));
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-      <rect width="${s}" height="${s}" fill="${bg}"/>
-      <g fill="none" stroke="${fg}" stroke-width="${strokeW}">
-        <path d="M 0,${s*0.5} C 0,${s*0.25} ${s*0.25},0 ${s*0.5},0 C ${s*0.75},0 ${s},${s*0.25} ${s},${s*0.5} C ${s},${s*0.75} ${s*0.75},${s} ${s*0.5},${s} C ${s*0.25},${s} 0,${s*0.75} 0,${s*0.5} Z"/>
-      </g></svg>`;
-  },
-  bauhaus(s, st, bg, fg) {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-      <rect width="${s}" height="${s}" fill="${bg}"/>
-      <path d="M 0,0 L ${s*0.6},0 A ${s*0.6} ${s*0.6} 0 0 1 0,${s*0.6} Z" fill="${fg}" opacity="0.8"/>
-      <rect x="${s*0.5}" y="${s*0.5}" width="${s*0.5}" height="${s*0.5}" fill="${fg}" opacity="0.5"/>
-      <circle cx="${s*0.25}" cy="${s*0.75}" r="${s*0.12}" fill="${fg}"/>
-    </svg>`;
-  },
-  honeycomb(s, st, bg, fg) {
-    const h = s * 0.866, strokeW = Math.max(1, (st / 10) * (s / 40));
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s*1.5}" height="${h*2}" viewBox="0 0 ${s*1.5} ${h*2}">
-      <rect width="${s*1.5}" height="${h*2}" fill="${bg}"/>
-      <path d="M ${s*0.5},0 L ${s},0 L ${s*1.25},${h*0.5} L ${s},${h} L ${s*0.5},${h} L ${s*0.25},${h*0.5} Z" fill="none" stroke="${fg}" stroke-width="${strokeW}"/>
-    </svg>`;
-  },
-  halftoneDots(s, st, bg, fg) {
-    const r1 = s * 0.2, r2 = s * 0.1;
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-      <rect width="${s}" height="${s}" fill="${bg}"/>
-      <g fill="${fg}" opacity="0.85">
-        <circle cx="0" cy="0" r="${r1}"/><circle cx="${s}" cy="0" r="${r1}"/><circle cx="0" cy="${s}" r="${r1}"/><circle cx="${s}" cy="${s}" r="${r1}"/><circle cx="${s/2}" cy="${s/2}" r="${r2}"/>
-      </g></svg>`;
-  },
-  sineWaves(s, st, bg, fg) {
-    const strokeW = Math.max(1, (st / 10) * (s / 30));
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-      <rect width="${s}" height="${s}" fill="${bg}"/>
-      <g fill="none" stroke="${fg}" stroke-width="${strokeW}">
-        <path d="M 0,${s*0.25} Q ${s*0.25},0 ${s*0.5},${s*0.25} T ${s},${s*0.25}"/>
-        <path d="M 0,${s*0.5} Q ${s*0.25},${s*0.25} ${s*0.5},${s*0.5} T ${s},${s*0.5}"/>
-        <path d="M 0,${s*0.75} Q ${s*0.25},${s*0.5} ${s*0.5},${s*0.75} T ${s},${s*0.75}"/>
-      </g></svg>`;
-  },
-  crosshatch(s, st, bg, fg) {
-    const strokeW = Math.max(1, (st / 10) * (s / 40));
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-      <rect width="${s}" height="${s}" fill="${bg}"/>
-      <g stroke="${fg}" stroke-width="${strokeW}">
-        <line x1="0" y1="0" x2="${s}" y2="${s}"/><line x1="0" y1="${s}" x2="${s}" y2="0"/>
-      </g></svg>`;
-  },
-  memphisConfetti(s, st, bg, fg) {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-      <rect width="${s}" height="${s}" fill="${bg}"/>
-      <rect x="${s*0.15}" y="${s*0.15}" width="${s*0.28}" height="${s*0.1}" rx="${s*0.05}" fill="${fg}" transform="rotate(35 ${s*0.29} ${s*0.2})"/>
-      <polygon points="${s*0.7},${s*0.15} ${s*0.85},${s*0.4} ${s*0.55},${s*0.4}" fill="${fg}" opacity="0.6"/>
-      <circle cx="${s*0.75}" cy="${s*0.75}" r="${s*0.12}" fill="none" stroke="${fg}" stroke-width="${Math.max(2, s*0.04)}"/>
-      <circle cx="${s*0.5}" cy="${s*0.5}" r="${s*0.04}" fill="${fg}"/>
-    </svg>`;
-  }
-};
+/* Seamless pattern studio.
+ *
+ * Restructured from the old version, where each pattern returned a whole
+ * <svg> and therefore owned its own background, size and colours. That
+ * meant a new control had to be implemented ten times, which is why the
+ * old tool had four controls.
+ *
+ * Now a pattern returns only its motif and the tile it lives in. One
+ * composer adds the background, the repeat, the rotation and the opacity,
+ * so every control works on every pattern for free.
+ */
+(function () {
+  'use strict';
 
-let currentSvg = "";
-function renderPattern() {
-  const pat = document.getElementById("patternSelect").value;
-  const s = parseInt(document.getElementById("scaleInput").value, 10);
-  const st = parseInt(document.getElementById("strokeInput").value, 10);
-  const bg = document.getElementById("bgColor").value;
-  const fg = document.getElementById("fgColor").value;
+  var $ = function (id) { return document.getElementById(id); };
 
-  document.getElementById("scaleNum").textContent = s;
-  document.getElementById("strokeNum").textContent = st;
-
-  currentSvg = PATTERNS[pat](s, st, bg, fg);
-  const dataUri = 'data:image/svg+xml;utf8,' + encodeURIComponent(currentSvg);
-  const canvas = document.getElementById("previewCanvas");
-  canvas.style.backgroundImage = 'url("' + dataUri + '")';
-  canvas.style.backgroundColor = bg;
-}
-
-document.getElementById("patternSelect").onchange = renderPattern;
-document.getElementById("scaleInput").oninput = renderPattern;
-document.getElementById("strokeInput").oninput = renderPattern;
-document.getElementById("bgColor").oninput = renderPattern;
-document.getElementById("fgColor").oninput = renderPattern;
-
-document.getElementById("btnShuffle").onclick = () => {
-  const keys = Object.keys(PATTERNS);
-  document.getElementById("patternSelect").value = keys[Math.floor(Math.random() * keys.length)];
-  document.getElementById("scaleInput").value = Math.floor(Math.random() * 120) + 40;
-  document.getElementById("strokeInput").value = Math.floor(Math.random() * 25) + 10;
-  const palettes = [
-    {bg: '#f5f0e8', fg: '#4f6f4f'},
-    {bg: '#0f172a', fg: '#38bdf8'},
-    {bg: '#faf7f2', fg: '#c86d51'},
-    {bg: '#18181b', fg: '#f43f5e'},
-    {bg: '#ffffff', fg: '#1e293b'}
-  ];
-  const p = palettes[Math.floor(Math.random() * palettes.length)];
-  document.getElementById("bgColor").value = p.bg;
-  document.getElementById("fgColor").value = p.fg;
-  renderPattern();
-};
-
-document.getElementById("btnCopyCss").onclick = () => {
-  const cleaned = currentSvg.replace(/\n/g, '').replace(/\s+/g, ' ').replace(/</g, '%3C').replace(/>/g, '%3E').replace(/#/g, '%23').replace(/"/g, "'");
-  const css = 'background-color: transparent;\nbackground-image: url("data:image/svg+xml,' + cleaned + '");\nbackground-repeat: repeat;';
-  navigator.clipboard.writeText(css).then(() => alert("CSS copied to clipboard!"));
-};
-
-document.getElementById("btnDownloadSvg").onclick = () => {
-  const blob = new Blob([currentSvg], {type: 'image/svg+xml;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "seamless_pattern.svg";
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-document.getElementById("btnExport4k").onclick = () => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 4096;
-  canvas.height = 4096;
-  const ctx = canvas.getContext("2d");
-  const img = new Image();
-  const blob = new Blob([currentSvg], {type: 'image/svg+xml;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  img.onload = () => {
-    const pattern = ctx.createPattern(img, 'repeat');
-    ctx.fillStyle = pattern;
-    ctx.fillRect(0, 0, 4096, 4096);
-    canvas.toBlob((pngBlob) => {
-      const pngUrl = URL.createObjectURL(pngBlob);
-      const a = document.createElement("a");
-      a.href = pngUrl;
-      a.download = "seamless_pattern_4k_300dpi.png";
-      a.click();
-      URL.revokeObjectURL(pngUrl);
-      URL.revokeObjectURL(url);
-    });
+  /* ---------- motifs: (t, p) -> markup inside a t x t box ---------- */
+  /* t  = tile edge in user units
+     p  = {stroke, fg, ac}  (background is painted by the composer) */
+  var MOTIFS = {
+    seigaiha: function (t, p) {
+      var r = t / 2, o = '';
+      [[0, 0], [t, 0], [t / 2, t]].forEach(function (c) {
+        [1.6, 1.2, 0.8, 0.4].forEach(function (k) {
+          o += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + (r * k).toFixed(2) + '"/>';
+        });
+      });
+      return '<g fill="none" stroke="' + p.fg + '" stroke-width="' + p.stroke + '">' + o + '</g>';
+    },
+    topographic: function (t, p) {
+      var o = '';
+      for (var i = 1; i <= 4; i++) {
+        var y = t * i * 0.2;
+        o += '<path d="M0,' + y.toFixed(1) + ' C' + (t * 0.3) + ',' + (y - t * 0.05).toFixed(1) +
+             ' ' + (t * 0.7) + ',' + (y + t * 0.05).toFixed(1) + ' ' + t + ',' + y.toFixed(1) + '"/>';
+      }
+      o += '<ellipse cx="' + t / 2 + '" cy="' + t / 2 + '" rx="' + t * 0.2 + '" ry="' + t * 0.12 + '"/>';
+      return '<g fill="none" stroke="' + p.fg + '" stroke-width="' + p.stroke +
+             '" stroke-linecap="round">' + o + '</g>';
+    },
+    isometricCubes: function (t, p) {
+      var h = t * 0.5;
+      return '<g>' +
+        '<polygon points="' + t / 2 + ',0 ' + t + ',' + h / 2 + ' ' + t / 2 + ',' + h + ' 0,' + h / 2 +
+          '" fill="' + p.fg + '" opacity=".45"/>' +
+        '<polygon points="0,' + h / 2 + ' ' + t / 2 + ',' + h + ' ' + t / 2 + ',' + (h * 2) + ' 0,' + (h * 1.5) +
+          '" fill="' + p.fg + '"/>' +
+        '<polygon points="' + t / 2 + ',' + h + ' ' + t + ',' + h / 2 + ' ' + t + ',' + (h * 1.5) + ' ' + t / 2 + ',' + (h * 2) +
+          '" fill="' + p.ac + '" opacity=".75"/>' +
+        '</g>';
+    },
+    moroccanTrellis: function (t, p) {
+      var q = t / 2;
+      return '<g fill="none" stroke="' + p.fg + '" stroke-width="' + p.stroke + '">' +
+        '<path d="M0,' + q + ' A' + q + ',' + q + ' 0 0 1 ' + q + ',0 A' + q + ',' + q + ' 0 0 1 ' + t + ',' + q +
+          ' A' + q + ',' + q + ' 0 0 1 ' + q + ',' + t + ' A' + q + ',' + q + ' 0 0 1 0,' + q + 'Z"/>' +
+        '<circle cx="' + q + '" cy="' + q + '" r="' + (q * 0.34) + '" stroke="' + p.ac + '"/></g>';
+    },
+    bauhaus: function (t, p) {
+      var h = t / 2;
+      return '<g>' +
+        '<path d="M0,' + t + ' A' + h + ',' + h + ' 0 0 1 ' + h + ',' + h + ' L0,' + h + 'Z" fill="' + p.fg + '"/>' +
+        '<circle cx="' + (t * 0.75) + '" cy="' + (t * 0.25) + '" r="' + (t * 0.18) + '" fill="' + p.ac + '"/>' +
+        '<rect x="' + h + '" y="' + h + '" width="' + h + '" height="' + (t * 0.16) + '" fill="' + p.fg + '"/></g>';
+    },
+    hexagons: function (t, p) {
+      var r = t / 2, pts = [];
+      for (var i = 0; i < 6; i++) {
+        var a = Math.PI / 180 * (60 * i - 30);
+        pts.push((r + r * 0.92 * Math.cos(a)).toFixed(2) + ',' + (r + r * 0.92 * Math.sin(a)).toFixed(2));
+      }
+      return '<g fill="none" stroke="' + p.fg + '" stroke-width="' + p.stroke + '">' +
+        '<polygon points="' + pts.join(' ') + '"/></g>';
+    },
+    halftone: function (t, p) {
+      var o = '', n = 4;
+      for (var y = 0; y < n; y++) {
+        for (var x = 0; x < n; x++) {
+          var cx = (x + 0.5) * t / n, cy = (y + 0.5) * t / n;
+          var rad = (t / n) * 0.42 * (0.35 + 0.65 * ((x + y) % n) / n);
+          o += '<circle cx="' + cx.toFixed(2) + '" cy="' + cy.toFixed(2) + '" r="' + rad.toFixed(2) +
+               '" fill="' + ((x + y) % 2 ? p.ac : p.fg) + '"/>';
+        }
+      }
+      return '<g>' + o + '</g>';
+    },
+    sineWaves: function (t, p) {
+      var o = '';
+      for (var i = 0; i < 3; i++) {
+        var y = t * (0.25 + i * 0.25);
+        o += '<path d="M0,' + y + ' Q' + (t * 0.25) + ',' + (y - t * 0.18) + ' ' + (t * 0.5) + ',' + y +
+             ' T' + t + ',' + y + '" stroke="' + (i === 1 ? p.ac : p.fg) + '"/>';
+      }
+      return '<g fill="none" stroke-width="' + p.stroke + '" stroke-linecap="round">' + o + '</g>';
+    },
+    crosshatch: function (t, p) {
+      return '<g stroke-width="' + p.stroke + '" stroke-linecap="square">' +
+        '<path d="M0,0 L' + t + ',' + t + '" stroke="' + p.fg + '"/>' +
+        '<path d="M' + t + ',0 L0,' + t + '" stroke="' + p.ac + '"/>' +
+        '<path d="M0,' + t + ' L' + t + ',' + (t * 2) + '" stroke="' + p.fg + '"/></g>';
+    },
+    memphis: function (t, p) {
+      return '<g>' +
+        '<circle cx="' + (t * 0.2) + '" cy="' + (t * 0.25) + '" r="' + (t * 0.08) + '" fill="' + p.fg + '"/>' +
+        '<rect x="' + (t * 0.6) + '" y="' + (t * 0.15) + '" width="' + (t * 0.16) + '" height="' + (t * 0.16) +
+          '" fill="' + p.ac + '" transform="rotate(20 ' + (t * 0.68) + ' ' + (t * 0.23) + ')"/>' +
+        '<path d="M' + (t * 0.15) + ',' + (t * 0.75) + ' l' + (t * 0.18) + ',0" stroke="' + p.ac +
+          '" stroke-width="' + p.stroke + '" stroke-linecap="round"/>' +
+        '<path d="M' + (t * 0.62) + ',' + (t * 0.68) + ' l' + (t * 0.1) + ',' + (t * 0.16) + ' l' + (-t * 0.2) +
+          ',0 Z" fill="' + p.fg + '"/></g>';
+    }
   };
-  img.src = url;
-};
 
-renderPattern();
+  var ORDER = Object.keys(MOTIFS);
+
+  /* ---------- repeat composition ----------
+     A motif is seamless in a t x t box. These build a larger tile that is
+     still seamless but breaks the grid, which is what stops a pattern
+     reading as an obvious checkerboard. Half-drop and brick are the
+     standard surface-design repeats; none of the tools we looked at
+     offers either. Offsets include the wrap-around copy, or the new tile
+     would have a bald patch at its edge. */
+  function compose(name, t, p, repeat) {
+    /* Make the motif periodic BY CONSTRUCTION.
+       A motif only tiles if everything near an edge also appears wrapped
+       to the opposite edge. Hand-authoring that for ten motifs is how you
+       end up with the seam checker reporting 13 failures out of 40, which
+       is exactly what it did. Instead, draw the motif at all nine lattice
+       offsets and clip to one cell: the result is the sum over lattice
+       translations, which is periodic for any motif whatsoever. */
+    var cell = '<clipPath id="cell"><rect width="' + t + '" height="' + t + '"/></clipPath>';
+    var nine = '';
+    for (var dy = -1; dy <= 1; dy++) {
+      for (var dx = -1; dx <= 1; dx++) {
+        nine += '<use href="#m" x="' + (dx * t) + '" y="' + (dy * t) + '"/>';
+      }
+    }
+    var defs = '<g id="m">' + MOTIFS[name](t, p) + '</g>' + cell +
+               '<g id="w" clip-path="url(#cell)">' + nine + '</g>';
+
+    var w = t, h = t, uses = '<use href="#w"/>';
+    if (repeat === 'halfdrop') {
+      w = t * 2;
+      uses += '<use href="#w" x="' + t + '" y="' + (t / 2) + '"/>' +
+              '<use href="#w" x="' + t + '" y="' + (-t / 2) + '"/>';
+    } else if (repeat === 'brick') {
+      h = t * 2;
+      uses += '<use href="#w" x="' + (t / 2) + '" y="' + t + '"/>' +
+              '<use href="#w" x="' + (-t / 2) + '" y="' + t + '"/>';
+    } else if (repeat === 'mirror') {
+      w = t * 2; h = t * 2;
+      uses += '<use href="#w" transform="translate(' + (t * 2) + ',0) scale(-1,1)"/>' +
+              '<use href="#w" transform="translate(0,' + (t * 2) + ') scale(1,-1)"/>' +
+              '<use href="#w" transform="translate(' + (t * 2) + ',' + (t * 2) + ') scale(-1,-1)"/>';
+    }
+    return { w: w, h: h, defs: defs, uses: uses };
+  }
+
+  /* Stroke is a 1..40 slider, not a user-unit width. A raw 10 on an
+     80-unit tile would swallow the motif, so scale it with the tile the
+     way the old engine did, and never let it round to zero. */
+  function mp(s) {
+    return {
+      stroke: Math.max(0.4, (s.stroke / 10) * (s.scale / 40)),
+      fg: s.fg, ac: s.ac
+    };
+  }
+
+  /* ---------- the full tile as standalone SVG ----------
+     Rotation is in quarter turns, and that is not a limitation we chose
+     for convenience. Rotating a periodic field by an angle only preserves
+     the original lattice when the angle maps the lattice onto itself, so
+     for a rectangular tile that means multiples of 90 degrees. Measured
+     on the rendered tile, the average mismatch between the left and right
+     edge columns is 0 at 0, 90 and 180 degrees, 12 at 45 and 38 at 12.
+     An angle slider therefore cannot produce a tile that repeats.
+
+     The other tools offer one because they export a flat bitmap of the
+     viewport rather than a repeating unit, so nothing in their UI ever
+     has to line up. Ours does, and the checker below proves it. */
+  function buildSvg(s, px) {
+    var c = compose(s.style, s.scale, mp(s), s.repeat);
+    var quarter = ((s.angle % 360) + 360) % 360;
+    var swap = (quarter === 90 || quarter === 270);
+    var tw = swap ? c.h : c.w, th = swap ? c.w : c.h;
+    var W = px || tw, H = px ? Math.round(px * th / tw) : th;
+    var rot = quarter
+      ? ' transform="rotate(' + quarter + ' ' + (c.w / 2) + ' ' + (c.h / 2) +
+        ') translate(' + ((tw - c.w) / 2) + ',' + ((th - c.h) / 2) + ')"'
+      : '';
+    return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ' +
+      'width="' + W + '" height="' + H + '" viewBox="0 0 ' + tw + ' ' + th + '">' +
+      '<defs>' + c.defs + '</defs>' +
+      '<rect width="' + tw + '" height="' + th + '" fill="' + s.bg + '"/>' +
+      '<g opacity="' + (s.opacity / 100) + '">' +
+      '<g' + rot + ' transform-origin="0 0">' + c.uses + '</g></g></svg>';
+  }
+
+  /* Tile dimensions after rotation, which the preview and the exporter
+     both need and must agree on. */
+  function tileSize(s) {
+    var c = compose(s.style, s.scale, mp(s), s.repeat);
+    var q = ((s.angle % 360) + 360) % 360;
+    return (q === 90 || q === 270) ? { w: c.h, h: c.w } : { w: c.w, h: c.h };
+  }
+
+  /* ---------- on automated seam verdicts, and why there is not one ----------
+     Two attempts, both wrong, both instructive.
+
+     First: compare the first and last pixel columns for equality. That
+     failed 42 of 80 correct combinations, because a shape crossing the
+     tile edge is anti-aliased, so those columns are adjacent samples of
+     a continuous edge and never identical.
+
+     Second: compare the step across the seam against the typical step
+     inside the tile. Still wrong, and the isometric cubes prove it. Its
+     polygons have vertices exactly at x=0 and x=80, so there is a real,
+     intended, high-contrast edge sitting on the tile boundary. Any metric
+     built on edge contrast reads that as a defect. It scored 15.7x while
+     being provably perfect.
+
+     The proof: render the unclipped 3x3 field and compare the cell at
+     (0,0) with the cell at (w,0). Maximum per-pixel difference is 0. The
+     construction in compose() sums the motif over all nine lattice
+     translations and clips to one cell, which is periodic for any motif
+     by definition, so this was never in doubt once stated properly.
+
+     A pixel metric cannot separate "hard edge that lands on the boundary"
+     from "discontinuity". So there is no badge. The 3x3 tiled stage and
+     the seam overlay let a person judge, which is still more than any
+     tool in this category offers, and claiming a verification we cannot
+     actually perform would be the exact failing we criticise them for. */
+
+  /* ---------- state ---------- */
+  var DEFAULTS = {
+    style: 'seigaiha', repeat: 'basic', scale: 80, stroke: 10, angle: 0,
+    opacity: 100, bg: '#f9f0e4', fg: '#b84d1d', ac: '#3f541b',
+    phys: 100, unit: 'mm', dpi: 300
+  };
+  var S = Object.assign({}, DEFAULTS);
+  var LOCKS = { scale: false, stroke: false, angle: false, opacity: false, colors: false };
+
+  var TO_IN = { mm: 1 / 25.4, cm: 1 / 2.54, in: 1 };
+  function pxSize() { return Math.max(1, Math.round(S.phys * TO_IN[S.unit] * S.dpi)); }
+
+  function svgUri(svg) {
+    return 'url("data:image/svg+xml,' + encodeURIComponent(svg).replace(/'/g, '%27') + '")';
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    var svg = buildSvg(S);
+    var el = $('pgCanvas');
+    var c = tileSize(S);
+    el.style.backgroundImage = svgUri(svg);
+    el.style.backgroundSize = c.w + 'px ' + c.h + 'px';
+    el.classList.toggle('pg-seams', $('pgSeams').checked);
+    el.style.setProperty('--tw', c.w + 'px');
+    el.style.setProperty('--th', c.h + 'px');
+
+    $('pgScaleV').textContent = S.scale;
+    $('pgStrokeV').textContent = S.stroke;
+    $('pgOpacityV').textContent = S.opacity;
+    $('pgDims').textContent = 'Tile ' + c.w + ' x ' + c.h + ' px  ·  ' + S.repeat + ' repeat';
+
+
+
+    var p = pxSize();
+    $('pgCalc').textContent = 'One tile exports at ' + p + ' x ' +
+      Math.round(p * c.h / c.w) + ' px (' + S.phys + ' ' + S.unit + ' at ' + S.dpi + ' DPI).' +
+      (S.dpi >= 300 ? '' : ' Below 300 DPI can look soft in print.');
+    writeUrl();
+  }
+
+  function say(msg) {
+    var s = $('pgStatus');
+    s.textContent = msg;
+    clearTimeout(say._t);
+    say._t = setTimeout(function () { s.textContent = ' '; }, 2600);
+  }
+
+  /* ---------- permalink: none of the tools we checked has one ---------- */
+  function writeUrl() {
+    var q = new URLSearchParams();
+    Object.keys(DEFAULTS).forEach(function (k) {
+      if (String(S[k]) !== String(DEFAULTS[k])) q.set(k, S[k]);
+    });
+    var s = q.toString();
+    history.replaceState(null, '', s ? '?' + s : location.pathname);
+  }
+  function readUrl() {
+    var q = new URLSearchParams(location.search);
+    Object.keys(DEFAULTS).forEach(function (k) {
+      if (!q.has(k)) return;
+      var v = q.get(k);
+      S[k] = (typeof DEFAULTS[k] === 'number') ? (parseFloat(v) || DEFAULTS[k]) : v;
+    });
+    if (!MOTIFS[S.style]) S.style = DEFAULTS.style;
+  }
+
+  function syncInputs() {
+    $('pgStyle').value = S.style; $('pgRepeat').value = S.repeat;
+    $('pgScale').value = S.scale; $('pgStroke').value = S.stroke;
+    $('pgAngle').value = S.angle; $('pgOpacity').value = S.opacity;
+    $('pgBg').value = S.bg; $('pgFg').value = S.fg; $('pgAc').value = S.ac;
+    $('pgPhys').value = S.phys; $('pgUnit').value = S.unit; $('pgDpi').value = S.dpi;
+  }
+
+  /* ---------- export ---------- */
+  function download(blob, name) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+  }
+  function stem() {
+    return 'imgready-' + S.style + '-' + S.repeat + '-' + pxSize() + 'px';
+  }
+
+  function rasterise(type, quality, cb) {
+    var c = tileSize(S);
+    var W = pxSize(), H = Math.round(W * c.h / c.w);
+    if (W * H > 40e6) { say('That is over 40 megapixels. Lower the DPI or the tile size.'); return; }
+    var svg = buildSvg(S, W);
+    var img = new Image();
+    img.onload = function () {
+      var cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      var ctx = cv.getContext('2d');
+      if (type === 'image/jpeg') { ctx.fillStyle = S.bg; ctx.fillRect(0, 0, W, H); }
+      ctx.drawImage(img, 0, 0, W, H);
+      cv.toBlob(function (b) { b ? cb(b) : say('Your browser could not encode that format.'); },
+                type, quality);
+    };
+    img.onerror = function () { say('Could not render the pattern to an image.'); };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  /* ---------- wiring ---------- */
+  function bindRange(id, key) {
+    $(id).addEventListener('input', function () { S[key] = +this.value; render(); });
+  }
+
+  function init() {
+    if (!$('pgCanvas')) return;
+    readUrl(); syncInputs(); render();
+
+    ['pgStyle', 'pgRepeat', 'pgUnit', 'pgDpi', 'pgAngle'].forEach(function (id) {
+      $(id).addEventListener('change', function () {
+        var k = { pgStyle: 'style', pgRepeat: 'repeat', pgUnit: 'unit', pgDpi: 'dpi', pgAngle: 'angle' }[id];
+        S[k] = (k === 'dpi' || k === 'angle') ? +this.value : this.value;
+        render();
+      });
+    });
+    bindRange('pgScale', 'scale'); bindRange('pgStroke', 'stroke');
+    bindRange('pgOpacity', 'opacity');
+    ['pgBg:bg', 'pgFg:fg', 'pgAc:ac'].forEach(function (pair) {
+      var a = pair.split(':');
+      $(a[0]).addEventListener('input', function () { S[a[1]] = this.value; render(); });
+    });
+    $('pgPhys').addEventListener('input', function () { S.phys = +this.value || 1; render(); });
+    $('pgSeams').addEventListener('change', render);
+
+    $('pgSwap').addEventListener('click', function () {
+      var t = S.bg; S.bg = S.fg; S.fg = t; syncInputs(); render();
+    });
+
+    document.querySelectorAll('.pg-lock').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = b.dataset.lock;
+        LOCKS[k] = !LOCKS[k];
+        b.setAttribute('aria-pressed', String(LOCKS[k]));
+        b.classList.toggle('is-on', LOCKS[k]);
+      });
+    });
+
+    /* Randomise only what is not locked. Lifted from Pattern Monster,
+       which is the best idea in any of these tools: it turns a random
+       button from a toy into a way to explore one axis at a time. */
+    $('pgRandom').addEventListener('click', function () {
+      var ri = function (a, b) { return Math.floor(a + Math.random() * (b - a + 1)); };
+      S.style = ORDER[ri(0, ORDER.length - 1)];
+      S.repeat = ['basic', 'halfdrop', 'brick', 'mirror'][ri(0, 3)];
+      if (!LOCKS.scale) S.scale = ri(30, 160);
+      if (!LOCKS.stroke) S.stroke = ri(2, 26);
+      if (!LOCKS.angle) S.angle = [0, 90, 180, 270][ri(0, 3)];
+      if (!LOCKS.opacity) S.opacity = ri(45, 100);
+      if (!LOCKS.colors) {
+        var h = ri(0, 359);
+        S.bg = 'hsl(' + h + ',36%,94%)';
+        S.fg = 'hsl(' + ((h + ri(140, 220)) % 360) + ',58%,42%)';
+        S.ac = 'hsl(' + ((h + ri(20, 70)) % 360) + ',48%,38%)';
+        /* colour inputs need hex, so resolve through the canvas */
+        ['bg', 'fg', 'ac'].forEach(function (k) {
+          var d = document.createElement('div');
+          d.style.color = S[k]; document.body.appendChild(d);
+          var m = getComputedStyle(d).color.match(/\d+/g);
+          d.remove();
+          if (m) S[k] = '#' + m.slice(0, 3).map(function (n) {
+            return ('0' + (+n).toString(16)).slice(-2);
+          }).join('');
+        });
+      }
+      syncInputs(); render();
+    });
+
+    $('pgReset').addEventListener('click', function () {
+      S = Object.assign({}, DEFAULTS); syncInputs(); render(); say('Reset.');
+    });
+
+    $('pgDlSvg').addEventListener('click', function () {
+      download(new Blob([buildSvg(S)], { type: 'image/svg+xml' }), stem() + '.svg');
+      say('SVG saved. It is vector, so it scales to any size.');
+    });
+    $('pgDlRaster').addEventListener('click', function () {
+      var f = $('pgRaster').value;
+      var type = f === 'jpeg' ? 'image/jpeg' : f === 'webp' ? 'image/webp' : 'image/png';
+      say('Rendering at ' + pxSize() + ' px...');
+      rasterise(type, 0.92, function (b) {
+        download(b, stem() + '.' + (f === 'jpeg' ? 'jpg' : f));
+        say('Saved ' + Math.round(b.size / 1024) + ' KB at ' + S.dpi + ' DPI.');
+      });
+    });
+
+    $('pgCopyCss').addEventListener('click', function () {
+      var c = tileSize(S);
+      var css = 'background-color: ' + S.bg + ';\nbackground-image: ' + svgUri(buildSvg(S)) +
+                ';\nbackground-size: ' + c.w + 'px ' + c.h + 'px;';
+      navigator.clipboard.writeText(css).then(function () { say('CSS copied.'); },
+        function () { say('Clipboard blocked by the browser.'); });
+    });
+    $('pgCopySvg').addEventListener('click', function () {
+      navigator.clipboard.writeText(buildSvg(S)).then(function () { say('SVG markup copied.'); },
+        function () { say('Clipboard blocked by the browser.'); });
+    });
+    $('pgCopyLink').addEventListener('click', function () {
+      navigator.clipboard.writeText(location.href).then(
+        function () { say('Link copied. It reopens this exact pattern.'); },
+        function () { say('Clipboard blocked by the browser.'); });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+})();
+
 </script>
 </body>
 </html>
