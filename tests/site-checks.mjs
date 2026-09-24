@@ -136,14 +136,19 @@ for (const p of sitemapPaths) {
 {
   const f = join(ROOT, '_redirects');
   if (existsSync(f)) {
-    const rules = read(f).split('\n')
+    const rows = read(f).split('\n')
       .map((l) => l.trim()).filter((l) => l && !l.startsWith('#'))
-      .map((l) => l.split(/\s+/)[0]);
+      .map((l) => l.split(/\s+/));
+    const rules = rows.map((r) => r[0]);
     const set = new Set(rules);
+    /* A rule whose target is its own source plus a slash is a trailing-slash
+       canonicalisation rule (scripts/gen_slash_redirects.py). Its slash form
+       is the real page, not another rule, so there is no partner to find. */
+    const canonical = new Set(rows.filter((r) => r[1] === r[0] + '/').map((r) => r[0]));
     /* A .html source is a file path, not a directory shorthand. There is no
        "/privacy.html/" form to pair it with, and the rule exists precisely
        to collapse the edge's two-hop .html -> /x -> /x/ into one hop. */
-    const pathy = rules.filter((r) => !r.endsWith('.html'));
+    const pathy = rules.filter((r) => !r.endsWith('.html') && !canonical.has(r));
     for (const r of pathy) {
       const other = r.endsWith('/') ? r.slice(0, -1) : r + '/';
       if (!set.has(other)) fail('_redirects', `${r} has no ${other} counterpart — the slash-less form 404s`);
@@ -854,6 +859,37 @@ for (const p of sitemapPaths) {
     const missing = sitemapPaths.filter((p) => p !== '/tools/' && !linked.has(p));
     for (const p of missing) fail('hub', `/tools/ does not link ${p}`);
     if (!missing.length) notes.push(`hub: /tools/ links all ${sitemapPaths.length - 1} other sitemapped pages`);
+  }
+}
+
+/* ---------- 26. every page has a PERMANENT trailing-slash redirect ----------
+   Cloudflare answers /compress-jpg with a 307, a temporary redirect, which
+   Google reads as a weak canonical signal. Search Console had both forms of
+   /png-to-webp and /tiff-to-webp in "Crawled, currently not indexed".
+   scripts/gen_slash_redirects.py writes one 301 per sitemapped page; this
+   fails if a page ships without one. */
+{
+  const f = join(ROOT, '_redirects');
+  if (existsSync(f)) {
+    const have = new Map(read(f).split('\n')
+      .map((l) => l.trim()).filter((l) => l && !l.startsWith('#'))
+      .map((l) => l.split(/\s+/)).map((r) => [r[0], r]));
+    let bad = 0;
+    for (const p of sitemapPaths) {
+      if (p === '/' || !p.endsWith('/')) continue;
+      const r = have.get(p.slice(0, -1));
+      if (!r || r[1] !== p || (r[2] && r[2] !== '301' && r[2] !== '308')) {
+        bad++;
+        fail('slash-redirect', `${p.slice(0, -1)} has no 301 to ${p}; it falls back to Cloudflare's 307`);
+      }
+    }
+    /* A rule whose SOURCE is a real page hides that page. /favicon-generator/
+       shipped while an older shorthand rule still sent it to /png-to-ico/, so
+       nobody, Google included, ever saw it. */
+    for (const p of sitemapPaths) {
+      if (have.has(p)) { bad++; fail('slash-redirect', `${p} is a sitemapped page but _redirects sends it to ${have.get(p)[1]}`); }
+    }
+    if (!bad) notes.push('slash redirects: every sitemapped page has a permanent 301 and none is redirected away');
   }
 }
 

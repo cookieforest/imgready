@@ -9,6 +9,11 @@
 
 User-agent: *
 Allow: /
+# /r/{id}/{filename} exists only inside the service worker, which serves a
+# processed image under a proper filename. There is never a page there, and
+# a crawler without the service worker gets a 404. Google found the "/r/"
+# prefix as a string in the JavaScript and tried it; this stops the retries.
+Disallow: /r/
 
 # --- Search engines -------------------------------------------------------
 

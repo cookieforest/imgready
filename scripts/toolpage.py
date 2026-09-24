@@ -173,3 +173,8 @@ def register(slug, priority="0.7", changefreq="monthly", lastmod="2026-09-21"):
             eol = t.index("\n", i) + 1
             t = t[:eol] + "- %s\n" % loc + t[eol:]
             io.open(lt, "w", encoding="utf-8", newline="").write(t)
+
+    # A new page needs a permanent trailing-slash rule, or it inherits
+    # Cloudflare's automatic 307. Regenerate the block from the sitemap.
+    import gen_slash_redirects
+    gen_slash_redirects.main()

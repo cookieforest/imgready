@@ -43,9 +43,10 @@
 /avif                   /avif-converter/    301
 /avif/                  /avif-converter/    301
 
-# Favicon intent lands on the ICO builder
-/favicon-generator      /png-to-ico/    301
-/favicon-generator/     /png-to-ico/    301
+# /favicon-generator/ used to redirect to /png-to-ico/, from before the real
+# favicon generator page existed. That rule silently hid the new page from
+# every visitor and from Google. Check 26 in tests/site-checks.mjs now fails
+# if any sitemapped page is redirected away.
 
 # Generic "I want a converter" intent lands on the tool index
 /image-converter        /tools/         301
@@ -79,3 +80,82 @@
 /webp-to-jpg.html          /webp-to-jpg/   301
 /webp-vs-png-vs-jpg.html   /webp-vs-png-vs-jpg/ 301
 /index.html                /              301
+
+# ---- BEGIN generated: permanent trailing-slash redirects ----
+# One 301 per sitemapped page, from scripts/gen_slash_redirects.py.
+# Replaces Cloudflare's automatic 307. Do not edit by hand.
+
+/about                                   /about/                                    301
+/avif-converter                          /avif-converter/                           301
+/avif-to-jpg                             /avif-to-jpg/                              301
+/avif-to-png                             /avif-to-png/                              301
+/avif-to-webp                            /avif-to-webp/                             301
+/avif-vs-webp                            /avif-vs-webp/                             301
+/batch-image-converter                   /batch-image-converter/                    301
+/bmp-to-jpg                              /bmp-to-jpg/                               301
+/bmp-to-png                              /bmp-to-png/                               301
+/bmp-to-webp                             /bmp-to-webp/                              301
+/compress-image-to-100kb                 /compress-image-to-100kb/                  301
+/compress-image-to-1mb                   /compress-image-to-1mb/                    301
+/compress-image-to-200kb                 /compress-image-to-200kb/                  301
+/compress-image-to-20kb                  /compress-image-to-20kb/                   301
+/compress-image-to-500kb                 /compress-image-to-500kb/                  301
+/compress-image-to-50kb                  /compress-image-to-50kb/                   301
+/compress-images-for-email               /compress-images-for-email/                301
+/compress-images-for-wordpress           /compress-images-for-wordpress/            301
+/compress-jpg                            /compress-jpg/                             301
+/compress-png                            /compress-png/                             301
+/compress-webp                           /compress-webp/                            301
+/compress                                /compress/                                 301
+/developers                              /developers/                               301
+/developers/pricing                      /developers/pricing/                       301
+/exif-viewer                             /exif-viewer/                              301
+/favicon-generator                       /favicon-generator/                        301
+/gif-to-jpg                              /gif-to-jpg/                               301
+/gif-to-png                              /gif-to-png/                               301
+/gif-to-webp                             /gif-to-webp/                              301
+/heic-to-avif                            /heic-to-avif/                             301
+/heic-to-jpg                             /heic-to-jpg/                              301
+/heic-to-png                             /heic-to-png/                              301
+/heic-to-webp                            /heic-to-webp/                             301
+/help                                    /help/                                     301
+/ico-to-png                              /ico-to-png/                               301
+/jfif-to-jpg                             /jfif-to-jpg/                              301
+/jpg-to-avif                             /jpg-to-avif/                              301
+/jpg-to-png                              /jpg-to-png/                               301
+/jpg-to-webp                             /jpg-to-webp/                              301
+/jpg-vs-png                              /jpg-vs-png/                               301
+/optimize-images-for-web                 /optimize-images-for-web/                  301
+/pattern-generator                       /pattern-generator/                        301
+/png-to-avif                             /png-to-avif/                              301
+/png-to-ico                              /png-to-ico/                               301
+/png-to-jpg                              /png-to-jpg/                               301
+/png-to-webp                             /png-to-webp/                              301
+/privacy                                 /privacy/                                  301
+/resize-image-for-instagram              /resize-image-for-instagram/               301
+/resize-image-to-1080x1080               /resize-image-to-1080x1080/                301
+/resize-image-to-1920x1080               /resize-image-to-1920x1080/                301
+/resize                                  /resize/                                   301
+/social-media-image-sizes                /social-media-image-sizes/                 301
+/support                                 /support/                                  301
+/svg-to-jpg                              /svg-to-jpg/                               301
+/svg-to-png                              /svg-to-png/                               301
+/svg-to-webp                             /svg-to-webp/                              301
+/terms                                   /terms/                                    301
+/tiff-to-jpg                             /tiff-to-jpg/                              301
+/tiff-to-png                             /tiff-to-png/                              301
+/tiff-to-webp                            /tiff-to-webp/                             301
+/tiff-vs-jpg                             /tiff-vs-jpg/                              301
+/tools                                   /tools/                                    301
+/webp-converter                          /webp-converter/                           301
+/webp-to-avif                            /webp-to-avif/                             301
+/webp-to-jpg                             /webp-to-jpg/                              301
+/webp-to-png                             /webp-to-png/                              301
+/webp-vs-png-vs-jpg                      /webp-vs-png-vs-jpg/                       301
+/what-is-avif                            /what-is-avif/                             301
+/what-is-heic                            /what-is-heic/                             301
+/what-is-tiff                            /what-is-tiff/                             301
+/what-is-webp                            /what-is-webp/                             301
+/why                                     /why/                                      301
+/youtube-thumbnail-size                  /youtube-thumbnail-size/                   301
+# ---- END generated: permanent trailing-slash redirects ----
