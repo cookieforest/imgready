@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seamless Pattern Generator: SVG & 300 DPI Textures | imgready</title>
+<title>Seamless Pattern Generator: SVG &amp; 300 DPI Textures | imgready</title>
 <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
-<meta name="description" content="Generate seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Copy the CSS or export crisp vectors. Free, no sign-up.">
-<meta property="og:title" content="Seamless pattern generator with real print sizes">
-<meta property="og:description" content="Half-drop, brick and mirror repeats, tile size in mm or inches at up to 600 DPI, and a tiled proof so you can see the seams. Runs entirely in your browser.">
+<meta name="description" content="Generate seamless SVG patterns with half-drop, brick and mirror repeats, set the tile size in millimetres or inches up to 600 DPI, and export SVG, PNG, WebP or JPG. Runs in your browser.">
+<meta property="og:title" content="Seamless pattern generator, with real print sizes">
+<meta property="og:description" content="Half-drop, brick and mirror repeats, tile size in mm or inches at up to 600 DPI, and a tiled proof so you can see the seams. Runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://imgready.app/pattern-generator/">
 <meta property="og:site_name" content="imgready">
@@ -19,27 +19,31 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#b84d1d">
 <link rel="stylesheet" href="/app.css">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": ["SoftwareApplication", "WebApplication"], "name": "imgready: seamless pattern generator", "applicationCategory": "DesignApplication", "operatingSystem": "Any (browser-based)", "url": "https://imgready.app/pattern-generator/", "description": "Generate mathematical seamless SVG patterns and 4K 300 DPI print-ready textures in your browser. Free.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://imgready.app/"}, {"@type": "ListItem", "position": 2, "name": "Pattern Generator", "item": "https://imgready.app/pattern-generator/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Seamless pattern generator, with real print sizes","applicationCategory":"MultimediaApplication","operatingSystem":"Any browser","url":"https://imgready.app/pattern-generator/","description":"Generate seamless SVG patterns with half-drop, brick and mirror repeats, set the tile size in millimetres or inches up to 600 DPI, and export SVG, PNG, WebP or JPG. Runs in your browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"permissions":"No permissions required. No file upload."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://imgready.app/"},{"@type":"ListItem","position":2,"name":"Seamless pattern generator, with real print sizes","item":"https://imgready.app/pattern-generator/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I use these patterns commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes. Everything you generate is yours to use in personal and commercial work, with no attribution required."}},{"@type":"Question","name":"How do I use the CSS on my website?","acceptedAnswer":{"@type":"Answer","text":"Click Copy CSS. You get a background-color, a background-image containing the tile as an embedded SVG data URI, and a background-size. Paste all three into your stylesheet and the pattern repeats across the element."}},{"@type":"Question","name":"Is the PNG export good enough to print?","acceptedAnswer":{"@type":"Answer","text":"Set the tile size and DPI under Print and fabric size first. At 300 DPI and above the export is suitable for fabric, wallpaper, wrapping paper and stationery. The pixel size is shown before you export, so there is no guessing."}},{"@type":"Question","name":"What is a half-drop repeat?","acceptedAnswer":{"@type":"Answer","text":"Every other column is shifted down by half a tile. It is the standard layout for fabric and wallpaper because it hides the grid lines a straight repeat makes obvious."}},{"@type":"Question","name":"Can I share a pattern I made?","acceptedAnswer":{"@type":"Answer","text":"Yes. The address bar updates as you change settings, and Copy link gives you a URL that reopens the exact same pattern for anyone who opens it."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Patterns are generated as SVG in your browser and rasterised on a canvas in the same tab. Nothing is sent anywhere."}}]}</script>
 </head>
 <body>
 <!-- imgready:standalone-tool -->
 <div class="wrap">
   <nav class="topnav" aria-label="Primary">
     <a class="nav-brand" href="/">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></a>
+    <span class="nav-tools">
+      <a class="nav-link" href="/tools/">All tools</a>
+      <a class="nav-link" href="/favicon-generator/">Favicons</a>
+      <a class="nav-link" href="/exif-viewer/">EXIF</a>
+      <a class="nav-link" href="/pattern-generator/">Patterns</a>
+    </span>
     <span class="nav-grow">
-      <a class="nav-link" href="/tools/">Tools</a>
       <a class="nav-link" href="/developers/">Developers</a>
       <a class="nav-link" href="/help/">Help</a>
     </span>
   </nav>
-  <div class="crumbs"><a href="/">Home</a> » Pattern Generator</div>
+  <div class="crumbs"><a href="/">Home</a> &raquo; <a href="/tools/">Tools</a> &raquo; <span aria-current="page">Seamless pattern generator, with real print sizes</span></div>
   <main>
     <header class="page-head">
-      <h1>Seamless pattern generator,<em> with real print sizes</em></h1>
-      <p class="lede">Half-drop, brick and mirror repeats. Tile size in millimetres or
-        inches at up to 600 DPI. A tiled proof so you can see for yourself that the
-        seams line up. Nothing is uploaded.</p>
+      <h1>Seamless pattern generator, <em>with real print sizes</em></h1>
+      <p class="lede">Half-drop, brick and mirror repeats. Tile size in millimetres or inches at up to 600 DPI. A tiled proof so you can see for yourself that the seams line up. Nothing is uploaded.</p>
     </header>
 
     <div class="pg">
@@ -191,16 +195,89 @@
   </div>
 
     <section class="prose">
-      
+      <h2>Why an SVG <span class="hl">pattern</span></h2>
+<p>A large JPG or PNG wallpaper costs hundreds of kilobytes, sometimes megabytes. An
+SVG tile describing the same pattern is usually under one kilobyte, and the browser
+repeats it across any screen size with edges that stay sharp on high-density and 4K
+displays. For a website background that is the whole argument.</p>
+<p>For print it is a different argument, and that is where most pattern tools stop
+being useful. Which is why this one also measures tiles in millimetres.</p>
+
+<h2 id="repeat-types">The four <span class="hl">repeat</span> types</h2>
+<p>How a tile repeats changes how a pattern reads far more than the motif does.
+Surface designers use four standard layouts, and the web tools in this category
+mostly offer only the first.</p>
+<dl class="engine-list">
+  <dt>Basic</dt>
+  <dd>Straight grid, every tile directly beside the last. Honest and even, but the
+  grid is easy to see, especially with a strong motif.</dd>
+  <dt>Half-drop</dt>
+  <dd>Every other column shifts down by half a tile. This is the standard repeat for
+  fabric and wallpaper because it breaks up the vertical lines your eye would
+  otherwise pick out.</dd>
+  <dt>Brick</dt>
+  <dd>Every other row shifts across by half a tile, like brickwork. Good for motifs
+  that are wider than they are tall.</dd>
+  <dt>Mirror</dt>
+  <dd>The tile is flipped horizontally and vertically to make a four-way symmetric
+  block. It turns almost any motif into something that looks deliberately
+  ornamental.</dd>
+</dl>
+
+<h2>Sizes that mean something to a <span class="hl">printer</span></h2>
+<p>A pixel is not a physical size. A printer, a fabric mill or a print-on-demand
+service needs to know how big one tile is in the real world and at what resolution.
+Set the tile in millimetres, centimetres or inches, pick a DPI, and the pixel size
+is worked out for you: 100 mm at 300 DPI is 1181 pixels, 10 inches at 600 DPI is
+6000. Below 300 DPI the tool tells you it may print soft.</p>
+
+<h2>Why rotation only turns in <span class="hl">quarters</span></h2>
+<p>Rotating a repeating pattern by an arbitrary angle moves it onto a different grid,
+so the tile stops lining up with its neighbours. Measured on a rendered tile, the
+mismatch between the left and right edges is zero at 0, 90 and 180 degrees and
+clearly visible at anything in between.</p>
+<p>Tools with a free angle slider get away with it because they export a flat
+picture of the screen rather than a tile that repeats. This one exports a repeating
+tile, so it only offers the rotations that keep it repeating.</p>
+
+<h2>Check the seams <span class="hl">yourself</span></h2>
+<p>Every pattern generator says "seamless". The preview here is tiled three by
+three, so you are looking at the repeat rather than a single swatch, and the seam
+toggle draws a line at every tile edge. If a join were wrong you would see it.</p>
+      <h2>Common questions</h2>
+<details class="faq-item"><summary>Can I use these patterns commercially?</summary><p>Yes. Everything you generate is yours to use in personal and commercial work, with no attribution required.</p></details>
+<details class="faq-item"><summary>How do I use the CSS on my website?</summary><p>Click Copy CSS. You get a background-color, a background-image containing the tile as an embedded SVG data URI, and a background-size. Paste all three into your stylesheet and the pattern repeats across the element.</p></details>
+<details class="faq-item"><summary>Is the PNG export good enough to print?</summary><p>Set the tile size and DPI under Print and fabric size first. At 300 DPI and above the export is suitable for fabric, wallpaper, wrapping paper and stationery. The pixel size is shown before you export, so there is no guessing.</p></details>
+<details class="faq-item"><summary>What is a half-drop repeat?</summary><p>Every other column is shifted down by half a tile. It is the standard layout for fabric and wallpaper because it hides the grid lines a straight repeat makes obvious.</p></details>
+<details class="faq-item"><summary>Can I share a pattern I made?</summary><p>Yes. The address bar updates as you change settings, and Copy link gives you a URL that reopens the exact same pattern for anyone who opens it.</p></details>
+<details class="faq-item"><summary>Is anything uploaded?</summary><p>No. Patterns are generated as SVG in your browser and rasterised on a canvas in the same tab. Nothing is sent anywhere.</p></details>
+      <h2>Related</h2>
+<div class="related">
+  <a href="/favicon-generator/"><strong>Favicon generator</strong><small>Every icon size from one image</small></a>
+  <a href="/svg-to-png/"><strong>SVG to PNG</strong><small>Render any vector at a custom resolution</small></a>
+  <a href="/compress/"><strong>Compress images</strong><small>Cut file size without visible loss</small></a>
+  <a href="/tools/"><strong>All tools</strong><small>Everything imgready does</small></a>
+</div>
     </section>
   </main>
   <footer class="site-footer">
-    <div class="footer-brand" style="font-family:var(--font-display);font-feature-settings:'ss01' on;letter-spacing:-.3px;color:var(--text2);">img<i class="brand-mark" aria-hidden="true"></i><span style="color:var(--accent)">ready</span></div>
-    <div>Free browser-based image optimizer. Your files never leave your device.</div>
+    <div class="footer-brand">img<i class="brand-mark" aria-hidden="true"></i><span class="g">ready</span></div>
+    <div>Image tools that run in your browser. Your files never leave your device.</div>
     <div>
-      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/pattern-generator/">Patterns</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/support/">Support ♥</a><a href="mailto:hello@imgready.app">Contact</a>
+      <a href="/">Home</a><a href="/tools/">All tools</a><a href="/developers/">Developers</a>
+      <a href="/developers/pricing/">Pricing</a><a href="/help/">Help</a><a href="/why/">Why</a>
+      <a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      <a href="mailto:hello@imgready.app">Contact</a><a href="/support/">Donate</a>
     </div>
-    <div style="margin-top:6px;">© 2026 imgready. All rights reserved.</div>
+    <div class="footer-row2">
+      <a href="/compress/">Compress</a><a href="/resize/">Resize</a>
+      <a href="/webp-converter/">WebP</a><a href="/avif-converter/">AVIF</a>
+      <a href="/heic-to-jpg/">HEIC to JPG</a><a href="/exif-viewer/">EXIF remover</a><a href="/favicon-generator/">Favicons</a><a href="/webp-vs-png-vs-jpg/">WebP vs PNG vs JPG</a>
+    </div>
+    <div class="footer-row2">
+      <a href="/privacy/#do-not-sell">Do Not Sell or Share My Personal Information</a>
+    </div>
+    <div class="footer-row2">© 2026 imgready. All rights reserved.</div>
   </footer>
 </div>
 <script src="/app.js" defer></script>

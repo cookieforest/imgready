@@ -1,287 +1,129 @@
-"""Rebuild /pattern-generator/ as a print-capable seamless pattern studio.
+"""Build /pattern-generator/ on the shared tool-page builder.
 
-WHAT THE COMPETITION ACTUALLY DOES (checked live, September 2026)
+WHY THIS FILE WAS REWRITTEN
+The previous version assembled the page itself and took its prose by
+scraping "everything after .pattern-app" out of the existing page. The
+first run replaced .pattern-app with the new .pg tool, so every run after
+that found nothing to keep, and the page shipped from commit d8e1481 with
+no prose, no FAQ and 197 words in total. It is the same self-reading trap
+the landing-page extractor fell into: a builder that takes its input from
+its own previous output silently degrades on the second run.
 
-  Pattern Monster   460 patterns, MIT. Editor has zoom, horizontal and
-                    vertical position, stroke, vertical spacing, angle, up
-                    to 5 colours, Pantone, colour search. Every parameter
-                    has a LOCK, so "Inspire Me" randomises only what you
-                    left unlocked. Copy CSS/SVG, download SVG/PNG at a
-                    custom width and height. Has a Pro tier.
-  Hero Patterns     ~90 curated patterns, three controls only: foreground
-                    colour, background colour, foreground opacity.
-  MagicPattern      62 pure-CSS patterns in categories. Colours, fade
-                    mask, opacity, size, rotation. Upsells to paid.
-  imgready (before) 10 generative patterns, four controls.
+The prose now lives here, authored, like every other tool page. The tool
+markup lives in build/parts/pattern_tool.html. Running this twice produces
+the same page twice.
 
-WHERE WE CANNOT WIN
-  Pattern count. 10 against 460 is not a fight worth having, and adding
-  450 shallow presets would make this a worse tool, not a better one.
-
-WHERE NOBODY IS SERVING ANYONE
-  1. Physical output. Every one of these is a web-background tool.
-     Nobody offers a tile measured in millimetres, a DPI setting, or the
-     repeat types that fabric and surface design actually use. The person
-     uploading to Spoonflower, printing wrapping paper or building a
-     packaging tile has no good option. That is the same shape of gap
-     HEIC was for the SDK: the hard, unglamorous case everyone skipped.
-  2. Proof. All of them say "seamless". None of them shows you. A tiled
-     preview with a seam toggle costs almost nothing and settles it.
-  3. Export breadth. We already ship encoders for PNG, WebP, AVIF and
-     JPG. Pattern Monster gives PNG. MagicPattern gives CSS.
-
-SO THE DESIGN IS
-  - depth per generator instead of breadth of presets: angle, spacing,
-    opacity, three colours, and real repeat modes on all ten
-  - half-drop, brick and mirror repeats, which is the vocabulary surface
-    designers use and which none of the three offers
-  - tile size in mm, cm or inches at 72 to 600 DPI, with the pixel size
-    shown so there is no guessing
-  - a 3x3 tiled proof with a seam toggle
-  - the good ideas from the field, adopted openly: per-parameter lock
-    plus randomise (Pattern Monster), opacity (Hero Patterns), rotation
-    (MagicPattern)
-  - a permalink that restores the exact state, which none of them has
+The competitive research behind the tool's design (Pattern Monster, Hero
+Patterns, MagicPattern, checked live in September 2026) is in the commit
+message for d8e1481 and in scripts/pattern_engine.js.
 """
 import io
 import os
-import re
-from lxml import html as LH
+import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-os.chdir(ROOT)
-SRC = "pattern-generator/index.html"
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from toolpage import build, register  # noqa: E402
 
-doc = LH.parse(SRC).getroot()
-wrap = doc.xpath('//div[contains(@class,"wrap")]')[0]
+ROOT = os.path.dirname(HERE)
+TOOL = io.open(os.path.join(ROOT, "build", "parts", "pattern_tool.html"),
+               encoding="utf-8").read()
 
+PROSE = '''<h2>Why an SVG <span class="hl">pattern</span></h2>
+<p>A large JPG or PNG wallpaper costs hundreds of kilobytes, sometimes megabytes. An
+SVG tile describing the same pattern is usually under one kilobyte, and the browser
+repeats it across any screen size with edges that stay sharp on high-density and 4K
+displays. For a website background that is the whole argument.</p>
+<p>For print it is a different argument, and that is where most pattern tools stop
+being useful. Which is why this one also measures tiles in millimetres.</p>
 
-def ser(el):
-    return LH.tostring(el, encoding="unicode", with_tail=False).strip()
+<h2 id="repeat-types">The four <span class="hl">repeat</span> types</h2>
+<p>How a tile repeats changes how a pattern reads far more than the motif does.
+Surface designers use four standard layouts, and the web tools in this category
+mostly offer only the first.</p>
+<dl class="engine-list">
+  <dt>Basic</dt>
+  <dd>Straight grid, every tile directly beside the last. Honest and even, but the
+  grid is easy to see, especially with a strong motif.</dd>
+  <dt>Half-drop</dt>
+  <dd>Every other column shifts down by half a tile. This is the standard repeat for
+  fabric and wallpaper because it breaks up the vertical lines your eye would
+  otherwise pick out.</dd>
+  <dt>Brick</dt>
+  <dd>Every other row shifts across by half a tile, like brickwork. Good for motifs
+  that are wider than they are tall.</dd>
+  <dt>Mirror</dt>
+  <dd>The tile is flipped horizontally and vertically to make a four-way symmetric
+  block. It turns almost any motif into something that looks deliberately
+  ornamental.</dd>
+</dl>
 
+<h2>Sizes that mean something to a <span class="hl">printer</span></h2>
+<p>A pixel is not a physical size. A printer, a fabric mill or a print-on-demand
+service needs to know how big one tile is in the real world and at what resolution.
+Set the tile in millimetres, centimetres or inches, pick a DPI, and the pixel size
+is worked out for you: 100 mm at 300 DPI is 1181 pixels, 10 inches at 600 DPI is
+6000. Below 300 DPI the tool tells you it may print soft.</p>
 
-nav = ser(doc.xpath('//nav[contains(@class,"topnav")]')[0])
-crumbs = ser(doc.xpath('//div[contains(@class,"crumbs")]')[0])
-footer = ser(doc.xpath('//footer[contains(@class,"site-footer")]')[0])
-jsonld = [ser(s) for s in doc.xpath('//script[@type="application/ld+json"]')]
+<h2>Why rotation only turns in <span class="hl">quarters</span></h2>
+<p>Rotating a repeating pattern by an arbitrary angle moves it onto a different grid,
+so the tile stops lining up with its neighbours. Measured on a rendered tile, the
+mismatch between the left and right edges is zero at 0, 90 and 180 degrees and
+clearly visible at anything in between.</p>
+<p>Tools with a free angle slider get away with it because they export a flat
+picture of the screen rather than a tile that repeats. This one exports a repeating
+tile, so it only offers the rotations that keep it repeating.</p>
 
-# Everything after the old tool that is prose: keep it verbatim.
-keep, seen_tool = [], False
-for k in wrap:
-    if not isinstance(k.tag, str):
-        continue
-    cl = k.get("class") or ""
-    if "pattern-app" in cl:
-        seen_tool = True
-        continue
-    if not seen_tool or "features" in cl or "site-footer" in cl:
-        continue
-    keep.append(ser(k))
-prose = "\n      ".join(keep)
+<h2>Check the seams <span class="hl">yourself</span></h2>
+<p>Every pattern generator says "seamless". The preview here is tiled three by
+three, so you are looking at the repeat rather than a single swatch, and the seam
+toggle draws a line at every tile edge. If a join were wrong you would see it.</p>'''
 
-head_old = io.open(SRC, encoding="utf-8").read()
-title = re.search(r"<title>([\s\S]*?)</title>", head_old).group(1)
-desc = doc.xpath('//meta[@name="description"]/@content')[0]
+FAQS = [
+    ("Can I use these patterns commercially?",
+     "Yes. Everything you generate is yours to use in personal and commercial work, "
+     "with no attribution required."),
+    ("How do I use the CSS on my website?",
+     "Click Copy CSS. You get a background-color, a background-image containing the "
+     "tile as an embedded SVG data URI, and a background-size. Paste all three into "
+     "your stylesheet and the pattern repeats across the element."),
+    ("Is the PNG export good enough to print?",
+     "Set the tile size and DPI under Print and fabric size first. At 300 DPI and "
+     "above the export is suitable for fabric, wallpaper, wrapping paper and "
+     "stationery. The pixel size is shown before you export, so there is no guessing."),
+    ("What is a half-drop repeat?",
+     "Every other column is shifted down by half a tile. It is the standard layout "
+     "for fabric and wallpaper because it hides the grid lines a straight repeat "
+     "makes obvious."),
+    ("Can I share a pattern I made?",
+     "Yes. The address bar updates as you change settings, and Copy link gives you a "
+     "URL that reopens the exact same pattern for anyone who opens it."),
+    ("Is anything uploaded?",
+     "No. Patterns are generated as SVG in your browser and rasterised on a canvas in "
+     "the same tab. Nothing is sent anywhere."),
+]
 
-TOOL = '''<div class="pg">
+RELATED = [
+    ("/favicon-generator/", "Favicon generator", "Every icon size from one image"),
+    ("/svg-to-png/", "SVG to PNG", "Render any vector at a custom resolution"),
+    ("/compress/", "Compress images", "Cut file size without visible loss"),
+    ("/tools/", "All tools", "Everything imgready does"),
+]
 
-    <!-- ============ stage ============ -->
-    <div class="pg-stage">
-      <div class="pg-canvas" id="pgCanvas" role="img"
-           aria-label="Seamless pattern preview, tiled three by three"></div>
-      <div class="pg-stagebar">
-        <label class="pg-toggle"><input type="checkbox" id="pgSeams"> Show tile seams</label>
-        <span class="pg-hint">Every tile above is one repeat. Turn the seams on to check the joins.</span>
-        <span class="pg-dims" id="pgDims">&nbsp;</span>
-      </div>
-    </div>
-
-    <!-- ============ controls ============ -->
-    <div class="pg-panel">
-
-      <div class="pg-row pg-row-top">
-        <button type="button" class="pg-btn pg-btn-go" id="pgRandom"
-          title="Randomise every unlocked control">Surprise me</button>
-        <button type="button" class="pg-btn" id="pgReset">Reset</button>
-      </div>
-
-      <label class="pg-field">
-        <span class="pg-lab">Pattern</span>
-        <select id="pgStyle">
-          <option value="seigaiha">Seigaiha waves</option>
-          <option value="topographic">Topographic contours</option>
-          <option value="isometricCubes">Isometric cubes</option>
-          <option value="moroccanTrellis">Moroccan trellis</option>
-          <option value="bauhaus">Bauhaus modern</option>
-          <option value="hexagons">Hex honeycomb</option>
-          <option value="halftone">Halftone dots</option>
-          <option value="sineWaves">Fluid sine waves</option>
-          <option value="crosshatch">Crosshatch grid</option>
-          <option value="memphis">Memphis confetti</option>
-        </select>
-      </label>
-
-      <label class="pg-field">
-        <span class="pg-lab">Repeat
-          <a class="pg-help" href="#repeat-types" title="What these mean">?</a></span>
-        <select id="pgRepeat">
-          <option value="basic">Basic (straight)</option>
-          <option value="halfdrop">Half-drop</option>
-          <option value="brick">Brick (half-brick)</option>
-          <option value="mirror">Mirror</option>
-        </select>
-      </label>
-
-      <div class="pg-slider" data-k="scale">
-        <span class="pg-lab">Scale <b id="pgScaleV">80</b></span>
-        <input type="range" id="pgScale" min="20" max="200" value="80">
-        <button type="button" class="pg-lock" data-lock="scale" aria-pressed="false"
-                title="Lock: keep this when randomising">Lock</button>
-      </div>
-
-      <div class="pg-slider" data-k="stroke">
-        <span class="pg-lab">Stroke <b id="pgStrokeV">10</b></span>
-        <input type="range" id="pgStroke" min="1" max="40" value="10">
-        <button type="button" class="pg-lock" data-lock="stroke" aria-pressed="false" title="Lock">Lock</button>
-      </div>
-
-      <label class="pg-field">
-        <span class="pg-lab">Rotation
-          <button type="button" class="pg-lock" data-lock="angle" aria-pressed="false" title="Lock">Lock</button>
-        </span>
-        <select id="pgAngle">
-          <option value="0">0&deg;</option>
-          <option value="90">90&deg;</option>
-          <option value="180">180&deg;</option>
-          <option value="270">270&deg;</option>
-        </select>
-        <span class="pg-note">Quarter turns only. Rotating a repeating field by
-          anything else lands it on a different lattice, so the tile stops
-          repeating. Sliders elsewhere get away with it because they export a
-          flat picture rather than a tile.</span>
-      </label>
-
-      <div class="pg-slider" data-k="opacity">
-        <span class="pg-lab">Opacity <b id="pgOpacityV">100</b>%</span>
-        <input type="range" id="pgOpacity" min="5" max="100" value="100">
-        <button type="button" class="pg-lock" data-lock="opacity" aria-pressed="false" title="Lock">Lock</button>
-      </div>
-
-      <div class="pg-field">
-        <span class="pg-lab">Colours
-          <button type="button" class="pg-lock" data-lock="colors" aria-pressed="false" title="Lock">Lock</button>
-        </span>
-        <div class="pg-colors">
-          <label title="Background"><input type="color" id="pgBg" value="#f9f0e4"><span>Back</span></label>
-          <label title="Main"><input type="color" id="pgFg" value="#b84d1d"><span>Main</span></label>
-          <label title="Accent"><input type="color" id="pgAc" value="#3f541b"><span>Accent</span></label>
-          <button type="button" class="pg-btn pg-btn-sm" id="pgSwap" title="Swap background and main">Swap</button>
-        </div>
-      </div>
-
-      <!-- ============ print block: the part nobody else has ============ -->
-      <details class="pg-print" id="pgPrintBox">
-        <summary>Print and fabric size</summary>
-        <p class="pg-note">Set the real-world size of one tile. Screen work can
-          ignore this; a printer cannot.</p>
-        <div class="pg-print-grid">
-          <label class="pg-field">
-            <span class="pg-lab">Tile size</span>
-            <input type="number" id="pgPhys" value="100" min="1" max="2000" step="1">
-          </label>
-          <label class="pg-field">
-            <span class="pg-lab">Unit</span>
-            <select id="pgUnit">
-              <option value="mm">mm</option>
-              <option value="cm">cm</option>
-              <option value="in">inches</option>
-            </select>
-          </label>
-          <label class="pg-field">
-            <span class="pg-lab">DPI</span>
-            <select id="pgDpi">
-              <option value="72">72 (screen)</option>
-              <option value="150">150 (draft)</option>
-              <option value="300" selected>300 (print)</option>
-              <option value="600">600 (fine)</option>
-            </select>
-          </label>
-        </div>
-        <p class="pg-calc" id="pgCalc">&nbsp;</p>
-      </details>
-
-      <!-- ============ export ============ -->
-      <div class="pg-export">
-        <div class="pg-row">
-          <button type="button" class="pg-btn pg-btn-go" id="pgDlSvg">Download SVG</button>
-          <select id="pgRaster" aria-label="Raster format">
-            <option value="png">PNG</option>
-            <option value="webp">WebP</option>
-            <option value="jpeg">JPG</option>
-          </select>
-          <button type="button" class="pg-btn pg-btn-go" id="pgDlRaster">Download</button>
-        </div>
-        <div class="pg-row">
-          <button type="button" class="pg-btn" id="pgCopyCss">Copy CSS</button>
-          <button type="button" class="pg-btn" id="pgCopySvg">Copy SVG</button>
-          <button type="button" class="pg-btn" id="pgCopyLink">Copy link</button>
-        </div>
-        <p class="pg-status" id="pgStatus" role="status" aria-live="polite">&nbsp;</p>
-      </div>
-    </div>
-  </div>'''
-
-PAGE = f'''<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{title}</title>
-<link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/fonts/poetsenone-latin.woff2" as="font" type="font/woff2" crossorigin>
-<meta name="description" content="{desc}">
-<meta property="og:title" content="Seamless pattern generator with real print sizes">
-<meta property="og:description" content="Half-drop, brick and mirror repeats, tile size in mm or inches at up to 600 DPI, and a tiled proof so you can see the seams. Runs entirely in your browser.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://imgready.app/pattern-generator/">
-<meta property="og:site_name" content="imgready">
-<link rel="canonical" href="https://imgready.app/pattern-generator/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#b84d1d">
-<link rel="stylesheet" href="/app.css">
-{chr(10).join(jsonld)}
-</head>
-<body>
-<!-- imgready:standalone-tool -->
-<div class="wrap">
-  {nav}
-  {crumbs}
-  <main>
-    <header class="page-head">
-      <h1>Seamless pattern generator,<em> with real print sizes</em></h1>
-      <p class="lede">Half-drop, brick and mirror repeats. Tile size in millimetres or
-        inches at up to 600 DPI. A tiled proof so you can see for yourself that the
-        seams line up. Nothing is uploaded.</p>
-    </header>
-
-    {TOOL}
-
-    <section class="prose">
-      {prose}
-    </section>
-  </main>
-  {footer}
-</div>
-<script src="/app.js" defer></script>
-<script>
-{io.open(os.path.join(ROOT, "scripts", "pattern_engine.js"), encoding="utf-8").read()}
-</script>
-</body>
-</html>
-'''
-
-io.open(SRC, "w", encoding="utf-8", newline="").write(PAGE)
-print("wrote", SRC, len(PAGE), "bytes")
+n = build(
+    slug="pattern-generator",
+    title="Seamless Pattern Generator: SVG & 300 DPI Textures | imgready",
+    desc=("Generate seamless SVG patterns with half-drop, brick and mirror repeats, set "
+          "the tile size in millimetres or inches up to 600 DPI, and export SVG, PNG, "
+          "WebP or JPG. Runs in your browser."),
+    h1="Seamless pattern generator, <em>with real print sizes</em>",
+    lede=("Half-drop, brick and mirror repeats. Tile size in millimetres or inches at up "
+          "to 600 DPI. A tiled proof so you can see for yourself that the seams line up. "
+          "Nothing is uploaded."),
+    tool=TOOL, prose=PROSE, faqs=FAQS, related=RELATED,
+    script="pattern_engine.js",
+    og_desc=("Half-drop, brick and mirror repeats, tile size in mm or inches at up to "
+             "600 DPI, and a tiled proof so you can see the seams. Runs in your browser."),
+)
+register("pattern-generator")
+print("wrote pattern-generator/index.html", n, "bytes")

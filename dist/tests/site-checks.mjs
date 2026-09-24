@@ -839,6 +839,24 @@ for (const p of sitemapPaths) {
   if (!hits) notes.push(`tool pages: ${marked} standalone, each still carrying its engine`);
 }
 
+/* ---------- 25. the tools hub links every page ----------
+   /tools/ is the page whose whole job is to be one hop from everything.
+   It had quietly stopped linking nine pages: the "Convert to WebP" heading
+   was sitting over the general entry links, the real WebP list had been
+   overwritten by an old sweep, and all seven *-to-webp converters were
+   reachable only through footers and related links. Pages that weakly
+   linked are the ones that sit in "Discovered, currently not indexed". */
+{
+  const hub = pages.find(([slug]) => slug === '/tools/');
+  if (hub) {
+    const html = read(hub[1]).replace(/<script[\s\S]*?<\/script>/gi, '');
+    const linked = new Set([...html.matchAll(/href="(\/[^"#?]*)"/g)].map((m) => m[1]));
+    const missing = sitemapPaths.filter((p) => p !== '/tools/' && !linked.has(p));
+    for (const p of missing) fail('hub', `/tools/ does not link ${p}`);
+    if (!missing.length) notes.push(`hub: /tools/ links all ${sitemapPaths.length - 1} other sitemapped pages`);
+  }
+}
+
 /* ---------- report ---------- */
 console.log('imgready site checks\n');
 notes.forEach((n) => console.log('  · ' + n));
