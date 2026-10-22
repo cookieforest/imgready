@@ -86,6 +86,7 @@
 # Replaces Cloudflare's automatic 307. Do not edit by hand.
 
 /about                                   /about/                                    301
+/ai-image-upscaler                       /ai-image-upscaler/                        301
 /avif-converter                          /avif-converter/                           301
 /avif-to-jpg                             /avif-to-jpg/                              301
 /avif-to-png                             /avif-to-png/                              301

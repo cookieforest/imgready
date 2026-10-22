@@ -272,6 +272,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // AI upscaler model files: the upscale worker caches these itself in a
+  // bucket that survives deploys. Letting SWR copy 50 MB into the runtime
+  // cache, which every deploy deletes, would only waste the user's disk.
+  if (url.origin === self.location.origin && url.pathname.startsWith('/models/')) {
+    return;
+  }
+
   // CDN libs: cache-first (versioned URLs, very large, expensive to refetch).
   if (isCdnRequest(url)) {
     event.respondWith(cacheFirst(req, CDN_CACHE));

@@ -16,7 +16,7 @@
 
 // Bump on every deploy. Tag is just for humans; what matters is that the
 // string changes so old caches get evicted in the activate step.
-const CACHE_VERSION = 'imgready-dev-17902748';
+const CACHE_VERSION = 'imgready-dev-17927056';
 const PRECACHE  = `${CACHE_VERSION}-precache`;
 const RUNTIME   = `${CACHE_VERSION}-runtime`;
 const CDN_CACHE = `${CACHE_VERSION}-cdn`;
@@ -269,6 +269,13 @@ self.addEventListener('fetch', (event) => {
 
   // Never touch API calls — license verification must always hit the network.
   if (url.origin === self.location.origin && isApiRequest(url)) {
+    return;
+  }
+
+  // AI upscaler model files: the upscale worker caches these itself in a
+  // bucket that survives deploys. Letting SWR copy 50 MB into the runtime
+  // cache, which every deploy deletes, would only waste the user's disk.
+  if (url.origin === self.location.origin && url.pathname.startsWith('/models/')) {
     return;
   }
 

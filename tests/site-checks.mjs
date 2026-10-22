@@ -822,6 +822,7 @@ for (const p of sitemapPaths) {
     '/pattern-generator/': ['pgCanvas', 'pgRepeat', 'MOTIFS'],
     '/exif-viewer/': ['exDrop', 'exStrip', 'stripJpeg'],
     '/favicon-generator/': ['fvDrop', 'fvGo', 'buildIco'],
+    '/ai-image-upscaler/': ['upDrop', 'upGo', 'upscale-worker'],
   };
   let hits = 0, marked = 0;
   for (const [slug, file] of pages) {
